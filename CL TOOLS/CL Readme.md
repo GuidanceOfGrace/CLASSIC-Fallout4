@@ -16,7 +16,7 @@ for any specific call stack address, the more accurate the results will be for t
 3.) Check the -RESULT.md output file. It will only show the mod plugins found in EVERY crash log in that folder.
 > Therefore, these crashes with the same call stack address were likely caused by one of the listed plugins.
 
-4.) Report any interesting findings to me, if you're so inclined. You know where to find me.
+4.) Report any interesting findings to me, if you're so inclined. You know where to find me. 
 
 TIP 1: * CL Compare.py * will only work if there are AT LEAST 2 crash logs for the comparison. You can't compare a single crash log with itself, obviously.
 
