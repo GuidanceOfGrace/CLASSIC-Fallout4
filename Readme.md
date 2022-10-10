@@ -2,7 +2,9 @@
 
 # LINKS #
 
-BUFFOUT 4 : https://www.nexusmods.com/fallout4/mods/47359
+AUTO-SCANNER NEXUS PAGE : https://www.nexusmods.com/fallout4/mods/56255
+
+BUFFOUT 4 NEXUS PAGE : https://www.nexusmods.com/fallout4/mods/47359
 
 HOW TO INSTALL BUFFOUT 4 : https://www.nexusmods.com/fallout4/articles/3115
 
