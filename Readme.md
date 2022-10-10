@@ -1,4 +1,5 @@
-=====================================================================================================
+===========================================================================
+
 # LINKS #
 
 FOR WINDOWS 7 SUPPORT, INSTALL THIS PYTHON VERSION: https://github.com/NulAsh/cpython/releases OR USE
@@ -8,7 +9,7 @@ AUTO-SCANNER GUI VERSION by MakeHate (Yagami Light): https://www.nexusmods.com/f
 
 HOW TO READ CRASH LOGS (ONLINE DOC): https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
-=====================================================================================================
+===========================================================================
 # CONTENTS #
 
 Crash Log Auto-Scanner is bundled with several files:
@@ -26,7 +27,7 @@ and run Scan Crashlogs.py by double clicking on it. After scanning completes, cl
 
 *CL TOOLS* - Folder with extra scripts for advanced crash log file searching and troubleshooting. (Useful if you like to hoard crash logs).
 
-=====================================================================================================
+===========================================================================
 # HOW TO READ AUTOSCAN FILES #
 
 After running *Scan Crashlogs.py*, you'll see the following in any *crash-time-and-date-AUTOSCAN.md* output file:
@@ -62,7 +63,7 @@ mentions of Plugins, FormIDs or Game Files that were possibly involved when this
 If you weren't able to fix the crash so far, you can search for any Game Files, look up any FormIDs in FO4Edit
 or disable any Plugins listed in this segment to further confirm if they caused this crash or not. If all else fails, perform a Binary Search.
 
-=====================================================================================================
+===========================================================================
 # THINGS TO DO IF NO CRASH LOGS ARE GIVEN OR IF AUTO-SCAN DOESN'T HELP #
 
 0. Make sure that you've installed all Buffout 4 requirements correctly! And it's best that you install everything manually, WITHOUT using your Mod Manager!
@@ -83,7 +84,7 @@ once directly through Fallout4Launcher.exe. Once you reach the main menu, exit t
 
 5. Find the culprit(s) through a BINARY SEARCH. Sometimes, your only viable option is brute force. Instructions below.
 
-=====================================================================================================
+===========================================================================
 # BINARY SEARCH 101 #
 
 It's an algorithm (method) for tracking down the exact crash culprit as fast as possible when crash logs aren't helpful. Here's a clear example on how to do it.
@@ -118,7 +119,7 @@ No Crash
 
 B must be the sussy boi since the game didn't crash with only Mod A enabled while all other mods are disabled, but it did crash with both Mod A & B enabled.
 
-=====================================================================================================
+===========================================================================
 # CHANGELOG #
 
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
