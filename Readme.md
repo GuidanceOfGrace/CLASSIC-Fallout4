@@ -122,8 +122,8 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 ===========================================================================
 # CHANGELOG #
 
-// Future updates will likely take much longer due to lack of feedback / data for some crash errors.
-// Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
+(Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
+(Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
 5.15
 * MAIN SCRIPT *
