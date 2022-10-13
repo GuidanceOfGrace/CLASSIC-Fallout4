@@ -1,12 +1,27 @@
 import os, sys, time, random, shutil, logging, fnmatch, pathlib, subprocess
-# > AUTO UPDATE PIP, INSTALL & LIST PACKAGES | RESERVED
-#subprocess.check_call([sys.executable, '-m','pip','install','--upgrade','pip'])
-#subprocess.check_call([sys.executable, '-m','pip','install','<package>'])
-#reqs = subprocess.check_output([sys.executable, '-m','pip','freeze'])
-#installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
-#print("List of all installed packages:", installed_packages)
-#print("===============================================================================")
-#import <package>
+print("\n CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES... \n")
+try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
+    reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+    #installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+    #print("List of all installed packages:", installed_packages) | RESERVED
+    #print("===============================================================================")
+    import requests
+    CLAS_Current = "CLAS v5.25"
+    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
+    CLAS_Received = response.json()["name"]
+    if CLAS_Received == CLAS_Current:
+        print("You have the latest version of the Auto-Scanner!")
+    else:
+        print("[!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE! \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
+        CLAS_Update = 1
+except Exception:
+    pass
+    print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO UPDATE ITSELF, BUT WILL CONTINUE SCANNING.")
+    print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
+    print("===============================================================================")
+    CLAS_Update = 0
 
 Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
@@ -30,7 +45,7 @@ statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU
 #KNOWN CRASH CONDITIONS
 statM_CHW = 0
 
-print("Hello World! | Crash Log Auto-Scanner | Version 5.15 | Fallout 4")
+print("Hello World! | Crash Log Auto-Scanner | Version 5.25 | Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
 print("===============================================================================")
 print("You should place this script into your Documents\My Games\Fallout4\F4SE folder.")
@@ -156,12 +171,14 @@ for file in os.listdir("."):
         else:
             print(logname + ".log")
         print("This crash log was automatically scanned.")
-        print("VER 5.15 | MIGHT CONTAIN FALSE POSITIVES.")
+        print("VER 5.25 | MIGHT CONTAIN FALSE POSITIVES.")
+        if CLAS_Update == 1:
+            print("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #")
         print("====================================================")
-        
-        #OPEN FILE TO CHECK INDEXES AND EVERYTHING ELSE
+
+        #OPEN FILE TO CHECK LINE INDEXES AND EVERYTHING ELSE
         crash_version = open(crashlog, "r", errors="ignore")
-        #DEFINE INDEXES FOR ALL REQUIRED LINES HERE
+        #DEFINE LINE INDEXES FOR EVERYTHING REQUIRED HERE
         all_lines = crash_version.readlines()
         buff_ver = str(all_lines[1].strip())
         buff_error = str(all_lines[3].strip())
@@ -169,10 +186,13 @@ for file in os.listdir("."):
             if not "F4SE" in line and "PLUGINS" in line:
                 plugin_idx = all_lines.index(line)
         plugin_list = all_lines[plugin_idx:]
-        if Path("loadorder.txt").is_file():
-            plugin_list = open("loadorder.txt", "r", errors="ignore").readlines()
-            for line in plugin_list:
-                line = " "+line
+        if os.path.exists("loadorder.txt"):
+            plugin_list = []
+            with open("loadorder.txt", "r", errors="ignore") as loadorder_check:
+                plugin_format = loadorder_check.readlines()
+                for line in plugin_format:
+                    line = "[LO] "+line.strip()
+                    plugin_list.append(line)
 
         #BUFFOUT VERSION CHECK
         buff_latest = str("Buffout 4 v1.26.2")
@@ -209,7 +229,7 @@ for file in os.listdir("."):
         count_Memory_Mod = crash_message.count("BakaScrapHeap.dll")
         count_buff_F4EE = crash_message.count("F4EE: false")
         count_F4EE_Mod = crash_message.count("f4ee.dll")
-        
+
         #Check if f4se.log exists and reports any errors.
         with open("Scan Crashlogs.ini", "r+") as INI_Check:
             FCX_Check = INI_Check.read()
@@ -230,8 +250,7 @@ for file in os.listdir("."):
                             F4SE_Buffout = 1
 
                 if F4SE_Version == 1:
-                    print("You have the latest version of Fallout 4 Script Extender (F4SE)")
-                    print("-----")
+                    print("You have the latest version of Fallout 4 Script Extender (F4SE). \n-----")
                 else:
                     print("# REPORTED F4SE VERSION DOES NOT MATCH THE F4SE VERSION USED BY AUTOSCAN #")
                     print("UPDATE FALLOUT 4 SCRIPT EXTENDER IF NECESSARY: https://f4se.silverlock.org")
@@ -240,21 +259,18 @@ for file in os.listdir("."):
                 if F4SE_Error == 1:
                     print("# SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #")
                     for elem in Error_List:
-                        print(elem)
-                        print("-----")
+                        print(elem + "\n-----")
                 else:
-                    print("Script Extender reports that all DLL mod plugins have loaded correctly.")
-                    print("-----")
-                    
+                    print("Script Extender reports that all DLL mod plugins have loaded correctly. \n-----")
+
                 if F4SE_Buffout == 1:
-                    print("Script Extender reports that Buffout 4.dll was found and loaded correctly.")
-                    print("-----")
+                    print("Script Extender reports that Buffout 4.dll was found and loaded correctly. \n-----")
                 else:
                     print("# SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #")
                     print("Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115")
                     print("Buffout 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359")
                     print("-----")
-                
+
                 list_ERRORLOG = []
                 for file in FO4_F4SE_Logs:
                     if fnmatch.fnmatch(file, ".log"):
@@ -269,31 +285,27 @@ for file in os.listdir("."):
                     print("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #")
                     print("[These are located in your Documents\My Games\Fallout4\F4SE folder.]")
                     for elem in list_ERRORLOG:
-                        print(elem)
-                    print("-----")
+                        print(elem + "\n-----")
                 else:
-                    print("All available DLL logs do not report any additional errors, all is well.")
-                    print("-----")
+                    print("All available DLL logs do not report any additional errors, all is well. \n-----")
 
         #===========================================================
-        
+
         with open("Scan Crashlogs.ini", "r+") as INI_Check:
             FCX_Check = INI_Check.read()
             if ("FCX Mode = true" or "FCX Mode =true") in FCX_Check:
                 print("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
                 print("-----")
                 if F4SE_Loader.is_file() and F4SE_DLL.is_file() and F4SE_SDLL.is_file():
-                    print("REQUIRED: Fallout 4 Script Extender (F4SE) is correctly (manually) installed.")
-                    print("-----")
+                    print("REQUIRED: Fallout 4 Script Extender (F4SE) is correctly (manually) installed. \n-----")
                 else:
                     print("# CAUTION: Auto-Scanner cannot find Script Extender (F4SE) files or they aren't manually installed! #")
                     print("FIX: Extract all files inside *f4se_0_06_21* folder into your Fallout 4 game folder.")
                     print("FALLOUT 4 SCRIPT EXTENDER: (Download Build 0.6.23) https://f4se.silverlock.org")
                     print("-----")
-                    
+
                 if Address_Library.is_file():
-                    print("REQUIRED: Address Library is correctly (manually) installed.")
-                    print("-----")
+                    print("REQUIRED: Address Library is correctly (manually) installed. \n-----")
                 else:
                     print("# CAUTION: Auto-Scanner cannot find the Adress Library file or it isn't manually installed! #")
                     print("FIX: Place the *version-1-10-163-0.bin* file manually into Fallout 4\Data\F4SE\Plugins folder.")
@@ -301,8 +313,7 @@ for file in os.listdir("."):
                     print("-----")
 
                 if Buffout_DLL.is_file() and Buffout_TOML.is_file():
-                    print("REQUIRED: Buffout 4 is correctly (manually) installed.")
-                    print("-----")
+                    print("REQUIRED: Buffout 4 is correctly (manually) installed. \n-----")
                 else:
                     print("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't manually installed! #")
                     print("FIX: Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115")
@@ -316,8 +327,7 @@ for file in os.listdir("."):
                     print('IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER')
                     print("-----")
                 else:
-                    print('OPTIONAL: Plugin Preloader is not (manually) installed.')
-                    print("-----")
+                    print('OPTIONAL: Plugin Preloader is not (manually) installed.\n-----')
 
                 with open(Buffout_TOML, "r+") as INI_Check:
                     INI_Fix = INI_Check.read()
@@ -327,8 +337,7 @@ for file in os.listdir("."):
                         print("-----")
                         INI_Fix = INI_Fix.replace("Achievements = true", "Achievements = false")
                     else:
-                        print("Achievements parameter in *Buffout4.toml* is correctly configured.")
-                        print("-----")
+                        print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
 
                     if (count_buff_Memory and count_Memory_Mod) >= 1 and "MemoryManager = true" in INI_Fix:
                         print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
@@ -336,44 +345,39 @@ for file in os.listdir("."):
                         print("-----")
                         INI_Fix = INI_Fix.replace("MemoryManager = true", "MemoryManager = false")
                     else:
-                        print("Memory Manager parameter in *Buffout4.toml* is correctly configured.")
-                        print("-----")
+                        print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
 
                     if (count_buff_F4EE and count_F4EE_Mod) >= 1 and "F4EE = false" in INI_Fix:
                         print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
-                        print("Auto-Scanner will change this parameter to FALSE to prevent bugs and crashes from Looks Menu.")
+                        print("Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.")
                         print("-----")
                         INI_Fix = INI_Fix.replace("F4EE = false", "F4EE = true")
                     else:
-                        print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.")
-                        print("-----")
+                        print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
                 with open(Buffout_TOML, "w+") as INI_Check:
                     INI_Check.write(INI_Fix)
-                    
+
             else: #INSTRUCTIONS FOR MANUAL FIXING WHEN FCX MODE IS FALSE
                 if (count_buff_Achieve and count_Achieve_Mod) >= 1 or (count_buff_Achieve and count_Survival_Mod) >= 1:
                     print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
                     print("FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.")
                     print("-----")
                 else:
-                    print("Achievements parameter in *Buffout4.toml* is correctly configured.")
-                    print("-----")
+                    print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
 
                 if (count_buff_Memory and count_Memory_Mod) >= 1:
                     print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
                     print("FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.")
                     print("-----")
                 else:
-                    print("Memory Manager parameter in *Buffout4.toml* is correctly configured.")
-                    print("-----")
+                    print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
 
                 if (count_buff_F4EE and count_F4EE_Mod) >= 1:
                     print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
                     print("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.")
                     print("-----")
                 else:
-                    print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.")
-                    print("-----")
+                    print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
 
         #===========================================================
         #2.) CHECK FOR KNOWN CRASH MESSAGES - BUFFOUT TRAP 1
@@ -381,12 +385,11 @@ for file in os.listdir("."):
         print("CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES...")
         print("====================================================")
         Buffout_Trap = 1
-        
+
         #====================== HEADER ERRORS ======================
         if ".dll" in buff_error and "tbbmalloc" not in buff_error:
-            print("MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH!")
-            print("-----")
-        
+            print("# MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH! # \n-----")
+
         #Stack Overflow Crash
         count_Overflow = crash_message.count("EXCEPTION_STACK_OVERFLOW")
         #Active Effect Crash
@@ -395,7 +398,7 @@ for file in os.listdir("."):
         count_BadMath = crash_message.count("EXCEPTION_INT_DIVIDE_BY_ZERO")
         #Null Crash
         count_Null = crash_message.count("0x000000000000")
-        
+
         #======================= MAIN ERRORS =======================
         #SPECIAL - Uneducated Shooter (56789)
         count_InvalidArg = crash_message.count("std::invalid_argument")
@@ -529,7 +532,7 @@ for file in os.listdir("."):
         #*OTHER | RESERVED
         #count_NiBinaryStream = crash_message.count("BSResourceNiBinaryStream")
         #count_ObjectBindPolicy = crash_message.count("ObjectBindPolicy")
-        
+
         #===========================================================
         if int(count_Overflow) >= 1:
             print("# Checking for Stack Overflow Crash.........CULPRIT FOUND! #")
@@ -802,27 +805,26 @@ for file in os.listdir("."):
             Buffout_Trap = 0
             statU_Player +=1     
         #===========================================================
-        
+
         #DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
         if Buffout_Trap == 1:
             print("-----")
             print("# AUTOSCAN FOUND NO CRASH MESSAGES THAT MATCH THE CURRENT DATABASE #")
             print("Check below for mods that can cause frequent crashes and other problems.")
+            print("-----")
         else:
             print("-----")
             print("FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CULPRITS,")
             print("CHECK THE 'HOW TO READ CRASH LOGS' PDF DOCUMENT INCLUDED WITH THE AUTO-SCANNER!")
+            print("-----")
 
         print("====================================================")
         print("CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...")
         print("====================================================")
         #CHECK IF PLUGIN LIST WASN'T LOADED - TRAP X
-        Mod_Trap1 = 1
-        Mod_TrapX = 1
-        no_repeat2 = 1
+        Mod_Trap1 = no_repeat2 = 1
 
         count_LoadOrder = crash_message.count("[00]")
-        count_Unofficial = crash_message.count("Unofficial Fallout 4 Patch.esp")
         count_CHW = crash_message.count("ClassicHolsteredWeapons")
         count_BSShadow = crash_message.count("BSShadowParabolicLight")
         count_BSShader = crash_message.count("BSShaderAccumulator")
@@ -830,11 +832,6 @@ for file in os.listdir("."):
         count_UniquePlayer = crash_message.count("UniquePlayer.esp")
         count_BodyNIF = crash_message.count("Body.nif")
         count_HighHeels = crash_message.count("HHS.dll")
-
-        print("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,")
-        print("remove these mods completely and switch to High FPS Physics Fix!")
-        print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-        print("-----")
 
         #Needs 1 empty space as prefix to prevent duplicates.
         List_Mods1 = [" DamageThresholdFramework.esm",
@@ -853,7 +850,7 @@ for file in os.listdir("."):
                       " True Nights",
                       " WeaponsFramework",
                       " WOTC.esp"]
-                                        
+
         List_Warn1 = ["DAMAGE THRESHOLD FRAMEWORK \n"
                       "- Can cause crashes in combat on some occasions due to how damage calculations are done.",
                       
@@ -903,84 +900,71 @@ for file in os.listdir("."):
                       
                       "WAR OF THE COMMONWEALTH \n"
                       "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]
-        
-        for line in plugin_list:
-            for elem in List_Mods1:
-                if str("File:") not in line and str("[FE") not in line and elem in line:
-                    order_elem = List_Mods1.index(elem)
-                    print("[!] Found:", line[0:5].strip(), List_Warn1[order_elem])
-                    print("-----")
-                    Mod_Trap1 = 0
-                elif str("File:") not in line and str("[FE") in line and elem in line:
-                    order_elem = List_Mods1.index(elem)
-                    print("[!] Found:", line[0:9].strip(), List_Warn1[order_elem])
-                    print("-----")
-                    Mod_Trap1 = 0
-        
-        if count_CHW >= 2 and (count_BSShadow or count_BSShader or count_BSDFLight) >= 1 or str("ClassicHolsteredWeapons") in buff_error:
-            print("[!] Found: CLASSIC HOLSTERED WEAPONS")
-            print("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!")
-            print("You should disable CHW to further confirm this.")
-            print("Visit the main crash logs article for additional solutions.")
-            print("-----")
-            statM_CHW +=1
-            Mod_Trap1 = 0
-            Buffout_Trap = 0
-        elif count_CHW >= 2 and (count_UniquePlayer or count_HighHeels or count_CBP or count_BodyNIF) >= 1:
-            print("[!] Found: CLASSIC HOLSTERED WEAPONS")
-            print("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.")
-            print("You should disable CHW to further confirm it caused this crash.")
-            print("Visit the main crash logs article for additional solutions.")
-            print("-----")
-            statM_CHW +=1
-            Mod_Trap1 = 0
-            Buffout_Trap = 0
-        elif count_CHW == 1 and str("d3d11") in buff_error:
-            print("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...")
-            print("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.")
-            print("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.")
-            print("This usually prevents most common crashes with Classic Holstered Weapons.")
-            print("-----")
-            Mod_Trap1 = 0
-            
-        #===========================================================
-        #DEFINE CHECKS IF NOTHING TRIGGERED MOD TRAP 1 & NO PLUGINS
 
-        if Mod_Trap1 == 0:
+        if count_LoadOrder >= 1:
+            for line in plugin_list:
+                for elem in List_Mods1:
+                    if str("File:") not in line and str("[FE") not in line and elem in line:
+                        order_elem = List_Mods1.index(elem)
+                        print("[!] Found:", line[0:5].strip(), List_Warn1[order_elem])
+                        print("-----")
+                        Mod_Trap1 = 0
+                    elif str("File:") not in line and str("[FE") in line and elem in line:
+                        order_elem = List_Mods1.index(elem)
+                        print("[!] Found:", line[0:9].strip(), List_Warn1[order_elem])
+                        print("-----")
+                        Mod_Trap1 = 0
+
+            if count_CHW >= 2 and (count_BSShadow or count_BSShader or count_BSDFLight) >= 1 or str("ClassicHolsteredWeapons") in buff_error:
+                print("[!] Found: CLASSIC HOLSTERED WEAPONS")
+                print("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!")
+                print("You should disable CHW to further confirm this.")
+                print("Visit the main crash logs article for additional solutions.")
+                print("-----")
+                statM_CHW +=1
+                Mod_Trap1 = 0
+                Buffout_Trap = 0
+            elif count_CHW >= 2 and (count_UniquePlayer or count_HighHeels or count_CBP or count_BodyNIF) >= 1:
+                print("[!] Found: CLASSIC HOLSTERED WEAPONS")
+                print("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.")
+                print("You should disable CHW to further confirm it caused this crash.")
+                print("Visit the main crash logs article for additional solutions.")
+                print("-----")
+                statM_CHW +=1
+                Mod_Trap1 = 0
+                Buffout_Trap = 0
+            elif count_CHW == 1 and str("d3d11") in buff_error:
+                print("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...")
+                print("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.")
+                print("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.")
+                print("This usually prevents most common crashes with Classic Holstered Weapons.")
+                print("-----")
+                Mod_Trap1 = 0
+        if count_LoadOrder >= 1 and Mod_Trap1 == 0:
             print("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #")
             print("You can disable any/all of them temporarily to confirm they caused this crash.")
             print("-----")
             statL_scanned +=1
-        elif Mod_TrapX == 0:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
-            statL_incomplete +=1
-            statL_scanned -=1
-        elif Mod_Trap1 == 1:
+        elif count_LoadOrder >= 1 and Mod_Trap1 == 1:
             print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #")
             print("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.")
             print("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files")
             print("-----")
             statL_scanned +=1
-        
+        elif count_LoadOrder == 0:
+            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
+            print("Autoscan cannot continue. Try scanning a different crash log.")
+            print("-----")
+            statL_incomplete +=1
+
         #MOD TRAP 2 | ESL PLUGINS NEED 8 SPACES FOR [FE:XXX]
         print("====================================================")
         print("CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES")
         print("====================================================")
-        Mod_Trap2 = 1
-        no_repeat1 = 1
+        Mod_Trap2 = no_repeat1 = 1
         
         count_FallSouls = crash_message.count("FallSouls.dll")
-        
-        if count_Unofficial == 0 and count_LoadOrder == 0:
-            Mod_TrapX = 0
-        elif count_Unofficial == 0 and count_LoadOrder >= 1:
-            print("UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT!")
-            print("If you own all DLCs, make sure that the Unofficial Patch is installed.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files")
-            print("-----")
-            
+
         #Needs 1 empty space as prefix to prevent duplicates.
         List_Mods2 = [" DLCUltraHighResolution.esm",
                       " AAF.esm",
@@ -997,10 +981,14 @@ for file in os.listdir("."):
                       " skeletonfemaleplayer",
                       " CapsWidget",
                       " Homemaker.esm",
+                      " ESPExplorerFO4.esp",
                       " LegendaryModification.esp",
                       " MilitarizedMinutemen.esp",
                       " MoreUniques",
+                      " NAC.es",
+                      " Northland Diggers New.esp",
                       " RaiderOverhaul.esp",
+                      " Rusty Face Fix",
                       " SKKCraftableWeaponsAmmo",
                       " SOTS.esp",
                       " StartMeUp.esp",
@@ -1008,14 +996,17 @@ for file in os.listdir("."):
                       " TacticalReload.esm",
                       " Creatures and Monsters.esp",
                       " ZombieWalkers"]
-        
+
         List_Warn2 = ["HIGH RESOLUTION DLC. I STRONGLY ADVISE NOT USING IT! \n"
                       "Right click on Fallout 4 in your Steam Library folder, then select Properties \n"
                       "Switch to the DLC tab and uncheck / disable the High Resolution Texture Pack",
                       #
                       "ADVANCED ANIMATION FRAMEWORK \n"
-                      "Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs. \n"
-                      "If you notice any AAF realted problems, uninstall latest version of Looks Menu and switch to 1.6.18.",
+                      "Newest AAF version only available on Moddingham | AAF Tech Support: https://discord.gg/gWZuhMC \n"
+                      "Newest AAF Link (register / login to download): https://www.moddingham.com/viewtopic.php?t=2 \n"
+                      "-----\n"
+                      "Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs \n"
+                      "If you notice AAF realted problems, remove latest version of Looks Menu and switch to 1.6.18",
                       #
                       "ARMOR AND WEAPON KEYWORDS \n"
                       "If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul \n"
@@ -1072,6 +1063,10 @@ for file in os.listdir("."):
                       "Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n"
                       "Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files",
                       #
+                      "IN GAME ESP EXPLORER \n"
+                      "Can cause a crash when pressing F10 due to incorrect INI settings. \n"
+                      "Fix Link: https://www.nexusmods.com/fallout4/mods/64752?tab=files",
+                      #
                       "LEGENDARY MODIFICATION \n"
                       "Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n"
                       "Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files",
@@ -1084,9 +1079,21 @@ for file in os.listdir("."):
                       "Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n"
                       "Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files",
                       #
+                      "NATURAL AND ATMOSPHERIC COMMONWEALTH \n"
+                      "If you notice weird looking skin tones with either NAC or NACX, install this patch. \n"
+                      "Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files",
+                      #
+                      "NORTHLAND DIGGERS RESOURCES \n"
+                      "Contains various bugs and issues that can cause crashes or negatively affect other mods. \n"
+                      "Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files",
+                      #
                       "RAIDER OVERHAUL \n"
                       "Old mod that requires several patches to function as intended. Use ONE Version instead. \n"
                       "Upated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files",
+                      #
+                      "RUSTY FACE FIX \n"
+                      "Can cause script lag or even crash the game in very rare cases. Switch to REDUX Version instead. \n"
+                      "Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files",
                       #
                       "SKK CRAFT WEAPONS AND SCRAP AMMO \n"
                       "Version 008 is incompatible with AWKCR and will cause crashes while saving the game. \n"
@@ -1097,8 +1104,8 @@ for file in os.listdir("."):
                       "Patch Link: https://www.nexusmods.com/fallout4/mods/59792?tab=files",
                       #
                       "START ME UP \n"
-                      "Abandoned mod that can cause infinite loading and other problems. Use REDUX Version instead. \n"
-                      "Upated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files",
+                      "Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n"
+                      "Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files",
                       #
                       "SUPER MUTANT REDUX \n"
                       "Causes crashes at specific locations or with certain Super Muntant enemies and items. \n"
@@ -1115,52 +1122,46 @@ for file in os.listdir("."):
                       "ZOMBIE WALKERS \n"
                       "Version 2.6.3 contains a resurrection script that will regularly crash the game. \n"
                       "Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]
-        
-        for line in plugin_list:
-            for elem in List_Mods2:
-                if str("File:") not in line and str("[FE") not in line and elem in line:
-                    order_elem = List_Mods2.index(elem)
-                    print("[!] Found:", line[0:5].strip(), List_Warn2[order_elem])
-                    print("-----")
-                    Mod_Trap2 = 0
-                elif str("File:") not in line and str("[FE") in line and elem in line:
-                    order_elem = List_Mods2.index(elem)
-                    print("[!] Found:", line[0:9].strip(), List_Warn2[order_elem])
-                    print("-----")
-                    Mod_Trap2 = 0
-            #
-            if no_repeat1 == 1 and "File:" not in line and ("Depravity.esp" or "FusionCityRising.esp" or "HotC.esp" or "OutcastsAndRemnants.esp" or "ProjectValkyrie.esp") in line:
-                print("[!] Found:", line[0:9].strip(), "THUGGYSMURF QUEST MODS")
-                print("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie,")
-                print("install this patch with facegen data, fully generated precomb/previs data and several tweaks.")
-                print("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files")
-                print("-----")
-                no_repeat1 = 0
-                Mod_Trap2 = 0
- 
-        if count_FallSouls >= 1:
-            print("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
-            print("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.")
-            print("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.")
-            print("-----")
-            Mod_Trap2 = 0
 
-        #===========================================================
-        #DEFINE CHECKS IF NOTHING TRIGGERED TRAP 2 & NO PLUGINS
-        
-        if Mod_TrapX == 0:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
-            Mod_Trap2 = 0
-        elif Mod_Trap2 == 1:
-            print("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #")
-            print("-----")
-        else:
+        if count_LoadOrder >= 1:
+            for line in plugin_list:
+                for elem in List_Mods2:
+                    if str("File:") not in line and str("[FE") not in line and elem in line:
+                        order_elem = List_Mods2.index(elem)
+                        print("[!] Found:", line[0:5].strip(), List_Warn2[order_elem])
+                        print("-----")
+                        Mod_Trap2 = 0
+                    elif str("File:") not in line and str("[FE") in line and elem in line:
+                        order_elem = List_Mods2.index(elem)
+                        print("[!] Found:", line[0:9].strip(), List_Warn2[order_elem])
+                        print("-----")
+                        Mod_Trap2 = 0
+                if no_repeat1 == 1 and "File:" not in line and ("Depravity.esp" or "FusionCityRising.esp" or "HotC.esp" or "OutcastsAndRemnants.esp" or "ProjectValkyrie.esp") in line:
+                    print("[!] Found:", line[0:9].strip(), "THUGGYSMURF QUEST MODS")
+                    print("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie,")
+                    print("install this patch with facegen data, fully generated precomb/previs data and several tweaks.")
+                    print("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files")
+                    print("-----")
+                    no_repeat1 = Mod_Trap2 = 0
+
+            if count_FallSouls >= 1:
+                print("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
+                print("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.")
+                print("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.")
+                print("-----")
+                Mod_Trap2 = 0
+        if count_LoadOrder >= 1 and Mod_Trap2 == 0:
             print("[Due to inherent limitations, Auto-Scan will continue detecting certain mods,")
             print(" even if fixes or patches for them are already installed. You can ignore these.]")
             print("-----")
-        
+        elif count_LoadOrder >= 1 and Mod_Trap2 == 1:
+            print("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #")
+            print("-----")
+        elif count_LoadOrder == 0:
+            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
+            print("Autoscan cannot continue. Try scanning a different crash log.")
+            print("-----")
+
         print("FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,")
         print("VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769")
         print("-----")
@@ -1207,7 +1208,7 @@ for file in os.listdir("."):
                       " MojaveImports.esp",
                       " Firelance2.5",
                       " zxcMicroAdditions"]
-        
+
         List_Warn3 = ["Beyond the Borders",
                       "Deadly Commonwealth Expansion",
                       "Dogmeat and Strong Armor",
@@ -1244,30 +1245,96 @@ for file in os.listdir("."):
                       "Xander's Aid",
                       "ZXC Micro Additions"]
 
-        for line in plugin_list:
-            for elem in List_Mods3:
-                if str("File:") not in line and str("[FE") not in line and elem in line:
-                    order_elem = List_Mods3.index(elem)
-                    print("- Found:", line[0:5].strip(), List_Warn3[order_elem])
-                    Mod_Trap3 = 0
-                elif str("File:") not in line and str("[FE") in line and elem in line:
-                    order_elem = List_Mods3.index(elem)
-                    print("- Found:", line[0:9].strip(), List_Warn3[order_elem])
-                    Mod_Trap3 = 0
-
-        #===========================================================
-        #DEFINE CHECKS IF NOTHING TRIGGERED TRAP 3 & NO PLUGINS
-        if Mod_TrapX == 0:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
-        elif Mod_Trap3 == 0:
+        if count_LoadOrder >= 1:
+            for line in plugin_list:
+                for elem in List_Mods3:
+                    if str("File:") not in line and str("[FE") not in line and elem in line:
+                        order_elem = List_Mods3.index(elem)
+                        print("- Found:", line[0:5].strip(), List_Warn3[order_elem])
+                        Mod_Trap3 = 0
+                    elif str("File:") not in line and str("[FE") in line and elem in line:
+                        order_elem = List_Mods3.index(elem)
+                        print("- Found:", line[0:9].strip(), List_Warn3[order_elem])
+                        Mod_Trap3 = 0
+        if count_LoadOrder >= 1 and Mod_Trap3 == 0:  
             print("-----")
             print("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,")
             print("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872")
             print("-----")
-        elif Mod_Trap3 == 1:
+        elif count_LoadOrder >= 1 and Mod_Trap3 == 1:
             print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #")
+            print("-----")           
+        elif count_LoadOrder == 0:
+            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
+            print("Autoscan cannot continue. Try scanning a different crash log.")
+            print("-----")
+
+        #===========================================================
+
+        print("====================================================")
+        print("CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED")
+        print("====================================================")
+
+        gpu_nvidia = 0
+        for line in all_lines:
+            if "GPU" in line and "Nvidia" in line:
+                gpu_nvidia = 1
+
+        count_PhysicsFIX = crash_message.count("HighFPSPhysicsFix.dll")
+        count_DebrisFIX = crash_message.count("WeaponDebrisCrashFix.dll")
+
+        print("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,")
+        print("remove these mods completely and switch to High FPS Physics Fix!")
+        print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
+        print("-----")
+
+        if count_LoadOrder >= 1:
+            if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
+                print("*Canary Save File Monitor* is installed. \n-----")
+            else:
+                print("# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("This is a highly recommended mod that can detect save file corrpution.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files")
+                print("-----")
+
+            if count_PhysicsFIX > 0:
+                print("*High FPS Physics Fix* is installed. \n-----")
+            else:
+                print("# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("This is a mandatory patch / fix that prevents game engine problems.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
+                print("-----")
+
+            if any("PPF.esm" in elem for elem in plugin_list):
+                print("*Previs Repair Pack* is installed. \n-----")
+            else:
+                print("# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("This is a highly recommended mod that can improve performance.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
+                print("-----")
+
+            if any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugin_list):
+                print("*Unofficial Fallout 4 Patch* is installed. \n-----")
+            else:
+                print("# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("If you own all DLCs, make sure that the Unofficial Patch is installed.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files")
+                print("-----")
+
+            if count_DebrisFIX > 0 and gpu_nvidia == 1:
+                print("*Weapon Debris Crash Fix* is installed. \n-----")
+            elif count_DebrisFIX > 0 and gpu_nvidia == 0:
+                print("*Weapon Debris Crash Fix* is installed, but...")
+                print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
+                PRINT("Weapon Debris Crash Fix is only required for Nvidia GPU (NOT AMD OR OTHER)")
+            if count_DebrisFIX == 0 and gpu_nvidia == 1:
+                print("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("This is a mandatory patch / fix for players with Nvidia graphics cards.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files")
+                print("-----")
+        else:
+            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
+            print("Autoscan cannot continue. Try scanning a different crash log.")
             print("-----")
 
         print("====================================================")
@@ -1287,7 +1354,7 @@ for file in os.listdir("."):
             print("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!")
             print("Link: https://f4se.silverlock.org")
             print("-----")
-            
+
         for line in all_lines:
             if len(line) >= 6 and "]" in line[4]:
                 list_ALLPLUGINS.append(line.strip())
@@ -1332,7 +1399,7 @@ for file in os.listdir("."):
             print("These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.")
             print("You can try disabling these plugins and recheck your game, though this method can be unreliable.")
             print("-----")
-            
+
         #===========================================================
 
         print("LIST OF (POSSIBLE) FORM ID CULRIPTS:")
@@ -1355,12 +1422,12 @@ for file in os.listdir("."):
             print("These Form IDs were caught by Buffout 4 and some of them might be related to this crash.")
             print("You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.")
             print("-----")
-            
+
         #===========================================================
-        
+
         print("LIST OF (POSSIBLE) FILE CULPRITS:")
         List_Files = [".bgsm",".bto",".btr",".dds",".fuz",".hkb",".hkx",".ini",".nif",".pex",".swf",".txt",".uvd",".wav",".xwm","data\*"]
-        
+
         for line in all_lines:
             for elem in List_Files:
                 if elem in line.lower():
@@ -1370,7 +1437,7 @@ for file in os.listdir("."):
                     list_DETFILES.append(line.strip())
                 #if "[rsp+" in line.lower() and ".dll" in line.lower():
                 #    list_DETFILES.append(line.strip()) | RESERVED
-                
+
         list_DETFILES = list(dict.fromkeys(list_DETFILES))
         for elem in list_DETFILES:
             print(elem)
@@ -1414,7 +1481,7 @@ for file in os.listdir("."):
         print("GUI VERSION: https://www.nexusmods.com/fallout4/mods/63346")
         crash_log.close()
         sys.stdout.close()
-        
+
         #MOVE UNSOLVED LOGS TO SPECIAL FOLDER
         with open("Scan Crashlogs.ini", "r+") as INI_Check:
             Stat_Check = INI_Check.read()
@@ -1426,7 +1493,7 @@ for file in os.listdir("."):
                     shutil.move(crashlog, uCRASH_path)
                     uSCAN_path = "CLAS-UNSOLVED/" + logname + "-AUTOSCAN.md"
                     shutil.move(logname + "-AUTOSCAN.md", uSCAN_path)
-        
+
 #dict.fromkeys -> Create dictionary, removes duplicates as dicts cannot have them.
 #BUFFOUT.INI BACK TO BUFFOUT.TOML BECAUSE PYTHON CAN'T WRITE
 with open("Scan Crashlogs.ini", "r+") as INI_Check:
