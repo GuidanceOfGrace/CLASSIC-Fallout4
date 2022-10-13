@@ -13,8 +13,11 @@ try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
     CLAS_Received = response.json()["name"]
     if CLAS_Received == CLAS_Current:
         print("You have the latest version of the Auto-Scanner!")
+        print("===============================================================================")
+        CLAS_Update = 0
     else:
         print("[!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE! \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
+        print("===============================================================================")
         CLAS_Update = 1
 except Exception:
     pass
