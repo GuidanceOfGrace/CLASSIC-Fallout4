@@ -131,6 +131,15 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
+5.25
+* MAIN SCRIPT *
+- Added detection for 4 new mods with community patches and solutions.
+- Removed and refactored some unnecessary code for optimization purposes.
+- Auto-Scanner will now try to check itself for updates from the GitHub page each time you run it.
+- Fixed several oversights regarding plugin detection if Auto-Scanner detects that *loadorder.txt* exists.
+- Fixed wrong description while FCX Mode is enabled when changing F4EE from FALSE to TRUE in Buffout4.toml.
+- Auto-Scanner now checks if important mods and fixes are installed. Can't believe I didn't implement this sooner...
+
 5.15
 * MAIN SCRIPT *
 - Auto-Scanner is now available on GitHub! https://github.com/GuidanceOfGrace/Buffout4-CLAS
