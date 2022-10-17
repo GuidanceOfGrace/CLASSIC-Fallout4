@@ -8,7 +8,8 @@ try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
     #print("List of all installed packages:", installed_packages) | RESERVED
     #print("===============================================================================")
     import requests
-    CLAS_Current = "CLAS v5.25"
+    CLAS_Date = 171022 #DDMMYY
+    CLAS_Current = "CLAS v5.40"
     response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
     CLAS_Received = response.json()["name"]
     if CLAS_Received == CLAS_Current:
@@ -48,7 +49,7 @@ statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU
 #KNOWN CRASH CONDITIONS
 statM_CHW = 0
 
-print("Hello World! | Crash Log Auto-Scanner | Version 5.30 | Fallout 4")
+print("Hello World! | Crash Log Auto-Scanner | Version",CLAS_Current[-4:],"| Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
 print("===============================================================================")
 print("You should place this script into your Documents\My Games\Fallout4\F4SE folder.")
@@ -99,8 +100,7 @@ if platform.system() == "Windows":
             FO4_F4SE_Path = Path(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\F4SE\f4se.log")
             FO4_F4SE_Logs = drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\F4SE"
             Loc_Found = True
-else:# "it's a Unix system, I know this"
-    #We'll try and find where fo4 is installed via steam. if its GOG, you'll have to manually set the path. n.b. no reason you cant do this on windows too.
+else: #Find where FO4 is installed via Steam.
     if os.path.isfile(r"/home/"+os.getlogin()+r"/.local/share/Steam/steamapps/libraryfolders.vdf"):
         steam_library = None
         library_path=None
@@ -129,7 +129,7 @@ if not Loc_Found:
             FO4_F4SE_Path = Path(INI_Line[11:].strip()+r"\F4SE\f4se.log")
             FO4_Custom_Path = Path(INI_Line[11:].strip()+r"\Fallout4Custom.ini")
         if not "Fallout4" in INI_Line:
-            Path_Input = input("PLEASE ENTER THE FULL PATH WHERE YOUR Fallout4.ini IS LOCATED \n ( EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.) \n > ")
+            Path_Input = input("PLEASE ENTER THE FULL PATH WHERE YOUR Fallout4.ini IS LOCATED\n (EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n > ")
             print("You entered :",Path_Input,"| This path will be automatically added to Scan Crashlogs.ini")
             INI_Line = INI_Line.replace("INI Path =","INI Path = "+Path_Input.strip())
             FO4_F4SE_Logs = Path_Input.strip()+r"\F4SE"
@@ -140,13 +140,16 @@ if not Loc_Found:
 
 #Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
 #DO NOT USE a+ WHEN SEARCHING STRINGS BECAUSE IT FUCKS UP STRING SEARCHING
-with open(FO4_Custom_Path, "r+") as FO4_Custom:
-    INI_Fix = FO4_Custom.read()
-    INI_Fix = INI_Fix.replace("bInvalidateOlderFiles=0", "bInvalidateOlderFiles=1")
-    if not "[Archive]" in INI_Fix:
-        INI_Fix += "\n[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
-with open(FO4_Custom_Path, "w+") as FO4_Custom:
-    FO4_Custom.write(INI_Fix)
+with open("Scan Crashlogs.ini", "r+") as INI_Check:
+            FCX_Check = INI_Check.read()
+            if ("FCX Mode = true" or "FCX Mode =true") in FCX_Check:
+                with open(FO4_Custom_Path, "r+") as FO4_Custom:
+                    INI_Fix = FO4_Custom.read()
+                    INI_Fix = INI_Fix.replace("bInvalidateOlderFiles=0", "bInvalidateOlderFiles=1")
+                    if not "[Archive]" in INI_Fix:
+                        INI_Fix += "\n[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
+                with open(FO4_Custom_Path, "w+") as FO4_Custom:
+                    FO4_Custom.write(INI_Fix)
 
 #Check if f4se.log exists and find game path inside.
 if FO4_F4SE_Path.is_file():
@@ -169,15 +172,13 @@ Preloader_XML = Path(Game_Path + r"\xSE PluginPreloader.xml")
 F4SE_Loader = Path(Game_Path + r"\f4se_loader.exe")
 F4SE_DLL = Path(Game_Path + r"\f4se_1_10_163.dll")
 F4SE_SDLL = Path(Game_Path + r"\f4se_steam_loader.dll")
+Buffout_DLL = Path(Game_Path + r"\Data\F4SE\Plugins\Buffout4.dll")
+Buffout_INI = Path(Game_Path+r"\Data\F4SE\Plugins\Buffout4.ini")
+Buffout_TOML = Path(Game_Path+r"\Data\F4SE\Plugins\Buffout4.toml")
+Address_Library = Path(Game_Path + r"\Data\F4SE\Plugins\version-1-10-163-0.bin")
 
-with open("Scan Crashlogs.ini", "r+") as INI_Check:
-    FCX_Check = INI_Check.read()
-    if ("FCX Mode = true" or "FCX Mode =true") in FCX_Check:
-        Buffout_DLL = Path(Game_Path + r"\Data\F4SE\Plugins\Buffout4.dll")
-        Address_Library = Path(Game_Path + r"\Data\F4SE\Plugins\version-1-10-163-0.bin")
-        #BUFFOUT.TOML TO BUFFOUT.INI BECAUSE PYTHON CAN'T READ
-        Buffout_TOML = Path(Game_Path+r"\Data\F4SE\Plugins\Buffout4.toml")
-        Buffout_TOML = Buffout_TOML.rename(Buffout_TOML.with_suffix('.ini'))
+if Buffout_TOML.is_file():
+    os.rename(Buffout_TOML, Buffout_INI)
 
 #===========================================================
 
@@ -195,7 +196,7 @@ for file in os.listdir("."):
         else:
             print(logname + ".log")
         print("This crash log was automatically scanned.")
-        print("VER 5.25 | MIGHT CONTAIN FALSE POSITIVES.")
+        print("VER",CLAS_Current[-4:],"| MIGHT CONTAIN FALSE POSITIVES.")
         if CLAS_Update == 1:
             print("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #")
         print("====================================================")
@@ -336,7 +337,7 @@ for file in os.listdir("."):
                     print("ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files")
                     print("-----")
 
-                if Buffout_DLL.is_file() and Buffout_TOML.is_file():
+                if Buffout_DLL.is_file():
                     print("REQUIRED: Buffout 4 is correctly (manually) installed. \n-----")
                 else:
                     print("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't manually installed! #")
@@ -353,7 +354,7 @@ for file in os.listdir("."):
                 else:
                     print('OPTIONAL: Plugin Preloader is not (manually) installed.\n-----')
 
-                with open(Buffout_TOML, "r+") as INI_Check:
+                with open(Buffout_INI, "r+") as INI_Check:
                     INI_Fix = INI_Check.read()
                     if (count_buff_Achieve and count_Achieve_Mod) >= 1 or (count_buff_Achieve and count_Survival_Mod) >= 1 and "Achievements = true" in INI_Fix:
                         print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
@@ -378,7 +379,7 @@ for file in os.listdir("."):
                         INI_Fix = INI_Fix.replace("F4EE = false", "F4EE = true")
                     else:
                         print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
-                with open(Buffout_TOML, "w+") as INI_Check:
+                with open(Buffout_INI, "w+") as INI_Check:
                     INI_Check.write(INI_Fix)
 
             else: #INSTRUCTIONS FOR MANUAL FIXING WHEN FCX MODE IS FALSE
@@ -828,8 +829,8 @@ for file in os.listdir("."):
             print("                        0x00000008 : ",count_0x8," | 0x000000014 : ",count_0x14)
             Buffout_Trap = 0
             statU_Player +=1     
-        #===========================================================
 
+        #===========================================================
         #DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
         if Buffout_Trap == 1:
             print("-----")
@@ -845,8 +846,7 @@ for file in os.listdir("."):
         print("====================================================")
         print("CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...")
         print("====================================================")
-        #CHECK IF PLUGIN LIST WASN'T LOADED - TRAP X
-        Mod_Trap1 = no_repeat2 = 1
+        Mod_Trap1 = 1
 
         count_LoadOrder = crash_message.count("[00]")
         count_CHW = crash_message.count("ClassicHolsteredWeapons")
@@ -985,7 +985,7 @@ for file in os.listdir("."):
         print("====================================================")
         print("CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES")
         print("====================================================")
-        Mod_Trap2 = no_repeat1 = 1
+        Mod_Trap2 = no_repeat1 = no_repeat2 = 1
         
         count_FallSouls = crash_message.count("FallSouls.dll")
 
@@ -1005,6 +1005,7 @@ for file in os.listdir("."):
                       " skeletonfemaleplayer",
                       " CapsWidget",
                       " Homemaker.esm",
+                      " Horizon.esm",
                       " ESPExplorerFO4.esp",
                       " LegendaryModification.esp",
                       " MilitarizedMinutemen.esp",
@@ -1087,6 +1088,10 @@ for file in os.listdir("."):
                       "Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n"
                       "Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files",
                       #
+                      "HORIZON \n"
+                      "Use the mod specific unofficial patch for 1.8.7 until a newer version gets released. \n"
+                      "Patch Link: https://www.nexusmods.com/fallout4/mods/61998?tab=files",
+                      #
                       "IN GAME ESP EXPLORER \n"
                       "Can cause a crash when pressing F10 due to incorrect INI settings. \n"
                       "Fix Link: https://www.nexusmods.com/fallout4/mods/64752?tab=files",
@@ -1160,13 +1165,18 @@ for file in os.listdir("."):
                         print("[!] Found:", line[0:9].strip(), List_Warn2[order_elem])
                         print("-----")
                         Mod_Trap2 = 0
-                if no_repeat1 == 1 and "File:" not in line and ("Depravity.esp" or "FusionCityRising.esp" or "HotC.esp" or "OutcastsAndRemnants.esp" or "ProjectValkyrie.esp") in line:
-                    print("[!] Found:", line[0:9].strip(), "THUGGYSMURF QUEST MODS")
+                if no_repeat1 == 1 and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
+                    print("[!] Found:", line[0:9].strip(), "THUGGYSMURF QUEST MOD")
                     print("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie,")
                     print("install this patch with facegen data, fully generated precomb/previs data and several tweaks.")
                     print("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files")
                     print("-----")
                     no_repeat1 = Mod_Trap2 = 0
+                if no_repeat1 == 1 and "File:" not in line and ("CaN.esm" or "AnimeRace_Nanako.esp") in line:
+                    print("[!] Found:", line[0:9].strip(), "CUSTOM RACE SKELETON MOD")
+                    print("If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.")
+                    print("Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101")
+                    no_repeat2 = Mod_Trap2 = 0
 
             if count_FallSouls >= 1:
                 print("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
@@ -1501,7 +1511,7 @@ for file in os.listdir("."):
         print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
         print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
         print("===============================================================================")
-        print("END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | 101022")
+        print("END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) |",CLAS_Date,)
         print("GUI VERSION: https://www.nexusmods.com/fallout4/mods/63346")
         crash_log.close()
         sys.stdout.close()
@@ -1520,10 +1530,9 @@ for file in os.listdir("."):
 
 #dict.fromkeys -> Create dictionary, removes duplicates as dicts cannot have them.
 #BUFFOUT.INI BACK TO BUFFOUT.TOML BECAUSE PYTHON CAN'T WRITE
-with open("Scan Crashlogs.ini", "r+") as INI_Check:
-    FCX_Check = INI_Check.read()
-    if ("FCX Mode = true" or "FCX Mode =true") in FCX_Check:
-        Buffout_TOML.rename(Buffout_TOML.with_suffix('.toml'))
+
+if Buffout_INI.is_file():
+    os.rename(Buffout_INI, Buffout_TOML)
 
 #========================== LOG END ==========================
 sys.stdout=orig_stdout
@@ -1566,7 +1575,7 @@ if len(list_SCANFAIL) >= 1:
     print('FOR ALL OTHER ERRORS PLEASE CONTACT ME DIRECTLY, CONTACT INFO BELOW!')
 
 print("======================================================================")
-print("END OF AUTOSCAN | Author/Made By: Poet | 101022 | All Rights Reserved.")
+print("END OF AUTOSCAN | Author/Made By: Poet |",CLAS_Date,"| All Rights Reserved.")
 print("GUI VERSION | https://www.nexusmods.com/fallout4/mods/63346")
 print("============================ CONTACT INFO ============================")
 print("DISCORD | Poet#9800 (https://discord.gg/DfFYJtt8p4)")
