@@ -138,7 +138,7 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 - Added support for Fallout 4 document paths on Unix/Linux thanks to Rhynona (kittivelae).
 - Fallout4Custom.ini check will be perfomed only if *FCX Mode = true* in *Scan Crashlogs.ini*
 
-* OTHER FILES *
+OTHER FILES
 *CL Compare.py* will now also compare F4SE Plugins (.dll files | MODULES are excluded).
 *CL Compare.py* now generates a message in -RESULT.md if no matching plugins were found.
 
