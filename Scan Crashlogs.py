@@ -1,4 +1,4 @@
-import os, sys, time, random, shutil, logging, fnmatch, pathlib, subprocess
+import os, sys, time, random, shutil, logging, fnmatch, pathlib, subprocess, platform
 print("\n CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES... \n")
 try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
@@ -48,7 +48,7 @@ statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU
 #KNOWN CRASH CONDITIONS
 statM_CHW = 0
 
-print("Hello World! | Crash Log Auto-Scanner | Version 5.25 | Fallout 4")
+print("Hello World! | Crash Log Auto-Scanner | Version 5.30 | Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
 print("===============================================================================")
 print("You should place this script into your Documents\My Games\Fallout4\F4SE folder.")
@@ -58,6 +58,7 @@ print("CAUTION: Crash Log Auto-Scanner might not work correctly with Win 7 / Pyt
 print("To fix, install this Python version: https://github.com/NulAsh/cpython/releases")
 print("===============================================================================")
 from pathlib import Path
+FO4_STEAM_ID = 377160
 
 if not os.path.exists("Scan Crashlogs.ini"): #INI FILE FOR AUTO-SCANNER
     INI_Settings = ["#This file contains configuration settings for Scan Crashlogs.py \n\n",
@@ -79,27 +80,47 @@ if not os.path.exists("Scan Crashlogs.ini"): #INI FILE FOR AUTO-SCANNER
 #Check 5 most likely drives to see where ~\Documents\My Games\Fallout4 exists.
 #DO NOT Path() ANY DIRECTORY PATH THAT YOU WANT TO ITERATE IN (FOR LOOP)
 User_Path = os.getenv('HOMEPATH')
-drives = ["C:","D:","E:","F:","G:"]
-Loc_Found = 0
-for drive in drives:
-    if os.path.exists(drive+r"\Documents\My Games\Fallout4"):
-        FO4_Custom_Path = Path(drive+r"\Documents\My Games\Fallout4\Fallout4Custom.ini")
-        FO4_F4SE_Path = Path(drive+r"\Documents\My Games\Fallout4\F4SE\f4se.log")
-        FO4_F4SE_Logs = drive+r"\Documents\My Games\Fallout4\F4SE"
-        Loc_Found = 1
-    if os.path.exists(drive+User_Path+r"\Documents\My Games\Fallout4"):
-        FO4_Custom_Path = Path(drive+User_Path+r"\Documents\My Games\Fallout4\Fallout4Custom.ini")
-        FO4_F4SE_Path = Path(drive+User_Path+r"\Documents\My Games\Fallout4\F4SE\f4se.log")
-        FO4_F4SE_Logs = drive+User_Path+r"\Documents\My Games\Fallout4\F4SE"
-        Loc_Found = 1
-    if os.path.exists(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4"):
-        FO4_Custom_Path = Path(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\Fallout4Custom.ini")
-        FO4_F4SE_Path = Path(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\F4SE\f4se.log")
-        FO4_F4SE_Logs = drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\F4SE"
-        Loc_Found = 1
+Loc_Found = False
+if platform.system() == "Windows":
+    drives = ["C:","D:","E:","F:","G:"]
+    for drive in drives:
+        if os.path.exists(drive+r"\Documents\My Games\Fallout4"):
+            FO4_Custom_Path = Path(drive+r"\Documents\My Games\Fallout4\Fallout4Custom.ini")
+            FO4_F4SE_Path = Path(drive+r"\Documents\My Games\Fallout4\F4SE\f4se.log")
+            FO4_F4SE_Logs = drive+r"\Documents\My Games\Fallout4\F4SE"
+            Loc_Found = True
+        if os.path.exists(drive+User_Path+r"\Documents\My Games\Fallout4"):
+            FO4_Custom_Path = Path(drive+User_Path+r"\Documents\My Games\Fallout4\Fallout4Custom.ini")
+            FO4_F4SE_Path = Path(drive+User_Path+r"\Documents\My Games\Fallout4\F4SE\f4se.log")
+            FO4_F4SE_Logs = drive+User_Path+r"\Documents\My Games\Fallout4\F4SE"
+            Loc_Found = True
+        if os.path.exists(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4"):
+            FO4_Custom_Path = Path(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\Fallout4Custom.ini")
+            FO4_F4SE_Path = Path(drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\F4SE\f4se.log")
+            FO4_F4SE_Logs = drive+User_Path+r"\OneDrive\Documents\My Games\Fallout4\F4SE"
+            Loc_Found = True
+else:# "it's a Unix system, I know this"
+    #We'll try and find where fo4 is installed via steam. if its GOG, you'll have to manually set the path. n.b. no reason you cant do this on windows too.
+    if os.path.isfile(r"/home/"+os.getlogin()+r"/.local/share/Steam/steamapps/libraryfolders.vdf"):
+        steam_library = None
+        library_path=None
+        with open(r"/home/"+os.getlogin()+r"/.local/share/Steam/steamapps/libraryfolders.vdf") as steam_library_raw:
+            steam_library=steam_library_raw.readlines()
+        for line in steam_library:
+            if "path" in line:
+                library_path=line.split('"')[3]
+            if str(FO4_STEAM_ID) in line:
+                library_path = rf"{library_path}/steamapps"
+                settings_path = rf"{library_path}/compatdata/{FO4_STEAM_ID}/pfx/drive_c/users/steamuser/My Documents/My Games/Fallout4"
+                if os.path.exists(rf"{library_path}/common/Fallout 4") and os.path.exists(settings_path):
+                    FO4_Custom_Path = Path(rf"{settings_path}/Fallout4Custom.ini")
+                    FO4_F4SE_Path = Path(rf"{settings_path}/F4SE/f4se.log")
+                    FO4_F4SE_Logs = rf"{settings_path}/F4SE"
+                    Loc_Found = True
+                    break
 
 #Prompt manual input if ~\Documents\My Games\Fallout4 cannot be found.
-if Loc_Found == 0:
+if not Loc_Found:
     with open("Scan Crashlogs.ini", "r+") as INI_Check:
         Path_Check = INI_Check.readlines()
         INI_Line = Path_Check[16]
