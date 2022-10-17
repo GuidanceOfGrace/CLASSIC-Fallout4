@@ -139,8 +139,8 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 - Fallout4Custom.ini check will be perfomed only if *FCX Mode = true* in *Scan Crashlogs.ini*
 
 OTHER FILES
-*CL Compare.py* will now also compare F4SE Plugins (.dll files | MODULES are excluded).
-*CL Compare.py* now generates a message in -RESULT.md if no matching plugins were found.
+- CL Compare.py will now also compare F4SE Plugins (.dll files | MODULES are excluded).
+- CL Compare.py now generates a message in -RESULT.md if no matching plugins were found.
 
 5.25
 * MAIN SCRIPT *
