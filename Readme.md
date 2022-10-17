@@ -131,6 +131,17 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
+5.40
+* MAIN SCRIPT *
+- Added detection for 3 new mods with community patches and solutions.
+- Refactored code for renaming Buffout4.toml to prevent errors / crashes.
+- Added support for Fallout 4 document paths on Unix/Linux thanks to Rhynona (kittivelae).
+- Fallout4Custom.ini check will be perfomed only if *FCX Mode = true* in *Scan Crashlogs.ini*
+
+* OTHER FILES *
+*CL Compare.py* will now also compare F4SE Plugins (.dll files | MODULES are excluded).
+*CL Compare.py* now generates a message in -RESULT.md if no matching plugins were found.
+
 5.25
 * MAIN SCRIPT *
 - Added detection for 4 new mods with community patches and solutions.
