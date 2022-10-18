@@ -71,10 +71,8 @@ print("CAUTION: Crash Log Auto-Scanner might not work correctly with Win 7 / Pyt
 print("To fix, install this Python version: https://github.com/NulAsh/cpython/releases")
 print("===============================================================================")
 FO4_STEAM_ID = 377160
-ScIni = Path("Scan Crashlogs.ini").resolve()
-if ScIni.is_dir():
-    raise TypeError("Scan Crashlogs.ini is the name of a directory, delete it and re-run the script.")
-if not ScIni.is_file():  # INI FILE FOR AUTO-SCANNER
+
+if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
     INI_Settings = ["#This file contains configuration settings for Scan Crashlogs.py \n\n",
                     "#Set to true if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly. \n",
                     "#FCX - File Check eXtended | If Auto-Scanner fails to scan your logs, revert this setting back to false. \n",
