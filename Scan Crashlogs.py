@@ -1360,7 +1360,7 @@ for file in os.listdir("."):
             elif count_DebrisFIX > 0 and gpu_nvidia == 0:
                 print("*Weapon Debris Crash Fix* is installed, but...")
                 print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
-                PRINT("Weapon Debris Crash Fix is only required for Nvidia GPU (NOT AMD OR OTHER)")
+                print("Weapon Debris Crash Fix is only required for Nvidia GPU (NOT AMD OR OTHER)")
             if count_DebrisFIX == 0 and gpu_nvidia == 1:
                 print("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a mandatory patch / fix for players with Nvidia graphics cards.")
