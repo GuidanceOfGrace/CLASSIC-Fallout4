@@ -131,6 +131,17 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
+5.50
+* MAIN SCRIPT *
+- Fixed wrong code capitalization in a single line thanks to [evildarkarchon].
+- Implemented a much better way to look up the user's current *Documents* directory path.
+- Fixed a few crashes / errors caused while Auto-Scanner tried to edit or rename *Buffout4.toml*
+- Added detection for Nvidia Reflex Support and Vulkan Renderer under the Important Patches & Fixes segment.
+- Added detection for *[Creation Club Crash] | Completely disabling all Creation Club content should prevent this crash.
+- Fixed crash / error caused when Buffout 4 wasn't already (manually) installed while *FCX Mode = true* in *Scan Crashlogs.ini*
+
+[Keep in mind that I strongly recommend having Buffout 4 and all its requirements manually installed, without a mod manager.]
+
 5.40
 * MAIN SCRIPT *
 - Added detection for 3 new mods with community patches and solutions.
