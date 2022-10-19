@@ -146,7 +146,7 @@ with open("Scan Crashlogs.ini", "r+") as INI_Check:
 
 # Check if f4se.log exists and find game path inside.
 if FO4_F4SE_Path.is_file():
-    with open(FO4_F4SE_Path, "r+") as LOG_Check:
+    with open(FO4_F4SE_Path, "r") as LOG_Check:
         Path_Check = LOG_Check.readlines()
         for line in Path_Check:
             if "plugin directory" in line:
@@ -261,7 +261,7 @@ for file in os.listdir("."):
                 print("-----")
                 Error_List = []
                 F4SE_Error = F4SE_Version = F4SE_Buffout = 0
-                with open(FO4_F4SE_Path, "r+") as LOG_Check:
+                with open(FO4_F4SE_Path, "r") as LOG_Check:
                     Error_Check = LOG_Check.readlines()
                     for line in Error_Check:
                         if "0.6.23" in line:
@@ -1391,7 +1391,7 @@ for file in os.listdir("."):
             elif count_ReflexFix > 0 and not gpu_nvidia or gpu_amd:
                 print("*Nvidia Reflex Support* is installed, but...")
                 print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
-                PRINT("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
+                print("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
                 print("-----")
             elif count_ReflexFix == 0 and gpu_nvidia:
                 print("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
