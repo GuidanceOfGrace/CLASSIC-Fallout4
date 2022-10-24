@@ -131,6 +131,14 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
+5.55
+* MAIN SCRIPT *
+- Updated Windows 7 link for the latest Python versions (https://github.com/adang1345/PythonWin7).
+- Auto-Scanner checking for package updates can now be enabled / disabled in *Scan Crashlogs.ini*
+- Ajusted access permissions for f4se.log to prevent permission crashes / errors with OneDrive.
+- Adjusted fix instructions for the "In Game ESP Explorer" mod.
+- Switched to configparser for reading / writing INI files.
+
 5.50
 * MAIN SCRIPT *
 - Fixed wrong code capitalization in a single line thanks to [evildarkarchon].
