@@ -1,32 +1,4 @@
 import os, sys, time, random, shutil, logging, fnmatch, pathlib, subprocess, platform, ctypes.wintypes
-print("\n CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES... \n")
-try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
-    reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
-    # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
-    # print("List of all installed packages:", installed_packages) | RESERVED
-    # print("===============================================================================")
-    import requests
-    CLAS_Date = 191022 #DDMMYY
-    CLAS_Current = "CLAS v5.50"
-    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
-    CLAS_Received = response.json()["name"]
-    if CLAS_Received == CLAS_Current:
-        print("You have the latest version of the Auto-Scanner!")
-        print("===============================================================================")
-        CLAS_Update = 0
-    else:
-        print("[!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE! \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
-        print("===============================================================================")
-        CLAS_Update = 1
-except Exception:
-    pass
-    print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO UPDATE ITSELF, BUT WILL CONTINUE SCANNING.")
-    print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
-    print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
-    print("===============================================================================")
-    CLAS_Update = 0
 
 Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
@@ -49,6 +21,9 @@ statC_Decal = statC_MO2Unp = statC_VulkanMem = statC_VulkanSet = statC_Water = 0
 statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = 0
 # KNOWN CRASH CONDITIONS
 statM_CHW = 0
+
+CLAS_Date = 191022  # DDMMYY
+CLAS_Current = "CLAS v5.50"
 
 print("Hello World! | Crash Log Auto-Scanner | Version",CLAS_Current[-4:],"| Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
@@ -75,9 +50,48 @@ if not os.path.exists("Scan Crashlogs.ini"): #INI FILE FOR AUTO-SCANNER
     "#Set or copy/paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4 \n",
     "#Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else. \n",
     "#I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
-    "INI Path = "]
+    "INI Path = ",
+    "#Only disable if python starts crashing on downloads for whatever reason.",
+    "Check Updates = true"]
     with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
         INI_Autoscan.write("".join(INI_Settings))
+
+config = {}
+with open("Scan Crashlogs.ini", "r+", encoding="utf-8") as ini:
+    for line in ini:
+        if len(line) >= 2 and "#" not in line:
+            v = line.replace(' = ', '=').replace('\n', '').split("=")
+            config[v[0]] = v[1]
+
+print("\n CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES... \n")
+CLAS_Update = 0
+
+if config["Check Updates"] == "true":
+    try:  # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
+        reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+        # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+        # print("List of all installed packages:", installed_packages) | RESERVED
+        # print("===============================================================================")
+        import requests
+        response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
+        CLAS_Received = response.json()["name"]
+        if CLAS_Received == CLAS_Current:
+            print("You have the latest version of the Auto-Scanner!")
+            print("===============================================================================")
+            CLAS_Update = 0
+        else:
+            print("[!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE! \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
+            print("===============================================================================")
+            CLAS_Update = 1
+    except Exception:
+        pass
+        print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO UPDATE ITSELF, BUT WILL CONTINUE SCANNING.")
+        print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
+        print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
+        print("===============================================================================")
+        CLAS_Update = 0
 
 # Using shell32.dll to look up Documents directory path. Thanks, StackOverflow!
 # Unsure os.path.expanduser('~/Documents') works if default path was changed.
