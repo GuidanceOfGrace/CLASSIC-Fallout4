@@ -94,25 +94,25 @@ print("=========================================================================
 from pathlib import Path
 FO4_STEAM_ID = 377160
 
-# Using shell32.dll to look up Documents directory path. Thanks, StackOverflow!
-# Unsure os.path.expanduser('~/Documents') works if default path was changed.
-CSIDL_PERSONAL = 5       # (My) Documents 
-SHGFP_TYPE_CURRENT = 0   # Get current, not default value.
-User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, User_Documents)
-Doc_Path = User_Documents.value
-
 Loc_Found = False
 if platform.system() == "Windows":
+    # Using shell32.dll to look up Documents directory path. Thanks, StackOverflow!
+    # Unsure os.path.expanduser('~/Documents') works if default path was changed.
+    CSIDL_PERSONAL = 5       # (My) Documents
+    SHGFP_TYPE_CURRENT = 0   # Get current, not default value.
+    User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, User_Documents)
+    Doc_Path = User_Documents.value
     FO4_Custom_Path = Path(Doc_Path + r"\My Games\Fallout4\Fallout4Custom.ini")
     FO4_F4SE_Path = Path(Doc_Path + r"\My Games\Fallout4\F4SE\f4se.log")
     FO4_F4SE_Logs = Doc_Path + r"\My Games\Fallout4\F4SE"
     Loc_Found = True
 else: # Find where FO4 is installed via Steam if Linux
-    if os.path.isfile(r"/home/"+os.getlogin() + r"/.local/share/Steam/steamapps/libraryfolders.vdf"):
+    home_directory = str(Path.home())
+    if os.path.isfile(home_directory + r"/.local/share/Steam/steamapps/libraryfolders.vdf"):
         steam_library = None
         library_path=None
-        with open(r"/home/"+os.getlogin() + r"/.local/share/Steam/steamapps/libraryfolders.vdf") as steam_library_raw:
+        with open(home_directory + r"/.local/share/Steam/steamapps/libraryfolders.vdf") as steam_library_raw:
             steam_library=steam_library_raw.readlines()
         for line in steam_library:
             if "path" in line:
@@ -130,9 +130,10 @@ else: # Find where FO4 is installed via Steam if Linux
 # Prompt manual input if ~\Documents\My Games\Fallout4 cannot be found.
 if not Loc_Found:
     if "fallout4" in CLAS_config.get("MAIN","INI Path").lower():
-        FO4_F4SE_Logs = INI_Line[11:].strip() + r"\F4SE"
-        FO4_F4SE_Path = Path(INI_Line[11:].strip() + r"\F4SE\f4se.log")
-        FO4_Custom_Path = Path(INI_Line[11:].strip() + r"\Fallout4Custom.ini")
+        INI_Line = CLAS_config.get("MAIN","INI Path").strip()
+        FO4_F4SE_Logs = INI_Line + r"\F4SE"
+        FO4_F4SE_Path = Path(INI_Line + r"\F4SE\f4se.log")
+        FO4_Custom_Path = Path(INI_Line + r"\Fallout4Custom.ini")
     else:
         Path_Input = input("PLEASE ENTER THE FULL DIRECTORY PATH WHERE Fallout4.ini IS LOCATED\n(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
         print("You entered :",Path_Input,"| This path will be automatically added to Scan Crashlogs.ini")
@@ -144,6 +145,20 @@ if not Loc_Found:
 # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
 # DO NOT USE a+ WHEN SEARCHING STRINGS BECAUSE IT FUCKS UP STRING SEARCHING
 if CLAS_config.get("MAIN","FCX Mode").lower() == "true":
+    '''FO4_Custom_Config = configparser.ConfigParser()
+    FO4_Custom_Config.read(FO4_Custom_Path)
+    if "Archive" not in FO4_Custom_Config.sections():
+        FO4_Custom_Config.add_section("Archive")
+    
+    if FO4_Custom_Config.get("Archive","bInvalidateOlderFiles") == 0:
+        FO4_Custom_Config.set("Archive","bInvalidateOlderFiles","1")
+    
+    if FO4_Custom_Config.get("Archive","sResourceDataDirsFinal"):
+        FO4_Custom_Config.set("Archive","sResourceDataDirsFinal","")
+    
+    with open(FO4_Custom_Path, w+) as FO4_Custom:
+        FO4_Custom_Config.write(FO4_Custom, space_around_delimiters=False)''' # Probably not complete, but wondering if this could work?
+
     with open(FO4_Custom_Path, "w+") as FO4_Custom:
         INI_Fix = FO4_Custom.read()
         INI_Fix = INI_Fix.replace("bInvalidateOlderFiles=0", "bInvalidateOlderFiles=1")
