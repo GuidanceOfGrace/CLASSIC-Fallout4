@@ -1,29 +1,32 @@
-import os, sys, time, random, shutil, logging, fnmatch, pathlib, platform, subprocess, configparser, ctypes.wintypes
+import os, sys, stat, time, random, shutil, logging, fnmatch, pathlib, platform, subprocess, configparser, ctypes.wintypes
 
 if not os.path.exists("Scan Crashlogs.ini"): # INI FILE FOR AUTO-SCANNER
-    INI_Settings = ["[MAIN] #This file contains configuration settings for Scan Crashlogs.py \n\n",
-    "#Set to true if you want Auto-Scanner to check Python version and if all required packages are installed. \n",
+    INI_Settings = ["[MAIN]\n",
+    "# This file contains available configuration settings for both Scan Crashlogs.py and Scan Crashlogs.exe \n",
+    "# Set to true if you want Auto-Scanner to check Python version and if all required packages are installed. \n",
     "Update Check = true\n\n",
-    "#Set to true if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly. \n",
-    "#FCX - File Check eXtended | If Auto-Scanner fails to scan your logs, revert this setting back to false. \n",
+    "# Set to true if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly. \n",
+    "# FCX - File Check eXtended | If Auto-Scanner fails to scan your logs, revert this setting back to false. \n",
     "FCX Mode = true\n\n",
-    "#Set to true if you want Auto-Scanner to show extra stats about scanned logs in the command line window. \n",
+    "# Set to true if you want Auto-Scanner to show extra stats about scanned logs in the command line window. \n",
     "Stat Logging = false\n\n",
-    "#Set to true if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder. \n",
-    "#Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages. \n",
+    "# Set to true if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder. \n",
+    "# Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages. \n",
     "Move Unsolved = false\n\n",
-    "#Set or copy/paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4 \n",
-    "#Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else. \n",
-    "#I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
+    "# Set or copy/paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4 \n",
+    "# Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else. \n",
+    "# I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
     "INI Path = "]
     with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
         INI_Autoscan.write("".join(INI_Settings))
 
-CLAS_config = configparser.ConfigParser()
+# Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments. 
+CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
+CLAS_config.optionxform = str
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = 241022 #DDMMYY
-CLAS_Current = "CLAS v5.55"
+CLAS_Date = 271022 #DDMMYY
+CLAS_Current = "CLAS v5.66"
 CLAS_Update = False
 
 if CLAS_config.get("MAIN","Update Check").lower() == "true":
@@ -98,7 +101,7 @@ Loc_Found = False
 if platform.system() == "Windows":
     # Using shell32.dll to look up Documents directory path. Thanks, StackOverflow!
     # Unsure os.path.expanduser('~/Documents') works if default path was changed.
-    CSIDL_PERSONAL = 5       # (My) Documents
+    CSIDL_PERSONAL = 5       # (My) Documents 
     SHGFP_TYPE_CURRENT = 0   # Get current, not default value.
     User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
     ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, User_Documents)
@@ -135,37 +138,39 @@ if not Loc_Found:
         FO4_F4SE_Path = Path(INI_Line + r"\F4SE\f4se.log")
         FO4_Custom_Path = Path(INI_Line + r"\Fallout4Custom.ini")
     else:
-        Path_Input = input("PLEASE ENTER THE FULL DIRECTORY PATH WHERE Fallout4.ini IS LOCATED\n(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
+        print("> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR Fallout4.ini IS LOCATED < <" )
+        Path_Input = input("(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
         print("You entered :",Path_Input,"| This path will be automatically added to Scan Crashlogs.ini")
         FO4_F4SE_Logs = Path_Input.strip() + r"\F4SE"
         FO4_F4SE_Path = Path(Path_Input.strip() + r"\F4SE\f4se.log")
         FO4_Custom_Path = Path(Path_Input.strip() + r"\Fallout4Custom.ini")
         CLAS_config.set("MAIN","INI Path",Path_Input)
+        with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
+            CLAS_config.write(INI_Autoscan)
 
 # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
-# DO NOT USE a+ WHEN SEARCHING STRINGS BECAUSE IT FUCKS UP STRING SEARCHING
 if CLAS_config.get("MAIN","FCX Mode").lower() == "true":
-    '''FO4_Custom_Config = configparser.ConfigParser()
-    FO4_Custom_Config.read(FO4_Custom_Path)
-    if "Archive" not in FO4_Custom_Config.sections():
-        FO4_Custom_Config.add_section("Archive")
-    
-    if FO4_Custom_Config.get("Archive","bInvalidateOlderFiles") == 0:
-        FO4_Custom_Config.set("Archive","bInvalidateOlderFiles","1")
-    
-    if FO4_Custom_Config.get("Archive","sResourceDataDirsFinal"):
-        FO4_Custom_Config.set("Archive","sResourceDataDirsFinal","")
-    
-    with open(FO4_Custom_Path, w+) as FO4_Custom:
-        FO4_Custom_Config.write(FO4_Custom, space_around_delimiters=False)''' # Probably not complete, but wondering if this could work?
+    if FO4_Custom_Path.is_file():
+        os.chmod(FO4_Custom_Path, stat.S_IWRITE)
+        F4C_config = configparser.ConfigParser()
+        F4C_config.optionxform = str
+        F4C_config.read(FO4_Custom_Path)
+        if "Archive" not in F4C_config.sections():
+            F4C_config.add_section("Archive")
 
-    with open(FO4_Custom_Path, "w+") as FO4_Custom:
-        INI_Fix = FO4_Custom.read()
-        INI_Fix = INI_Fix.replace("bInvalidateOlderFiles=0", "bInvalidateOlderFiles=1")
-        if not "[Archive]" in INI_Fix:
-            INI_Fix += "\n[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
-    with open(FO4_Custom_Path, "w+") as FO4_Custom:
-        FO4_Custom.write(INI_Fix)
+        if F4C_config.get("Archive","bInvalidateOlderFiles") == 0:
+            F4C_config.set("Archive","bInvalidateOlderFiles","1")
+
+        if F4C_config.get("Archive","sResourceDataDirsFinal"):
+            F4C_config.set("Archive","sResourceDataDirsFinal","")
+
+        with open(FO4_Custom_Path, "w+") as FO4_Custom:
+           F4C_config.write(FO4_Custom,space_around_delimiters=False)
+    else:
+        with open(FO4_Custom_Path, "w+") as FO4_Custom:
+            F4C_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
+        with open(FO4_Custom_Path, "w+") as FO4_Custom:
+            FO4_Custom.write(F4C_config)
 
 # Check if f4se.log exists and find game path inside.
 if FO4_F4SE_Path.is_file():
@@ -195,15 +200,15 @@ Address_Library = Path(Game_Path + r"\Data\F4SE\Plugins\version-1-10-163-0.bin")
 
 if Buffout_TOML.is_file(): # RENAME BECAUSE PYTHON CAN'T WRITE TO TOML
     try:
-      os.rename(Buffout_TOML, Buffout_INI)
-      BUFF_config = configparser.ConfigParser()
-      BUFF_config.read(Buffout_INI)
+        os.chmod(Buffout_TOML, stat.S_IWRITE)
+        os.rename(Buffout_TOML, Buffout_INI)
     except FileExistsError:
-      os.remove(Buffout_INI)
-      os.rename(Buffout_TOML, Buffout_INI)
-      BUFF_config = configparser.ConfigParser()
-      BUFF_config.read(Buffout_INI)
+        os.remove(Buffout_INI)
+        os.chmod(Buffout_TOML, stat.S_IWRITE)
+        os.rename(Buffout_TOML, Buffout_INI)
 
+# CAN'T USE CONFIGPARSER BECAUSE DUPLICATE COMMENT IN Buffout_INI
+# To preserve original toml formatting, just stick to replace.
 # ===========================================================
 
 print("\n PERFORMING SCAN... \n")
@@ -361,35 +366,39 @@ for file in os.listdir("."):
                 print("REQUIRED: Address Library is (manually) installed. \n-----")
             else:
                 print("# CAUTION: Auto-Scanner cannot find the Adress Library file or it isn't (manually) installed! #")
-                print("FIX: Place the *version-1-10-163-0.bin* file manually into Fallout 4\Data\F4SE\Plugins folder.")
+                print("FIX: Place the *version-1-10-163-0.bin* file manually into Fallout 4/Data/F4SE/Plugins folder.")
                 print("ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files")
                 print("-----")
 
             if Buffout_INI.is_file() and Buffout_DLL.is_file():
-                print("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----")
-                if count_buff_Achieve >= 1 and (count_Achieve_Mod or count_Survival_Mod) >= 1 and BUFF_config.get("Patches","Achievements").lower() == "true":
-                    print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
-                    print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
-                    print("-----")
-                    BUFF_config.set("Patches","Achievements","false")
-                else:
-                    print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
+                with open(Buffout_INI, "r+") as BUFF_Custom:
+                    BUFF_config = BUFF_Custom.read()
+                    print("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----")
+                    if count_buff_Achieve >= 1 and (count_Achieve_Mod or count_Survival_Mod) >= 1 and "Achievements = true" in BUFF_config:
+                        print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
+                        print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
+                        print("-----")
+                        BUFF_config = BUFF_config.replace("Achievements = true","Achievements = false")
+                    else:
+                        print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
 
-                if (count_buff_Memory and count_Memory_Mod) >= 1 and BUFF_config.get("Patches","MemoryManager").lower() == "true":
-                    print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
-                    print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
-                    print("-----")
-                    BUFF_config.set("Patches","MemoryManager","false")
-                else:
-                    print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
+                    if (count_buff_Memory and count_Memory_Mod) >= 1 and "MemoryManager = true" in BUFF_config:
+                        print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
+                        print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
+                        print("-----")
+                        BUFF_config = BUFF_config.replace("MemoryManager = true","MemoryManager = false")
+                    else:
+                        print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
 
-                if (count_buff_F4EE and count_F4EE_Mod) >= 1 and BUFF_config.get("Compatibility","F4EE").lower() == "false":
-                    print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
-                    print("Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.")
-                    print("-----")
-                    BUFF_config.set("Compatibility","F4EE","true")
-                else:
-                    print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
+                    if (count_buff_F4EE and count_F4EE_Mod) >= 1 and "F4EE = false" in BUFF_config:
+                        print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
+                        print("Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.")
+                        print("-----")
+                        BUFF_config = BUFF_config.replace("F4EE = false","F4EE = true")
+                    else:
+                        print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
+                with open(Buffout_INI, "w+") as BUFF_Custom:
+                    BUFF_Custom.write(BUFF_config)
             else:
                 print("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't (manually) installed! #")
                 print("FIX: Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115")
