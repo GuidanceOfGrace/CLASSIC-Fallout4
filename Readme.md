@@ -10,10 +10,7 @@ HOW TO INSTALL BUFFOUT 4 : https://www.nexusmods.com/fallout4/articles/3115
 
 HOW TO READ CRASH LOGS : https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
-FOR WINDOWS 7 SUPPORT, INSTALL THIS PYTHON VERSION: https://github.com/NulAsh/cpython/releases OR USE
-
-AUTO-SCANNER GUI VERSION by MakeHate (Yagami Light): https://www.nexusmods.com/fallout4/mods/63346
-(GUI Version 1.2 right now is severely out of date and reports some false positives, so beware.)
+FOR WINDOWS 7 SUPPORT, GET LATEST PYTHON VERSION FROM HERE: https://github.com/adang1345/PythonWin7
 
 ===========================================================================
 # CONTENTS #
