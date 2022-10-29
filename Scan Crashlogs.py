@@ -40,7 +40,7 @@ if CLAS_config.get("MAIN","Update Check").lower() == "true":
 
     try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
         reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
         # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
         # print("List of all installed packages:", installed_packages) | RESERVED
