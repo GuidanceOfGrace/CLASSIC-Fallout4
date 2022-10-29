@@ -4,6 +4,14 @@
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
 // Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
 
+5.77
+* MAIN SCRIPT *
+- Fixed crash / error when a crash log fails to list any plugins and modules.
+- Fixed Nvidia specific mod detection reporting false positives on AMD GPUs.
+- Added detection for 3 new mods with community patches and solutions.
+- Added detection for Creation Kit Fixes and Buffout 4 VR Version.
+- Minor text adjustments for some segments in AUTOSCAN.md output.
+
 5.66
 * MAIN SCRIPT *
 - Fixed code for reading / writing Fallout4Custom.ini while *FCX Mode = true*
