@@ -128,10 +128,10 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
-5.66
+5.77
 * MAIN SCRIPT *
-- Fixed code for reading / writing Fallout4Custom.ini while *FCX Mode = true*
-- Fixed code that forgot to update most INI config files while *FCX Mode = true*
-- Fixed Permission Error if Fallout4Custom.ini or Buffout4.toml were set to Read Only.
-- Updated "How To Read Crash Logs" PDF so it matches the latest online Google Docs version.
-- Merged "multiple small fixes and changes" commit created by [evildarkarchon] on GitHub.
+- Fixed crash / error when a crash log fails to list any plugins and modules.
+- Fixed Nvidia specific mod detection reporting false positives on AMD GPUs.
+- Added detection for 3 new mods with community patches and solutions.
+- Added detection for Creation Kit Fixes and Buffout 4 VR Version.
+- Minor text adjustments for some segments in AUTOSCAN.md output.
