@@ -25,8 +25,8 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = 271022 #DDMMYY
-CLAS_Current = "CLAS v5.66"
+CLAS_Date = 281022 #DDMMYY
+CLAS_Current = "CLAS v5.77"
 CLAS_Update = False
 
 if CLAS_config.get("MAIN","Update Check").lower() == "true":
@@ -38,8 +38,9 @@ if CLAS_config.get("MAIN","Update Check").lower() == "true":
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
 
-    try: # > AUTO UPDATE PIP, INSTALL & LIST PACKAGES
+    try: # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests'])
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
         reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
         # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
@@ -157,13 +158,8 @@ if CLAS_config.get("MAIN","FCX Mode").lower() == "true":
         F4C_config.read(FO4_Custom_Path)
         if "Archive" not in F4C_config.sections():
             F4C_config.add_section("Archive")
-
-        if F4C_config.get("Archive","bInvalidateOlderFiles") == 0:
-            F4C_config.set("Archive","bInvalidateOlderFiles","1")
-
-        if F4C_config.get("Archive","sResourceDataDirsFinal"):
-            F4C_config.set("Archive","sResourceDataDirsFinal","")
-
+        F4C_config.set("Archive","bInvalidateOlderFiles","1")
+        F4C_config.set("Archive","sResourceDataDirsFinal","")
         with open(FO4_Custom_Path, "w+") as FO4_Custom:
            F4C_config.write(FO4_Custom,space_around_delimiters=False)
     else:
@@ -187,6 +183,10 @@ else:
     os.system("pause")
 
 # FILES TO LOOK FOR IN GAME FOLDER ONLY (NEEDS r BECAUSE UNICODE ERROR)
+VR_EXE = Path(Game_Path + r"\Fallout4VR.exe")
+VR_Buffout = Path(Game_Path + r"\Data\F4SE\Plugins\msdia140.dll")
+F4CK_EXE = Path(Game_Path + r"\CreationKit.exe")
+F4CK_Fixes = Path(Game_Path + r"\Data\F4CKFixes")
 Steam_INI = Path(Game_Path + r"\steam_api.ini")
 Preloader_DLL = Path(Game_Path + r"\IpHlpAPI.dll")
 Preloader_XML = Path(Game_Path + r"\xSE PluginPreloader.xml")
@@ -239,6 +239,8 @@ for file in os.listdir("."):
         for line in all_lines:
             if not "F4SE" in line and "PLUGINS" in line:
                 plugin_idx = all_lines.index(line)
+            else:
+                plugin_idx = 1
         plugin_list = all_lines[plugin_idx:]
         if os.path.exists("loadorder.txt"):
             plugin_list = []
@@ -285,7 +287,6 @@ for file in os.listdir("."):
         count_F4EE_Mod = crash_message.count("f4ee.dll")
 
         # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
-
         if CLAS_config.get("MAIN","FCX Mode").lower() == "true":
             print("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
             print("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]")
@@ -858,12 +859,12 @@ for file in os.listdir("."):
         
         if Buffout_Trap == False: # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
             print("-----")
-            print("# AUTOSCAN FOUND NO CRASH MESSAGES THAT MATCH THE CURRENT DATABASE #")
+            print("# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #")
             print("Check below for mods that can cause frequent crashes and other problems.")
             print("-----")
         else:
             print("-----")
-            print("FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH MESSAGES,")
+            print("FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH CULPRITS,")
             print("SEE: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c")
             print("-----")
 
@@ -1037,10 +1038,12 @@ for file in os.listdir("."):
                       " Horizon.esm",
                       " ESPExplorerFO4.esp",
                       " LegendaryModification.esp",
+                      " LooksMenu Customization Compendium.esp",
                       " MilitarizedMinutemen.esp",
                       " MoreUniques",
                       " NAC.es",
                       " Northland Diggers New.esp",
+                      " ProjectZeta.esm",
                       " RaiderOverhaul.esp",
                       " Rusty Face Fix",
                       " SKKCraftableWeaponsAmmo",
@@ -1130,6 +1133,10 @@ for file in os.listdir("."):
                       "Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n"
                       "Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files",
                       #
+                      "LOOKS MENU CUSTOMIZATION COMPENDIUM \n"
+                      "Apparently breaks the original Looks Menu mod by turning off some important values. \n"
+                      "Fix Link: https://www.nexusmods.com/fallout4/mods/56465?tab=files",
+                      #
                       "MILITARIZED MINUTEMEN \n"
                       "Can occasionally crash the game due to a broken mesh on some minutemen outfits. \n"
                       "Patch Link: https://www.nexusmods.com/fallout4/mods/55301?tab=files",
@@ -1145,6 +1152,10 @@ for file in os.listdir("."):
                       "NORTHLAND DIGGERS RESOURCES \n"
                       "Contains various bugs and issues that can cause crashes or negatively affect other mods. \n"
                       "Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files",
+                      #
+                      "PROJECT ZETA \n"
+                      "Invasion quests seem overly buggy or trigger too frequently, minor sound issues. \n"
+                      "Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files",
                       #
                       "RAIDER OVERHAUL \n"
                       "Old mod that requires several patches to function as intended. Use ONE Version instead. \n"
@@ -1356,6 +1367,26 @@ for file in os.listdir("."):
         print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
         print("-----")
 
+        if CLAS_config.get("MAIN","FCX Mode").lower() == "true":
+            print("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
+            print("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]")
+            print("-----")
+
+            if VR_EXE.is_file() and VR_Buffout.is_file():
+                print("*Buffout 4 VR Version* is (manually) installed. \n-----")
+            elif VR_EXE.is_file() and not VR_Buffout.is_file():
+                print("# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files")
+
+            if F4CK_EXE.is_file() and os.path.exists(F4CK_Fixes):
+                print("*Creation Kit Fixes* is (manually) installed. \n-----")
+            elif F4CK_EXE.is_file() and not os.path.exists(F4CK_Fixes):
+                print("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("This is a highly recommended patch for the Fallout 4 Creation Kit.")
+                print("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files")
+                print("-----")
+
         if count_LoadOrder >= 1:
             if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
                 print("*Canary Save File Monitor* is installed. \n-----")
@@ -1392,7 +1423,7 @@ for file in os.listdir("."):
             if count_VulkanDLL > 0 and gpu_amd:
                 print("Vulkan Renderer is installed. \n-----")
             elif count_VulkanDLL == 0 and gpu_amd and not gpu_nvidia:
-                print("VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                print("# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a highly recommended mod that can improve performance on AMD GPUs.")
                 print("-----") 
                 print("Installation steps can be found in 'How To Read Crash Logs' PDF / Document.")
@@ -1401,12 +1432,12 @@ for file in os.listdir("."):
 
             if count_DebrisFIX > 0 and gpu_nvidia:
                 print("*Weapon Debris Crash Fix* is installed. \n-----")
-            elif count_DebrisFIX > 0 and not gpu_nvidia or gpu_amd:
+            elif count_DebrisFIX > 0 and not gpu_nvidia and gpu_amd:
                 print("*Weapon Debris Crash Fix* is installed, but...")
                 print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
                 print("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)")
                 print("-----")
-            elif count_DebrisFIX == 0 and gpu_nvidia:
+            if count_DebrisFIX == 0 and gpu_nvidia:
                 print("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a mandatory patch / fix for players with Nvidia graphics cards.")
                 print("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files")
@@ -1414,12 +1445,12 @@ for file in os.listdir("."):
 
             if count_ReflexFix > 0 and gpu_nvidia:
                 print("*Nvidia Reflex Support* is installed. \n-----")
-            elif count_ReflexFix > 0 and not gpu_nvidia or gpu_amd:
+            elif count_ReflexFix > 0 and not gpu_nvidia and gpu_amd:
                 print("*Nvidia Reflex Support* is installed, but...")
                 print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
                 print("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
                 print("-----")
-            elif count_ReflexFix == 0 and gpu_nvidia:
+            if count_ReflexFix == 0 and gpu_nvidia:
                 print("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a highly recommended mod that can reduce render latency.")
                 print("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files")
@@ -1625,9 +1656,9 @@ if len(list_SCANFAIL) >= 1:
     print("Once it opens the code, press [F5] to run the script. Any error messages will appear in red.")
     print("-----")
     print('If any given error contains "codec cant decode byte", you can fix this in two ways:')
-    print('1.) Move all crash logs and the scan script into a folder with short and simple path name, example: "C:\Crash Logs"')
+    print('1.] Move all crash logs and the scan script into a folder with short and simple path name, example: "C:\Crash Logs"')
     print("-----")
-    print('2.) Open the original crash log with Notepad, select File > Save As... and make sure that Encoding is set to UTF-8,')
+    print('2.] Open the original crash log with Notepad, select File > Save As... and make sure that Encoding is set to UTF-8,')
     print('then press Save and overwrite the original crash log file. Run the Scan Crashlogs script again after that.')
     print("-----")
     print('FOR ALL OTHER ERRORS PLEASE CONTACT ME DIRECTLY, CONTACT INFO BELOW!')
@@ -1643,7 +1674,7 @@ print("\nScanned all available logs in", (str(time.time() - start_time)[:7]), "s
 print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
 print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
 print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
-print("Number of Very Old / Wrong Formatting Logs): ", statL_veryold)
+print("Number of Very Old / Wrong Formatting Logs : ", statL_veryold)
 print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
 print("-----")
 if CLAS_config.get("MAIN","Stat Logging").lower() == "true":
