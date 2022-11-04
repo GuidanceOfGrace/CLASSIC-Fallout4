@@ -25,8 +25,8 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = 281022 #DDMMYY
-CLAS_Current = "CLAS v5.77"
+CLAS_Date = "041122" #DDMMYY
+CLAS_Current = "CLAS v5.88"
 CLAS_Update = False
 
 if CLAS_config.get("MAIN","Update Check").lower() == "true":
@@ -67,6 +67,7 @@ Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. Yo
                "\nRandom Hint: You have a crash log where Autoscanner couldn't find anything? Feel free to send it to me.\n",
                "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
                "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
+               "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
                "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
                "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
                "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Crticle and Auto-Scanner Nexus Page from time to time for updates.\n"]
@@ -218,7 +219,7 @@ for file in os.listdir("."):
     if fnmatch.fnmatch(file, "crash-*.log"): # or fnmatch.fnmatch(file, "crash-*.txt") | RESERVED
         logname = str(file)[:len(str(file))-4]
         sys.stdout = open(logname + "-AUTOSCAN.md", "w", encoding='utf-8-sig', errors="ignore")
-        crashlog = str(logname + str(".log"))
+        crashlog = str(logname + ".log")
         if Steam_INI.is_file():
             print(logname + ".log \U0001F480")
         else:
@@ -235,11 +236,11 @@ for file in os.listdir("."):
         all_lines = crash_version.readlines()
         buff_ver = str(all_lines[1].strip())
         buff_error = str(all_lines[3].strip())
+        plugin_idx = 1
         for line in all_lines:
-            if not "F4SE" in line and "PLUGINS" in line:
+            if not "F4SE" in line and "PLUGINS:" in line:
                 plugin_idx = all_lines.index(line)
-            else:
-                plugin_idx = 1
+
         plugin_list = all_lines[plugin_idx:]
         if os.path.exists("loadorder.txt"):
             plugin_list = []
@@ -250,7 +251,7 @@ for file in os.listdir("."):
                     plugin_list.append(line)
 
         # BUFFOUT VERSION CHECK
-        buff_latest = str("Buffout 4 v1.26.2")
+        buff_latest = "Buffout 4 v1.26.2"
         print("Main Error:", buff_error)
         print("====================================================")
         print("Detected Buffout Version:", buff_ver.strip())
@@ -262,14 +263,14 @@ for file in os.listdir("."):
             print("REPORTED BUFFOUT VERSION DOES NOT MATCH THE BUFFOUT VERSION USED BY AUTOSCAN")
             print("UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/47359")
 
-        if str("v1.") not in buff_ver:
+        if "v1." not in buff_ver:
             statL_veryold +=1
             statL_scanned -=1
 
         # CLOSE CURRENT FILE & OPEN FILE AGAIN FOR ANOTHER CHECK
         crash_version.close()
-        crash_log = open(crashlog, "r", errors="ignore")
-        crash_message = crash_log.read()
+        c_log = open(crashlog, "r", errors="ignore")
+        c_text = c_log.read()
 
         # ===========================================================
 
@@ -277,13 +278,7 @@ for file in os.listdir("."):
         print("CHECKING IF BUFFOUT 4 FILES/SETTINGS ARE CORRECT...")
         print("====================================================")
 
-        count_Survival_Mod = crash_message.count("UnlimitedSurvivalMode.dll")
-        count_buff_Achieve = crash_message.count("Achievements: true")
-        count_Achieve_Mod = crash_message.count("achievements.dll")
-        count_buff_Memory = crash_message.count("MemoryManager: true")
-        count_Memory_Mod = crash_message.count("BakaScrapHeap.dll")
-        count_buff_F4EE = crash_message.count("F4EE: false")
-        count_F4EE_Mod = crash_message.count("f4ee.dll")
+        ALIB_Load = BUFF_Load = False
 
         # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
         if CLAS_config.get("MAIN","FCX Mode").lower() == "true":
@@ -319,6 +314,7 @@ for file in os.listdir("."):
 
             if F4SE_Buffout == 1:
                 print("Script Extender reports that Buffout 4.dll was found and loaded correctly. \n-----")
+                ALIB_Load = BUFF_Load = True
             else:
                 print("# SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #")
                 print("Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115")
@@ -362,7 +358,7 @@ for file in os.listdir("."):
                 print("FALLOUT 4 SCRIPT EXTENDER: (Download Build 0.6.23) https://f4se.silverlock.org")
                 print("-----")
 
-            if Address_Library.is_file():
+            if Address_Library.is_file() or ALIB_Load == True:
                 print("REQUIRED: Address Library is (manually) installed. \n-----")
             else:
                 print("# CAUTION: Auto-Scanner cannot find the Adress Library file or it isn't (manually) installed! #")
@@ -370,11 +366,11 @@ for file in os.listdir("."):
                 print("ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files")
                 print("-----")
 
-            if Buffout_INI.is_file() and Buffout_DLL.is_file():
+            if Buffout_INI.is_file() and Buffout_DLL.is_file() or BUFF_Load == True:
                 with open(Buffout_INI, "r+") as BUFF_Custom:
                     BUFF_config = BUFF_Custom.read()
                     print("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----")
-                    if count_buff_Achieve >= 1 and (count_Achieve_Mod or count_Survival_Mod) >= 1 and "Achievements = true" in BUFF_config:
+                    if ("achievements.dll" or "UnlimitedSurvivalMode.dll") in c_text and "Achievements = true" in BUFF_config:
                         print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
                         print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
                         print("-----")
@@ -382,7 +378,7 @@ for file in os.listdir("."):
                     else:
                         print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
 
-                    if (count_buff_Memory and count_Memory_Mod) >= 1 and "MemoryManager = true" in BUFF_config:
+                    if "BakaScrapHeap.dll" in c_text and "MemoryManager = true" in BUFF_config:
                         print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
                         print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
                         print("-----")
@@ -390,7 +386,7 @@ for file in os.listdir("."):
                     else:
                         print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
 
-                    if (count_buff_F4EE and count_F4EE_Mod) >= 1 and "F4EE = false" in BUFF_config:
+                    if "f4ee.dll" in c_text and "F4EE = false" in BUFF_config:
                         print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
                         print("Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.")
                         print("-----")
@@ -406,21 +402,21 @@ for file in os.listdir("."):
                 print("-----")
 
         else: # INSTRUCTIONS FOR MANUAL FIXING WHEN FCX MODE IS FALSE
-            if (count_buff_Achieve and count_Achieve_Mod) >= 1 or (count_buff_Achieve and count_Survival_Mod) >= 1:
+            if ("Achievements: true" in c_text and "achievements.dll" in c_text) or ("Achievements: true" in c_text and "UnlimitedSurvivalMode.dll" in c_text):
                 print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
                 print("FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.")
                 print("-----")
             else:
                 print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
 
-            if (count_buff_Memory and count_Memory_Mod) >= 1:
+            if "MemoryManager: true" in c_text and "BakaScrapHeap.dll" in c_text:
                 print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
                 print("FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.")
                 print("-----")
             else:
                 print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
 
-            if (count_buff_F4EE and count_F4EE_Mod) >= 1:
+            if "F4EE: false" in c_text and "f4ee.dll" in c_text:
                 print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
                 print("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.")
                 print("-----")
@@ -433,359 +429,231 @@ for file in os.listdir("."):
         Buffout_Trap = False # CHECK FOR KNOWN CRASH MESSAGES - BUFFOUT TRAP
 
         # ====================== HEADER ERRORS ======================
+
         if ".dll" in buff_error and "tbbmalloc" not in buff_error:
             print("# MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH! # \n-----")
 
-        # Stack Overflow Crash
         if "EXCEPTION_STACK_OVERFLOW" in buff_error:
             print("# Checking for Stack Overflow Crash.........CULPRIT FOUND! #")
-            print("> Priority Level: [5]")
+            print("> Priority : [5]")
             Buffout_Trap = True
             statC_Overflow +=1
 
-        # Active Effect Crash
         if "0x000100000000" in buff_error:
             print("# Checking for Active Effects Crash.........CULPRIT FOUND! #")
-            print("> Priority Level: [5]")
+            print("> Priority : [5]")
             Buffout_Trap = True
             statC_ActiveEffect +=1
 
-        # Bad Math Crash
         if "EXCEPTION_INT_DIVIDE_BY_ZERO" in buff_error:
             print("# Checking for Bad Math Crash...............CULPRIT FOUND! #")
-            print("> Priority Level: [5]")
+            print("> Priority : [5]")
             Buffout_Trap = True
             statC_BadMath +=1
 
-        # Null Crash
         if "0x000000000000" in buff_error:
             print("# Checking for Null Crash...................CULPRIT FOUND! #")
-            print("> Priority Level: [5]")
+            print("> Priority : [5]")
             Buffout_Trap = True
             statC_Null +=1
 
         # ======================= MAIN ERRORS =======================
-        # SPECIAL - Uneducated Shooter (56789)
-        count_InvalidArg = crash_message.count("std::invalid_argument")
-        # GENERIC - DLL
-        count_KERNELBASE = crash_message.count("KERNELBASE.dll")
-        count_MSVCP140 = crash_message.count("MSVCP140.dll")
-        count_MSVCR110 = crash_message.count("MSVCR110.dll")
-        # CBP Crash
-        count_CBP = crash_message.count("cbp.dll")
-        count_skeleton = crash_message.count("skeleton.nif")
-        # DLL Crash
-        count_DLCBanner01 = crash_message.count("DLCBannerDLC01.dds")
-        # LOD Crash
-        count_BGSLocation = crash_message.count("BGSLocation")
-        count_BGSQueued = crash_message.count("BGSQueuedTerrainInitialLoad")
-        # MCM Crash
-        count_FaderData = crash_message.count("FaderData")
-        count_FaderMenu = crash_message.count("FaderMenu")
-        count_UIMessage = crash_message.count("UIMessage")
-        # Decal Crash
-        count_BGSDecal = crash_message.count("BGSDecalManager")
-        count_BSTempEffect = crash_message.count("BSTempEffectGeometryDecal")
-        # Equip Crash
-        count_PipboyMapData = crash_message.count("PipboyMapData")
-        # Script Crash
-        count_Papyrus = crash_message.count("Papyrus")
-        count_VirtualMachine = crash_message.count("VirtualMachine")
-        # Console Crash
-        count_CompileAndRun = crash_message.count("SysWindowCompileAndRun")
-        count_ConsoleLogPrinter = crash_message.count("ConsoleLogPrinter")
-        # Generic Crash
-        count_tbbmalloc = crash_message.count("tbbmalloc.dll")
-        # Particle Crash
-        count_ParticleSystem = crash_message.count("ParticleSystem")
-        # BA2 Limit Crash
-        count_LooseFileAsync = crash_message.count("LooseFileAsyncStream")
-        # Rendering Crash
-        count_d3d11 = crash_message.count("d3d11.dll")
-        # Grid Scrap Crash
-        count_GridAdjacency = crash_message.count("GridAdjacencyMapNode")
-        count_PowerUtils = crash_message.count("PowerUtils")
-        # Mesh (NIF) Crash
-        count_LooseFileStream = crash_message.count("LooseFileStream")
-        count_BSMulti = crash_message.count("BSMultiBoundNode")
-        count_BSFade = crash_message.count("BSFadeNode")
-        # Texture (DDS) Crash
-        count_Create2DTexture = crash_message.count("Create2DTexture")
-        count_DefaultTexture = crash_message.count("DefaultTexture")
-        # Material (BGSM) Crash
-        count_TextureBlack = crash_message.count("DefaultTexture_Black")
-        count_NiAlphaProperty = crash_message.count("NiAlphaProperty")
-        # NPC Pathing Crash - Static
-        count_PathingCell = crash_message.count("PathingCell")
-        count_BSPathBuilder = crash_message.count("BSPathBuilder")
-        count_PathManagerServer = crash_message.count("PathManagerServer")
-        # NPC Pathing Crash - Dynamic
-        count_NavMesh = crash_message.count("NavMesh")
-        count_NavMeshObstacle = crash_message.count("BSNavmeshObstacleData")
-        count_NavMeshDynamic = crash_message.count("DynamicNavmesh")
-        # BitDefender Crash
-        count_bdhkm64 = crash_message.count("bdhkm64.dll")
-        count_DeleteFileW = crash_message.count("usvfs::hook_DeleteFileW")
-        # Audio Driver Crash
-        count_X3DAudio1_7 = crash_message.count("X3DAudio1_7.dll")
-        count_XAudio2_7 = crash_message.count("XAudio2_7.dll")
-        # Plugin Limit Crash
-        count_BSMemStorage = crash_message.count("BSMemStorage")
-        count_ReaderWriter = crash_message.count("DataFileHandleReaderWriter")
-        # Plugin Order Crash
-        count_Gamebryo = crash_message.count("GamebryoSequenceGenerator")
-        # MO2 Extractor Crash
-        count_BSD3D = crash_message.count("BSD3DResourceCreator")
-        # Nvidia Debris Crash
-        count_flexRelease_x64 = crash_message.count("flexRelease_x64.dll")
-        # Nvidia Driver Crash
-        count_nvwgf2umx = crash_message.count("nvwgf2umx.dll")
-        # Vulkan Memory Crash
-        count_SubmissionQueue = crash_message.count("DxvkSubmissionQueue")
-        # Vulkan Settings Crash
-        count_DXGIAdapter = crash_message.count("dxvk::DXGIAdapter")
-        count_DXGIFactory = crash_message.count("dxvk::DXGIFactory")
-        # Corrupted Audio Crash
-        count_BSXAudio2Data = crash_message.count("BSXAudio2DataSrc")
-        count_BSXAudio2Game = crash_message.count("BSXAudio2GameSound")
-        # Water Collision Crash
-        count_BGSWater = crash_message.count("BGSWaterCollisionManager")
-        # count_TESWaterForm = crash_message.count("TESWaterForm") | RESERVED
-        # Animation / Physics Crash
-        count_Anim1 = crash_message.count("hkbVariableBindingSet")
-        count_Anim2 = crash_message.count("hkbHandIkControlsModifier")
-        count_Anim3 = crash_message.count("hkbBehaviorGraph")
-        count_Anim4 = crash_message.count("hkbModifierList")
-        # Archive Invalidation Crash
-        count_DLCBanner05 = crash_message.count("DLCBanner05.dds")
-        # *[Item Crash]
-        count_BGSAttachment = crash_message.count("BGSMod::Attachment")
-        count_BGSTemplate = crash_message.count("BGSMod::Template")
-        count_BGSTemplateItem = crash_message.count("BGSMod::Template::Item")
-        # *[Save Crash] <?> *[Bad INI Crash]
-        count_BGSSaveBuffer = crash_message.count("BGSSaveFormBuffer")
-        # *[Input Crash]
-        count_ButtonEvent = crash_message.count("ButtonEvent")
-        count_MenuControls = crash_message.count("MenuControls")
-        count_MenuOpenClose = crash_message.count("MenuOpenCloseHandler")
-        count_PlayerControls = crash_message.count("PlayerControls")
-        count_DXGISwapChain = crash_message.count("DXGISwapChain")
-        # *[Bad INI Crash] <?> *[Save Crash]
-        count_BGSSaveManager = crash_message.count("BGSSaveLoadManager")
-        count_BGSSaveThread = crash_message.count("BGSSaveLoadThread")
-        count_INIMem1 = crash_message.count("+0CDAD30")
-        count_INIMem2 = crash_message.count("+0D09AB7")
-        # *[NPC Patrol Crash]
-        count_Patrol = crash_message.count("BGSProcedurePatrol")
-        count_PatrolExec = crash_message.count("BGSProcedurePatrolExecState")
-        count_PatrolActor = crash_message.count("PatrolActorPackageData")
-        # *[Precombines Crash]
-        count_TESObjectCELL = crash_message.count("TESObjectCELL")
-        count_BGSStatic = crash_message.count("BGSStaticCollection")
-        count_BGSCombined = crash_message.count("BGSCombinedCellGeometryDB")
-        count_BSPacked = crash_message.count("BSPackedCombinedGeomDataExtra")
-        # *[Ammo Counter Crash]
-        count_HUDAmmo = crash_message.count("HUDAmmoCounter")
-        # *[NPC Projectile Crash]
-        count_BGSProjectile = crash_message.count("BGSProjectile")
-        count_CombatProjectile = crash_message.count("CombatProjectileAimController")
-        # *[Player Character Crash]
-        count_Player = crash_message.count("PlayerCharacter")
-        count_0x7 = crash_message.count("0x00000007")
-        count_0x8 = crash_message.count("0x00000008")
-        count_0x14 = crash_message.count("0x00000014")
-        # *[Creation Club Crash]
-        #  Call Stack(s): +01B59A4
 
         # OTHER | RESERVED
-        # count_NiBinaryStream = crash_message.count("BSResourceNiBinaryStream")
-        # count_ObjectBindPolicy = crash_message.count("ObjectBindPolicy")
+        # *[Creation Club Crash] | +01B59A4
+        # Uneducated Shooter (56789) | c_text.count("std::invalid_argument")
+        # c_text.count("BSResourceNiBinaryStream")
+        # c_text.count("ObjectBindPolicy")
 
         # ===========================================================
-        if count_DLCBanner01 >= 1:
+        if "DLCBannerDLC01.dds" in c_text:
             print("# Checking for DLL Crash....................CULPRIT FOUND! #")
-            print("> Priority Level: [5] | DLCBannerDLC01.dds : ",count_DLCBanner01)
+            print("> Priority : [5] | DLCBannerDLC01.dds : ",c_text.count("DLCBannerDLC01.dds"))
             Buffout_Trap = True
             statC_DLL +=1
         # ===========================================================
-        if (count_BGSLocation and count_BGSQueued) >= 1:
+        if "BGSLocation" in c_text and "BGSQueuedTerrainInitialLoad" in c_text:
             print("# Checking for LOD Crash....................CULPRIT FOUND! #")
-            print("> Priority Level: [5] | BGSLocation : ",count_BGSLocation," | BGSQueuedTerrainInitialLoad : ",count_BGSQueued)
+            print("> Priority : [5] | BGSLocation : ",c_text.count("BGSLocation")," | BGSQueuedTerrainInitialLoad : ",c_text.count("BGSQueuedTerrainInitialLoad"))
             Buffout_Trap = True
             statC_LOD +=1
         # ===========================================================
-        if (count_FaderData or count_FaderMenu or count_UIMessage) >= 1:
+        if ("FaderData" or "FaderMenu" or "UIMessage") in c_text:
             print("# Checking for MCM Crash....................CULPRIT FOUND! #")
-            print("> Priority Level: [3] | FaderData : ",count_FaderData," | FaderMenu : ",count_FaderMenu," | UIMessage : ",count_UIMessage)
+            print("> Priority : [3] | FaderData : ",c_text.count("FaderData")," | FaderMenu : ",c_text.count("FaderMenu")," | UIMessage : ",c_text.count("UIMessage"))
             Buffout_Trap = True
             statC_MCM +=1
         # ===========================================================
-        if (count_BGSDecal or count_BSTempEffect) >= 1:
+        if ("BGSDecalManager" or "BSTempEffectGeometryDecal") in c_text:
             print("# Checking for Decal Crash..................CULPRIT FOUND! #")
-            print("> Priority Level: [5] | BGSDecalManager : ",count_BGSDecal," | BSTempEffectGeometryDecal : ",count_BSTempEffect)
+            print("> Priority : [5] | BGSDecalManager : ",c_text.count("BGSDecalManager")," | BSTempEffectGeometryDecal : ",c_text.count("BSTempEffectGeometryDecal"))
             Buffout_Trap = True
             statC_Decal +=1
         # ===========================================================
-        if count_PipboyMapData >= 2:
+        if c_text.count("PipboyMapData") >= 2:
             print("# Checking for Equip Crash..................CULPRIT FOUND! #")
-            print("> Priority Level: [2] | PipboyMapData : ",count_PipboyMapData)
+            print("> Priority : [2] | PipboyMapData : ",c_text.count("PipboyMapData"))
             Buffout_Trap = True
             statC_Equip +=1
         # ===========================================================            
-        if (count_Papyrus or count_VirtualMachine) >= 2:
+        if (c_text.count("Papyrus") or c_text.count("VirtualMachine")) >= 2:
             print("# Checking for Script Crash.................CULPRIT FOUND! #")
-            print("> Priority Level: [3] | Papyrus : ",count_Papyrus," | VirtualMachine : ",count_VirtualMachine)
+            print("> Priority : [3] | Papyrus : ",c_text.count("Papyrus")," | VirtualMachine : ",c_text.count("VirtualMachine"))
             Buffout_Trap = True
             statC_Papyrus +=1
         # ===========================================================
-        if count_tbbmalloc >= 3 or str("tbbmalloc") in buff_error:
+        if c_text.count("tbbmalloc.dll") >= 3 or "tbbmalloc" in buff_error:
             print("# Checking for Generic Crash................CULPRIT FOUND! #")
-            print("> Priority Level: [2] | tbbmalloc.dll : ",count_tbbmalloc)
+            print("> Priority : [2] | tbbmalloc.dll : ",c_text.count("tbbmalloc.dll"))
             Buffout_Trap = True
             statC_Generic +=1
         # ===========================================================
-        if count_LooseFileAsync >= 1:
+        if "LooseFileAsyncStream" in c_text:
             print("# Checking for BA2 Limit Crash..............CULPRIT FOUND! #")
-            print("> Priority Level: [5] | LooseFileAsyncStream : ",count_LooseFileAsync)
+            print("> Priority : [5] | LooseFileAsyncStream : ",c_text.count("LooseFileAsyncStream"))
             Buffout_Trap = True
             statC_BA2Limit +=1
         # ===========================================================
-        if count_d3d11 >= 3 or str("d3d11") in buff_error:
+        if c_text.count("d3d11.dll") >= 3 or "d3d11" in buff_error:
             print("# Checking for Rendering Crash..............CULPRIT FOUND! #")
-            print("> Priority Level: [4] | d3d11.dll : ",count_d3d11)
+            print("> Priority : [4] | d3d11.dll : ",c_text.count("d3d11.dll"))
             Buffout_Trap = True
             statC_Rendering +=1
         # ===========================================================
-        if (count_GridAdjacency or count_PowerUtils) >= 1:
+        if ("GridAdjacencyMapNode" or "PowerUtils") in c_text:
             print("# Checking for Grid Scrap Crash.............CULPRIT FOUND! #")
-            print("> Priority Level: [5] | GridAdjacencyMapNode : ",count_GridAdjacency," | PowerUtils : ",count_PowerUtils)
+            print("> Priority : [5] | GridAdjacencyMapNode : ",c_text.count("GridAdjacencyMapNode")," | PowerUtils : ",c_text.count("PowerUtils"))
             Buffout_Trap = True
             statC_GridScrap +=1
         # ===========================================================
-        if (count_LooseFileStream or count_BSFade or count_BSMulti) >= 1 and count_LooseFileAsync == 0:
+        if ("LooseFileStream" or "BSFadeNode" or "BSMultiBoundNode") in c_text and c_text.count("LooseFileAsyncStream") == 0:
             print("# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #")
-            print("> Priority Level: [4] | LooseFileStream : ",count_LooseFileStream," | BSFadeNode : ",count_BSFade," | BSMultiBoundNode : ",count_BSMulti)
+            print("> Priority : [4] | LooseFileStream : ",c_text.count("LooseFileStream")," | BSFadeNode : ",c_text.count("BSFadeNode"))
+            print("                   BSMultiBoundNode : ",c_text.count("BSMultiBoundNode"))
             Buffout_Trap = True
             statC_NIF +=1
         # ===========================================================
-        if (count_Create2DTexture or count_DefaultTexture) >= 1:
+        if ("Create2DTexture" or "DefaultTexture") in c_text:
             print("# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #")
-            print("> Priority Level: [3] | Create2DTexture : ",count_Create2DTexture," | DefaultTexture : ",count_DefaultTexture)
+            print("> Priority : [3] | Create2DTexture : ",c_text.count("Create2DTexture")," | DefaultTexture : ",c_text.count("DefaultTexture"))
             Buffout_Trap = True
             statC_Texture +=1
         # ===========================================================
-        if (count_TextureBlack or count_NiAlphaProperty) >= 1:
+        if ("DefaultTexture_Black" or "NiAlphaProperty") in c_text:
             print("# Checking for Material (BGSM) Crash........CULPRIT FOUND! #")
-            print("> Priority Level: [3] | DefaultTexture_Black : ",count_TextureBlack," | NiAlphaProperty : ",count_NiAlphaProperty)
+            print("> Priority : [3] | DefaultTexture_Black : ",c_text.count("DefaultTexture_Black")," | NiAlphaProperty : ",c_text.count("NiAlphaProperty"))
             Buffout_Trap = True
             statC_BGSM +=1
         # ===========================================================
-        if (count_bdhkm64 or count_DeleteFileW) >= 2:
+        if (c_text.count("bdhkm64.dll") or c_text.count("usvfs::hook_DeleteFileW")) >= 2:
             print("# Checking for BitDefender Crash............CULPRIT FOUND! #")
-            print("> Priority Level: [5] | bdhkm64.dll : ",count_bdhkm64," | usvfs::hook_DeleteFileW : ",count_DeleteFileW)
+            print("> Priority : [5] | bdhkm64.dll : ",c_text.count("bdhkm64.dll")," | usvfs::hook_DeleteFileW : ",c_text.count("usvfs::hook_DeleteFileW"))
             Buffout_Trap = True
             statC_BitDefender +=1
         # ===========================================================
-        if (count_PathingCell or count_BSPathBuilder or count_PathManagerServer) >= 1:
+        if ("PathingCell" or "BSPathBuilder" or "PathManagerServer") in c_text:
             print("# Checking for NPC Pathing Crash............CULPRIT FOUND! #")
-            print("> Priority Level: [3] | PathingCell : ",count_PathingCell," | BSPathBuilder : ",count_BSPathBuilder," | PathManagerServer : ",count_PathManagerServer)
+            print("> Priority : [3] | PathingCell : ",c_text.count("PathingCell")," | BSPathBuilder : ",c_text.count("BSPathBuilder"))
+            print("                   PathManagerServer : ",c_text.count("PathManagerServer"))
             Buffout_Trap = True
             statC_NPCPathing +=1
-        elif (count_NavMesh or count_NavMeshObstacle or count_NavMeshDynamic) >= 1:
+        elif ("NavMesh" or "BSNavmeshObstacleData" or "DynamicNavmesh") in c_text:
             print("# Checking for NPC Pathing Crash............CULPRIT FOUND! #")
-            print("> Priority Level: [3] | NavMesh : ",count_NavMesh," | BSNavmeshObstacleData : ",count_NavMeshObstacle," | DynamicNavmesh : ",count_NavMeshDynamic)
+            print("> Priority : [3] | NavMesh : ",c_text.count("NavMesh")," | BSNavmeshObstacleData : ",c_text.count("BSNavmeshObstacleData"))
+            print("                   DynamicNavmesh : ",c_text.count("DynamicNavmesh"))
             Buffout_Trap = True
             statC_NPCPathing +=1
         # ===========================================================
-        if count_X3DAudio1_7 >= 3 or count_XAudio2_7 >= 2 or str("X3DAudio1_7") in buff_error or str("XAudio2_7") in buff_error:
+        if c_text.count("X3DAudio1_7.dll") >= 3 or c_text.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in buff_error:
             print("# Checking for Audio Driver Crash...........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | X3DAudio1_7.dll : ",count_X3DAudio1_7," | XAudio2_7.dll : ",count_XAudio2_7)
+            print("> Priority : [5] | X3DAudio1_7.dll : ",c_text.count("X3DAudio1_7.dll")," | XAudio2_7.dll : ",c_text.count("XAudio2_7.dll"))
             Buffout_Trap = True
             statC_Audio +=1
         # ===========================================================
-        if count_CBP >= 3 or count_skeleton >= 1 or str("cbp") in buff_error:
+        if c_text.count("cbp.dll") >= 3 or "skeleton.nif" in c_text or "cbp.dll" in buff_error:
             print("# Checking for Body Physics Crash...........CULPRIT FOUND! #")
-            print("> Priority Level: [4] | cbp.dll : ",count_CBP," | skeleton.nif : ",count_skeleton)
+            print("> Priority : [4] | cbp.dll : ",c_text.count("cbp.dll")," | skeleton.nif : ",c_text.count("skeleton.nif"))
             Buffout_Trap = True
             statC_BodyPhysics +=1
         # =========================================================== 
-        if (count_BSMemStorage or count_ReaderWriter) >= 1:
+        if ("BSMemStorage" or "DataFileHandleReaderWriter") in c_text:
             print("# Checking for Plugin Limit Crash...........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | BSMemStorage : ",count_BSMemStorage," | DataFileHandleReaderWriter : ",count_ReaderWriter)
+            print("> Priority : [5] | BSMemStorage : ",c_text.count("BSMemStorage")," | DataFileHandleReaderWriter : ",c_text.count("DataFileHandleReaderWriter"))
             Buffout_Trap = True
             statC_PluginLimit +=1
         # =========================================================== 
-        if count_Gamebryo >= 1:
+        if "GamebryoSequenceGenerator" in c_text or "+0DB9300" in buff_error:
             print("# Checking for Plugin Order Crash...........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | GamebryoSequenceGenerator : ",count_Gamebryo)
+            print("> Priority : [5] | GamebryoSequenceGenerator : ",c_text.count("GamebryoSequenceGenerator"))
             Buffout_Trap = True
             statC_LoadOrder +=1
         # ===========================================================
-        if count_BSD3D == 3 or count_BSD3D == 6:
+        if c_text.count("BSD3DResourceCreator") == 3 or c_text.count("BSD3DResourceCreator") == 6:
             print("# Checking for MO2 Extractor Crash..........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | BSD3DResourceCreator : ",count_BSD3D)
+            print("> Priority : [5] | BSD3DResourceCreator : ",c_text.count("BSD3DResourceCreator"))
             Buffout_Trap = True
             statC_MO2Unp +=1
         # ===========================================================
-        if count_flexRelease_x64 >= 2 or str("flexRelease_x64") in buff_error:
+        if c_text.count("flexRelease_x64.dll") >= 2 or "flexRelease_x64" in buff_error:
             print("# Checking for Nvidia Debris Crash..........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | flexRelease_x64.dll : ",count_flexRelease_x64)
+            print("> Priority : [5] | flexRelease_x64.dll : ",c_text.count("flexRelease_x64.dll"))
             Buffout_Trap = True
             statC_NVDebris +=1
         # =========================================================== 
-        if count_nvwgf2umx >= 10 or str("nvwgf2umx") in buff_error:
+        if c_text.count("nvwgf2umx.dll") >= 10 or ("nvwgf2umx" or "USER32.dll") in buff_error:
             print("# Checking for Nvidia Driver Crash..........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | nvwgf2umx.dll : ",count_nvwgf2umx)
+            print("> Priority : [5] | nvwgf2umx.dll : ",c_text.count("nvwgf2umx.dll")," | USER32.dll : ",c_text.count("USER32.dll"))
             Buffout_Trap = True
             statC_NVDriver +=1
         # ===========================================================
-        if (count_KERNELBASE or count_MSVCP140) >= 3 and count_SubmissionQueue >= 1:
+        if (c_text.count("KERNELBASE.dll") or c_text.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in c_text:
             print("# Checking for Vulkan Memory Crash..........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | KERNELBASE.dll : ",count_KERNELBASE," | MSVCP140.dll : ",count_MSVCP140," | DxvkSubmissionQueue : ",count_SubmissionQueue)
+            print("> Priority : [5] | KERNELBASE.dll : ",c_text.count("KERNELBASE.dll")," | MSVCP140.dll : ",c_text.count("MSVCP140.dll"))
+            print("                   DxvkSubmissionQueue : ",c_text.count("DxvkSubmissionQueue"))
             Buffout_Trap = True
             statC_VulkanMem +=1
         # ===========================================================     
-        if (count_DXGIAdapter or count_DXGIFactory) >= 1:
+        if ("dxvk::DXGIAdapter" or "dxvk::DXGIFactory") in c_text:
             print("# Checking for Vulkan Settings Crash........CULPRIT FOUND! #")
-            print("> Priority Level: [5] | dxvk::DXGIAdapter : ",count_DXGIAdapter," | dxvk::DXGIFactory : ",count_DXGIFactory)
+            print("> Priority : [5] | dxvk::DXGIAdapter : ",c_text.count("dxvk::DXGIAdapter")," | dxvk::DXGIFactory : ",c_text.count("dxvk::DXGIFactory"))
             Buffout_Trap = True
             statC_VulkanSet +=1
         # ===========================================================        
-        if (count_BSXAudio2Data or count_BSXAudio2Game) >= 1:
+        if ("BSXAudio2DataSrc" or "BSXAudio2GameSound") in c_text:
             print("# Checking for Corrupted Audio Crash........CULPRIT FOUND! #")
-            print("> Priority Level: [4] | BSXAudio2DataSrc : ",count_BSXAudio2Data," | BSXAudio2GameSound : ",count_BSXAudio2Game)
+            print("> Priority : [4] | BSXAudio2DataSrc : ",c_text.count("BSXAudio2DataSrc")," | BSXAudio2GameSound : ",c_text.count("BSXAudio2GameSound"))
             Buffout_Trap = True
             statC_CorruptedAudio +=1
         # ===========================================================
-        if (count_CompileAndRun or count_ConsoleLogPrinter) >= 1:
+        if ("SysWindowCompileAndRun" or "ConsoleLogPrinter") in c_text:
             print("# Checking for Console Command Crash........CULPRIT FOUND! #")
-            print("> Priority Level: [1] | SysWindowCompileAndRun : ",count_CompileAndRun," | ConsoleLogPrinter : ",count_ConsoleLogPrinter)
+            print("> Priority : [1] | SysWindowCompileAndRun : ",c_text.count("SysWindowCompileAndRun")," | ConsoleLogPrinter : ",c_text.count("ConsoleLogPrinter"))
             Buffout_Trap = True
             statC_ConsoleCommands +=1
         # =========================================================== 
-        if count_BGSWater >= 1:
+        if "BGSWaterCollisionManager" in c_text:
             print("# Checking for Water Collision Crash........CULPRIT FOUND! #")
             print("PLEASE CONTACT ME AS SOON AS POSSIBLE! (CONTACT INFO BELOW)")
-            print("> Priority Level: [6] | BGSWaterCollisionManager : ",count_BGSWater)
+            print("> Priority : [6] | BGSWaterCollisionManager : ",c_text.count("BGSWaterCollisionManager"))
             Buffout_Trap = True
             statC_Water +=1
         # ===========================================================
-        if count_ParticleSystem >= 1:
+        if "ParticleSystem" in c_text:
             print("# Checking for Particle Effects Crash.......CULPRIT FOUND! #")
-            print("> Priority Level: [4] | ParticleSystem : ",count_ParticleSystem)
+            print("> Priority : [4] | ParticleSystem : ",c_text.count("ParticleSystem"))
             Buffout_Trap = True
             statC_Particles +=1
         # ===========================================================            
-        if int(count_Anim1) or int(count_Anim2) or int(count_Anim3) or int(count_Anim4) >= 1:
+        if "hkbVariableBindingSet" or "hkbHandIkControlsModifier" or "hkbBehaviorGraph" or "hkbModifierList" in c_text:
             print("# Checking for Animation / Physics Crash....CULPRIT FOUND! #")
-            print("> Priority Level: [5] | hkbVariableBindingSet : ",count_Anim1," | hkbHandIkControlsModifier : ",count_Anim2)
-            print("                        hkbBehaviorGraph : ",count_Anim3," | hkbModifierList : ",count_Anim4)
+            print("> Priority : [5] | hkbVariableBindingSet : ",c_text.count("hkbVariableBindingSet")," | hkbHandIkControlsModifier : ",c_text.count("hkbHandIkControlsModifier"))
+            print("                   hkbBehaviorGraph : ",c_text.count("hkbBehaviorGraph")," | hkbModifierList : ",c_text.count("hkbModifierList"))
             Buffout_Trap = True
             statC_AnimationPhysics +=1
         # ===========================================================            
-        if int(count_DLCBanner05) >= 1:
+        if "DLCBanner05.dds" in c_text:
             print("# Checking for Archive Invalidation Crash...CULPRIT FOUND! #")
-            print("> Priority Level: [5] | DLCBanner05.dds : ",count_DLCBanner05)
+            print("> Priority : [5] | DLCBanner05.dds : ",c_text.count("DLCBanner05.dds"))
             Buffout_Trap = True
             statC_Invalidation +=1
 
@@ -794,63 +662,67 @@ for file in os.listdir("."):
         
         if "+01B59A4" in buff_error:
             print("Checking for *[Creation Club Crash].......DETECTED!")
-            print("> Priority Level: [5]")
+            print("> Priority : [5]")
             Buffout_Trap = True
             statU_CClub +=1
         
-        if (count_BGSAttachment or count_BGSTemplate or count_BGSTemplateItem) >= 1:
+        if ("BGSMod::Attachment" or "BGSMod::Template" or "BGSMod::Template::Item") in c_text:
             print("Checking for *[Item Crash]................DETECTED!")
-            print("> Priority Level: [5] | BGSMod::Attachment : ",count_BGSAttachment," | BGSMod::Template : ",count_BGSTemplate," | BGSMod::Template::Item : ",count_BGSTemplateItem)
+            print("> Priority : [5] | BGSMod::Attachment : ",c_text.count("BGSMod::Attachment")," | BGSMod::Template : ",c_text.count("BGSMod::Template"))
+            print("                        BGSMod::Template::Item : ",c_text.count("BGSMod::Template::Item"))
             Buffout_Trap = True
             statU_Item +=1
         # ===========================================================           
-        if count_BGSSaveBuffer >= 2:
+        if c_text.count("BGSSaveFormBuffer") >= 2:
             print("Checking for *[Save Crash]................DETECTED!")
-            print("> Priority Level: [5] | BGSSaveFormBuffer : ",count_BGSSaveBuffer)
+            print("> Priority : [5] | BGSSaveFormBuffer : ",c_text.count("BGSSaveFormBuffer"))
             Buffout_Trap = True
             statU_Save +=1
         # ===========================================================
-        if (count_ButtonEvent or count_MenuControls or count_MenuOpenClose or count_PlayerControls or count_DXGISwapChain) >= 1:
+        if ("ButtonEvent" or "MenuControls" or "MenuOpenCloseHandler" or "PlayerControls" or "DXGISwapChain") in c_text:
             print("Checking for *[Input Crash]...............DETECTED!")
-            print("> Priority Level: [5] | ButtonEvent : ",count_ButtonEvent," | MenuControls : ",count_MenuControls)
-            print("                        MenuOpenCloseHandler : ",count_MenuOpenClose," | PlayerControls : ",count_PlayerControls," | DXGISwapChain : ",count_DXGISwapChain)
+            print("> Priority : [5] | ButtonEvent : ",c_text.count("ButtonEvent")," | MenuControls : ",c_text.count("MenuControls"))
+            print("                        MenuOpenCloseHandler : ",c_text.count("MenuOpenCloseHandler")," | PlayerControls : ",c_text.count("PlayerControls"))
+            print("                        DXGISwapChain : ",c_text.count("DXGISwapChain"))
             Buffout_Trap = True
             statU_Input +=1
         # ===========================================================
-        if (count_BGSSaveManager or count_BGSSaveThread or count_BGSSaveBuffer or count_INIMem1 or count_INIMem2) >= 1:
+        if ("BGSSaveLoadManager" or "BGSSaveLoadThread" or "BGSSaveFormBuffer") in c_text or ("+0CDAD30" or "+0D09AB7") in buff_error:
             print("Checking for *[Bad INI Crash].............DETECTED!")
-            print("> Priority Level: [5] | BGSSaveLoadManager : ",count_BGSSaveManager," | BGSSaveLoadThread : ",count_BGSSaveThread," | BGSSaveFormBuffer : ",count_BGSSaveBuffer)
+            print("> Priority : [5] | BGSSaveLoadManager : ",c_text.count("BGSSaveLoadManager")," | BGSSaveLoadThread : ",c_text.count("BGSSaveLoadThread"))
+            print("                        BGSSaveFormBuffer : ",c_text.count("BGSSaveFormBuffer"))
             Buffout_Trap = True
             statU_INI +=1
         # ===========================================================
-        if (count_Patrol or count_PatrolExec or count_PatrolActor) >= 1: 
+        if ("BGSProcedurePatrol" or "BGSProcedurePatrolExecState" or "PatrolActorPackageData") in c_text:
             print("Checking for *[NPC Patrol Crash]..........DETECTED!")
-            print("> Priority Level: [5] | BGSProcedurePatrol : ",count_Patrol," | BGSProcedurePatrolExecStatel : ",count_PatrolExec," | PatrolActorPackageData : ",count_PatrolActor)
+            print("> Priority : [5] | BGSProcedurePatrol : ",c_text.count("BGSProcedurePatrol")," | BGSProcedurePatrolExecStatel : ",c_text.count("BGSProcedurePatrolExecState"))
+            print("                        PatrolActorPackageData : ",c_text.count("PatrolActorPackageData"))
             Buffout_Trap = True
             statU_Patrol +=1
         # ===========================================================            
-        if (count_BSPacked or count_BGSCombined or count_BGSStatic or count_TESObjectCELL) >= 1:
+        if ("BSPackedCombinedGeomDataExtra" or "BGSCombinedCellGeometryDB" or "BGSStaticCollection" or "TESObjectCELL") in c_text:
             print("Checking for *[Precombines Crash].........DETECTED!")
-            print("> Priority Level: [5] | BGSStaticCollection : ",count_BGSStatic," | BGSCombinedCellGeometryDB : ",count_BGSCombined)
-            print("                        BSPackedCombinedGeomDataExtra : ",count_BSPacked," | TESObjectCELL : ",count_TESObjectCELL)
+            print("> Priority : [5] | BGSStaticCollection : ",c_text.count("BGSStaticCollection")," | BGSCombinedCellGeometryDB : ",c_text.count("BGSCombinedCellGeometryDB"))
+            print("                        BSPackedCombinedGeomDataExtra : ",c_text.count("BSPackedCombinedGeomDataExtra")," | TESObjectCELL : ",c_text.count("TESObjectCELL"))
             Buffout_Trap = True
             statU_Precomb +=1
         # =========================================================== 
-        if count_HUDAmmo >= 1:
+        if "HUDAmmoCounter" in c_text:
             print("Checking for *[Ammo Counter Crash]........DETECTED!")
-            print("> Priority Level: [5] | HUDAmmoCounter : ",count_HUDAmmo)
+            print("> Priority : [5] | HUDAmmoCounter : ",c_text.count("HUDAmmoCounter"))
             Buffout_Trap = True
             statU_HUDAmmo +=1
         # ===========================================================
-        if (count_BGSProjectile or count_CombatProjectile) >= 1:
+        if ("BGSProjectile" or "CombatProjectileAimController") in c_text:
              print("Checking for *[NPC Projectile Crash].....DETECTED!")
-             print("> Priority Level: [5] | BGSProjectile : ",count_BGSProjectile," | CombatProjectileAimController : ",count_CombatProjectile)
+             print("> Priority : [5] | BGSProjectile : ",c_text.count("BGSProjectile")," | CombatProjectileAimController : ",c_text.count("CombatProjectileAimController"))
              Buffout_Trap = True
         # ===========================================================
-        if (count_Player and count_0x7) >= 2 and (count_0x14 or count_0x8) >= 2:
+        if (c_text.count("PlayerCharacter") or c_text.count("0x00000007") or c_text.count("0x00000014") or c_text.count("0x00000008")) >= 3:
             print("Checking for *[Player Character Crash]....DETECTED!")
-            print("> Priority Level: [5] | PlayerCharacter : ",count_Player," | 0x00000007 : ",count_0x7)
-            print("                        0x00000008 : ",count_0x8," | 0x000000014 : ",count_0x14)
+            print("> Priority : [5] | PlayerCharacter : ",c_text.count("PlayerCharacter")," | 0x00000007 : ",c_text.count("0x00000007"))
+            print("                        0x00000008 : ",c_text.count("0x00000008")," | 0x000000014 : ",c_text.count("0x00000014"))
             Buffout_Trap = True
             statU_Player +=1
        
@@ -872,15 +744,6 @@ for file in os.listdir("."):
         print("====================================================")
         Mod_Trap1 = 1
 
-        count_LoadOrder = crash_message.count("[00]")
-        count_CHW = crash_message.count("ClassicHolsteredWeapons")
-        count_BSShadow = crash_message.count("BSShadowParabolicLight")
-        count_BSShader = crash_message.count("BSShaderAccumulator")
-        count_BSDFLight = crash_message.count("BSDFLightShader")
-        count_UniquePlayer = crash_message.count("UniquePlayer.esp")
-        count_BodyNIF = crash_message.count("Body.nif")
-        count_HighHeels = crash_message.count("HHS.dll")
-
         # Why lists and not dictionaries? So I can preserve alphabetical order in code and
         # numerical order in output without having to rename a bunch of variables.
         # Needs 1 empty space as prefix to prevent duplicates.
@@ -898,7 +761,7 @@ for file in os.listdir("."):
                       " SpringCleaning.esm",
                       " (STO) NO",
                       " TacticalTablet.esp",
-                      " True Nights",
+                      " True Nights v03.esp",
                       " WeaponsFramework",
                       " WOTC.esp"]
 
@@ -955,21 +818,21 @@ for file in os.listdir("."):
                       "WAR OF THE COMMONWEALTH \n"
                       "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]
 
-        if count_LoadOrder >= 1:
+        if "[00]" in c_text:
             for line in plugin_list:
                 for elem in List_Mods1:
-                    if str("File:") not in line and str("[FE") not in line and elem in line:
+                    if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods1.index(elem)
                         print("[!] Found:", line[0:5].strip(), List_Warn1[order_elem])
                         print("-----")
                         Mod_Trap1 = 0
-                    elif str("File:") not in line and str("[FE") in line and elem in line:
+                    elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods1.index(elem)
                         print("[!] Found:", line[0:9].strip(), List_Warn1[order_elem])
                         print("-----")
                         Mod_Trap1 = 0
 
-            if count_CHW >= 2 and (count_BSShadow or count_BSShader or count_BSDFLight) >= 1 or str("ClassicHolsteredWeapons") in buff_error:
+            if c_text.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
                 print("[!] Found: CLASSIC HOLSTERED WEAPONS")
                 print("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!")
                 print("You should disable CHW to further confirm this.")
@@ -978,7 +841,7 @@ for file in os.listdir("."):
                 statM_CHW +=1
                 Mod_Trap1 = 0
                 Buffout_Trap = True
-            elif count_CHW >= 2 and (count_UniquePlayer or count_HighHeels or count_CBP or count_BodyNIF) >= 1:
+            elif c_text.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" or "HHS.dll" or "cbp.dll" or "Body.nif") in c_text:
                 print("[!] Found: CLASSIC HOLSTERED WEAPONS")
                 print("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.")
                 print("You should disable CHW to further confirm it caused this crash.")
@@ -987,25 +850,25 @@ for file in os.listdir("."):
                 statM_CHW +=1
                 Mod_Trap1 = 0
                 Buffout_Trap = True
-            elif count_CHW == 1 and str("d3d11") in buff_error:
+            elif "ClassicHolsteredWeapons" in c_text and "d3d11" in buff_error:
                 print("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...")
                 print("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.")
                 print("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.")
                 print("This usually prevents most common crashes with Classic Holstered Weapons.")
                 print("-----")
                 Mod_Trap1 = 0
-        if count_LoadOrder >= 1 and Mod_Trap1 == 0:
+        if "[00]" in c_text and Mod_Trap1 == 0:
             print("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #")
             print("You can disable any/all of them temporarily to confirm they caused this crash.")
             print("-----")
             statL_scanned +=1
-        elif count_LoadOrder >= 1 and Mod_Trap1 == 1:
+        elif "[00]" in c_text and Mod_Trap1 == 1:
             print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #")
             print("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.")
             print("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files")
             print("-----")
             statL_scanned +=1
-        elif count_LoadOrder == 0:
+        elif not "[00]" in c_text:
             print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
             print("Autoscan cannot continue. Try scanning a different crash log.")
             print("-----")
@@ -1015,15 +878,13 @@ for file in os.listdir("."):
         print("CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES")
         print("====================================================")
         Mod_Trap2 = no_repeat1 = no_repeat2 = 1 # MOD TRAP 2 | NEED 8 SPACES FOR ESL [FE:XXX]
-        
-        count_FallSouls = crash_message.count("FallSouls.dll")
 
         # Needs 1 empty space as prefix to prevent duplicates.
         List_Mods2 = [" DLCUltraHighResolution.esm",
                       " AAF.esm",
                       " ArmorKeywords.esm",
                       " BTInteriors_Project.esp",
-                      " CombatZoneRestored",
+                      " CombatZoneRestored.esp",
                       " D.E.C.A.Y.esp",
                       " EveryonesBestFriend",
                       " M8r_Item_Tags",
@@ -1192,15 +1053,15 @@ for file in os.listdir("."):
                       "Version 2.6.3 contains a resurrection script that will regularly crash the game. \n"
                       "Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]
 
-        if count_LoadOrder >= 1:
+        if "[00]" in c_text:
             for line in plugin_list:
                 for elem in List_Mods2:
-                    if str("File:") not in line and str("[FE") not in line and elem in line:
+                    if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods2.index(elem)
                         print("[!] Found:", line[0:5].strip(), List_Warn2[order_elem])
                         print("-----")
                         Mod_Trap2 = 0
-                    elif str("File:") not in line and str("[FE") in line and elem in line:
+                    elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods2.index(elem)
                         print("[!] Found:", line[0:9].strip(), List_Warn2[order_elem])
                         print("-----")
@@ -1218,20 +1079,20 @@ for file in os.listdir("."):
                     print("Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101")
                     no_repeat2 = Mod_Trap2 = 0
 
-            if count_FallSouls >= 1:
+            if "FallSouls.dll" in c_text:
                 print("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
                 print("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.")
                 print("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.")
                 print("-----")
                 Mod_Trap2 = 0
-        if count_LoadOrder >= 1 and Mod_Trap2 == 0:
+        if "[00]" in c_text and Mod_Trap2 == 0:
             print("[Due to inherent limitations, Auto-Scan will continue detecting certain mods,")
             print(" even if fixes or patches for them are already installed. You can ignore these.]")
             print("-----")
-        elif count_LoadOrder >= 1 and Mod_Trap2 == 1:
+        elif "[00]" in c_text and Mod_Trap2 == 1:
             print("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #")
             print("-----")
-        elif count_LoadOrder == 0:
+        elif c_text.count("[00]") == 0:
             print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
             print("Autoscan cannot continue. Try scanning a different crash log.")
             print("-----")
@@ -1318,26 +1179,26 @@ for file in os.listdir("."):
                       "Xander's Aid",
                       "ZXC Micro Additions"]
 
-        if count_LoadOrder >= 1:
+        if "[00]" in c_text:
             for line in plugin_list:
                 for elem in List_Mods3:
-                    if str("File:") not in line and str("[FE") not in line and elem in line:
+                    if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods3.index(elem)
                         print("- Found:", line[0:5].strip(), List_Warn3[order_elem])
                         Mod_Trap3 = 0
-                    elif str("File:") not in line and str("[FE") in line and elem in line:
+                    elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods3.index(elem)
                         print("- Found:", line[0:9].strip(), List_Warn3[order_elem])
                         Mod_Trap3 = 0
-        if count_LoadOrder >= 1 and Mod_Trap3 == 0:  
+        if "[00]" in c_text and Mod_Trap3 == 0:  
             print("-----")
             print("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,")
             print("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872")
             print("-----")
-        elif count_LoadOrder >= 1 and Mod_Trap3 == 1:
+        elif "[00]" in c_text and Mod_Trap3 == 1:
             print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #")
             print("-----")           
-        elif count_LoadOrder == 0:
+        elif c_text.count("[00]") == 0:
             print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
             print("Autoscan cannot continue. Try scanning a different crash log.")
             print("-----")
@@ -1355,11 +1216,6 @@ for file in os.listdir("."):
                 gpu_nvidia = True
             if "GPU" in line and "AMD" in line:
                 gpu_amd = True
-
-        count_PhysicsFIX = crash_message.count("HighFPSPhysicsFix.dll")
-        count_DebrisFIX = crash_message.count("WeaponDebrisCrashFix.dll")
-        count_ReflexFix = crash_message.count("NVIDIA_Reflex.dll")
-        count_VulkanDLL = crash_message.count("vulkan-1.dll")
 
         print("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,")
         print("remove these mods completely and switch to High FPS Physics Fix!")
@@ -1386,7 +1242,7 @@ for file in os.listdir("."):
                 print("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files")
                 print("-----")
 
-        if count_LoadOrder >= 1:
+        if "[00]" in c_text:
             if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
                 print("*Canary Save File Monitor* is installed. \n-----")
             else:
@@ -1395,7 +1251,7 @@ for file in os.listdir("."):
                 print("Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files")
                 print("-----")
 
-            if count_PhysicsFIX > 0:
+            if "HighFPSPhysicsFix.dll" in c_text:
                 print("*High FPS Physics Fix* is installed. \n-----")
             else:
                 print("# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
@@ -1419,9 +1275,9 @@ for file in os.listdir("."):
                 print("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files")
                 print("-----")
 
-            if count_VulkanDLL > 0 and gpu_amd:
+            if "vulkan-1.dll" in c_text and gpu_amd:
                 print("Vulkan Renderer is installed. \n-----")
-            elif count_VulkanDLL == 0 and gpu_amd and not gpu_nvidia:
+            elif c_text.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
                 print("# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a highly recommended mod that can improve performance on AMD GPUs.")
                 print("-----") 
@@ -1429,27 +1285,27 @@ for file in os.listdir("."):
                 print("Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files")
                 print("-----")
 
-            if count_DebrisFIX > 0 and gpu_nvidia:
+            if "WeaponDebrisCrashFix.dll" in c_text and gpu_nvidia:
                 print("*Weapon Debris Crash Fix* is installed. \n-----")
-            elif count_DebrisFIX > 0 and not gpu_nvidia and gpu_amd:
+            elif "WeaponDebrisCrashFix.dll" in c_text and not gpu_nvidia and gpu_amd:
                 print("*Weapon Debris Crash Fix* is installed, but...")
                 print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
                 print("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)")
                 print("-----")
-            if count_DebrisFIX == 0 and gpu_nvidia:
+            if not "WeaponDebrisCrashFix.dll" in c_text and gpu_nvidia:
                 print("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a mandatory patch / fix for players with Nvidia graphics cards.")
                 print("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files")
                 print("-----")
 
-            if count_ReflexFix > 0 and gpu_nvidia:
+            if "NVIDIA_Reflex.dll" in c_text and gpu_nvidia:
                 print("*Nvidia Reflex Support* is installed. \n-----")
-            elif count_ReflexFix > 0 and not gpu_nvidia and gpu_amd:
+            elif "NVIDIA_Reflex.dll" in c_text and not gpu_nvidia and gpu_amd:
                 print("*Nvidia Reflex Support* is installed, but...")
                 print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
                 print("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
                 print("-----")
-            if count_ReflexFix == 0 and gpu_nvidia:
+            if not "NVIDIA_Reflex.dll" in c_text and gpu_nvidia:
                 print("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
                 print("This is a highly recommended mod that can reduce render latency.")
                 print("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files")
@@ -1468,10 +1324,7 @@ for file in os.listdir("."):
         list_DETFILES = []
         list_ALLPLUGINS = []
 
-        count_F4SE = crash_message.count("f4se_1_10_163.dll")
-        count_Module = crash_message.count("steam_api64.dll")
-
-        if count_F4SE == 0 and count_Module >= 1:
+        if not "f4se_1_10_163.dll" in c_text and "steam_api64.dll" in c_text:
             print("AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!")
             print("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!")
             print("Link: https://f4se.silverlock.org")
@@ -1528,9 +1381,22 @@ for file in os.listdir("."):
         for line in all_lines:
           if "Form ID:" in line and not "0xFF" in line:
             line = line.replace("0x", "")
-            list_DETFORMIDS.append(line.strip())
-            line = line.replace("Form ID: ", "")
-            line = line[:5].strip()
+            if "[00]" in c_text:
+                line = line.replace("Form ID: ", "")
+                line = line.strip()
+                ID_Only = line
+                for elem in plugin_list:
+                    if "]" in elem and "[FE" not in elem:
+                        if elem[2:4].strip() == ID_Only[:2]:
+                            Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()
+                            list_DETFORMIDS.append(Full_Line.replace("    ",""))
+                    if "[FE" in elem:
+                        elem = elem.replace(":","")
+                        if elem[2:7] == ID_Only[:5]:
+                            Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()
+                            list_DETFORMIDS.append(Full_Line.replace("    ",""))
+            else:
+                list_DETFORMIDS.append(line.strip())
 
         list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
         for elem in list_DETFORMIDS:
@@ -1547,47 +1413,22 @@ for file in os.listdir("."):
 
         # ===========================================================
 
-        print("LIST OF (POSSIBLE) FILE CULPRITS:")
         List_Files = [".bgsm",".bto",".btr",".dds",".fuz",".hkb",".hkx",".ini",".nif",".pex",".swf",".txt",".uvd",".wav",".xwm","data\*"]
-
-        for line in all_lines:
-            for elem in List_Files:
-                if elem in line.lower():
-                    line = line.replace("File Name: ", "")
-                    line = line.replace("Name: ", "")
-                    line = line.replace('"', '')
-                    list_DETFILES.append(line.strip())
-                # if "[rsp+" in line.lower() and ".dll" in line.lower():
-                #     list_DETFILES.append(line.strip()) | RESERVED
-
-        list_DETFILES = list(dict.fromkeys(list_DETFILES))
-        for elem in list_DETFILES:
-            print(elem)
-
-        if not list_DETFILES:
-            print("* AUTOSCAN COULDN'T FIND ANY FILE CULRIPTS *")
-            print("-----")
-        else:
-            print("-----")
-            print("These files were caught by Buffout 4 and some of them might be related to this crash.")
-            print("Detected files in most cases appear as false positives, so no recommendation is given.")
-            print("-----")
-
-        # ===========================================================
+        List_Exclude = ['""',"...",".esp"]
 
         print("LIST OF DETECTED (NAMED) RECORDS:")
-        List_Named = []
+        List_Records = []
         for line in all_lines:
-            for elem in list_DETFILES:
-                if not elem in line.lower() and not '""' in line and not "..." in line and "Name:" in line:
+            if "Name" in line or any(elem in line for elem in List_Files):
+                if not any(elem in line for elem in List_Exclude):
                     line = line.replace('"', '')
-                    List_Named.append(line.strip())
+                    List_Records.append(line.strip())
 
-        List_Named = list(dict.fromkeys(List_Named))
-        for elem in List_Named:
+        List_Records = list(dict.fromkeys(List_Records))
+        for elem in List_Records:
             print(elem)
 
-        if not List_Named:
+        if not List_Records:
             print("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *")
             print("-----")
         else:
@@ -1599,8 +1440,8 @@ for file in os.listdir("."):
         print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
         print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
         print("===============================================================================")
-        print("END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) |",CLAS_Date,)
-        crash_log.close()
+        print("END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) |",CLAS_Date)
+        c_log.close()
         sys.stdout.close()
 
         # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
