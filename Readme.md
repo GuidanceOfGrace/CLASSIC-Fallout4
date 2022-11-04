@@ -125,13 +125,15 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 ===========================================================================
 # LATEST CHANGES #
 
-(Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
-(Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
+- (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
+- (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
-5.77
+5.88
 * MAIN SCRIPT *
-- Fixed crash / error when a crash log fails to list any plugins and modules.
-- Fixed Nvidia specific mod detection reporting false positives on AMD GPUs.
-- Added detection for 3 new mods with community patches and solutions.
-- Added detection for Creation Kit Fixes and Buffout 4 VR Version.
-- Minor text adjustments for some segments in AUTOSCAN.md output.
+- Cleaned up and optimized most legacy code.
+- Fixed code logic that would sometimes fail to detect *Classic Holstered Weapons* mod.
+- Removed unnecessary package install line during update checks while *Update Check = true*
+- *List Of (Possible) Form ID Culripts* segment will now show which plugin the detected Form ID belongs to.
+- Auto-Scanner will no longer warn about missing Buffout 4 / Address Lib. files if DLL logs report no errors.
+- Fixed code logic that would sometimes fail to detect named records for the *List Of Detected (Named) Records*
+- Removed *List Of Possible File Culprits* segment and merged its output with the *List Of Detected (Named) Records*
