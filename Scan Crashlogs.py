@@ -161,7 +161,7 @@ class Info:
                             self.FO4_F4SE_Logs = rf"{settings_path}/F4SE"
                             Loc_Found = True
                             break
-
+        print(Loc_Found)
         # Prompt manual input if ~\Documents\My Games\Fallout4 cannot be found.
         if not Loc_Found:
             if "fallout4" in CLAS_config.get("MAIN", "INI Path").lower():
@@ -169,16 +169,16 @@ class Info:
                 self.FO4_F4SE_Logs = rf"{INI_Line}\F4SE"
                 self.FO4_F4SE_Path = Path(rf"{INI_Line}\F4SE\f4se.log")
                 self.FO4_Custom_Path = Path(rf"{INI_Line}\Fallout4Custom.ini")
-        else:
-            print("> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR Fallout4.ini IS LOCATED < <")
-            Path_Input = input("(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
-            print("You entered :", Path_Input, "| This path will be automatically added to Scan Crashlogs.ini")
-            self.FO4_F4SE_Logs = rf"{Path_Input.strip()}\F4SE"
-            self.FO4_F4SE_Path = Path(rf"{Path_Input.strip()}\F4SE\f4se.log")
-            self.FO4_Custom_Path = Path(rf"{Path_Input.strip()}\Fallout4Custom.ini")
-            CLAS_config.set("MAIN", "INI Path", Path_Input)
-            with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            else:
+                print("> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR Fallout4.ini IS LOCATED < <")
+                Path_Input = input("(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
+                print("You entered :", Path_Input, "| This path will be automatically added to Scan Crashlogs.ini")
+                self.FO4_F4SE_Logs = rf"{Path_Input.strip()}\F4SE"
+                self.FO4_F4SE_Path = Path(rf"{Path_Input.strip()}\F4SE\f4se.log")
+                self.FO4_Custom_Path = Path(rf"{Path_Input.strip()}\Fallout4Custom.ini")
+                CLAS_config.set("MAIN", "INI Path", Path_Input)
+                with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
+                    CLAS_config.write(INI_Autoscan)
 
 
 info = Info()
