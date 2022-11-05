@@ -675,7 +675,7 @@ for file in os.listdir("."):
             Buffout_Trap = True
             statC_Particles += 1
         # ===========================================================
-        if "hkbVariableBindingSet" or "hkbHandIkControlsModifier" or "hkbBehaviorGraph" or "hkbModifierList" in c_text:
+        if (c_text.count("hkbVariableBindingSet") or c_text.count("hkbHandIkControlsModifier") or c_text.count("hkbBehaviorGraph") or c_text.count("hkbModifierList")) >= 1:
             print("# Checking for Animation / Physics Crash....CULPRIT FOUND! #")
             print("> Priority : [5] | hkbVariableBindingSet : ", c_text.count("hkbVariableBindingSet"), " | hkbHandIkControlsModifier : ", c_text.count("hkbHandIkControlsModifier"))
             print("                   hkbBehaviorGraph : ", c_text.count("hkbBehaviorGraph"), " | hkbModifierList : ", c_text.count("hkbModifierList"))
