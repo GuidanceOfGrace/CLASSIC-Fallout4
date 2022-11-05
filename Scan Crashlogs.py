@@ -66,7 +66,6 @@ def run_update():
     return response.json()["name"]
 
 if CLAS_config.getboolean("MAIN", "Update Check") == True:
-    
     CLAS_Received = run_update()
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         if CLAS_Received == CLAS_Current:
