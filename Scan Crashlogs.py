@@ -198,7 +198,6 @@ if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
     else:
         with open(info.FO4_Custom_Path, "w+") as FO4_Custom:
             F4C_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
-        with open(info.FO4_Custom_Path, "w+") as FO4_Custom:
             FO4_Custom.write(F4C_config)
 
 # Check if f4se.log exists and find game path inside.
