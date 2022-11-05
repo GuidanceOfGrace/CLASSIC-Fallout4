@@ -4,6 +4,15 @@
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
 // Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
 
+5.90
+* MAIN SCRIPT *
+- Minor adjustments to text in the Auto-Scanner console window to prevent weird behavior.
+- Merged commit created by [evildarkarchon] on GitHub that cleans up some things with *FCX Mode*
+- Fixed Auto-Scanner reporting *Animation / Physics Crash* and *Player Character Crash* false positives.
+
+* OTHER FILES *
+- *Scan Crashlogs.exe* no longer checks for updates to prevent infinite looping problems.
+
 5.88
 * MAIN SCRIPT *
 - Cleaned up and optimized most legacy code.
