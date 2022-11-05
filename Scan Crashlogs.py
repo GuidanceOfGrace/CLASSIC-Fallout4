@@ -38,8 +38,8 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = "041122"  # DDMMYY
-CLAS_Current = "CLAS v5.88"
+CLAS_Date = "051122"  # DDMMYY
+CLAS_Current = "CLAS v5.90"
 CLAS_Update = False
 
 if CLAS_config.getboolean("MAIN", "Update Check") == True:
@@ -74,6 +74,8 @@ if CLAS_config.getboolean("MAIN", "Update Check") == True:
         print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
         print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
         print("===============================================================================")
+else:
+    print("\n NOTICE: UPDATE CHECK IS DISABLED IN Scan Crashlogs.ini \n")
 
 Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
@@ -101,7 +103,7 @@ statM_CHW = 0
 print("Hello World! | Crash Log Auto-Scanner | Version", CLAS_Current[-4:], "| Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
 print("===============================================================================")
-print("You should place this script into your Documents\\My Games\\Fallout4\\F4SE folder.")
+print("You should place this script into your Documents/My Games/Fallout4/F4SE folder.")
 print("(This is where Buffout 4 crash log files are generated after the game crashes.)")
 print("===============================================================================")
 print("CAUTION: Crash Log Auto-Scanner will not work correctly on Windows 7 systems.")
@@ -109,7 +111,6 @@ print("For Win 7, install this Py version: https://github.com/adang1345/PythonWi
 print("Click on the green Code button and Download Zip, then extract and install.")
 print("===============================================================================")
 FO4_STEAM_ID = 377160
-
 
 class Info:
     def __init__(self):
@@ -178,7 +179,6 @@ class Info:
                 CLAS_config.set("MAIN", "INI Path", Path_Input)
                 with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
                     CLAS_config.write(INI_Autoscan)
-
 
 info = Info()
 # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
@@ -303,8 +303,6 @@ for file in os.listdir("."):
         c_log = open(crashlog, "r", errors="ignore")
         c_text = c_log.read()
 
-        # ===========================================================
-
         print("====================================================")
         print("CHECKING IF BUFFOUT 4 FILES/SETTINGS ARE CORRECT...")
         print("====================================================")
@@ -364,14 +362,13 @@ for file in os.listdir("."):
 
             if len(list_ERRORLOG) >= 1:
                 print("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #")
-                print("[These are located in your Documents\\My Games\\Fallout4\\F4SE folder.]")
+                print("[These are located in your Documents/My Games/Fallout4/F4SE folder.]")
                 for elem in list_ERRORLOG:
                     print(elem + "\n-----")
             else:
                 print("Available DLL logs do not report any additional errors, all is well. \n-----")
 
         # CHECK BUFFOUT 4 REQUIREMENTS AND TOML SETTINGS
-
             if info.Preloader_XML.is_file() and info.Preloader_DLL.is_file():
                 print('OPTIONAL: Plugin Preloader is (manually) installed.')
                 print('NOTICE: If the game fails to start after installing this mod, open xSE PluginPreloader.xml with a text editor and CHANGE')
@@ -457,7 +454,7 @@ for file in os.listdir("."):
         print("====================================================")
         print("CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES...")
         print("====================================================")
-        Buffout_Trap = False  # CHECK FOR KNOWN CRASH MESSAGES - BUFFOUT TRAP
+        Buffout_Trap = False  # RETURN TRUE IF KNOWN CRASH MESSAGE WAS FOUND
 
         # ====================== HEADER ERRORS ======================
 
@@ -675,7 +672,7 @@ for file in os.listdir("."):
             Buffout_Trap = True
             statC_Particles += 1
         # ===========================================================
-        if (c_text.count("hkbVariableBindingSet") or c_text.count("hkbHandIkControlsModifier") or c_text.count("hkbBehaviorGraph") or c_text.count("hkbModifierList")) >= 1:
+        if ("hkbVariableBindingSet" or "hkbHandIkControlsModifier" or "hkbBehaviorGraph" or "hkbModifierList") in c_text:
             print("# Checking for Animation / Physics Crash....CULPRIT FOUND! #")
             print("> Priority : [5] | hkbVariableBindingSet : ", c_text.count("hkbVariableBindingSet"), " | hkbHandIkControlsModifier : ", c_text.count("hkbHandIkControlsModifier"))
             print("                   hkbBehaviorGraph : ", c_text.count("hkbBehaviorGraph"), " | hkbModifierList : ", c_text.count("hkbModifierList"))
@@ -750,7 +747,7 @@ for file in os.listdir("."):
             print("> Priority : [5] | BGSProjectile : ", c_text.count("BGSProjectile"), " | CombatProjectileAimController : ", c_text.count("CombatProjectileAimController"))
             Buffout_Trap = True
         # ===========================================================
-        if (c_text.count("PlayerCharacter") or c_text.count("0x00000007") or c_text.count("0x00000014") or c_text.count("0x00000008")) >= 3:
+        if c_text.count("PlayerCharacter") >= 1 and (c_text.count("0x00000007") or c_text.count("0x00000014") or c_text.count("0x00000008")) >= 3:
             print("Checking for *[Player Character Crash]....DETECTED!")
             print("> Priority : [5] | PlayerCharacter : ", c_text.count("PlayerCharacter"), " | 0x00000007 : ", c_text.count("0x00000007"))
             print("                        0x00000008 : ", c_text.count("0x00000008"), " | 0x000000014 : ", c_text.count("0x00000014"))
@@ -1501,10 +1498,13 @@ print("SCAN RESULTS ARE AVAILABE IN FILES NAMED crash-date-and-time-AUTOSCAN.md"
 print("===============================================================================")
 print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
 print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
+print("================================ CONTACT INFO =================================")
+print("DISCORD | Poet#9800 (https://discord.gg/DfFYJtt8p4)")
+print("NEXUS MODS | https://www.nexusmods.com/users/64682231")
+print("SCAN SCRIPT PAGE | https://www.nexusmods.com/fallout4/mods/56255")
 print(random.choice(Sneaky_Tips))
 
 # ============ CHECK FOR EMPTY (FAUTLY) AUTO-SCANS ============
-
 list_SCANFAIL = []
 for file in os.listdir("."):
     if fnmatch.fnmatch(file, "*-AUTOSCAN.md"):
@@ -1534,12 +1534,6 @@ if len(list_SCANFAIL) >= 1:
     print("-----")
     print('FOR ALL OTHER ERRORS PLEASE CONTACT ME DIRECTLY, CONTACT INFO BELOW!')
 
-print("======================================================================")
-print("END OF AUTOSCAN | Author/Made By: Poet |", CLAS_Date, "| All Rights Reserved.")
-print("============================ CONTACT INFO ============================")
-print("DISCORD | Poet#9800 (https://discord.gg/DfFYJtt8p4)")
-print("NEXUS MODS | https://www.nexusmods.com/users/64682231")
-print("SCAN SCRIPT PAGE | https://www.nexusmods.com/fallout4/mods/56255")
 print("======================================================================")
 print("\nScanned all available logs in", (str(time.time() - start_time)[:7]), "seconds.")
 print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
