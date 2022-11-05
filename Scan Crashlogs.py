@@ -161,7 +161,6 @@ class Info:
                             self.FO4_F4SE_Logs = rf"{settings_path}/F4SE"
                             Loc_Found = True
                             break
-        print(Loc_Found)
         # Prompt manual input if ~\Documents\My Games\Fallout4 cannot be found.
         if not Loc_Found:
             if "fallout4" in CLAS_config.get("MAIN", "INI Path").lower():
