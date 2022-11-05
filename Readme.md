@@ -128,12 +128,11 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 - (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 - (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
-5.88
+5.90
 * MAIN SCRIPT *
-- Cleaned up and optimized most legacy code.
-- Fixed code logic that would sometimes fail to detect *Classic Holstered Weapons* mod.
-- Removed unnecessary package install line during update checks while *Update Check = true*
-- *List Of (Possible) Form ID Culripts* segment will now show which plugin the detected Form ID belongs to.
-- Auto-Scanner will no longer warn about missing Buffout 4 / Address Lib. files if DLL logs report no errors.
-- Fixed code logic that would sometimes fail to detect named records for the *List Of Detected (Named) Records*
-- Removed *List Of Possible File Culprits* segment and merged its output with the *List Of Detected (Named) Records*
+- Minor adjustments to text in the Auto-Scanner console window to prevent weird behavior.
+- Merged commit created by [evildarkarchon] on GitHub that cleans up some things with *FCX Mode*
+- Fixed Auto-Scanner reporting *Animation / Physics Crash* and *Player Character Crash* false positives.
+
+* OTHER FILES *
+- *Scan Crashlogs.exe* no longer checks for updates to prevent infinite looping problems.
