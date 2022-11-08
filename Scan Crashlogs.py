@@ -9,6 +9,11 @@ import logging
 import fnmatch
 import pathlib
 import platform
+try:
+    import requests
+    RequestsImportFailed = False
+except ImportError:
+    RequestsImportFailed = True
 import subprocess
 import configparser
 import ctypes.wintypes
@@ -42,7 +47,7 @@ CLAS_Date = "051122"  # DDMMYY
 CLAS_Current = "CLAS v5.90"
 CLAS_Update = False
 
-if CLAS_config.getboolean("MAIN", "Update Check") == True:
+def run_update():
     print("CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES...")
     print("(You can disable this check in Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {Python_Current} \n")
@@ -50,17 +55,19 @@ if CLAS_config.getboolean("MAIN", "Update Check") == True:
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
-
-    try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
+    if RequestsImportFailed:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
-        reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
-        # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
-        # print("List of all installed packages:", installed_packages) | RESERVED
-        # print("===============================================================================")
-        import requests
-        response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
-        CLAS_Received = response.json()["name"]
+    # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
+    # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
+    # print("List of all installed packages:", installed_packages) | RESERVED
+    # print("===============================================================================")
+    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
+    return response.json()["name"]
+
+if CLAS_config.getboolean("MAIN", "Update Check") == True:
+    CLAS_Received = run_update()
+    try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         if CLAS_Received == CLAS_Current:
             print("You have the latest version of the Auto-Scanner!")
             print("===============================================================================")
