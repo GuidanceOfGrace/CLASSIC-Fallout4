@@ -265,7 +265,7 @@ logs = glob("crash-*.log")  # + glob("crash-*.txt") # For people who just HAVE t
 
 for file in logs:
     logpath = Path(file).resolve()
-    scanpath = logpath.with_suffix("-AUTOSCAN.md")
+    scanpath = Path(str(logpath).replace(".log", "-AUTOSCAN.md"))
     logname = logpath.name
     output = scanpath.open("w", encoding='utf-8-sig', errors="ignore")
     logtext = logpath.read_text()
