@@ -931,55 +931,61 @@ for file in logs:
             for elem in List_Mods1:
                 if "File:" not in line and "[FE" not in line and elem in line:
                     order_elem = List_Mods1.index(elem)
-                    print("[!] Found:", line[0:5].strip(), List_Warn1[order_elem])
-                    print("-----")
+                    output.writelines([f"[!] Found:{line[0:5].strip()} {List_Warn1[order_elem]}",
+                                       "-----"])
                     Mod_Trap1 = 0
                 elif "File:" not in line and "[FE" in line and elem in line:
                     order_elem = List_Mods1.index(elem)
-                    print("[!] Found:", line[0:9].strip(), List_Warn1[order_elem])
-                    print("-----")
+                    output.writelines([f"[!] Found:{line[0:9].strip()} {List_Warn1[order_elem]}",
+                    "-----"])
                     Mod_Trap1 = 0
 
         if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
-            print("[!] Found: CLASSIC HOLSTERED WEAPONS")
-            print("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!")
-            print("You should disable CHW to further confirm this.")
-            print("Visit the main crash logs article for additional solutions.")
-            print("-----")
+            output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS",
+                               "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!",
+                               "You should disable CHW to further confirm this.",
+                               "Visit the main crash logs article for additional solutions.",
+                               "-----"
+                               ])
             statM_CHW += 1
             Mod_Trap1 = 0
             Buffout_Trap = True
         elif logtext.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" or "HHS.dll" or "cbp.dll" or "Body.nif") in logtext:
-            print("[!] Found: CLASSIC HOLSTERED WEAPONS")
-            print("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.")
-            print("You should disable CHW to further confirm it caused this crash.")
-            print("Visit the main crash logs article for additional solutions.")
-            print("-----")
+            output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS",
+                               "AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.",
+                               "You should disable CHW to further confirm it caused this crash.",
+                               "Visit the main crash logs article for additional solutions.",
+                               "-----"
+                               ])
             statM_CHW += 1
             Mod_Trap1 = 0
             Buffout_Trap = True
         elif "ClassicHolsteredWeapons" in logtext and "d3d11" in buff_error:
-            print("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...")
-            print("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.")
-            print("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.")
-            print("This usually prevents most common crashes with Classic Holstered Weapons.")
-            print("-----")
+            output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...",
+                               "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.",
+                               "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.",
+                               "This usually prevents most common crashes with Classic Holstered Weapons.",
+                               "-----"
+                               ])
             Mod_Trap1 = 0
     if "[00]" in logtext and Mod_Trap1 == 0:
-        print("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #")
-        print("You can disable any/all of them temporarily to confirm they caused this crash.")
-        print("-----")
+        output.writelines(["# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #",
+                           "You can disable any/all of them temporarily to confirm they caused this crash.",
+                           "-----"
+                           ])
         statL_scanned += 1
     elif "[00]" in logtext and Mod_Trap1 == 1:
-        print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #")
-        print("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.")
-        print("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files")
-        print("-----")
+        output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #",
+                           "THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.",
+                           "Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files",
+                           "-----"
+                           ])
         statL_scanned += 1
     elif not "[00]" in logtext:
-        print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-        print("Autoscan cannot continue. Try scanning a different crash log.")
-        print("-----")
+        output.writelines(["# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #",
+                           "Autoscan cannot continue. Try scanning a different crash log.",
+                           "-----"
+                           ])
         statL_incomplete += 1
 
     print("====================================================")
@@ -1166,52 +1172,65 @@ for file in logs:
             for elem in List_Mods2:
                 if "File:" not in line and "[FE" not in line and elem in line:
                     order_elem = List_Mods2.index(elem)
-                    print("[!] Found:", line[0:5].strip(), List_Warn2[order_elem])
-                    print("-----")
+                    output.writelines([f"[!] Found:{line[0:5].strip()} {List_Warn2[order_elem]}",
+                                       "-----"
+                                       ])
                     Mod_Trap2 = 0
                 elif "File:" not in line and "[FE" in line and elem in line:
                     order_elem = List_Mods2.index(elem)
-                    print("[!] Found:", line[0:9].strip(), List_Warn2[order_elem])
-                    print("-----")
+                    output.writelines([f"[!] Found:{line[0:9].strip()} {List_Warn2[order_elem]}",
+                                      "-----"
+                                      ])
                     Mod_Trap2 = 0
             if no_repeat1 == 1 and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
-                print("[!] Found:", line[0:9].strip(), "THUGGYSMURF QUEST MOD")
-                print("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie,")
-                print("install this patch with facegen data, fully generated precomb/previs data and several tweaks.")
-                print("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files")
-                print("-----")
+                output.writelines([f"[!] Found:{line[0:9].strip()} THUGGYSMURF QUEST MOD",
+                                   "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie",
+                                   "install this patch with facegen data, fully generated precomb/previs data and several tweaks.",
+                                   "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files",
+                                   "-----"
+                                   ])
                 no_repeat1 = Mod_Trap2 = 0
             if no_repeat1 == 1 and "File:" not in line and ("CaN.esm" or "AnimeRace_Nanako.esp") in line:
-                print("[!] Found:", line[0:9].strip(), "CUSTOM RACE SKELETON MOD")
-                print("If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.")
-                print("Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101")
+                output.writelines([f"[!] Found:{line[0:9].strip()} CUSTOM RACE SKELETON MOD",
+                                   "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.",
+                                   "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101"
+                                   ])
                 no_repeat2 = Mod_Trap2 = 0
 
         if "FallSouls.dll" in logtext:
-            print("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
-            print("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.")
-            print("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.")
-            print("-----")
+            output.writelines(["[!] Found: FALLSOULS UNPAUSED GAME MENUS",
+                               "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.",
+                               "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.",
+                               "-----"
+                               ])
             Mod_Trap2 = 0
+    
+    inherentlimitations = ["[Due to inherent limitations, Auto-Scan will continue detecting certain mods,",
+                           " even if fixes or patches for them are already installed. You can ignore these.]",
+                           "-----"
+                           ]
+    nopluginlist = ["# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #",
+                    "Autoscan cannot continue. Try scanning a different crash log.",
+                    "-----"
+                    ]
     if "[00]" in logtext and Mod_Trap2 == 0:
-        print("[Due to inherent limitations, Auto-Scan will continue detecting certain mods,")
-        print(" even if fixes or patches for them are already installed. You can ignore these.]")
-        print("-----")
+        output.writelines(inherentlimitations)
     elif "[00]" in logtext and Mod_Trap2 == 1:
-        print("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #")
-        print("-----")
+        output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #",
+                           "-----"
+                           ])
     elif logtext.count("[00]") == 0:
-        print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-        print("Autoscan cannot continue. Try scanning a different crash log.")
-        print("-----")
+        output.writelines(nopluginlist)
 
-    print("FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,")
-    print("VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769")
-    print("-----")
+    output.writelines(["FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,",
+                       "VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769",
+                       "-----"
+                       ])
 
-    print("====================================================")
-    print("CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...")
-    print("====================================================")
+    output.writelines(["====================================================",
+                       "CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...",
+                       "===================================================="
+                       ])
     Mod_Trap3 = 1  # MOD TRAP 3 | NEED 8 SPACES FOR ESL [FE:XXX]
 
     # Needs 1 empty space as prefix to prevent duplicates.
@@ -1292,30 +1311,31 @@ for file in logs:
             for elem in List_Mods3:
                 if "File:" not in line and "[FE" not in line and elem in line:
                     order_elem = List_Mods3.index(elem)
-                    print("- Found:", line[0:5].strip(), List_Warn3[order_elem])
+                    output.write(f"- Found:{line[0:5].strip()} {List_Warn3[order_elem]}")
                     Mod_Trap3 = 0
                 elif "File:" not in line and "[FE" in line and elem in line:
                     order_elem = List_Mods3.index(elem)
-                    print("- Found:", line[0:9].strip(), List_Warn3[order_elem])
+                    output.write(f"- Found:{line[0:9].strip()} {List_Warn3[order_elem]}")
                     Mod_Trap3 = 0
     if "[00]" in logtext and Mod_Trap3 == 0:
-        print("-----")
-        print("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,")
-        print("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872")
-        print("-----")
+        output.writelines(["-----",
+                           "FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,",
+                           "VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872",
+                           "-----"
+                           ])
     elif "[00]" in logtext and Mod_Trap3 == 1:
-        print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #")
-        print("-----")
+        output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #",
+                           "-----"
+                           ])
     elif logtext.count("[00]") == 0:
-        print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-        print("Autoscan cannot continue. Try scanning a different crash log.")
-        print("-----")
+        output.writelines(nopluginlist)
 
     # ===========================================================
-
-    print("====================================================")
-    print("CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED")
-    print("====================================================")
+    
+    output.writelines(["====================================================",
+                       "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED"
+                       "===================================================="
+                       ])
 
     gpu_amd = False
     gpu_nvidia = False
@@ -1325,103 +1345,114 @@ for file in logs:
         if "GPU" in line and "AMD" in line:
             gpu_amd = True
 
-    print("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,")
-    print("remove these mods completely and switch to High FPS Physics Fix!")
-    print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-    print("-----")
+    output.writelines(["IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
+                       "remove these mods completely and switch to High FPS Physics Fix!",
+                       "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
+                       "-----"
+                       ])
 
     if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
-        print("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
-        print("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]")
-        print("-----")
+        output.writelines(["* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *",
+                           "[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]",
+                           "-----"
+                           ])
 
         if info.VR_EXE.is_file() and info.VR_Buffout.is_file():
-            print("*Buffout 4 VR Version* is (manually) installed. \n-----")
+            output.write("*Buffout 4 VR Version* is (manually) installed. \n-----")
         elif info.VR_EXE.is_file() and not info.VR_Buffout.is_file():
-            print("# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files")
+            output.writelines(["# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files"
+                               ])
 
         if info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes):
-            print("*Creation Kit Fixes* is (manually) installed. \n-----")
+            output.write("*Creation Kit Fixes* is (manually) installed. \n-----")
         elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
-            print("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a highly recommended patch for the Fallout 4 Creation Kit.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files")
-            print("-----")
+            output.writelines(["# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a highly recommended patch for the Fallout 4 Creation Kit.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
+                               "-----"
+                               ])
 
     if "[00]" in logtext:
         if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
-            print("*Canary Save File Monitor* is installed. \n-----")
+            output.write("*Canary Save File Monitor* is installed. \n-----")
         else:
-            print("# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a highly recommended mod that can detect save file corrpution.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files")
-            print("-----")
+            output.writelines(["# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a highly recommended mod that can detect save file corrpution.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files",
+                               "-----"
+                               ])
 
         if "HighFPSPhysicsFix.dll" in logtext:
-            print("*High FPS Physics Fix* is installed. \n-----")
+            output.write("*High FPS Physics Fix* is installed. \n-----")
         else:
-            print("# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a mandatory patch / fix that prevents game engine problems.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-            print("-----")
+            output.writelines(["# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a mandatory patch / fix that prevents game engine problems.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
+                               "-----"
+                               ])
 
         if any("PPF.esm" in elem for elem in plugin_list):
-            print("*Previs Repair Pack* is installed. \n-----")
+            output.write("*Previs Repair Pack* is installed. \n-----")
         else:
-            print("# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a highly recommended mod that can improve performance.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-            print("-----")
+            output.writelines(["# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a highly recommended mod that can improve performance.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
+                               "-----"
+                               ])
 
         if any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugin_list):
-            print("*Unofficial Fallout 4 Patch* is installed. \n-----")
+            output.write("*Unofficial Fallout 4 Patch* is installed. \n-----")
         else:
-            print("# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("If you own all DLCs, make sure that the Unofficial Patch is installed.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files")
-            print("-----")
+            output.writelines(["# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "If you own all DLCs, make sure that the Unofficial Patch is installed.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files",
+                               "-----"
+                               ])
 
         if "vulkan-1.dll" in logtext and gpu_amd:
-            print("Vulkan Renderer is installed. \n-----")
+            output.write("Vulkan Renderer is installed. \n-----")
         elif logtext.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
-            print("# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a highly recommended mod that can improve performance on AMD GPUs.")
-            print("-----")
-            print("Installation steps can be found in 'How To Read Crash Logs' PDF / Document.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files")
-            print("-----")
+            output.writelines(["# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a highly recommended mod that can improve performance on AMD GPUs.",
+                               "-----",
+                               "Installation steps can be found in 'How To Read Crash Logs' PDF / Document.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files",
+                               "-----"
+                               ])
 
         if "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
-            print("*Weapon Debris Crash Fix* is installed. \n-----")
+            output.write("*Weapon Debris Crash Fix* is installed. \n-----")
         elif "WeaponDebrisCrashFix.dll" in logtext and not gpu_nvidia and gpu_amd:
-            print("*Weapon Debris Crash Fix* is installed, but...")
-            print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
-            print("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)")
-            print("-----")
+            output.writelines(["*Weapon Debris Crash Fix* is installed, but...",
+                               "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #",
+                               "Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)",
+                               "-----"
+                               ])
         if not "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
-            print("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a mandatory patch / fix for players with Nvidia graphics cards.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files")
-            print("-----")
+            output.writelines(["# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a mandatory patch / fix for players with Nvidia graphics cards.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files",
+                               "-----"
+                               ])
 
         if "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
-            print("*Nvidia Reflex Support* is installed. \n-----")
+            output.write("*Nvidia Reflex Support* is installed. \n-----")
         elif "NVIDIA_Reflex.dll" in logtext and not gpu_nvidia and gpu_amd:
-            print("*Nvidia Reflex Support* is installed, but...")
-            print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
-            print("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
-            print("-----")
+            output.writelines(["*Nvidia Reflex Support* is installed, but...",
+                               "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #",
+                               "Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)",
+                               "-----"
+                               ])
         if not "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
-            print("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-            print("This is a highly recommended mod that can reduce render latency.")
-            print("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files")
-            print("-----")
+            output.writelines(["# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                               "This is a highly recommended mod that can reduce render latency.",
+                               "Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files",
+                               "-----"
+                               ])
     else:
-        print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-        print("Autoscan cannot continue. Try scanning a different crash log.")
-        print("-----")
+        output.writelines(nopluginlist)
 
     print("====================================================")
     print("SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...")
@@ -1437,6 +1468,11 @@ for file in logs:
         print("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!")
         print("Link: https://f4se.silverlock.org")
         print("-----")
+        output.writelines(["AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!",
+                           "MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!",
+                           "Link: https://f4se.silverlock.org",
+                           "-----"
+                           ])
 
     for line in loglines:
         if len(line) >= 6 and "]" in line[4]:
@@ -1448,7 +1484,7 @@ for file in logs:
         if len(line) >= 11 and "]" in line[9]:
             list_ALLPLUGINS.append(line.strip())
 
-    print("LIST OF (POSSIBLE) PLUGIN CULRIPTS:")
+    output.write("LIST OF (POSSIBLE) PLUGIN CULRIPTS:")
     for line in loglines:
         if "File:" in line:
             line = line.replace("File: ", "")
@@ -1472,16 +1508,22 @@ for file in logs:
                 PL_matches.append(string)
         if PL_matches:
             PL_result.append(PL_matches)
-            print("- " + ' '.join(PL_matches))
+            output.write(f"- {' '.join(PL_matches)}") # not 100% sure on this, will have to see how it works.
 
     if not PL_result:
-        print("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *")
-        print("-----")
+        output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *",
+                           "-----"
+                           ])
     else:
         print("-----")
         print("These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.")
         print("You can try disabling these plugins and recheck your game, though this method can be unreliable.")
         print("-----")
+        output.writelines(["-----",
+                           "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.",
+                           "You can try disabling these plugins and recheck your game, though this method can be unreliable.",
+                           "-----"
+                           ])
 
     # ===========================================================
 
@@ -1508,23 +1550,25 @@ for file in logs:
 
     list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
     for elem in list_DETFORMIDS:
-        print(elem)
+        output.write(elem)
 
     if not list_DETFORMIDS:
-        print("* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *")
-        print("-----")
+        output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *",
+                           "-----"
+                           ])
     else:
-        print("-----")
-        print("These Form IDs were caught by Buffout 4 and some of them might be related to this crash.")
-        print("You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.")
-        print("-----")
+        output.writelines(["-----",
+                           "These Form IDs were caught by Buffout 4 and some of them might be related to this crash.",
+                           "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.",
+                           "-----"
+                           ])
 
     # ===========================================================
 
     List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".txt", ".uvd", ".wav", ".xwm", "data\\*"]
     List_Exclude = ['""', "...", ".esp"]
 
-    print("LIST OF DETECTED (NAMED) RECORDS:")
+    output.write("LIST OF DETECTED (NAMED) RECORDS:")
     List_Records = []
     for line in loglines:
         if "Name" in line or any(elem in line for elem in List_Files):
@@ -1534,21 +1578,28 @@ for file in logs:
 
     List_Records = list(dict.fromkeys(List_Records))
     for elem in List_Records:
-        print(elem)
+        output.write(elem)
 
     if not List_Records:
-        print("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *")
-        print("-----")
+        output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *",
+                           "-----"
+                           ])
     else:
-        print("-----")
-        print("These records were caught by Buffout 4 and some of them might be related to this crash.")
-        print("Named records should give extra information on involved game objects and record types.")
-        print("-----")
+        output.writelines(["-----",
+                           "These records were caught by Buffout 4 and some of them might be related to this crash.",
+                           "Named records should give extra information on involved game objects and record types.",
+                           "-----"
+                           ])
 
     print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
     print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
     print("===============================================================================")
     print("END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) |", CLAS_Date)
+    output.writelines(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,",
+                       "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115",
+                       "===============================================================================",
+                       f"END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | {CLAS_Date}"
+                       ])
     output.close()
 
     # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
