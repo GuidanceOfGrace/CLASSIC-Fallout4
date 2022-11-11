@@ -267,7 +267,7 @@ for file in logs:
     logpath = Path(file).resolve()
     scanpath = Path(str(logpath.name).replace(".log", "-AUTOSCAN.md")).resolve()
     logname = logpath.name
-    logtext = logpath.read_text()
+    logtext = logpath.read_text(encoding="utf-8")
     loglines: list | None = None
     with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
         loglines = lines.readlines()
