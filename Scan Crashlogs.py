@@ -474,30 +474,26 @@ for file in logs:
             output.write("# MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH! # \n-----")
 
         if "EXCEPTION_STACK_OVERFLOW" in buff_error:
-            output.writelines(["# Checking for Stack Overflow Crash.........CULPRIT FOUND! #",
-                               "> Priority : [5]"
-                               ])
+            output.write("# Checking for Stack Overflow Crash.........CULPRIT FOUND! #")
+            output.write("> Priority : [5]")
             Buffout_Trap = True
             statC_Overflow += 1
 
         if "0x000100000000" in buff_error:
-            output.writelines(["# Checking for Active Effects Crash.........CULPRIT FOUND! #",
-                               "> Priority : [5]"
-                               ])
-        Buffout_Trap = True
-        statC_ActiveEffect += 1
+            output.write("# Checking for Active Effects Crash.........CULPRIT FOUND! #")
+            output.write("> Priority : [5]")
+            Buffout_Trap = True
+            statC_ActiveEffect += 1
 
         if "EXCEPTION_INT_DIVIDE_BY_ZERO" in buff_error:
-            output.writelines(["# Checking for Bad Math Crash...............CULPRIT FOUND! #",
-                               "> Priority : [5]"
-                               ])
+            output.write("# Checking for Bad Math Crash...............CULPRIT FOUND! #")
+            output.write("> Priority : [5]")
             Buffout_Trap = True
             statC_BadMath += 1
 
         if "0x000000000000" in buff_error:
-            output.writelines(["# Checking for Null Crash...................CULPRIT FOUND! #",
-                               "> Priority : [5]"
-                               ])
+            output.write("# Checking for Null Crash...................CULPRIT FOUND! #")
+            output.write("> Priority : [5]")
             Buffout_Trap = True
             statC_Null += 1
 
@@ -511,223 +507,193 @@ for file in logs:
 
         # ===========================================================
         if "DLCBannerDLC01.dds" in logtext:
-            output.writelines(["# Checking for DLL Crash....................CULPRIT FOUND! #",
-                               f'> Priority : [5] | DLCBannerDLC01.dds : {logtext.count("DLCBannerDLC01.dds")}'
-                               ])
+            output.write("# Checking for DLL Crash....................CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | DLCBannerDLC01.dds : {logtext.count("DLCBannerDLC01.dds")}')
             Buffout_Trap = True
             statC_DLL += 1
         # ===========================================================
         if "BGSLocation" in logtext and "BGSQueuedTerrainInitialLoad" in logtext:
-            output.writelines(['# Checking for LOD Crash....................CULPRIT FOUND! #',
-                               f'> Priority : [5] | BGSLocation : {logtext.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {logtext.count("BGSQueuedTerrainInitialLoad")}'
-                               ])
+            output.write('# Checking for LOD Crash....................CULPRIT FOUND! #')
+            output.write(f'> Priority : [5] | BGSLocation : {logtext.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {logtext.count("BGSQueuedTerrainInitialLoad")}')
             Buffout_Trap = True
             statC_LOD += 1
         # ===========================================================
         if ("FaderData" or "FaderMenu" or "UIMessage") in logtext:
-            output.writelines(["# Checking for MCM Crash....................CULPRIT FOUND! #",
-                               f'> Priority : [3] | FaderData : {logtext.count("FaderData")} | FaderMenu : {logtext.count("FaderMenu")} | UIMessage : {logtext.count("UIMessage")}'
-                               ])
+            output.write("# Checking for MCM Crash....................CULPRIT FOUND! #")
+            output.write(f'> Priority : [3] | FaderData : {logtext.count("FaderData")} | FaderMenu : {logtext.count("FaderMenu")} | UIMessage : {logtext.count("UIMessage")}')
             Buffout_Trap = True
             statC_MCM += 1
         # ===========================================================
         if ("BGSDecalManager" or "BSTempEffectGeometryDecal") in logtext:
-            output.writelines(["# Checking for Decal Crash..................CULPRIT FOUND! #",
-                               f'> Priority : [5] | BGSDecalManager : {logtext.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {logtext.count("BSTempEffectGeometryDecal")}'
-                               ])
+            output.write("# Checking for Decal Crash..................CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | BGSDecalManager : {logtext.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {logtext.count("BSTempEffectGeometryDecal")}')
             Buffout_Trap = True
             statC_Decal += 1
         # ===========================================================
         if logtext.count("PipboyMapData") >= 2:
-            output.writelines(["# Checking for Equip Crash..................CULPRIT FOUND! #",
-                               f'> Priority : [2] | PipboyMapData : {logtext.count("PipboyMapData")}'
-                               ])
+            output.write("# Checking for Equip Crash..................CULPRIT FOUND! #")
+            output.write(f'> Priority : [2] | PipboyMapData : {logtext.count("PipboyMapData")}')
             Buffout_Trap = True
             statC_Equip += 1
         # ===========================================================
         if (logtext.count("Papyrus") or logtext.count("VirtualMachine")) >= 2:
-            output.writelines(["# Checking for Script Crash.................CULPRIT FOUND! #",
-                               f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}'
-                               ])
+            output.writelines("# Checking for Script Crash.................CULPRIT FOUND! #")
+            output.write(f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}')                               
             Buffout_Trap = True
             statC_Papyrus += 1
         # ===========================================================
         if logtext.count("tbbmalloc.dll") >= 3 or "tbbmalloc" in buff_error:
-            output.writelines(["# Checking for Generic Crash................CULPRIT FOUND! #",
-                               f'> Priority : [2] | tbbmalloc.dll : {logtext.count("tbbmalloc.dll")}'
-                               ])
+            output.write("# Checking for Generic Crash................CULPRIT FOUND! #")
+            output.write(f'> Priority : [2] | tbbmalloc.dll : {logtext.count("tbbmalloc.dll")}')
             Buffout_Trap = True
             statC_Generic += 1
         # ===========================================================
         if "LooseFileAsyncStream" in logtext:
-            output.writelines(["# Checking for BA2 Limit Crash..............CULPRIT FOUND! #",
-                               f'> Priority : [5] | LooseFileAsyncStream : {logtext.count("LooseFileAsyncStream")}'
-                               ])
+            output.write("# Checking for BA2 Limit Crash..............CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | LooseFileAsyncStream : {logtext.count("LooseFileAsyncStream")}')
             Buffout_Trap = True
             statC_BA2Limit += 1
         # ===========================================================
         if logtext.count("d3d11.dll") >= 3 or "d3d11" in buff_error:
-            output.writelines(["# Checking for Rendering Crash..............CULPRIT FOUND! #",
-                               f'> Priority : [4] | d3d11.dll : {logtext.count("d3d11.dll")}'
-                               ])
+            output.write("# Checking for Rendering Crash..............CULPRIT FOUND! #")
+            output.write(f'> Priority : [4] | d3d11.dll : {logtext.count("d3d11.dll")}')
             Buffout_Trap = True
             statC_Rendering += 1
         # ===========================================================
         if ("GridAdjacencyMapNode" or "PowerUtils") in logtext:
-            output.writelines(["# Checking for Grid Scrap Crash.............CULPRIT FOUND! #",
-                               f'> Priority : [5] | GridAdjacencyMapNode : {logtext.count("GridAdjacencyMapNode")} | PowerUtils : {logtext.count("PowerUtils")}'
-                               ])
+            output.write("# Checking for Grid Scrap Crash.............CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | GridAdjacencyMapNode : {logtext.count("GridAdjacencyMapNode")} | PowerUtils : {logtext.count("PowerUtils")}')
             Buffout_Trap = True
             statC_GridScrap += 1
         # ===========================================================
         if ("LooseFileStream" or "BSFadeNode" or "BSMultiBoundNode") in logtext and logtext.count("LooseFileAsyncStream") == 0:
-            output.writelines(["# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #",
-                               f'> Priority : [4] | LooseFileStream : {logtext.count("LooseFileStream")} | BSFadeNode : {logtext.count("BSFadeNode")}',
-                               f'                   BSMultiBoundNode : {logtext.count("BSMultiBoundNode")}'
-                               ])
+            output.write("# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #")
+            output.write(f'> Priority : [4] | LooseFileStream : {logtext.count("LooseFileStream")} | BSFadeNode : {logtext.count("BSFadeNode")}')
+            output.write(f'                   BSMultiBoundNode : {logtext.count("BSMultiBoundNode")}')
             Buffout_Trap = True
             statC_NIF += 1
         # ===========================================================
         if ("Create2DTexture" or "DefaultTexture") in logtext:
-            output.writelines(["# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #",
-                               f'> Priority : [3] | Create2DTexture : {logtext.count("Create2DTexture")} | DefaultTexture : {logtext.count("DefaultTexture")}'
-                               ])
+            output.write("# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #")
+            output.write(f'> Priority : [3] | Create2DTexture : {logtext.count("Create2DTexture")} | DefaultTexture : {logtext.count("DefaultTexture")}')
             Buffout_Trap = True
             statlogtexture += 1
         # ===========================================================
         if ("DefaultTexture_Black" or "NiAlphaProperty") in logtext:
-            output.writelines(["# Checking for Material (BGSM) Crash........CULPRIT FOUND! #",
-                               f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}'
-                               ])
+            output.write("# Checking for Material (BGSM) Crash........CULPRIT FOUND! #")
+            output.write(f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}')
             Buffout_Trap = True
             statC_BGSM += 1
         # ===========================================================
         if (logtext.count("bdhkm64.dll") or logtext.count("usvfs::hook_DeleteFileW")) >= 2:
-            output.writelines(["# Checking for BitDefender Crash............CULPRIT FOUND! #",
-                               f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}'
-                               ])
+            output.write("# Checking for BitDefender Crash............CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}')
             Buffout_Trap = True
             statC_BitDefender += 1
         # ===========================================================
         if ("PathingCell" or "BSPathBuilder" or "PathManagerServer") in logtext:
-            output.writelines(["# Checking for NPC Pathing Crash............CULPRIT FOUND! #",
-                               f'> Priority : [3] | PathingCell : {logtext.count("PathingCell")} | BSPathBuilder : {logtext.count("BSPathBuilder")}',
-                               f'                   PathManagerServer : {logtext.count("PathManagerServer")}'
-                               ])
+            output.write("# Checking for NPC Pathing Crash............CULPRIT FOUND! #")
+            output.write(f'> Priority : [3] | PathingCell : {logtext.count("PathingCell")} | BSPathBuilder : {logtext.count("BSPathBuilder")}')
+            output.write(f'                   PathManagerServer : {logtext.count("PathManagerServer")}')
             Buffout_Trap = True
             statC_NPCPathing += 1
         elif ("NavMesh" or "BSNavmeshObstacleData" or "DynamicNavmesh") in logtext:
-            output.writelines(["# Checking for NPC Pathing Crash............CULPRIT FOUND! #",
-                               f'> Priority : [3] | NavMesh : {logtext.count("NavMesh")} | BSNavmeshObstacleData : {logtext.count("BSNavmeshObstacleData")}',
-                               f'                   DynamicNavmesh : {logtext.count("DynamicNavmesh")}'
-                               ])
+            output.write("# Checking for NPC Pathing Crash............CULPRIT FOUND! #")
+            output.write(f'> Priority : [3] | NavMesh : {logtext.count("NavMesh")} | BSNavmeshObstacleData : {logtext.count("BSNavmeshObstacleData")}')
+            output.write(f'                   DynamicNavmesh : {logtext.count("DynamicNavmesh")}')
             Buffout_Trap = True
             statC_NPCPathing += 1
         # ===========================================================
         if logtext.count("X3DAudio1_7.dll") >= 3 or logtext.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in buff_error:
-            output.writelines(["# Checking for Audio Driver Crash...........CULPRIT FOUND! #",
-                               f'> Priority : [5] | X3DAudio1_7.dll : {logtext.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {logtext.count("XAudio2_7.dll")}'
-                               ])
+            output.write("# Checking for Audio Driver Crash...........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | X3DAudio1_7.dll : {logtext.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {logtext.count("XAudio2_7.dll")}')
             Buffout_Trap = True
             statC_Audio += 1
         # ===========================================================
         if logtext.count("cbp.dll") >= 3 or "skeleton.nif" in logtext or "cbp.dll" in buff_error:
-            output.writelines(["# Checking for Body Physics Crash...........CULPRIT FOUND! #",
-                               f'> Priority : [4] | cbp.dll : {logtext.count("cbp.dll")} | skeleton.nif : {logtext.count("skeleton.nif")}'
-                               ])
+            output.write("# Checking for Body Physics Crash...........CULPRIT FOUND! #")
+            output.write(f'> Priority : [4] | cbp.dll : {logtext.count("cbp.dll")} | skeleton.nif : {logtext.count("skeleton.nif")}')
             Buffout_Trap = True
             statC_BodyPhysics += 1
         # ===========================================================
         if ("BSMemStorage" or "DataFileHandleReaderWriter") in logtext:
-            output.writelines(["# Checking for Plugin Limit Crash...........CULPRIT FOUND! #",
-                               f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}'])
+            output.write("# Checking for Plugin Limit Crash...........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}')
             Buffout_Trap = True
             statC_PluginLimit += 1
         # ===========================================================
         if "GamebryoSequenceGenerator" in logtext or "+0DB9300" in buff_error:
-            output.writelines(["# Checking for Plugin Order Crash...........CULPRIT FOUND! #",
-                               f'> Priority : [5] | GamebryoSequenceGenerator : {logtext.count("GamebryoSequenceGenerator")}'
-                               ])
+            output.write("# Checking for Plugin Order Crash...........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | GamebryoSequenceGenerator : {logtext.count("GamebryoSequenceGenerator")}')
             Buffout_Trap = True
             statC_LoadOrder += 1
         # ===========================================================
         if logtext.count("BSD3DResourceCreator") == 3 or logtext.count("BSD3DResourceCreator") == 6:
-            output.writelines(["# Checking for MO2 Extractor Crash..........CULPRIT FOUND! #",
-                               f'> Priority : [5] | BSD3DResourceCreator : {logtext.count("BSD3DResourceCreator")}'
-                               ])
+            output.write("# Checking for MO2 Extractor Crash..........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | BSD3DResourceCreator : {logtext.count("BSD3DResourceCreator")}')
             Buffout_Trap = True
             statC_MO2Unp += 1
         # ===========================================================
         if logtext.count("flexRelease_x64.dll") >= 2 or "flexRelease_x64" in buff_error:
-            output.writelines(["# Checking for Nvidia Debris Crash..........CULPRIT FOUND! #",
-                               f'> Priority : [5] | flexRelease_x64.dll : {logtext.count("flexRelease_x64.dll")}'
-                               ])
+            output.write("# Checking for Nvidia Debris Crash..........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | flexRelease_x64.dll : {logtext.count("flexRelease_x64.dll")}')
             Buffout_Trap = True
             statC_NVDebris += 1
         # ===========================================================
         if logtext.count("nvwgf2umx.dll") >= 10 or ("nvwgf2umx" or "USER32.dll") in buff_error:
-            output.writelines(["# Checking for Nvidia Driver Crash..........CULPRIT FOUND! #",
-                               f'> Priority : [5] | nvwgf2umx.dll : {logtext.count("nvwgf2umx.dll")} | USER32.dll : {logtext.count("USER32.dll")}'
-                               ])
+            output.write("# Checking for Nvidia Driver Crash..........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | nvwgf2umx.dll : {logtext.count("nvwgf2umx.dll")} | USER32.dll : {logtext.count("USER32.dll")}')
             Buffout_Trap = True
             statC_NVDriver += 1
         # ===========================================================
         if (logtext.count("KERNELBASE.dll") or logtext.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in logtext:
-            output.writelines(["# Checking for Vulkan Memory Crash..........CULPRIT FOUND! #",
-                               f'> Priority : [5] | KERNELBASE.dll : {logtext.count("KERNELBASE.dll")} | MSVCP140.dll : {logtext.count("MSVCP140.dll")}',
-                               f'                   DxvkSubmissionQueue : {logtext.count("DxvkSubmissionQueue")}'
-                               ])
+            output.write("# Checking for Vulkan Memory Crash..........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | KERNELBASE.dll : {logtext.count("KERNELBASE.dll")} | MSVCP140.dll : {logtext.count("MSVCP140.dll")}')
+            output.write(f'                   DxvkSubmissionQueue : {logtext.count("DxvkSubmissionQueue")}')
             Buffout_Trap = True
             statC_VulkanMem += 1
         # ===========================================================
         if ("dxvk::DXGIAdapter" or "dxvk::DXGIFactory") in logtext:
-            output.writelines(["# Checking for Vulkan Settings Crash........CULPRIT FOUND! #",
-                               f'> Priority : [5] | dxvk::DXGIAdapter : {logtext.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {logtext.count("dxvk::DXGIFactory")}'
-                               ])
+            output.write("# Checking for Vulkan Settings Crash........CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | dxvk::DXGIAdapter : {logtext.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {logtext.count("dxvk::DXGIFactory")}')
             Buffout_Trap = True
             statC_VulkanSet += 1
         # ===========================================================
         if ("BSXAudio2DataSrc" or "BSXAudio2GameSound") in logtext:
-            output.writelines(["# Checking for Corrupted Audio Crash........CULPRIT FOUND! #",
-                               f'> Priority : [4] | BSXAudio2DataSrc : {logtext.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {logtext.count("BSXAudio2GameSound")}'
-                               ])
+            output.write("# Checking for Corrupted Audio Crash........CULPRIT FOUND! #")
+            output.write(f'> Priority : [4] | BSXAudio2DataSrc : {logtext.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {logtext.count("BSXAudio2GameSound")}')
             Buffout_Trap = True
             statC_CorruptedAudio += 1
         # ===========================================================
         if ("SysWindowCompileAndRun" or "ConsoleLogPrinter") in logtext:
-            output.writelines(["# Checking for Console Command Crash........CULPRIT FOUND! #",
-                               f'> Priority : [1] | SysWindowCompileAndRun : {logtext.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {logtext.count("ConsoleLogPrinter")}'
-                               ])
+            output.write("# Checking for Console Command Crash........CULPRIT FOUND! #")
+            output.write(f'> Priority : [1] | SysWindowCompileAndRun : {logtext.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {logtext.count("ConsoleLogPrinter")}')
             Buffout_Trap = True
             statC_ConsoleCommands += 1
         # ===========================================================
         if "BGSWaterCollisionManager" in logtext:
-            output.writelines(["# Checking for Water Collision Crash........CULPRIT FOUND! #",
-                               "PLEASE CONTACT ME AS SOON AS POSSIBLE! (CONTACT INFO BELOW)",
-                               f'> Priority : [6] | BGSWaterCollisionManager : {logtext.count("BGSWaterCollisionManager")}'
-                               ])
+            output.write("# Checking for Water Collision Crash........CULPRIT FOUND! #")
+            output.write("PLEASE CONTACT ME AS SOON AS POSSIBLE! (CONTACT INFO BELOW)")
+            output.write(f'> Priority : [6] | BGSWaterCollisionManager : {logtext.count("BGSWaterCollisionManager")}')
             Buffout_Trap = True
             statC_Water += 1
         # ===========================================================
         if "ParticleSystem" in logtext:
-            output.writelines(["# Checking for Particle Effects Crash.......CULPRIT FOUND! #",
-                               f'> Priority : [4] | ParticleSystem : {logtext.count("ParticleSystem")}'
-                               ])
+            output.write("# Checking for Particle Effects Crash.......CULPRIT FOUND! #")
+            output.write(f'> Priority : [4] | ParticleSystem : {logtext.count("ParticleSystem")}')
             Buffout_Trap = True
             statC_Particles += 1
         # ===========================================================
         if ("hkbVariableBindingSet" or "hkbHandIkControlsModifier" or "hkbBehaviorGraph" or "hkbModifierList") in logtext:
-            output.writelines(["# Checking for Animation / Physics Crash....CULPRIT FOUND! #",
-                               f'> Priority : [5] | hkbVariableBindingSet : {logtext.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {logtext.count("hkbHandIkControlsModifier")}',
-                               f'                   hkbBehaviorGraph : {logtext.count("hkbBehaviorGraph")} | hkbModifierList : {logtext.count("hkbModifierList")}'
-                               ])
+            output.write("# Checking for Animation / Physics Crash....CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | hkbVariableBindingSet : {logtext.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {logtext.count("hkbHandIkControlsModifier")}')
+            output.write(f'                   hkbBehaviorGraph : {logtext.count("hkbBehaviorGraph")} | hkbModifierList : {logtext.count("hkbModifierList")}')
             Buffout_Trap = True
             statC_AnimationPhysics += 1
         # ===========================================================
         if "DLCBanner05.dds" in logtext:
-            output.writelines(["# Checking for Archive Invalidation Crash...CULPRIT FOUND! #",
-                               f'> Priority : [5] | DLCBanner05.dds : {logtext.count("DLCBanner05.dds")}'
-                               ])
+            output.write("# Checking for Archive Invalidation Crash...CULPRIT FOUND! #")
+            output.write(f'> Priority : [5] | DLCBanner05.dds : {logtext.count("DLCBanner05.dds")}')
             Buffout_Trap = True
             statC_Invalidation += 1
 
@@ -735,106 +701,88 @@ for file in logs:
         output.write("---------- Unsolved Crash Messages Below ----------")
 
         if "+01B59A4" in buff_error:
-            output.writelines(["Checking for *[Creation Club Crash].......DETECTED!",
-                               "> Priority : [5]"
-                               ])
+            output.write("Checking for *[Creation Club Crash].......DETECTED!")
+            output.write("> Priority : [5]")
             Buffout_Trap = True
             statU_CClub += 1
 
         if ("BGSMod::Attachment" or "BGSMod::Template" or "BGSMod::Template::Item") in logtext:
-            output.writelines(["Checking for *[Item Crash]................DETECTED!",
-                               f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}',
-                               f'                        BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}'
-                               ])
+            output.write("Checking for *[Item Crash]................DETECTED!")
+            output.write(f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}')
+            output.write(f'                        BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}')
             Buffout_Trap = True
             statU_Item += 1
         # ===========================================================
         if logtext.count("BGSSaveFormBuffer") >= 2:
-            output.writelines(["Checking for *[Save Crash]................DETECTED!",
-                               f'> Priority : [5] | BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")}'
-                               ])
+            output.write("Checking for *[Save Crash]................DETECTED!")
+            output.write(f'> Priority : [5] | BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")}')
             Buffout_Trap = True
             statU_Save += 1
         # ===========================================================
         if ("ButtonEvent" or "MenuControls" or "MenuOpenCloseHandler" or "PlayerControls" or "DXGISwapChain") in logtext:
-            output.writelines(["Checking for *[Input Crash]...............DETECTED!",
-                               f'> Priority : [5] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}',
-                               f'                        MenuOpenCloseHandler : {logtext.count("MenuOpenCloseHandler")} | PlayerControls : {logtext.count("PlayerControls")}',
-                               f'                        DXGISwapChain : {logtext.count("DXGISwapChain")}'
-                               ])
+            output.write("Checking for *[Input Crash]...............DETECTED!")
+            output.write(f'> Priority : [5] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}')
+            output.write(f'                        MenuOpenCloseHandler : {logtext.count("MenuOpenCloseHandler")} | PlayerControls : {logtext.count("PlayerControls")}')
+            output.write(f'                        DXGISwapChain : {logtext.count("DXGISwapChain")}')
             Buffout_Trap = True
             statU_Input += 1
         # ===========================================================
         if ("BGSSaveLoadManager" or "BGSSaveLoadThread" or "BGSSaveFormBuffer") in logtext or ("+0CDAD30" or "+0D09AB7") in buff_error:
-            output.writelines(["Checking for *[Bad INI Crash].............DETECTED!",
-                               f'> Priority : [5] | BGSSaveLoadManager : {logtext.count("BGSSaveLoadManager")} | BGSSaveLoadThread : {logtext.count("BGSSaveLoadThread")}',
-                               f'                        BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")}'
-                               ])
+            output.write("Checking for *[Bad INI Crash].............DETECTED!")
+            output.write(f'> Priority : [5] | BGSSaveLoadManager : {logtext.count("BGSSaveLoadManager")} | BGSSaveLoadThread : {logtext.count("BGSSaveLoadThread")}')
+            output.write(f'                        BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")}')
             Buffout_Trap = True
             statU_INI += 1
         # ===========================================================
         if ("BGSProcedurePatrol" or "BGSProcedurePatrolExecState" or "PatrolActorPackageData") in logtext:
-            output.writelines(["Checking for *[NPC Patrol Crash]..........DETECTED!",
-                               f'> Priority : [5] | BGSProcedurePatrol : {logtext.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {logtext.count("BGSProcedurePatrolExecState")}',
-                               f'                        PatrolActorPackageData : {logtext.count("PatrolActorPackageData")}'
-                               ])
+            output.write("Checking for *[NPC Patrol Crash]..........DETECTED!")
+            output.write(f'> Priority : [5] | BGSProcedurePatrol : {logtext.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {logtext.count("BGSProcedurePatrolExecState")}')
+            output.write(f'                        PatrolActorPackageData : {logtext.count("PatrolActorPackageData")}')
             Buffout_Trap = True
             statU_Patrol += 1
         # ===========================================================
         if ("BSPackedCombinedGeomDataExtra" or "BGSCombinedCellGeometryDB" or "BGSStaticCollection" or "TESObjectCELL") in logtext:
-            output.writelines(["Checking for *[Precombines Crash].........DETECTED!",
-                               f'> Priority : [5] | BGSStaticCollection : {logtext.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {logtext.count("BGSCombinedCellGeometryDB")}',
-                               f'                        BSPackedCombinedGeomDataExtra : {logtext.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {logtext.count("TESObjectCELL")}'
-                               ])
+            output.write("Checking for *[Precombines Crash].........DETECTED!")
+            output.write(f'> Priority : [5] | BGSStaticCollection : {logtext.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {logtext.count("BGSCombinedCellGeometryDB")}')
+            output.write(f'                        BSPackedCombinedGeomDataExtra : {logtext.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {logtext.count("TESObjectCELL")}')
             Buffout_Trap = True
             statU_Precomb += 1
         # ===========================================================
         if "HUDAmmoCounter" in logtext:
-            output.writelines(["Checking for *[Ammo Counter Crash]........DETECTED!",
-                               f'> Priority : [5] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}'
-                               ])
+            output.write("Checking for *[Ammo Counter Crash]........DETECTED!")
+            output.write(f'> Priority : [5] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}')
             Buffout_Trap = True
             statU_HUDAmmo += 1
         # ===========================================================
         if ("BGSProjectile" or "CombatProjectileAimController") in logtext:
-            output.writelines(["Checking for *[NPC Projectile Crash].....DETECTED!",
-                               f'> Priority : [5] | BGSProjectile : {logtext.count("BGSProjectile")} | CombatProjectileAimController : {logtext.count("CombatProjectileAimController")}'
-                               ])
+            output.write("Checking for *[NPC Projectile Crash].....DETECTED!")
+            output.write(f'> Priority : [5] | BGSProjectile : {logtext.count("BGSProjectile")} | CombatProjectileAimController : {logtext.count("CombatProjectileAimController")}')
             Buffout_Trap = True
         # ===========================================================
         if logtext.count("PlayerCharacter") >= 1 and (logtext.count("0x00000007") or logtext.count("0x00000014") or logtext.count("0x00000008")) >= 3:
             output.write("Checking for *[Player Character Crash]....DETECTED!")
             output.write(f'> Priority : [5] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}')
             output.write(f'                        0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}')
-            output.writelines(["Checking for *[Player Character Crash]....DETECTED!",
-                               f'> Priority : [5] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}',
-                               f'                        0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}'
-                               ])
             Buffout_Trap = True
             statU_Player += 1
 
         # ===========================================================
 
         if Buffout_Trap == False:  # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
-            output.writelines([
-                "-----",
-                "# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #",
-                "Check below for mods that can cause frequent crashes and other problems.",
-                "-----"
-            ])
+            output.write("-----")
+            output.write("# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #")
+            output.write("Check below for mods that can cause frequent crashes and other problems.")
+            output.write("-----")
         else:
-            output.writelines([
-                "-----",
-                "FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH CULPRITS,",
-                "SEE: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c",
-                "-----"
-            ])
+            output.write("-----")
+            output.write("FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH CULPRITS,")
+            output.write("SEE: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c")
+            output.write("-----")
 
-        output.writelines([
-            "====================================================",
-            "CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...",
-            "===================================================="
-        ])
+        
+        output.write("====================================================")
+        output.write("CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...")
+        output.write("====================================================")
         Mod_Trap1 = 1
 
         # Why lists and not dictionaries? So I can preserve alphabetical order in code and
@@ -916,67 +864,60 @@ for file in logs:
                 for elem in List_Mods1:
                     if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods1.index(elem)
-                        output.writelines([f"[!] Found:{line[0:5].strip()} {List_Warn1[order_elem]}",
-                                           "-----"])
+                        output.write(f"[!] Found:{line[0:5].strip()} {List_Warn1[order_elem]}")
+                        output.write("-----")
                         Mod_Trap1 = 0
                     elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods1.index(elem)
-                        output.writelines([f"[!] Found:{line[0:9].strip()} {List_Warn1[order_elem]}",
-                                           "-----"])
+                        output.write(f"[!] Found:{line[0:9].strip()} {List_Warn1[order_elem]}")
+                        output.write("-----")
                         Mod_Trap1 = 0
 
             if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
-                output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS",
-                                   "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!",
-                                   "You should disable CHW to further confirm this.",
-                                   "Visit the main crash logs article for additional solutions.",
-                                   "-----"
-                                   ])
+                output.write("[!] Found: CLASSIC HOLSTERED WEAPONS")
+                output.write("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!")
+                output.write("You should disable CHW to further confirm this.")
+                output.write("Visit the main crash logs article for additional solutions.")
+                output.write("-----")
                 statM_CHW += 1
                 Mod_Trap1 = 0
                 Buffout_Trap = True
             elif logtext.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" or "HHS.dll" or "cbp.dll" or "Body.nif") in logtext:
-                output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS",
-                                   "AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.",
-                                   "You should disable CHW to further confirm it caused this crash.",
-                                   "Visit the main crash logs article for additional solutions.",
-                                   "-----"
-                                   ])
+                output.write("[!] Found: CLASSIC HOLSTERED WEAPONS")
+                output.write("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.")
+                output.write("You should disable CHW to further confirm it caused this crash.")
+                output.write("Visit the main crash logs article for additional solutions.")
+                output.write("-----")
                 statM_CHW += 1
                 Mod_Trap1 = 0
                 Buffout_Trap = True
             elif "ClassicHolsteredWeapons" in logtext and "d3d11" in buff_error:
-                output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...",
-                                   "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.",
-                                   "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.",
-                                   "This usually prevents most common crashes with Classic Holstered Weapons.",
-                                   "-----"
-                                   ])
+                output.write("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...")
+                output.write("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.")
+                output.write("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.")
+                output.write("This usually prevents most common crashes with Classic Holstered Weapons.")
+                output.write("-----")
                 Mod_Trap1 = 0
         if "[00]" in logtext and Mod_Trap1 == 0:
-            output.writelines(["# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #",
-                               "You can disable any/all of them temporarily to confirm they caused this crash.",
-                               "-----"
-                               ])
+            output.write("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #")
+            output.write("You can disable any/all of them temporarily to confirm they caused this crash.")
+            output.write("-----")
             statL_scanned += 1
         elif "[00]" in logtext and Mod_Trap1 == 1:
-            output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #",
-                               "THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.",
-                               "Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files",
-                               "-----"
-                               ])
+            output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #")
+            output.write("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.")
+            output.write("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files")
+            output.write("-----")
             statL_scanned += 1
         elif not "[00]" in logtext:
-            output.writelines(["# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\n",
-                               "Autoscan cannot continue. Try scanning a different crash log.\n",
-                               "-----"
-                               ])
+            output.write("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
+            output.write("Autoscan cannot continue. Try scanning a different crash log.")
+            output.write("-----")
             statL_incomplete += 1
 
-        output.writelines(["====================================================",
-                           "CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES",
-                           "===================================================="
-                           ])
+        output.write("====================================================")
+        output.write("CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES")
+        output.write("====================================================")
         Mod_Trap2 = no_repeat1 = no_repeat2 = 1  # MOD TRAP 2 | NEED 8 SPACES FOR ESL [FE:XXX]
 
         # Needs 1 empty space as prefix to prevent duplicates.
@@ -1158,37 +1099,32 @@ for file in logs:
                 for elem in List_Mods2:
                     if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods2.index(elem)
-                        output.writelines([f"[!] Found:{line[0:5].strip()} {List_Warn2[order_elem]}",
-                                           "-----"
-                                           ])
+                        output.write(f"[!] Found:{line[0:5].strip()} {List_Warn2[order_elem]}")
+                        output.write("-----")
                         Mod_Trap2 = 0
                     elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods2.index(elem)
-                        output.writelines([f"[!] Found:{line[0:9].strip()} {List_Warn2[order_elem]}",
-                                           "-----"
-                                           ])
+                        output.write(f"[!] Found:{line[0:9].strip()} {List_Warn2[order_elem]}")
+                        output.write("-----")
                         Mod_Trap2 = 0
                 if no_repeat1 == 1 and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
-                    output.writelines([f"[!] Found:{line[0:9].strip()} THUGGYSMURF QUEST MOD",
-                                       "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie",
-                                       "install this patch with facegen data, fully generated precomb/previs data and several tweaks.",
-                                       "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files",
-                                       "-----"
-                                       ])
+                    output.write(f"[!] Found:{line[0:9].strip()} THUGGYSMURF QUEST MOD")
+                    output.write("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie")
+                    output.write("install this patch with facegen data, fully generated precomb/previs data and several tweaks.")
+                    output.write("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files")
+                    output.write("-----")
                     no_repeat1 = Mod_Trap2 = 0
                 if no_repeat1 == 1 and "File:" not in line and ("CaN.esm" or "AnimeRace_Nanako.esp") in line:
-                    output.writelines([f"[!] Found:{line[0:9].strip()} CUSTOM RACE SKELETON MOD",
-                                       "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.",
-                                       "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101"
-                                       ])
+                    output.write(f"[!] Found:{line[0:9].strip()} CUSTOM RACE SKELETON MOD")
+                    output.write("If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.")
+                    output.write("Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101")
                     no_repeat2 = Mod_Trap2 = 0
 
             if "FallSouls.dll" in logtext:
-                output.writelines(["[!] Found: FALLSOULS UNPAUSED GAME MENUS",
-                                   "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.",
-                                   "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.",
-                                   "-----"
-                                   ])
+                output.write("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
+                output.write("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.")
+                output.write("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.")
+                output.write("-----")
                 Mod_Trap2 = 0
 
         # inherentlimitations= "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\neven if fixes or patches for them are already installed. You can ignore these.]\n-----"
@@ -1200,21 +1136,18 @@ for file in logs:
             output.write("-----")
 
         elif "[00]" in logtext and Mod_Trap2 == 1:
-            output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #",
-                               "-----"
-                               ])
+            output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #")
+            output.write("-----")
         elif logtext.count("[00]") == 0:
             output.write(nopluginlist)
 
-        output.writelines(["FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,",
-                           "VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769",
-                           "-----"
-                           ])
+        output.write("FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,")
+        output.write("VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769")
+        output.write("-----")
 
-        output.writelines(["====================================================",
-                           "CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...",
-                           "===================================================="
-                           ])
+        output.write("====================================================")
+        output.write("CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...")
+        output.write("====================================================")
         Mod_Trap3 = 1  # MOD TRAP 3 | NEED 8 SPACES FOR ESL [FE:XXX]
 
         # Needs 1 empty space as prefix to prevent duplicates.
@@ -1302,145 +1235,130 @@ for file in logs:
                         output.write(f"- Found:{line[0:9].strip()} {List_Warn3[order_elem]}")
                         Mod_Trap3 = 0
         if "[00]" in logtext and Mod_Trap3 == 0:
-            output.writelines(["-----",
-                               "FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,",
-                               "VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872",
-                               "-----"
-                               ])
+            output.write("-----")
+            output.write("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,")
+            output.write("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872")
+            output.write("-----")
         elif "[00]" in logtext and Mod_Trap3 == 1:
-            output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #",
-                               "-----"
-                               ])
+            output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #")
+            output.write("-----")
         elif logtext.count("[00]") == 0:
-            output.writelines(nopluginlist)
+            output.write(nopluginlist)
 
         # ===========================================================
 
-        output.writelines(["====================================================",
-                           "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED"
-                           "===================================================="
-                           ])
+        output.write("====================================================")
+        output.write("CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED")
+        output.write("====================================================")
 
         gpu_amd = False
         gpu_nvidia = False
         for line in loglines:
             if "GPU" in line and "Nvidia" in line:
                 gpu_nvidia = True
+                break
             if "GPU" in line and "AMD" in line:
                 gpu_amd = True
+                break
 
-        output.writelines(["IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
-                           "remove these mods completely and switch to High FPS Physics Fix!",
-                           "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
-                           "-----"
-                           ])
+        output.write("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,")
+        output.write("remove these mods completely and switch to High FPS Physics Fix!")
+        output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
+        output.write("-----")
 
         if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
-            output.writelines(["* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *",
-                               "[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]",
-                               "-----"
-                               ])
+            output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
+            output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]")
+            output.write("-----")
 
             if info.VR_EXE.is_file() and info.VR_Buffout.is_file():
                 output.write("*Buffout 4 VR Version* is (manually) installed. \n-----")
             elif info.VR_EXE.is_file() and not info.VR_Buffout.is_file():
-                output.writelines(["# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files"
-                                   ])
+                output.write("# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files")
 
-            if info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes):
+            if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or Path(info.Game_Path).joinpath("winhttp.dll").is_file():
                 output.write("*Creation Kit Fixes* is (manually) installed. \n-----")
             elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
-                output.writelines(["# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a highly recommended patch for the Fallout 4 Creation Kit.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a highly recommended patch for the Fallout 4 Creation Kit.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files")
+                output.write("-----")
 
         if "[00]" in logtext:
             if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
                 output.write("*Canary Save File Monitor* is installed. \n-----")
             else:
-                output.writelines(["# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a highly recommended mod that can detect save file corrpution.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a highly recommended mod that can detect save file corrpution.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files")
+                output.write("-----")
 
             if "HighFPSPhysicsFix.dll" in logtext:
                 output.write("*High FPS Physics Fix* is installed. \n-----")
             else:
-                output.writelines(["# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a mandatory patch / fix that prevents game engine problems.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a mandatory patch / fix that prevents game engine problems.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
+                output.write("-----")
 
             if any("PPF.esm" in elem for elem in plugin_list):
                 output.write("*Previs Repair Pack* is installed. \n-----")
             else:
-                output.writelines(["# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a highly recommended mod that can improve performance.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a highly recommended mod that can improve performance.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
+                output.write("-----")
 
             if any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugin_list):
                 output.write("*Unofficial Fallout 4 Patch* is installed. \n-----")
             else:
-                output.writelines(["# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "If you own all DLCs, make sure that the Unofficial Patch is installed.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("If you own all DLCs, make sure that the Unofficial Patch is installed.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files")
+                output.write("-----")
 
             if "vulkan-1.dll" in logtext and gpu_amd:
                 output.write("Vulkan Renderer is installed. \n-----")
             elif logtext.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
-                output.writelines(["# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a highly recommended mod that can improve performance on AMD GPUs.",
-                                   "-----",
-                                   "Installation steps can be found in 'How To Read Crash Logs' PDF / Document.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a highly recommended mod that can improve performance on AMD GPUs.")
+                output.write("-----")
+                output.write("Installation steps can be found in 'How To Read Crash Logs' PDF / Document.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files")
+                output.write("-----")
 
             if "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
                 output.write("*Weapon Debris Crash Fix* is installed. \n-----")
             elif "WeaponDebrisCrashFix.dll" in logtext and not gpu_nvidia and gpu_amd:
-                output.writelines(["*Weapon Debris Crash Fix* is installed, but...",
-                                   "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #",
-                                   "Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)",
-                                   "-----"
-                                   ])
+                output.write("*Weapon Debris Crash Fix* is installed, but...")
+                output.write("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
+                output.write("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)")
+                output.write("-----")
             if not "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
-                output.writelines(["# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a mandatory patch / fix for players with Nvidia graphics cards.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a mandatory patch / fix for players with Nvidia graphics cards.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files")
+                output.write("-----")
 
             if "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
                 output.write("*Nvidia Reflex Support* is installed. \n-----")
             elif "NVIDIA_Reflex.dll" in logtext and not gpu_nvidia and gpu_amd:
-                output.writelines(["*Nvidia Reflex Support* is installed, but...",
-                                   "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #",
-                                   "Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)",
-                                   "-----"
-                                   ])
+                output.write("*Nvidia Reflex Support* is installed, but...")
+                output.write("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
+                output.write("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
+                output.write("-----")
             if not "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
-                output.writelines(["# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                   "This is a highly recommended mod that can reduce render latency.",
-                                   "Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files",
-                                   "-----"
-                                   ])
+                output.write("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
+                output.write("This is a highly recommended mod that can reduce render latency.")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files")
+                output.write("-----")
         else:
-            output.writelines(nopluginlist)
-        output.writelines(["====================================================",
-                           "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...",
-                           "===================================================="
-                           ])
+            output.write(nopluginlist)
+        output.write("====================================================")
+        output.write("SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...")
+        output.write("====================================================")
 
         list_DETPLUGINS = []
         list_DETFORMIDS = []
@@ -1448,11 +1366,10 @@ for file in logs:
         list_ALLPLUGINS = []
 
         if not "f4se_1_10_163.dll" in logtext and "steam_api64.dll" in logtext:
-            output.writelines(["AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!",
-                               "MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!",
-                               "Link: https://f4se.silverlock.org",
-                               "-----"
-                               ])
+            output.write("AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!")
+            output.write("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!")
+            output.write("Link: https://f4se.silverlock.org")
+            output.write("-----")
 
         for line in loglines:
             if len(line) >= 6 and "]" in line[4]:
@@ -1488,18 +1405,16 @@ for file in logs:
                     PL_matches.append(string)
             if PL_matches:
                 PL_result.append(PL_matches)
-                output.write(f"- {' '.join(PL_matches)}")  # not 100% sure on this, will have to see how it works.
+                output.write(f"- {' '.join(PL_matches)}")
 
         if not PL_result:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *",
-                               "-----"
-                               ])
+            output.write("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *")
+            output.write("-----")
         else:
-            output.writelines(["-----",
-                               "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.",
-                               "You can try disabling these plugins and recheck your game, though this method can be unreliable.",
-                               "-----"
-                               ])
+            output.write("-----")
+            output.write("These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.")
+            output.write("You can try disabling these plugins and recheck your game, though this method can be unreliable.")
+            output.write("-----")
 
         # ===========================================================
 
@@ -1529,15 +1444,13 @@ for file in logs:
                 output.write(elem)
 
             if not list_DETFORMIDS:
-                output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *",
-                                   "-----"
-                                   ])
+                output.write("* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *")
+                output.write("-----")
         else:
-            output.writelines(["-----",
-                               "These Form IDs were caught by Buffout 4 and some of them might be related to this crash.",
-                               "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.",
-                               "-----"
-                               ])
+            output.write("-----")
+            output.write("These Form IDs were caught by Buffout 4 and some of them might be related to this crash.")
+            output.write("You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.")
+            output.write("-----")
 
         # ===========================================================
 
@@ -1557,21 +1470,18 @@ for file in logs:
             output.write(elem)
 
         if not List_Records:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *",
-                               "-----"
-                               ])
+            output.write("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *")
+            output.write("-----")
         else:
-            output.writelines(["-----",
-                               "These records were caught by Buffout 4 and some of them might be related to this crash.",
-                               "Named records should give extra information on involved game objects and record types.",
-                               "-----"
-                               ])
+            output.write("-----")
+            output.write("These records were caught by Buffout 4 and some of them might be related to this crash.")
+            output.write("Named records should give extra information on involved game objects and record types.")
+            output.write("-----")
 
-        output.writelines(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,",
-                           "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115",
-                           "===============================================================================",
-                           f"END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | {CLAS_Date}"
-                           ])
+        output.write("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
+        output.write("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
+        output.write("===============================================================================")
+        output.write(f"END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | {CLAS_Date}")
 
     # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
     if CLAS_config.getboolean("MAIN", "Move Unsolved") == True:
