@@ -297,7 +297,7 @@ for file in logs:
                     plugin_list.append(line)
 
         # BUFFOUT VERSION CHECK
-        buff_latest = "Buffout 4 v1.26.2\n"
+        buff_latest = "Buffout 4 v1.26.2"
         output.write(f"Main Error: {buff_error}\n")
         output.write("====================================================\n")
         output.write(f"Detected Buffout Version: {buff_ver.strip()}\n")
@@ -1354,7 +1354,7 @@ for file in logs:
                 output.write("-----\n")
         else:
             output.write(nopluginlist)
-        
+
         output.write("====================================================\n")
         output.write("SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...\n")
         output.write("====================================================\n")
