@@ -299,7 +299,7 @@ for file in logs:
         # BUFFOUT VERSION CHECK
         buff_latest = "Buffout 4 v1.26.2\n"
         output.write(f"Main Error: {buff_error}\n")
-        output.write("====================================================")
+        output.write("====================================================\n")
         output.write(f"Detected Buffout Version: {buff_ver.strip()}\n")
         output.write(f"Latest Buffout Version: {buff_latest.strip()}\n")
 
@@ -720,7 +720,7 @@ for file in logs:
         # ===========================================================
         if ("ButtonEvent" or "MenuControls" or "MenuOpenCloseHandler" or "PlayerControls" or "DXGISwapChain") in logtext:
             output.write("Checking for *[Input Crash]...............DETECTED!\n")
-            output.write(f'> Priority : [5] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}')
+            output.write(f'> Priority : [5] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}\n')
             output.write(f'                        MenuOpenCloseHandler : {logtext.count("MenuOpenCloseHandler")} | PlayerControls : {logtext.count("PlayerControls")}\n')
             output.write(f'                        DXGISwapChain : {logtext.count("DXGISwapChain")}\n')
             Buffout_Trap = True
@@ -1354,6 +1354,7 @@ for file in logs:
                 output.write("-----\n")
         else:
             output.write(nopluginlist)
+        
         output.write("====================================================\n")
         output.write("SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...\n")
         output.write("====================================================\n")
@@ -1478,7 +1479,7 @@ for file in logs:
 
         output.write("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n")
         output.write("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n")
-        output.write("===============================================================================")
+        output.write("===============================================================================\n")
         output.write(f"END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | {CLAS_Date}")
 
     # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
