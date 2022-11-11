@@ -106,7 +106,7 @@ statL_scanned = statL_incomplete = statL_failed = statL_veryold = 0
 # KNOWN CRASH MESSAGES
 statC_ActiveEffect = statC_AnimationPhysics = statC_Audio = statC_BA2Limit = statC_BGSM = statC_BitDefender = statC_BodyPhysics = statC_ConsoleCommands = statC_CorruptedTex = 0
 statC_DLL = statC_Equip = statC_Generic = statC_GridScrap = statC_Invalidation = statC_LoadOrder = statC_MCM = statC_BadMath = statC_NIF = statC_NPCPathing = statC_NVDebris = 0
-statC_NVDriver = statC_Null = statC_Overflow = statC_Papyrus = statC_Particles = statC_PluginLimit = statC_Rendering = statlogtexture = statC_CorruptedAudio = statC_LOD = 0
+statC_NVDriver = statC_Null = statC_Overflow = statC_Papyrus = statC_Particles = statC_PluginLimit = statC_Rendering = statC_Texture = statC_CorruptedAudio = statC_LOD = 0
 statC_Decal = statC_MO2Unp = statC_VulkanMem = statC_VulkanSet = statC_Water = 0
 # UNSOLVED CRASH MESSAGES
 statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = 0
@@ -577,7 +577,7 @@ for file in logs:
             output.write("# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #\n")
             output.write(f'> Priority : [3] | Create2DTexture : {logtext.count("Create2DTexture")} | DefaultTexture : {logtext.count("DefaultTexture")}\n')
             Buffout_Trap = True
-            statlogtexture += 1
+            statC_Texture += 1
         # ===========================================================
         if ("DefaultTexture_Black" or "NiAlphaProperty") in logtext:
             output.write("# Checking for Material (BGSM) Crash........CULPRIT FOUND! #\n")
@@ -1566,7 +1566,7 @@ if CLAS_config.getboolean("MAIN", "Stat Logging") == True:
     print("Logs with Rendering Crash................", statC_Rendering)
     print("Logs with Grid Scrap Crash...............", statC_GridScrap)
     print("Logs with Mesh (NIF) Crash...............", statC_NIF)
-    print("Logs with Texture (DDS) Crash............", statlogtexture)
+    print("Logs with Texture (DDS) Crash............", statC_Texture)
     print("Logs with Material (BGSM) Crash..........", statC_BGSM)
     print("Logs with BitDefender Crash..............", statC_BitDefender)
     print("Logs with NPC Pathing Crash..............", statC_NPCPathing)
