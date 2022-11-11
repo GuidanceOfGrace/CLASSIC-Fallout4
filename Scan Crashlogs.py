@@ -1,22 +1,26 @@
-from pathlib import Path
-import os
-import sys
-import stat
-import time
-import random
-import shutil
-import logging
 import fnmatch
+import logging
+import os
 import pathlib
 import platform
+import random
+import shutil
+import stat
+import sys
+import time
+from glob import glob
+from pathlib import Path
+
 try:
     import requests
     RequestsImportFailed = False
 except ImportError:
     RequestsImportFailed = True
-import subprocess
 import configparser
-import ctypes.wintypes
+import subprocess
+
+if platform.system() == "Windows":
+    import ctypes.wintypes
 
 if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
     INI_Settings = ["[MAIN]\n",
@@ -47,6 +51,7 @@ CLAS_Date = "051122"  # DDMMYY
 CLAS_Current = "CLAS v5.90"
 CLAS_Update = False
 
+
 def run_update():
     print("CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES...")
     print("(You can disable this check in Scan Crashlogs.ini) \n")
@@ -64,6 +69,7 @@ def run_update():
     # print("===============================================================================")
     response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
     return response.json()["name"]
+
 
 if CLAS_config.getboolean("MAIN", "Update Check") == True:
     CLAS_Received = run_update()
@@ -118,6 +124,7 @@ print("For Win 7, install this Py version: https://github.com/adang1345/PythonWi
 print("Click on the green Code button and Download Zip, then extract and install.")
 print("===============================================================================")
 FO4_STEAM_ID = 377160
+
 
 class Info:
     def __init__(self):
@@ -187,6 +194,7 @@ class Info:
                 with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
                     CLAS_config.write(INI_Autoscan)
 
+
 info = Info()
 # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
 if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
@@ -251,35 +259,35 @@ if info.Buffout_TOML.is_file():  # RENAME BECAUSE PYTHON CAN'T WRITE TO TOML
 
 print("\n PERFORMING SCAN... \n")
 start_time = time.time()
-orig_stdout = sys.stdout
+# orig_stdout = sys.stdout
 
-for file in os.listdir("."):
-    if fnmatch.fnmatch(file, "crash-*.log"):  # or fnmatch.fnmatch(file, "crash-*.txt") | RESERVED
-        logname = str(file)[:len(str(file)) - 4]
-        sys.stdout = open(logname + "-AUTOSCAN.md", "w", encoding='utf-8-sig', errors="ignore")
-        crashlog = str(logname + ".log")
-        if info.Steam_INI.is_file():
-            print(logname + ".log \U0001F480")
-        else:
-            print(logname + ".log")
-        print("This crash log was automatically scanned.")
-        print("VER", CLAS_Current[-4:], "| MIGHT CONTAIN FALSE POSITIVES.")
+logs = glob("crash-*.log")  # + glob("crash-*.txt") # For people who just HAVE to post their logs on pastebin.
+
+for file in logs:
+    logpath = Path(file).resolve()
+    scanpath = Path(str(logpath.name).replace(".log", "-AUTOSCAN.md")).resolve()
+    logname = logpath.name
+    logtext = logpath.read_text(encoding="utf-8")
+    loglines: list | None = None
+    with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
+        loglines = lines.readlines()
+    with scanpath.open("w", encoding='utf-8-sig', errors="ignore") as output:
+        output.write(logname)
+        output.write("\nThis crash log was automatically scanned.\n")
+        output.write(f"VER {CLAS_Current[-4:]} | MIGHT CONTAIN FALSE POSITIVES.\n")
         if CLAS_Update == True:
-            print("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #")
-        print("====================================================")
+            output.write("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #\n")
+        output.write("====================================================\n")
 
-        # OPEN FILE TO CHECK LINE INDEXES AND EVERYTHING ELSE
-        crash_version = open(crashlog, "r", errors="ignore")
         # DEFINE LINE INDEXES FOR EVERYTHING REQUIRED HERE
-        all_lines = crash_version.readlines()
-        buff_ver = str(all_lines[1].strip())
-        buff_error = str(all_lines[3].strip())
+        buff_ver = loglines[1].strip()
+        buff_error = loglines[3].strip()
         plugin_idx = 1
-        for line in all_lines:
+        for line in loglines:
             if not "F4SE" in line and "PLUGINS:" in line:
-                plugin_idx = all_lines.index(line)
+                plugin_idx = loglines.index(line)
 
-        plugin_list = all_lines[plugin_idx:]
+        plugin_list = loglines[plugin_idx:]
         if os.path.exists("loadorder.txt"):
             plugin_list = []
             with open("loadorder.txt", "r", errors="ignore") as loadorder_check:
@@ -290,37 +298,32 @@ for file in os.listdir("."):
 
         # BUFFOUT VERSION CHECK
         buff_latest = "Buffout 4 v1.26.2"
-        print("Main Error:", buff_error)
-        print("====================================================")
-        print("Detected Buffout Version:", buff_ver.strip())
-        print("Latest Buffout Version:", buff_latest.strip())
+        output.write(f"Main Error: {buff_error}\n")
+        output.write("====================================================\n")
+        output.write(f"Detected Buffout Version: {buff_ver.strip()}\n")
+        output.write(f"Latest Buffout Version: {buff_latest.strip()}\n")
 
         if buff_ver.casefold() == buff_latest.casefold():
-            print("You have the lastest version of Buffout 4!")
+            output.write("You have the lastest version of Buffout 4!\n")
         else:
-            print("REPORTED BUFFOUT VERSION DOES NOT MATCH THE BUFFOUT VERSION USED BY AUTOSCAN")
-            print("UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/47359")
+            output.write("REPORTED BUFFOUT VERSION DOES NOT MATCH THE BUFFOUT VERSION USED BY AUTOSCAN\n")
+            output.write("UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/47359\n")
 
         if "v1." not in buff_ver:
             statL_veryold += 1
             statL_scanned -= 1
 
-        # CLOSE CURRENT FILE & OPEN FILE AGAIN FOR ANOTHER CHECK
-        crash_version.close()
-        c_log = open(crashlog, "r", errors="ignore")
-        c_text = c_log.read()
-
-        print("====================================================")
-        print("CHECKING IF BUFFOUT 4 FILES/SETTINGS ARE CORRECT...")
-        print("====================================================")
+        output.write("====================================================\n")
+        output.write("CHECKING IF BUFFOUT 4 FILES/SETTINGS ARE CORRECT...\n")
+        output.write("====================================================\n")
 
         ALIB_Load = BUFF_Load = False
 
         # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
         if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
-            print("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
-            print("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]")
-            print("-----")
+            output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
+            output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n")
+            output.write("-----\n")
             Error_List = []
             F4SE_Error = F4SE_Version = F4SE_Buffout = 0
             with open(info.FO4_F4SE_Path, "r") as LOG_Check:
@@ -335,27 +338,27 @@ for file in os.listdir("."):
                         F4SE_Buffout = 1
 
             if F4SE_Version == 1:
-                print("You have the latest version of Fallout 4 Script Extender (F4SE). \n-----")
+                output.write("You have the latest version of Fallout 4 Script Extender (F4SE). \n-----\n")
             else:
-                print("# REPORTED F4SE VERSION DOES NOT MATCH THE F4SE VERSION USED BY AUTOSCAN #")
-                print("UPDATE FALLOUT 4 SCRIPT EXTENDER IF NECESSARY: https://f4se.silverlock.org")
-                print("-----")
+                output.write("# REPORTED F4SE VERSION DOES NOT MATCH THE F4SE VERSION USED BY AUTOSCAN #\n")
+                output.write("UPDATE FALLOUT 4 SCRIPT EXTENDER IF NECESSARY: https://f4se.silverlock.org\n")
+                output.write("-----\n")
 
             if F4SE_Error == 1:
-                print("# SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #")
+                output.write("# SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #\n")
                 for elem in Error_List:
-                    print(elem + "\n-----")
+                    output.write(f"{elem}\n-----\n")
             else:
-                print("Script Extender reports that all DLL mod plugins have loaded correctly. \n-----")
+                output.write("Script Extender reports that all DLL mod plugins have loaded correctly. \n-----\n")
 
             if F4SE_Buffout == 1:
-                print("Script Extender reports that Buffout 4.dll was found and loaded correctly. \n-----")
+                output.write("Script Extender reports that Buffout 4.dll was found and loaded correctly. \n-----\n")
                 ALIB_Load = BUFF_Load = True
             else:
-                print("# SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #")
-                print("Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115")
-                print("Buffout 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359")
-                print("-----")
+                output.write("# SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #\n")
+                output.write("Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115\n")
+                output.write("Buffout 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359\n")
+                output.write("-----\n")
 
             list_ERRORLOG = []
             for file in info.FO4_F4SE_Logs:
@@ -368,127 +371,128 @@ for file in os.listdir("."):
                                 list_ERRORLOG.append(logname)
 
             if len(list_ERRORLOG) >= 1:
-                print("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #")
-                print("[These are located in your Documents/My Games/Fallout4/F4SE folder.]")
+                output.write("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #\n")
+                output.write("[These are located in your Documents/My Games/Fallout4/F4SE folder.]\n")
                 for elem in list_ERRORLOG:
-                    print(elem + "\n-----")
+                    output.write(f"{elem}\n-----\n")
             else:
-                print("Available DLL logs do not report any additional errors, all is well. \n-----")
+                output.write("Available DLL logs do not report any additional errors, all is well. \n-----\n")
 
         # CHECK BUFFOUT 4 REQUIREMENTS AND TOML SETTINGS
             if info.Preloader_XML.is_file() and info.Preloader_DLL.is_file():
-                print('OPTIONAL: Plugin Preloader is (manually) installed.')
-                print('NOTICE: If the game fails to start after installing this mod, open xSE PluginPreloader.xml with a text editor and CHANGE')
-                print('<LoadMethod Name="ImportAddressHook"> TO <LoadMethod Name="OnThreadAttach"> OR <LoadMethod Name="OnProcessAttach">')
-                print('IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER')
-                print("-----")
+                output.write('OPTIONAL: Plugin Preloader is (manually) installed.\n\n')
+                output.write('NOTICE: If the game fails to start after installing this mod, open xSE PluginPreloader.xml with a text editor and CHANGE\n')
+                output.write('<LoadMethod Name="ImportAddressHook"> TO <LoadMethod Name="OnThreadAttach"> OR <LoadMethod Name="OnProcessAttach">\n')
+                output.write('IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER\n')
+                output.write("-----\n")
             else:
-                print('OPTIONAL: Plugin Preloader is not (manually) installed.\n-----')
+                output.write('OPTIONAL: Plugin Preloader is not (manually) installed.\n-----\n')
 
             if info.F4SE_Loader.is_file() and info.F4SE_DLL.is_file() and info.F4SE_SDLL.is_file():
-                print("REQUIRED: Fallout 4 Script Extender is (manually) installed. \n-----")
+                output.write("REQUIRED: Fallout 4 Script Extender is (manually) installed. \n-----\n")
             else:
-                print("# CAUTION: Auto-Scanner cannot find Script Extender files or they aren't (manually) installed! #")
-                print("FIX: Extract all files inside *f4se_0_06_21* folder into your Fallout 4 game folder.")
-                print("FALLOUT 4 SCRIPT EXTENDER: (Download Build 0.6.23) https://f4se.silverlock.org")
-                print("-----")
+                output.write("# CAUTION: Auto-Scanner cannot find Script Extender files or they aren't (manually) installed! #\n")
+                output.write("FIX: Extract all files inside *f4se_0_06_21* folder into your Fallout 4 game folder.\n")
+                output.write("FALLOUT 4 SCRIPT EXTENDER: (Download Build 0.6.23) https://f4se.silverlock.org\n")
+                output.write("-----\n")
 
             if info.Address_Library.is_file() or ALIB_Load == True:
-                print("REQUIRED: Address Library is (manually) installed. \n-----")
+                output.write("REQUIRED: Address Library is (manually) installed. \n-----\n")
             else:
-                print("# CAUTION: Auto-Scanner cannot find the Adress Library file or it isn't (manually) installed! #")
-                print("FIX: Place the *version-1-10-163-0.bin* file manually into Fallout 4/Data/F4SE/Plugins folder.")
-                print("ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files")
-                print("-----")
+                output.write("# CAUTION: Auto-Scanner cannot find the Adress Library file or it isn't (manually) installed! #\n")
+                output.write("FIX: Place the *version-1-10-163-0.bin* file manually into Fallout 4/Data/F4SE/Plugins folder.\n")
+                output.write("ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files\n")
+                output.write("-----\n")
 
             if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file() or BUFF_Load == True:
                 with open(info.Buffout_INI, "r+") as BUFF_Custom:
                     BUFF_config = BUFF_Custom.read()
-                    print("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----")
-                    if ("achievements.dll" or "UnlimitedSurvivalMode.dll") in c_text and "Achievements = true" in BUFF_config:
-                        print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
-                        print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
-                        print("-----")
+                    output.write("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----\n")
+                    if ("achievements.dll" or "UnlimitedSurvivalMode.dll") in logtext and "Achievements = true" in BUFF_config:
+                        output.write("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
+                        output.write("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.\n")
+                        output.write("-----\n")
+
                         BUFF_config = BUFF_config.replace("Achievements = true", "Achievements = false")
                     else:
-                        print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
+                        output.write("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-                    if "BakaScrapHeap.dll" in c_text and "MemoryManager = true" in BUFF_config:
-                        print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
-                        print("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.")
-                        print("-----")
+                    if "BakaScrapHeap.dll" in logtext and "MemoryManager = true" in BUFF_config:
+                        output.write("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #\n")
+                        output.write("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.\n")
+                        output.write("-----\n")
                         BUFF_config = BUFF_config.replace("MemoryManager = true", "MemoryManager = false")
                     else:
-                        print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
+                        output.write("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-                    if "f4ee.dll" in c_text and "F4EE = false" in BUFF_config:
-                        print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
-                        print("Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.")
-                        print("-----")
+                    if "f4ee.dll" in logtext and "F4EE = false" in BUFF_config:
+                        output.write("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #\n")
+                        output.write("Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.\n")
+                        output.write("-----\n")
                         BUFF_config = BUFF_config.replace("F4EE = false", "F4EE = true")
                     else:
-                        print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
+                        output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
                 with open(info.Buffout_INI, "w+") as BUFF_Custom:
                     BUFF_Custom.write(BUFF_config)
             else:
-                print("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't (manually) installed! #")
-                print("FIX: Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115")
-                print("BUFFOUT 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359?tab=files")
-                print("-----")
+                output.write("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't (manually) installed! #\n")
+                output.write("FIX: Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115\n")
+                output.write("BUFFOUT 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359?tab=files\n")
+                output.write("-----\n")
 
         else:  # INSTRUCTIONS FOR MANUAL FIXING WHEN FCX MODE IS FALSE
-            if ("Achievements: true" in c_text and "achievements.dll" in c_text) or ("Achievements: true" in c_text and "UnlimitedSurvivalMode.dll" in c_text):
-                print("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #")
-                print("FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.")
-                print("-----")
+            if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
+                output.write("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
+                output.write("FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.\n")
+                output.write("-----\n")
             else:
-                print("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----")
+                output.write("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-            if "MemoryManager: true" in c_text and "BakaScrapHeap.dll" in c_text:
-                print("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #")
-                print("FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.")
-                print("-----")
+            if "MemoryManager: true" in logtext and "BakaScrapHeap.dll" in logtext:
+                output.write("# CAUTION: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #\n")
+                output.write("FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.\n")
+                output.write("-----\n")
             else:
-                print("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----")
+                output.write("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-            if "F4EE: false" in c_text and "f4ee.dll" in c_text:
-                print("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #")
-                print("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.")
-                print("-----")
-            else:
-                print("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----")
+        if "F4EE: false" in logtext and "f4ee.dll" in logtext:
+            output.write("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #\n")
+            output.write("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.\n")
+            output.write("-----\n")
+        else:
+            output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-        print("====================================================")
-        print("CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES...")
-        print("====================================================")
+        output.write("====================================================\n")
+        output.write("CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES...\n")
+        output.write("====================================================\n")
         Buffout_Trap = False  # RETURN TRUE IF KNOWN CRASH MESSAGE WAS FOUND
 
         # ====================== HEADER ERRORS ======================
 
         if ".dll" in buff_error and "tbbmalloc" not in buff_error:
-            print("# MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH! # \n-----")
+            output.write("# MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH! # \n-----\n")
 
         if "EXCEPTION_STACK_OVERFLOW" in buff_error:
-            print("# Checking for Stack Overflow Crash.........CULPRIT FOUND! #")
-            print("> Priority : [5]")
+            output.write("# Checking for Stack Overflow Crash.........CULPRIT FOUND! #\n")
+            output.write("> Priority : [5]\n")
             Buffout_Trap = True
             statC_Overflow += 1
 
         if "0x000100000000" in buff_error:
-            print("# Checking for Active Effects Crash.........CULPRIT FOUND! #")
-            print("> Priority : [5]")
+            output.write("# Checking for Active Effects Crash.........CULPRIT FOUND! #\n")
+            output.write("> Priority : [5]\n")
             Buffout_Trap = True
             statC_ActiveEffect += 1
 
         if "EXCEPTION_INT_DIVIDE_BY_ZERO" in buff_error:
-            print("# Checking for Bad Math Crash...............CULPRIT FOUND! #")
-            print("> Priority : [5]")
+            output.write("# Checking for Bad Math Crash...............CULPRIT FOUND! #\n")
+            output.write("> Priority : [5]\n")
             Buffout_Trap = True
             statC_BadMath += 1
 
         if "0x000000000000" in buff_error:
-            print("# Checking for Null Crash...................CULPRIT FOUND! #")
-            print("> Priority : [5]")
+            output.write("# Checking for Null Crash...................CULPRIT FOUND! #\n")
+            output.write("> Priority : [5]\n")
             Buffout_Trap = True
             statC_Null += 1
 
@@ -496,287 +500,287 @@ for file in os.listdir("."):
 
         # OTHER | RESERVED
         # *[Creation Club Crash] | +01B59A4
-        # Uneducated Shooter (56789) | c_text.count("std::invalid_argument")
-        # c_text.count("BSResourceNiBinaryStream")
-        # c_text.count("ObjectBindPolicy")
+        # Uneducated Shooter (56789) | logtext.count("std::invalid_argument")
+        # logtext.count("BSResourceNiBinaryStream")
+        # logtext.count("ObjectBindPolicy")
 
         # ===========================================================
-        if "DLCBannerDLC01.dds" in c_text:
-            print("# Checking for DLL Crash....................CULPRIT FOUND! #")
-            print("> Priority : [5] | DLCBannerDLC01.dds : ", c_text.count("DLCBannerDLC01.dds"))
+        if "DLCBannerDLC01.dds" in logtext:
+            output.write("# Checking for DLL Crash....................CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | DLCBannerDLC01.dds : {logtext.count("DLCBannerDLC01.dds")}\n')
             Buffout_Trap = True
             statC_DLL += 1
         # ===========================================================
-        if "BGSLocation" in c_text and "BGSQueuedTerrainInitialLoad" in c_text:
-            print("# Checking for LOD Crash....................CULPRIT FOUND! #")
-            print("> Priority : [5] | BGSLocation : ", c_text.count("BGSLocation"), " | BGSQueuedTerrainInitialLoad : ", c_text.count("BGSQueuedTerrainInitialLoad"))
+        if "BGSLocation" in logtext and "BGSQueuedTerrainInitialLoad" in logtext:
+            output.write('# Checking for LOD Crash....................CULPRIT FOUND! #\n')
+            output.write(f'> Priority : [5] | BGSLocation : {logtext.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {logtext.count("BGSQueuedTerrainInitialLoad")}\n')
             Buffout_Trap = True
             statC_LOD += 1
         # ===========================================================
-        if ("FaderData" or "FaderMenu" or "UIMessage") in c_text:
-            print("# Checking for MCM Crash....................CULPRIT FOUND! #")
-            print("> Priority : [3] | FaderData : ", c_text.count("FaderData"), " | FaderMenu : ", c_text.count("FaderMenu"), " | UIMessage : ", c_text.count("UIMessage"))
+        if ("FaderData" or "FaderMenu" or "UIMessage") in logtext:
+            output.write("# Checking for MCM Crash....................CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [3] | FaderData : {logtext.count("FaderData")} | FaderMenu : {logtext.count("FaderMenu")} | UIMessage : {logtext.count("UIMessage")}\n')
             Buffout_Trap = True
             statC_MCM += 1
         # ===========================================================
-        if ("BGSDecalManager" or "BSTempEffectGeometryDecal") in c_text:
-            print("# Checking for Decal Crash..................CULPRIT FOUND! #")
-            print("> Priority : [5] | BGSDecalManager : ", c_text.count("BGSDecalManager"), " | BSTempEffectGeometryDecal : ", c_text.count("BSTempEffectGeometryDecal"))
+        if ("BGSDecalManager" or "BSTempEffectGeometryDecal") in logtext:
+            output.write("# Checking for Decal Crash..................CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | BGSDecalManager : {logtext.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {logtext.count("BSTempEffectGeometryDecal")}\n')
             Buffout_Trap = True
             statC_Decal += 1
         # ===========================================================
-        if c_text.count("PipboyMapData") >= 2:
-            print("# Checking for Equip Crash..................CULPRIT FOUND! #")
-            print("> Priority : [2] | PipboyMapData : ", c_text.count("PipboyMapData"))
+        if logtext.count("PipboyMapData") >= 2:
+            output.write("# Checking for Equip Crash..................CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [2] | PipboyMapData : {logtext.count("PipboyMapData")}\n')
             Buffout_Trap = True
             statC_Equip += 1
         # ===========================================================
-        if (c_text.count("Papyrus") or c_text.count("VirtualMachine")) >= 2:
-            print("# Checking for Script Crash.................CULPRIT FOUND! #")
-            print("> Priority : [3] | Papyrus : ", c_text.count("Papyrus"), " | VirtualMachine : ", c_text.count("VirtualMachine"))
+        if (logtext.count("Papyrus") or logtext.count("VirtualMachine")) >= 2:
+            output.write("# Checking for Script Crash.................CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}\n')
             Buffout_Trap = True
             statC_Papyrus += 1
         # ===========================================================
-        if c_text.count("tbbmalloc.dll") >= 3 or "tbbmalloc" in buff_error:
-            print("# Checking for Generic Crash................CULPRIT FOUND! #")
-            print("> Priority : [2] | tbbmalloc.dll : ", c_text.count("tbbmalloc.dll"))
+        if logtext.count("tbbmalloc.dll") >= 3 or "tbbmalloc" in buff_error:
+            output.write("# Checking for Generic Crash................CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [2] | tbbmalloc.dll : {logtext.count("tbbmalloc.dll")}\n')
             Buffout_Trap = True
             statC_Generic += 1
         # ===========================================================
-        if "LooseFileAsyncStream" in c_text:
-            print("# Checking for BA2 Limit Crash..............CULPRIT FOUND! #")
-            print("> Priority : [5] | LooseFileAsyncStream : ", c_text.count("LooseFileAsyncStream"))
+        if "LooseFileAsyncStream" in logtext:
+            output.write("# Checking for BA2 Limit Crash..............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | LooseFileAsyncStream : {logtext.count("LooseFileAsyncStream")}\n')
             Buffout_Trap = True
             statC_BA2Limit += 1
         # ===========================================================
-        if c_text.count("d3d11.dll") >= 3 or "d3d11" in buff_error:
-            print("# Checking for Rendering Crash..............CULPRIT FOUND! #")
-            print("> Priority : [4] | d3d11.dll : ", c_text.count("d3d11.dll"))
+        if logtext.count("d3d11.dll") >= 3 or "d3d11" in buff_error:
+            output.write("# Checking for Rendering Crash..............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [4] | d3d11.dll : {logtext.count("d3d11.dll")}\n')
             Buffout_Trap = True
             statC_Rendering += 1
         # ===========================================================
-        if ("GridAdjacencyMapNode" or "PowerUtils") in c_text:
-            print("# Checking for Grid Scrap Crash.............CULPRIT FOUND! #")
-            print("> Priority : [5] | GridAdjacencyMapNode : ", c_text.count("GridAdjacencyMapNode"), " | PowerUtils : ", c_text.count("PowerUtils"))
+        if ("GridAdjacencyMapNode" or "PowerUtils") in logtext:
+            output.write("# Checking for Grid Scrap Crash.............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | GridAdjacencyMapNode : {logtext.count("GridAdjacencyMapNode")} | PowerUtils : {logtext.count("PowerUtils")}\n')
             Buffout_Trap = True
             statC_GridScrap += 1
         # ===========================================================
-        if ("LooseFileStream" or "BSFadeNode" or "BSMultiBoundNode") in c_text and c_text.count("LooseFileAsyncStream") == 0:
-            print("# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #")
-            print("> Priority : [4] | LooseFileStream : ", c_text.count("LooseFileStream"), " | BSFadeNode : ", c_text.count("BSFadeNode"))
-            print("                   BSMultiBoundNode : ", c_text.count("BSMultiBoundNode"))
+        if ("LooseFileStream" or "BSFadeNode" or "BSMultiBoundNode") in logtext and logtext.count("LooseFileAsyncStream") == 0:
+            output.write("# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [4] | LooseFileStream : {logtext.count("LooseFileStream")} | BSFadeNode : {logtext.count("BSFadeNode")}\n')
+            output.write(f'                   BSMultiBoundNode : {logtext.count("BSMultiBoundNode")}\n')
             Buffout_Trap = True
             statC_NIF += 1
         # ===========================================================
-        if ("Create2DTexture" or "DefaultTexture") in c_text:
-            print("# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #")
-            print("> Priority : [3] | Create2DTexture : ", c_text.count("Create2DTexture"), " | DefaultTexture : ", c_text.count("DefaultTexture"))
+        if ("Create2DTexture" or "DefaultTexture") in logtext:
+            output.write("# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [3] | Create2DTexture : {logtext.count("Create2DTexture")} | DefaultTexture : {logtext.count("DefaultTexture")}\n')
             Buffout_Trap = True
             statC_Texture += 1
         # ===========================================================
-        if ("DefaultTexture_Black" or "NiAlphaProperty") in c_text:
-            print("# Checking for Material (BGSM) Crash........CULPRIT FOUND! #")
-            print("> Priority : [3] | DefaultTexture_Black : ", c_text.count("DefaultTexture_Black"), " | NiAlphaProperty : ", c_text.count("NiAlphaProperty"))
+        if ("DefaultTexture_Black" or "NiAlphaProperty") in logtext:
+            output.write("# Checking for Material (BGSM) Crash........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}')
             Buffout_Trap = True
             statC_BGSM += 1
         # ===========================================================
-        if (c_text.count("bdhkm64.dll") or c_text.count("usvfs::hook_DeleteFileW")) >= 2:
-            print("# Checking for BitDefender Crash............CULPRIT FOUND! #")
-            print("> Priority : [5] | bdhkm64.dll : ", c_text.count("bdhkm64.dll"), " | usvfs::hook_DeleteFileW : ", c_text.count("usvfs::hook_DeleteFileW"))
+        if (logtext.count("bdhkm64.dll") or logtext.count("usvfs::hook_DeleteFileW")) >= 2:
+            output.write("# Checking for BitDefender Crash............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}\n')
             Buffout_Trap = True
             statC_BitDefender += 1
         # ===========================================================
-        if ("PathingCell" or "BSPathBuilder" or "PathManagerServer") in c_text:
-            print("# Checking for NPC Pathing Crash............CULPRIT FOUND! #")
-            print("> Priority : [3] | PathingCell : ", c_text.count("PathingCell"), " | BSPathBuilder : ", c_text.count("BSPathBuilder"))
-            print("                   PathManagerServer : ", c_text.count("PathManagerServer"))
+        if ("PathingCell" or "BSPathBuilder" or "PathManagerServer") in logtext:
+            output.write("# Checking for NPC Pathing Crash............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [3] | PathingCell : {logtext.count("PathingCell")} | BSPathBuilder : {logtext.count("BSPathBuilder")}\n')
+            output.write(f'                   PathManagerServer : {logtext.count("PathManagerServer")}\n')
             Buffout_Trap = True
             statC_NPCPathing += 1
-        elif ("NavMesh" or "BSNavmeshObstacleData" or "DynamicNavmesh") in c_text:
-            print("# Checking for NPC Pathing Crash............CULPRIT FOUND! #")
-            print("> Priority : [3] | NavMesh : ", c_text.count("NavMesh"), " | BSNavmeshObstacleData : ", c_text.count("BSNavmeshObstacleData"))
-            print("                   DynamicNavmesh : ", c_text.count("DynamicNavmesh"))
+        elif ("NavMesh" or "BSNavmeshObstacleData" or "DynamicNavmesh") in logtext:
+            output.write("# Checking for NPC Pathing Crash............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [3] | NavMesh : {logtext.count("NavMesh")} | BSNavmeshObstacleData : {logtext.count("BSNavmeshObstacleData")}\n')
+            output.write(f'                   DynamicNavmesh : {logtext.count("DynamicNavmesh")}\n')
             Buffout_Trap = True
             statC_NPCPathing += 1
         # ===========================================================
-        if c_text.count("X3DAudio1_7.dll") >= 3 or c_text.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in buff_error:
-            print("# Checking for Audio Driver Crash...........CULPRIT FOUND! #")
-            print("> Priority : [5] | X3DAudio1_7.dll : ", c_text.count("X3DAudio1_7.dll"), " | XAudio2_7.dll : ", c_text.count("XAudio2_7.dll"))
+        if logtext.count("X3DAudio1_7.dll") >= 3 or logtext.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in buff_error:
+            output.write("# Checking for Audio Driver Crash...........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | X3DAudio1_7.dll : {logtext.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {logtext.count("XAudio2_7.dll")}\n')
             Buffout_Trap = True
             statC_Audio += 1
         # ===========================================================
-        if c_text.count("cbp.dll") >= 3 or "skeleton.nif" in c_text or "cbp.dll" in buff_error:
-            print("# Checking for Body Physics Crash...........CULPRIT FOUND! #")
-            print("> Priority : [4] | cbp.dll : ", c_text.count("cbp.dll"), " | skeleton.nif : ", c_text.count("skeleton.nif"))
+        if logtext.count("cbp.dll") >= 3 or "skeleton.nif" in logtext or "cbp.dll" in buff_error:
+            output.write("# Checking for Body Physics Crash...........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [4] | cbp.dll : {logtext.count("cbp.dll")} | skeleton.nif : {logtext.count("skeleton.nif")}\n')
             Buffout_Trap = True
             statC_BodyPhysics += 1
         # ===========================================================
-        if ("BSMemStorage" or "DataFileHandleReaderWriter") in c_text:
-            print("# Checking for Plugin Limit Crash...........CULPRIT FOUND! #")
-            print("> Priority : [5] | BSMemStorage : ", c_text.count("BSMemStorage"), " | DataFileHandleReaderWriter : ", c_text.count("DataFileHandleReaderWriter"))
+        if ("BSMemStorage" or "DataFileHandleReaderWriter") in logtext:
+            output.write("# Checking for Plugin Limit Crash...........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}\n')
             Buffout_Trap = True
             statC_PluginLimit += 1
         # ===========================================================
-        if "GamebryoSequenceGenerator" in c_text or "+0DB9300" in buff_error:
-            print("# Checking for Plugin Order Crash...........CULPRIT FOUND! #")
-            print("> Priority : [5] | GamebryoSequenceGenerator : ", c_text.count("GamebryoSequenceGenerator"))
+        if "GamebryoSequenceGenerator" in logtext or "+0DB9300" in buff_error:
+            output.write("# Checking for Plugin Order Crash...........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | GamebryoSequenceGenerator : {logtext.count("GamebryoSequenceGenerator")}\n')
             Buffout_Trap = True
             statC_LoadOrder += 1
         # ===========================================================
-        if c_text.count("BSD3DResourceCreator") == 3 or c_text.count("BSD3DResourceCreator") == 6:
-            print("# Checking for MO2 Extractor Crash..........CULPRIT FOUND! #")
-            print("> Priority : [5] | BSD3DResourceCreator : ", c_text.count("BSD3DResourceCreator"))
+        if logtext.count("BSD3DResourceCreator") == 3 or logtext.count("BSD3DResourceCreator") == 6:
+            output.write("# Checking for MO2 Extractor Crash..........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | BSD3DResourceCreator : {logtext.count("BSD3DResourceCreator")}\n')
             Buffout_Trap = True
             statC_MO2Unp += 1
         # ===========================================================
-        if c_text.count("flexRelease_x64.dll") >= 2 or "flexRelease_x64" in buff_error:
-            print("# Checking for Nvidia Debris Crash..........CULPRIT FOUND! #")
-            print("> Priority : [5] | flexRelease_x64.dll : ", c_text.count("flexRelease_x64.dll"))
+        if logtext.count("flexRelease_x64.dll") >= 2 or "flexRelease_x64" in buff_error:
+            output.write("# Checking for Nvidia Debris Crash..........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | flexRelease_x64.dll : {logtext.count("flexRelease_x64.dll")}\n')
             Buffout_Trap = True
             statC_NVDebris += 1
         # ===========================================================
-        if c_text.count("nvwgf2umx.dll") >= 10 or ("nvwgf2umx" or "USER32.dll") in buff_error:
-            print("# Checking for Nvidia Driver Crash..........CULPRIT FOUND! #")
-            print("> Priority : [5] | nvwgf2umx.dll : ", c_text.count("nvwgf2umx.dll"), " | USER32.dll : ", c_text.count("USER32.dll"))
+        if logtext.count("nvwgf2umx.dll") >= 10 or ("nvwgf2umx" or "USER32.dll") in buff_error:
+            output.write("# Checking for Nvidia Driver Crash..........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | nvwgf2umx.dll : {logtext.count("nvwgf2umx.dll")} | USER32.dll : {logtext.count("USER32.dll")}\n')
             Buffout_Trap = True
             statC_NVDriver += 1
         # ===========================================================
-        if (c_text.count("KERNELBASE.dll") or c_text.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in c_text:
-            print("# Checking for Vulkan Memory Crash..........CULPRIT FOUND! #")
-            print("> Priority : [5] | KERNELBASE.dll : ", c_text.count("KERNELBASE.dll"), " | MSVCP140.dll : ", c_text.count("MSVCP140.dll"))
-            print("                   DxvkSubmissionQueue : ", c_text.count("DxvkSubmissionQueue"))
+        if (logtext.count("KERNELBASE.dll") or logtext.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in logtext:
+            output.write("# Checking for Vulkan Memory Crash..........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | KERNELBASE.dll : {logtext.count("KERNELBASE.dll")} | MSVCP140.dll : {logtext.count("MSVCP140.dll")}\n')
+            output.write(f'                   DxvkSubmissionQueue : {logtext.count("DxvkSubmissionQueue")}\n')
             Buffout_Trap = True
             statC_VulkanMem += 1
         # ===========================================================
-        if ("dxvk::DXGIAdapter" or "dxvk::DXGIFactory") in c_text:
-            print("# Checking for Vulkan Settings Crash........CULPRIT FOUND! #")
-            print("> Priority : [5] | dxvk::DXGIAdapter : ", c_text.count("dxvk::DXGIAdapter"), " | dxvk::DXGIFactory : ", c_text.count("dxvk::DXGIFactory"))
+        if ("dxvk::DXGIAdapter" or "dxvk::DXGIFactory") in logtext:
+            output.write("# Checking for Vulkan Settings Crash........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | dxvk::DXGIAdapter : {logtext.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {logtext.count("dxvk::DXGIFactory")}\n')
             Buffout_Trap = True
             statC_VulkanSet += 1
         # ===========================================================
-        if ("BSXAudio2DataSrc" or "BSXAudio2GameSound") in c_text:
-            print("# Checking for Corrupted Audio Crash........CULPRIT FOUND! #")
-            print("> Priority : [4] | BSXAudio2DataSrc : ", c_text.count("BSXAudio2DataSrc"), " | BSXAudio2GameSound : ", c_text.count("BSXAudio2GameSound"))
+        if ("BSXAudio2DataSrc" or "BSXAudio2GameSound") in logtext:
+            output.write("# Checking for Corrupted Audio Crash........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [4] | BSXAudio2DataSrc : {logtext.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {logtext.count("BSXAudio2GameSound")}\n')
             Buffout_Trap = True
             statC_CorruptedAudio += 1
         # ===========================================================
-        if ("SysWindowCompileAndRun" or "ConsoleLogPrinter") in c_text:
-            print("# Checking for Console Command Crash........CULPRIT FOUND! #")
-            print("> Priority : [1] | SysWindowCompileAndRun : ", c_text.count("SysWindowCompileAndRun"), " | ConsoleLogPrinter : ", c_text.count("ConsoleLogPrinter"))
+        if ("SysWindowCompileAndRun" or "ConsoleLogPrinter") in logtext:
+            output.write("# Checking for Console Command Crash........CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [1] | SysWindowCompileAndRun : {logtext.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {logtext.count("ConsoleLogPrinter")}\n')
             Buffout_Trap = True
             statC_ConsoleCommands += 1
         # ===========================================================
-        if "BGSWaterCollisionManager" in c_text:
-            print("# Checking for Water Collision Crash........CULPRIT FOUND! #")
-            print("PLEASE CONTACT ME AS SOON AS POSSIBLE! (CONTACT INFO BELOW)")
-            print("> Priority : [6] | BGSWaterCollisionManager : ", c_text.count("BGSWaterCollisionManager"))
+        if "BGSWaterCollisionManager" in logtext:
+            output.write("# Checking for Water Collision Crash........CULPRIT FOUND! #\n")
+            output.write("PLEASE CONTACT ME AS SOON AS POSSIBLE! (CONTACT INFO BELOW)\n")
+            output.write(f'> Priority : [6] | BGSWaterCollisionManager : {logtext.count("BGSWaterCollisionManager")}\n')
             Buffout_Trap = True
             statC_Water += 1
         # ===========================================================
-        if "ParticleSystem" in c_text:
-            print("# Checking for Particle Effects Crash.......CULPRIT FOUND! #")
-            print("> Priority : [4] | ParticleSystem : ", c_text.count("ParticleSystem"))
+        if "ParticleSystem" in logtext:
+            output.write("# Checking for Particle Effects Crash.......CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [4] | ParticleSystem : {logtext.count("ParticleSystem")}\n')
             Buffout_Trap = True
             statC_Particles += 1
         # ===========================================================
-        if ("hkbVariableBindingSet" or "hkbHandIkControlsModifier" or "hkbBehaviorGraph" or "hkbModifierList") in c_text:
-            print("# Checking for Animation / Physics Crash....CULPRIT FOUND! #")
-            print("> Priority : [5] | hkbVariableBindingSet : ", c_text.count("hkbVariableBindingSet"), " | hkbHandIkControlsModifier : ", c_text.count("hkbHandIkControlsModifier"))
-            print("                   hkbBehaviorGraph : ", c_text.count("hkbBehaviorGraph"), " | hkbModifierList : ", c_text.count("hkbModifierList"))
+        if ("hkbVariableBindingSet" or "hkbHandIkControlsModifier" or "hkbBehaviorGraph" or "hkbModifierList") in logtext:
+            output.write("# Checking for Animation / Physics Crash....CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | hkbVariableBindingSet : {logtext.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {logtext.count("hkbHandIkControlsModifier")}\n')
+            output.write(f'                   hkbBehaviorGraph : {logtext.count("hkbBehaviorGraph")} | hkbModifierList : {logtext.count("hkbModifierList")}\n')
             Buffout_Trap = True
             statC_AnimationPhysics += 1
         # ===========================================================
-        if "DLCBanner05.dds" in c_text:
-            print("# Checking for Archive Invalidation Crash...CULPRIT FOUND! #")
-            print("> Priority : [5] | DLCBanner05.dds : ", c_text.count("DLCBanner05.dds"))
+        if "DLCBanner05.dds" in logtext:
+            output.write("# Checking for Archive Invalidation Crash...CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | DLCBanner05.dds : {logtext.count("DLCBanner05.dds")}\n')
             Buffout_Trap = True
             statC_Invalidation += 1
 
         # ===========================================================
-        print("---------- Unsolved Crash Messages Below ----------")
+        output.write("---------- Unsolved Crash Messages Below ----------\n")
 
         if "+01B59A4" in buff_error:
-            print("Checking for *[Creation Club Crash].......DETECTED!")
-            print("> Priority : [5]")
+            output.write("Checking for *[Creation Club Crash].......DETECTED!\n")
+            output.write("> Priority : [5]\n")
             Buffout_Trap = True
             statU_CClub += 1
 
-        if ("BGSMod::Attachment" or "BGSMod::Template" or "BGSMod::Template::Item") in c_text:
-            print("Checking for *[Item Crash]................DETECTED!")
-            print("> Priority : [5] | BGSMod::Attachment : ", c_text.count("BGSMod::Attachment"), " | BGSMod::Template : ", c_text.count("BGSMod::Template"))
-            print("                        BGSMod::Template::Item : ", c_text.count("BGSMod::Template::Item"))
+        if ("BGSMod::Attachment" or "BGSMod::Template" or "BGSMod::Template::Item") in logtext:
+            output.write("Checking for *[Item Crash]................DETECTED!\n")
+            output.write(f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n')
+            output.write(f'                        BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}')
             Buffout_Trap = True
             statU_Item += 1
         # ===========================================================
-        if c_text.count("BGSSaveFormBuffer") >= 2:
-            print("Checking for *[Save Crash]................DETECTED!")
-            print("> Priority : [5] | BGSSaveFormBuffer : ", c_text.count("BGSSaveFormBuffer"))
+        if logtext.count("BGSSaveFormBuffer") >= 2:
+            output.write("Checking for *[Save Crash]................DETECTED!\n")
+            output.write(f'> Priority : [5] | BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")}\n')
             Buffout_Trap = True
             statU_Save += 1
         # ===========================================================
-        if ("ButtonEvent" or "MenuControls" or "MenuOpenCloseHandler" or "PlayerControls" or "DXGISwapChain") in c_text:
-            print("Checking for *[Input Crash]...............DETECTED!")
-            print("> Priority : [5] | ButtonEvent : ", c_text.count("ButtonEvent"), " | MenuControls : ", c_text.count("MenuControls"))
-            print("                        MenuOpenCloseHandler : ", c_text.count("MenuOpenCloseHandler"), " | PlayerControls : ", c_text.count("PlayerControls"))
-            print("                        DXGISwapChain : ", c_text.count("DXGISwapChain"))
+        if ("ButtonEvent" or "MenuControls" or "MenuOpenCloseHandler" or "PlayerControls" or "DXGISwapChain") in logtext:
+            output.write("Checking for *[Input Crash]...............DETECTED!\n")
+            output.write(f'> Priority : [5] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}\n')
+            output.write(f'                        MenuOpenCloseHandler : {logtext.count("MenuOpenCloseHandler")} | PlayerControls : {logtext.count("PlayerControls")}\n')
+            output.write(f'                        DXGISwapChain : {logtext.count("DXGISwapChain")}\n')
             Buffout_Trap = True
             statU_Input += 1
         # ===========================================================
-        if ("BGSSaveLoadManager" or "BGSSaveLoadThread" or "BGSSaveFormBuffer") in c_text or ("+0CDAD30" or "+0D09AB7") in buff_error:
-            print("Checking for *[Bad INI Crash].............DETECTED!")
-            print("> Priority : [5] | BGSSaveLoadManager : ", c_text.count("BGSSaveLoadManager"), " | BGSSaveLoadThread : ", c_text.count("BGSSaveLoadThread"))
-            print("                        BGSSaveFormBuffer : ", c_text.count("BGSSaveFormBuffer"))
+        if ("BGSSaveLoadManager" or "BGSSaveLoadThread" or "BGSSaveFormBuffer") in logtext or ("+0CDAD30" or "+0D09AB7") in buff_error:
+            output.write("Checking for *[Bad INI Crash].............DETECTED!\n")
+            output.write(f'> Priority : [5] | BGSSaveLoadManager : {logtext.count("BGSSaveLoadManager")} | BGSSaveLoadThread : {logtext.count("BGSSaveLoadThread")}\n')
+            output.write(f'                        BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")}\n')
             Buffout_Trap = True
             statU_INI += 1
         # ===========================================================
-        if ("BGSProcedurePatrol" or "BGSProcedurePatrolExecState" or "PatrolActorPackageData") in c_text:
-            print("Checking for *[NPC Patrol Crash]..........DETECTED!")
-            print("> Priority : [5] | BGSProcedurePatrol : ", c_text.count("BGSProcedurePatrol"), " | BGSProcedurePatrolExecStatel : ", c_text.count("BGSProcedurePatrolExecState"))
-            print("                        PatrolActorPackageData : ", c_text.count("PatrolActorPackageData"))
+        if ("BGSProcedurePatrol" or "BGSProcedurePatrolExecState" or "PatrolActorPackageData") in logtext:
+            output.write("Checking for *[NPC Patrol Crash]..........DETECTED!\n")
+            output.write(f'> Priority : [5] | BGSProcedurePatrol : {logtext.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {logtext.count("BGSProcedurePatrolExecState")}\n')
+            output.write(f'                        PatrolActorPackageData : {logtext.count("PatrolActorPackageData")}\n')
             Buffout_Trap = True
             statU_Patrol += 1
         # ===========================================================
-        if ("BSPackedCombinedGeomDataExtra" or "BGSCombinedCellGeometryDB" or "BGSStaticCollection" or "TESObjectCELL") in c_text:
-            print("Checking for *[Precombines Crash].........DETECTED!")
-            print("> Priority : [5] | BGSStaticCollection : ", c_text.count("BGSStaticCollection"), " | BGSCombinedCellGeometryDB : ", c_text.count("BGSCombinedCellGeometryDB"))
-            print("                        BSPackedCombinedGeomDataExtra : ", c_text.count("BSPackedCombinedGeomDataExtra"), " | TESObjectCELL : ", c_text.count("TESObjectCELL"))
+        if ("BSPackedCombinedGeomDataExtra" or "BGSCombinedCellGeometryDB" or "BGSStaticCollection" or "TESObjectCELL") in logtext:
+            output.write("Checking for *[Precombines Crash].........DETECTED!\n")
+            output.write(f'> Priority : [5] | BGSStaticCollection : {logtext.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {logtext.count("BGSCombinedCellGeometryDB")}\n')
+            output.write(f'                        BSPackedCombinedGeomDataExtra : {logtext.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {logtext.count("TESObjectCELL")}\n')
             Buffout_Trap = True
             statU_Precomb += 1
         # ===========================================================
-        if "HUDAmmoCounter" in c_text:
-            print("Checking for *[Ammo Counter Crash]........DETECTED!")
-            print("> Priority : [5] | HUDAmmoCounter : ", c_text.count("HUDAmmoCounter"))
+        if "HUDAmmoCounter" in logtext:
+            output.write("Checking for *[Ammo Counter Crash]........DETECTED!\n")
+            output.write(f'> Priority : [5] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}\n')
             Buffout_Trap = True
             statU_HUDAmmo += 1
         # ===========================================================
-        if ("BGSProjectile" or "CombatProjectileAimController") in c_text:
-            print("Checking for *[NPC Projectile Crash].....DETECTED!")
-            print("> Priority : [5] | BGSProjectile : ", c_text.count("BGSProjectile"), " | CombatProjectileAimController : ", c_text.count("CombatProjectileAimController"))
+        if ("BGSProjectile" or "CombatProjectileAimController") in logtext:
+            output.write("Checking for *[NPC Projectile Crash].....DETECTED!\n")
+            output.write(f'> Priority : [5] | BGSProjectile : {logtext.count("BGSProjectile")} | CombatProjectileAimController : {logtext.count("CombatProjectileAimController")}\n')
             Buffout_Trap = True
         # ===========================================================
-        if c_text.count("PlayerCharacter") >= 1 and (c_text.count("0x00000007") or c_text.count("0x00000014") or c_text.count("0x00000008")) >= 3:
-            print("Checking for *[Player Character Crash]....DETECTED!")
-            print("> Priority : [5] | PlayerCharacter : ", c_text.count("PlayerCharacter"), " | 0x00000007 : ", c_text.count("0x00000007"))
-            print("                        0x00000008 : ", c_text.count("0x00000008"), " | 0x000000014 : ", c_text.count("0x00000014"))
+        if logtext.count("PlayerCharacter") >= 1 and (logtext.count("0x00000007") or logtext.count("0x00000014") or logtext.count("0x00000008")) >= 3:
+            output.write("Checking for *[Player Character Crash]....DETECTED!\n")
+            output.write(f'> Priority : [5] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}\n')
+            output.write(f'                        0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}\n')
             Buffout_Trap = True
             statU_Player += 1
 
         # ===========================================================
 
         if Buffout_Trap == False:  # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
-            print("-----")
-            print("# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #")
-            print("Check below for mods that can cause frequent crashes and other problems.")
-            print("-----")
+            output.write("-----\n")
+            output.write("# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n")
+            output.write("Check below for mods that can cause frequent crashes and other problems.\n")
+            output.write("-----\n")
         else:
-            print("-----")
-            print("FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH CULPRITS,")
-            print("SEE: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c")
-            print("-----")
+            output.write("-----\n")
+            output.write("FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH CULPRITS,\n")
+            output.write("SEE: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c\n")
+            output.write("-----\n")
 
-        print("====================================================")
-        print("CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...")
-        print("====================================================")
+        output.write("====================================================\n")
+        output.write("CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...\n")
+        output.write("====================================================\n")
         Mod_Trap1 = 1
 
         # Why lists and not dictionaries? So I can preserve alphabetical order in code and
@@ -853,65 +857,65 @@ for file in os.listdir("."):
                       "WAR OF THE COMMONWEALTH \n"
                       "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]
 
-        if "[00]" in c_text:
+        if "[00]" in logtext:
             for line in plugin_list:
                 for elem in List_Mods1:
                     if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods1.index(elem)
-                        print("[!] Found:", line[0:5].strip(), List_Warn1[order_elem])
-                        print("-----")
+                        output.write(f"[!] Found: {line[0:5].strip()} {List_Warn1[order_elem]}\n")
+                        output.write("-----\n")
                         Mod_Trap1 = 0
                     elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods1.index(elem)
-                        print("[!] Found:", line[0:9].strip(), List_Warn1[order_elem])
-                        print("-----")
+                        output.write(f"[!] Found: {line[0:9].strip()} {List_Warn1[order_elem]}\n")
+                        output.write("-----\n")
                         Mod_Trap1 = 0
 
-            if c_text.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
-                print("[!] Found: CLASSIC HOLSTERED WEAPONS")
-                print("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!")
-                print("You should disable CHW to further confirm this.")
-                print("Visit the main crash logs article for additional solutions.")
-                print("-----")
+            if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
+                output.write("[!] Found: CLASSIC HOLSTERED WEAPONS\n")
+                output.write("AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n")
+                output.write("You should disable CHW to further confirm this.\n")
+                output.write("Visit the main crash logs article for additional solutions.\n")
+                output.write("-----\n")
                 statM_CHW += 1
                 Mod_Trap1 = 0
                 Buffout_Trap = True
-            elif c_text.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" or "HHS.dll" or "cbp.dll" or "Body.nif") in c_text:
-                print("[!] Found: CLASSIC HOLSTERED WEAPONS")
-                print("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.")
-                print("You should disable CHW to further confirm it caused this crash.")
-                print("Visit the main crash logs article for additional solutions.")
-                print("-----")
+            elif logtext.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" or "HHS.dll" or "cbp.dll" or "Body.nif") in logtext:
+                output.write("[!] Found: CLASSIC HOLSTERED WEAPONS\n")
+                output.write("AUTOSCAN ALSO DETECTED ONE OR SEVERAL MODS THAT WILL CRASH WITH CHW.\n")
+                output.write("You should disable CHW to further confirm it caused this crash.\n")
+                output.write("Visit the main crash logs article for additional solutions.\n")
+                output.write("-----\n")
                 statM_CHW += 1
                 Mod_Trap1 = 0
                 Buffout_Trap = True
-            elif "ClassicHolsteredWeapons" in c_text and "d3d11" in buff_error:
-                print("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...")
-                print("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.")
-                print("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.")
-                print("This usually prevents most common crashes with Classic Holstered Weapons.")
-                print("-----")
+            elif "ClassicHolsteredWeapons" in logtext and "d3d11" in buff_error:
+                output.write("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n")
+                output.write("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n")
+                output.write("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n")
+                output.write("This usually prevents most common crashes with Classic Holstered Weapons.\n")
+                output.write("-----\n")
                 Mod_Trap1 = 0
-        if "[00]" in c_text and Mod_Trap1 == 0:
-            print("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #")
-            print("You can disable any/all of them temporarily to confirm they caused this crash.")
-            print("-----")
+        if "[00]" in logtext and Mod_Trap1 == 0:
+            output.write("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n")
+            output.write("You can disable any/all of them temporarily to confirm they caused this crash.\n")
+            output.write("-----\n")
             statL_scanned += 1
-        elif "[00]" in c_text and Mod_Trap1 == 1:
-            print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #")
-            print("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.")
-            print("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files")
-            print("-----")
+        elif "[00]" in logtext and Mod_Trap1 == 1:
+            output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n")
+            output.write("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.\n")
+            output.write("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n")
+            output.write("-----\n")
             statL_scanned += 1
-        elif not "[00]" in c_text:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
+        elif not "[00]" in logtext:
+            output.write("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\n")
+            output.write("Autoscan cannot continue. Try scanning a different crash log.\n")
+            output.write("-----\n")
             statL_incomplete += 1
 
-        print("====================================================")
-        print("CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES")
-        print("====================================================")
+        output.write("====================================================\n")
+        output.write("CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES\n")
+        output.write("====================================================\n")
         Mod_Trap2 = no_repeat1 = no_repeat2 = 1  # MOD TRAP 2 | NEED 8 SPACES FOR ESL [FE:XXX]
 
         # Needs 1 empty space as prefix to prevent duplicates.
@@ -1088,57 +1092,60 @@ for file in os.listdir("."):
                       "Version 2.6.3 contains a resurrection script that will regularly crash the game. \n"
                       "Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]
 
-        if "[00]" in c_text:
+        if "[00]" in logtext:
             for line in plugin_list:
                 for elem in List_Mods2:
                     if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods2.index(elem)
-                        print("[!] Found:", line[0:5].strip(), List_Warn2[order_elem])
-                        print("-----")
+                        output.write(f"[!] Found: {line[0:5].strip()} {List_Warn2[order_elem]}\n")
+                        output.write("-----\n")
                         Mod_Trap2 = 0
                     elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods2.index(elem)
-                        print("[!] Found:", line[0:9].strip(), List_Warn2[order_elem])
-                        print("-----")
+                        output.write(f"[!] Found: {line[0:9].strip()} {List_Warn2[order_elem]}\n")
+                        output.write("-----\n")
                         Mod_Trap2 = 0
                 if no_repeat1 == 1 and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
-                    print("[!] Found:", line[0:9].strip(), "THUGGYSMURF QUEST MOD")
-                    print("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie,")
-                    print("install this patch with facegen data, fully generated precomb/previs data and several tweaks.")
-                    print("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files")
-                    print("-----")
+                    output.write(f"[!] Found: {line[0:9].strip()} THUGGYSMURF QUEST MOD\n")
+                    output.write("If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n")
+                    output.write("install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n")
+                    output.write("Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n")
+                    output.write("-----\n")
                     no_repeat1 = Mod_Trap2 = 0
                 if no_repeat1 == 1 and "File:" not in line and ("CaN.esm" or "AnimeRace_Nanako.esp") in line:
-                    print("[!] Found:", line[0:9].strip(), "CUSTOM RACE SKELETON MOD")
-                    print("If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.")
-                    print("Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101")
+                    output.write(f"[!] Found: {line[0:9].strip()} CUSTOM RACE SKELETON MOD\n")
+                    output.write("If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n")
+                    output.write("Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n")
                     no_repeat2 = Mod_Trap2 = 0
 
-            if "FallSouls.dll" in c_text:
-                print("[!] Found: FALLSOULS UNPAUSED GAME MENUS")
-                print("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.")
-                print("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.")
-                print("-----")
+            if "FallSouls.dll" in logtext:
+                output.write("[!] Found: FALLSOULS UNPAUSED GAME MENUS\n")
+                output.write("Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.\n")
+                output.write("Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n")
+                output.write("-----\n")
                 Mod_Trap2 = 0
-        if "[00]" in c_text and Mod_Trap2 == 0:
-            print("[Due to inherent limitations, Auto-Scan will continue detecting certain mods,")
-            print(" even if fixes or patches for them are already installed. You can ignore these.]")
-            print("-----")
-        elif "[00]" in c_text and Mod_Trap2 == 1:
-            print("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #")
-            print("-----")
-        elif c_text.count("[00]") == 0:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
 
-        print("FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,")
-        print("VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769")
-        print("-----")
+        # inherentlimitations= "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\neven if fixes or patches for them are already installed. You can ignore these.]\n-----"
 
-        print("====================================================")
-        print("CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...")
-        print("====================================================")
+        nopluginlist = "# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\nAutoscan cannot continue. Try scanning a different crash log.\n-----\n"
+        if "[00]" in logtext and Mod_Trap2 == 0:
+            output.write("[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n")
+            output.write("even if fixes or patches for them are already installed. You can ignore these.]\n")
+            output.write("-----\n")
+
+        elif "[00]" in logtext and Mod_Trap2 == 1:
+            output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n")
+            output.write("-----\n")
+        elif logtext.count("[00]") == 0:
+            output.write(nopluginlist)
+
+        output.write("FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,\n")
+        output.write("VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769\n")
+        output.write("-----\n")
+
+        output.write("====================================================\n")
+        output.write("CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...\n")
+        output.write("====================================================\n")
         Mod_Trap3 = 1  # MOD TRAP 3 | NEED 8 SPACES FOR ESL [FE:XXX]
 
         # Needs 1 empty space as prefix to prevent duplicates.
@@ -1214,158 +1221,156 @@ for file in os.listdir("."):
                       "Xander's Aid",
                       "ZXC Micro Additions"]
 
-        if "[00]" in c_text:
+        if "[00]" in logtext:
             for line in plugin_list:
                 for elem in List_Mods3:
                     if "File:" not in line and "[FE" not in line and elem in line:
                         order_elem = List_Mods3.index(elem)
-                        print("- Found:", line[0:5].strip(), List_Warn3[order_elem])
+                        output.write(f"- Found: {line[0:5].strip()} {List_Warn3[order_elem]}\n")
                         Mod_Trap3 = 0
                     elif "File:" not in line and "[FE" in line and elem in line:
                         order_elem = List_Mods3.index(elem)
-                        print("- Found:", line[0:9].strip(), List_Warn3[order_elem])
+                        output.write(f"- Found: {line[0:9].strip()} {List_Warn3[order_elem]}\n")
                         Mod_Trap3 = 0
-        if "[00]" in c_text and Mod_Trap3 == 0:
-            print("-----")
-            print("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,")
-            print("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872")
-            print("-----")
-        elif "[00]" in c_text and Mod_Trap3 == 1:
-            print("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #")
-            print("-----")
-        elif c_text.count("[00]") == 0:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
+        if "[00]" in logtext and Mod_Trap3 == 0:
+            output.write("-----\n")
+            output.write("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,\n")
+            output.write("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872\n")
+            output.write("-----\n")
+        elif "[00]" in logtext and Mod_Trap3 == 1:
+            output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n")
+            output.write("-----\n")
+        elif logtext.count("[00]") == 0:
+            output.write(nopluginlist)
 
         # ===========================================================
 
-        print("====================================================")
-        print("CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED")
-        print("====================================================")
+        output.write("====================================================\n")
+        output.write("CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n")
+        output.write("====================================================\n")
 
         gpu_amd = False
         gpu_nvidia = False
-        for line in all_lines:
+        for line in loglines:
             if "GPU" in line and "Nvidia" in line:
                 gpu_nvidia = True
+                break
             if "GPU" in line and "AMD" in line:
                 gpu_amd = True
+                break
 
-        print("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,")
-        print("remove these mods completely and switch to High FPS Physics Fix!")
-        print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-        print("-----")
+        output.write("IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,\n")
+        output.write("remove these mods completely and switch to High FPS Physics Fix!\n")
+        output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n")
+        output.write("-----\n")
 
         if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
-            print("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *")
-            print("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]")
-            print("-----")
+            output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
+            output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n")
+            output.write("-----\n")
 
             if info.VR_EXE.is_file() and info.VR_Buffout.is_file():
-                print("*Buffout 4 VR Version* is (manually) installed. \n-----")
+                output.write("*Buffout 4 VR Version* is (manually) installed. \n-----\n")
             elif info.VR_EXE.is_file() and not info.VR_Buffout.is_file():
-                print("# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files")
+                output.write("# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files\n")
 
-            if info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes):
-                print("*Creation Kit Fixes* is (manually) installed. \n-----")
+            if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or Path(info.Game_Path).joinpath("winhttp.dll").is_file():
+                output.write("*Creation Kit Fixes* is (manually) installed. \n-----\n")
             elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
-                print("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a highly recommended patch for the Fallout 4 Creation Kit.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files")
-                print("-----")
+                output.write("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a highly recommended patch for the Fallout 4 Creation Kit.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files\n")
+                output.write("-----\n")
 
-        if "[00]" in c_text:
+        if "[00]" in logtext:
             if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
-                print("*Canary Save File Monitor* is installed. \n-----")
+                output.write("*Canary Save File Monitor* is installed. \n-----\n")
             else:
-                print("# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a highly recommended mod that can detect save file corrpution.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files")
-                print("-----")
+                output.write("# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a highly recommended mod that can detect save file corrpution.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files\n")
+                output.write("-----\n")
 
-            if "HighFPSPhysicsFix.dll" in c_text:
-                print("*High FPS Physics Fix* is installed. \n-----")
+            if "HighFPSPhysicsFix.dll" in logtext:
+                output.write("*High FPS Physics Fix* is installed. \n-----\n")
             else:
-                print("# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a mandatory patch / fix that prevents game engine problems.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-                print("-----")
+                output.write("# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a mandatory patch / fix that prevents game engine problems.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n")
+                output.write("-----\n")
 
             if any("PPF.esm" in elem for elem in plugin_list):
-                print("*Previs Repair Pack* is installed. \n-----")
+                output.write("*Previs Repair Pack* is installed. \n-----\n")
             else:
-                print("# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a highly recommended mod that can improve performance.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files")
-                print("-----")
+                output.write("# PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a highly recommended mod that can improve performance.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n")
+                output.write("-----\n")
 
             if any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugin_list):
-                print("*Unofficial Fallout 4 Patch* is installed. \n-----")
+                output.write("*Unofficial Fallout 4 Patch* is installed. \n-----\n")
             else:
-                print("# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("If you own all DLCs, make sure that the Unofficial Patch is installed.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files")
-                print("-----")
+                output.write("# UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("If you own all DLCs, make sure that the Unofficial Patch is installed.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files\n")
+                output.write("-----\n")
 
-            if "vulkan-1.dll" in c_text and gpu_amd:
-                print("Vulkan Renderer is installed. \n-----")
-            elif c_text.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
-                print("# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a highly recommended mod that can improve performance on AMD GPUs.")
-                print("-----")
-                print("Installation steps can be found in 'How To Read Crash Logs' PDF / Document.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files")
-                print("-----")
+            if "vulkan-1.dll" in logtext and gpu_amd:
+                output.write("Vulkan Renderer is installed. \n-----\n")
+            elif logtext.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
+                output.write("# VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a highly recommended mod that can improve performance on AMD GPUs.\n")
+                output.write("-----\n")
+                output.write("Installation steps can be found in 'How To Read Crash Logs' PDF / Document.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files\n")
+                output.write("-----\n")
 
-            if "WeaponDebrisCrashFix.dll" in c_text and gpu_nvidia:
-                print("*Weapon Debris Crash Fix* is installed. \n-----")
-            elif "WeaponDebrisCrashFix.dll" in c_text and not gpu_nvidia and gpu_amd:
-                print("*Weapon Debris Crash Fix* is installed, but...")
-                print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
-                print("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)")
-                print("-----")
-            if not "WeaponDebrisCrashFix.dll" in c_text and gpu_nvidia:
-                print("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a mandatory patch / fix for players with Nvidia graphics cards.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files")
-                print("-----")
+            if "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
+                output.write("*Weapon Debris Crash Fix* is installed. \n-----\n")
+            elif "WeaponDebrisCrashFix.dll" in logtext and not gpu_nvidia and gpu_amd:
+                output.write("*Weapon Debris Crash Fix* is installed, but...\n")
+                output.write("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n")
+                output.write("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)\n")
+                output.write("-----\n")
+            if not "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
+                output.write("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a mandatory patch / fix for players with Nvidia graphics cards.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files\n")
+                output.write("-----\n")
 
-            if "NVIDIA_Reflex.dll" in c_text and gpu_nvidia:
-                print("*Nvidia Reflex Support* is installed. \n-----")
-            elif "NVIDIA_Reflex.dll" in c_text and not gpu_nvidia and gpu_amd:
-                print("*Nvidia Reflex Support* is installed, but...")
-                print("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #")
-                print("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)")
-                print("-----")
-            if not "NVIDIA_Reflex.dll" in c_text and gpu_nvidia:
-                print("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #")
-                print("This is a highly recommended mod that can reduce render latency.")
-                print("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files")
-                print("-----")
+            if "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
+                output.write("*Nvidia Reflex Support* is installed. \n-----\n")
+            elif "NVIDIA_Reflex.dll" in logtext and not gpu_nvidia and gpu_amd:
+                output.write("*Nvidia Reflex Support* is installed, but...\n")
+                output.write("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n")
+                output.write("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)\n")
+                output.write("-----\n")
+            if not "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
+                output.write("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                output.write("This is a highly recommended mod that can reduce render latency.\n")
+                output.write("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files\n")
+                output.write("-----\n")
         else:
-            print("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #")
-            print("Autoscan cannot continue. Try scanning a different crash log.")
-            print("-----")
+            output.write(nopluginlist)
 
-        print("====================================================")
-        print("SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...")
-        print("====================================================")
+        output.write("====================================================\n")
+        output.write("SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...\n")
+        output.write("====================================================\n")
 
         list_DETPLUGINS = []
         list_DETFORMIDS = []
         list_DETFILES = []
         list_ALLPLUGINS = []
 
-        if not "f4se_1_10_163.dll" in c_text and "steam_api64.dll" in c_text:
-            print("AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!")
-            print("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!")
-            print("Link: https://f4se.silverlock.org")
-            print("-----")
+        if not "f4se_1_10_163.dll" in logtext and "steam_api64.dll" in logtext:
+            output.write("AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!\n")
+            output.write("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!\n")
+            output.write("Link: https://f4se.silverlock.org\n")
+            output.write("-----\n")
 
-        for line in all_lines:
+        for line in loglines:
             if len(line) >= 6 and "]" in line[4]:
                 list_ALLPLUGINS.append(line.strip())
             if len(line) >= 7 and "]" in line[5]:
@@ -1375,8 +1380,8 @@ for file in os.listdir("."):
             if len(line) >= 11 and "]" in line[9]:
                 list_ALLPLUGINS.append(line.strip())
 
-        print("LIST OF (POSSIBLE) PLUGIN CULRIPTS:")
-        for line in all_lines:
+        output.write("LIST OF (POSSIBLE) PLUGIN CULRIPTS:\n")
+        for line in loglines:
             if "File:" in line:
                 line = line.replace("File: ", "")
                 line = line.replace('"', '')
@@ -1399,24 +1404,24 @@ for file in os.listdir("."):
                     PL_matches.append(string)
             if PL_matches:
                 PL_result.append(PL_matches)
-                print("- " + ' '.join(PL_matches))
+                output.write(f"- {' '.join(PL_matches)}\n")
 
         if not PL_result:
-            print("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *")
-            print("-----")
+            output.write("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *\n")
+            output.write("-----\n")
         else:
-            print("-----")
-            print("These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.")
-            print("You can try disabling these plugins and recheck your game, though this method can be unreliable.")
-            print("-----")
+            output.write("-----\n")
+            output.write("These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n")
+            output.write("You can try disabling these plugins and recheck your game, though this method can be unreliable.\n")
+            output.write("-----\n")
 
         # ===========================================================
 
-        print("LIST OF (POSSIBLE) FORM ID CULRIPTS:")
-        for line in all_lines:
+        output.write("LIST OF (POSSIBLE) FORM ID CULRIPTS:\n")
+        for line in loglines:
             if "Form ID:" in line and not "0xFF" in line:
                 line = line.replace("0x", "")
-                if "[00]" in c_text:
+                if "[00]" in logtext:
                     line = line.replace("Form ID: ", "")
                     line = line.strip()
                     ID_Only = line
@@ -1433,27 +1438,27 @@ for file in os.listdir("."):
                 else:
                     list_DETFORMIDS.append(line.strip())
 
-        list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
-        for elem in list_DETFORMIDS:
-            print(elem)
+                list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
+                for elem in list_DETFORMIDS:
+                    output.write(f"{elem}\n")
 
         if not list_DETFORMIDS:
-            print("* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *")
-            print("-----")
+            output.write("* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *\n")
+            output.write("-----\n")
         else:
-            print("-----")
-            print("These Form IDs were caught by Buffout 4 and some of them might be related to this crash.")
-            print("You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.")
-            print("-----")
+            output.write("-----\n")
+            output.write("These Form IDs were caught by Buffout 4 and some of them might be related to this crash.\n")
+            output.write("You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n")
+            output.write("-----\n")
 
         # ===========================================================
 
         List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".txt", ".uvd", ".wav", ".xwm", "data\\*"]
         List_Exclude = ['""', "...", ".esp"]
 
-        print("LIST OF DETECTED (NAMED) RECORDS:")
+        output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
         List_Records = []
-        for line in all_lines:
+        for line in loglines:
             if "Name" in line or any(elem in line for elem in List_Files):
                 if not any(elem in line for elem in List_Exclude):
                     line = line.replace('"', '')
@@ -1461,33 +1466,31 @@ for file in os.listdir("."):
 
         List_Records = list(dict.fromkeys(List_Records))
         for elem in List_Records:
-            print(elem)
+            output.write(elem)
 
         if not List_Records:
-            print("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *")
-            print("-----")
+            output.write("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n")
+            output.write("-----\n")
         else:
-            print("-----")
-            print("These records were caught by Buffout 4 and some of them might be related to this crash.")
-            print("Named records should give extra information on involved game objects and record types.")
-            print("-----")
+            output.write("-----\n")
+            output.write("These records were caught by Buffout 4 and some of them might be related to this crash.\n")
+            output.write("Named records should give extra information on involved game objects and record types.\n")
+            output.write("-----\n")
 
-        print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
-        print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
-        print("===============================================================================")
-        print("END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) |", CLAS_Date)
-        c_log.close()
-        sys.stdout.close()
+        output.write("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n")
+        output.write("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n")
+        output.write("===============================================================================\n")
+        output.write(f"END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | {CLAS_Date}")
 
-        # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
-        if CLAS_config.getboolean("MAIN", "Move Unsolved") == True:
-            if not os.path.exists("CLAS-UNSOLVED"):
-                os.mkdir("CLAS-UNSOLVED")
-            if int(Buffout_Trap) == 1:
-                uCRASH_path = "CLAS-UNSOLVED/" + crashlog
-                shutil.move(crashlog, uCRASH_path)
-                uSCAN_path = "CLAS-UNSOLVED/" + logname + "-AUTOSCAN.md"
-                shutil.move(logname + "-AUTOSCAN.md", uSCAN_path)
+    # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
+    if CLAS_config.getboolean("MAIN", "Move Unsolved") == True:
+        if not os.path.exists("CLAS-UNSOLVED"):
+            os.mkdir("CLAS-UNSOLVED")
+        if int(Buffout_Trap) == 1:
+            uCRASH_path = "CLAS-UNSOLVED/" + logname
+            shutil.move(logname, uCRASH_path)
+            uSCAN_path = "CLAS-UNSOLVED/" + logname + "-AUTOSCAN.md"
+            shutil.move(logname + "-AUTOSCAN.md", uSCAN_path)
 
 # dict.fromkeys -> Create dictionary, removes duplicates as dicts cannot have them.
 # BUFFOUT.INI BACK TO BUFFOUT.TOML BECAUSE PYTHON CAN'T WRITE
@@ -1499,7 +1502,6 @@ if info.Buffout_INI.is_file():
         os.rename(info.Buffout_INI, info.Buffout_TOML)
 
 # ========================== LOG END ==========================
-sys.stdout = orig_stdout
 print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
 print("SCAN RESULTS ARE AVAILABE IN FILES NAMED crash-date-and-time-AUTOSCAN.md")
 print("===============================================================================")
@@ -1513,17 +1515,16 @@ print(random.choice(Sneaky_Tips))
 
 # ============ CHECK FOR EMPTY (FAUTLY) AUTO-SCANS ============
 list_SCANFAIL = []
-for file in os.listdir("."):
-    if fnmatch.fnmatch(file, "*-AUTOSCAN.md"):
-        line_count = 0
-        scanname = str(file)
-        autoscan_log = open(file, errors="ignore")
+for file in glob("*-AUTOSCAN.md"):
+    line_count = 0
+    scanname = str(file)
+    with open(file, errors="ignore") as autoscan_log:
         for line in autoscan_log:
             if line != "\n":
                 line_count += 1
-        if int(line_count) <= 10:
-            list_SCANFAIL.append(scanname.removesuffix("-AUTOSCAN.md") + ".log")
-            statL_failed += 1
+    if int(line_count) <= 10:
+        list_SCANFAIL.append(scanname.replace("-AUTOSCAN.md", ".log"))
+        statL_failed += 1
 
 if len(list_SCANFAIL) >= 1:
     print("NOTICE: AUTOSCANNER WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
