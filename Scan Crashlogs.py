@@ -321,10 +321,9 @@ for file in logs:
 
         # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
         if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
-            output.writelines(["* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n",
-                               "[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n",
-                               "-----\n"
-                               ])
+            output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
+            output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n")
+            output.write("-----\n")
             Error_List = []
             F4SE_Error = F4SE_Version = F4SE_Buffout = 0
             with open(info.FO4_F4SE_Path, "r") as LOG_Check:
@@ -537,7 +536,7 @@ for file in logs:
             statC_Equip += 1
         # ===========================================================
         if (logtext.count("Papyrus") or logtext.count("VirtualMachine")) >= 2:
-            output.writelines("# Checking for Script Crash.................CULPRIT FOUND! #\n")
+            output.write("# Checking for Script Crash.................CULPRIT FOUND! #\n")
             output.write(f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}\n')
             Buffout_Trap = True
             statC_Papyrus += 1
