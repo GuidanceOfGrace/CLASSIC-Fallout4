@@ -1368,7 +1368,7 @@ for file in logs:
             output.write("AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!\n")
             output.write("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!\n")
             output.write("Link: https://f4se.silverlock.org\n")
-            output.write("-----")
+            output.write("-----\n")
 
         for line in loglines:
             if len(line) >= 6 and "]" in line[4]:
@@ -1404,7 +1404,7 @@ for file in logs:
                     PL_matches.append(string)
             if PL_matches:
                 PL_result.append(PL_matches)
-                output.write(f"- {' '.join(PL_matches)}")
+                output.write(f"- {' '.join(PL_matches)}\n")
 
         if not PL_result:
             output.write("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *\n")
