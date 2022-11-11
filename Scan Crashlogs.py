@@ -273,7 +273,7 @@ for file in logs:
         loglines = lines.readlines()
     with scanpath.open("w", encoding='utf-8-sig', errors="ignore") as output:
         output.write(logname)
-        output.write("This crash log was automatically scanned.\n")
+        output.write("\nThis crash log was automatically scanned.\n")
         output.write(f"VER {CLAS_Current[-4:]} | MIGHT CONTAIN FALSE POSITIVES.\n")
         if CLAS_Update == True:
             output.write("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #\n")
