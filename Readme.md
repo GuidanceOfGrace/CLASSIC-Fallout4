@@ -128,11 +128,12 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 - (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 - (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
-5.90
+5.95
 * MAIN SCRIPT *
-- Minor adjustments to text in the Auto-Scanner console window to prevent weird behavior.
-- Merged commit created by [evildarkarchon] on GitHub that cleans up some things with *FCX Mode*
-- Fixed Auto-Scanner reporting *Animation / Physics Crash* and *Player Character Crash* false positives.
+- Added a slight delay before scan completes so text can show up correctly in the terminal.
+- Fixed several minor internal bugs and issues thanks to [evildarkarchon] on GitHub.
+- Adjusted *List Of Detected (Named) Records* to not report *.esm* & *.esl* files.
+- Adjusted code logic for *Plugin Limit Crash* for more accurate detection.
 
 * OTHER FILES *
-- *Scan Crashlogs.exe* no longer checks for updates to prevent infinite looping problems.
+- Fixed infinte loop in *Scan Crashlogs.exe* during update checks while *Update Check = true*
