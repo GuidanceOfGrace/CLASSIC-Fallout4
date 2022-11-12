@@ -4,9 +4,19 @@
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
 // Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
 
+5.95
+* MAIN SCRIPT *
+- Added a slight delay before scan completes so text can show up correctly in the terminal.
+- Fixed several minor internal bugs and issues thanks to [evildarkarchon] on GitHub.
+- Adjusted *List Of Detected (Named) Records* to not report *.esm* & *.esl* files.
+- Adjusted code logic for *Plugin Limit Crash* for more accurate detection.
+
+* OTHER FILES *
+- Fixed infinte loop in *Scan Crashlogs.exe* during update checks while *Update Check = true*
+
 5.90
 * MAIN SCRIPT *
-- Minor adjustments to text in the Auto-Scanner console window to prevent weird behavior.
+- Minor adjustments to text in the Auto-Scanner terminal window to prevent weird behavior.
 - Merged commit created by [evildarkarchon] on GitHub that cleans up some things with *FCX Mode*
 - Fixed Auto-Scanner reporting *Animation / Physics Crash* and *Player Character Crash* false positives.
 
@@ -208,7 +218,7 @@
 - Added detection for around 7 new crash messages / errors now listed in the included PDF document. 
 - Changed names of some crash messages / errors so they better signify the underlying problem.
 - Changed AUTOSCAN output format from .txt to .md for better readability and formatting.
-- Added statistics logging at the end of Scan Crashlogs main console window.
+- Added statistics logging at the end of Scan Crashlogs main terminal window.
 - Various minor improvements and optimizations to Auto-Scanner code.
 
 2.00

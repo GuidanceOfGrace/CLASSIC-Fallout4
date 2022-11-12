@@ -1,7 +1,4 @@
-import fnmatch
-import logging
 import os
-import pathlib
 import platform
 import random
 import shutil
@@ -15,6 +12,7 @@ try:
     import requests
     RequestsImportFailed = False
 except ImportError:
+    requests = 0  # PyCharm Supress Warning
     RequestsImportFailed = True
 import configparser
 import subprocess
@@ -47,8 +45,8 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = "051122"  # DDMMYY
-CLAS_Current = "CLAS v5.90"
+CLAS_Date = "111122"  # DDMMYY
+CLAS_Current = "CLAS v5.95"
 CLAS_Update = False
 
 
@@ -71,7 +69,7 @@ def run_update():
     return response.json()["name"]
 
 
-if CLAS_config.getboolean("MAIN", "Update Check") == True:
+if CLAS_config.getboolean("MAIN", "Update Check"):
     CLAS_Received = run_update()
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         if CLAS_Received == CLAS_Current:
@@ -81,7 +79,7 @@ if CLAS_config.getboolean("MAIN", "Update Check") == True:
             print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
             print("===============================================================================")
             CLAS_Update = True
-    except Exception:
+    except OSError:  # Exception might be too broad, check user feedback to narrow it down.
         pass
         print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
         print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
@@ -160,7 +158,6 @@ class Info:
         else:  # Find where FO4 is installed via Steam if Linux
             home_directory = str(Path.home())
             if os.path.isfile(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf"):
-                steam_library = None
                 library_path = None
                 with open(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf") as steam_library_raw:
                     steam_library = steam_library_raw.readlines()
@@ -197,7 +194,7 @@ class Info:
 
 info = Info()
 # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
-if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
+if CLAS_config.getboolean("MAIN", "FCX Mode"):
     if info.FO4_Custom_Path.is_file():
         os.chmod(info.FO4_Custom_Path, stat.S_IWRITE)
         F4C_config = configparser.ConfigParser()
@@ -259,7 +256,6 @@ if info.Buffout_TOML.is_file():  # RENAME BECAUSE PYTHON CAN'T WRITE TO TOML
 
 print("\n PERFORMING SCAN... \n")
 start_time = time.time()
-# orig_stdout = sys.stdout
 
 logs = glob("crash-*.log")  # + glob("crash-*.txt") # For people who just HAVE to post their logs on pastebin.
 
@@ -268,14 +264,13 @@ for file in logs:
     scanpath = Path(str(logpath.name).replace(".log", "-AUTOSCAN.md")).resolve()
     logname = logpath.name
     logtext = logpath.read_text(encoding="utf-8")
-    loglines: list | None = None
     with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
         loglines = lines.readlines()
     with scanpath.open("w", encoding='utf-8-sig', errors="ignore") as output:
         output.write(logname)
         output.write("\nThis crash log was automatically scanned.\n")
         output.write(f"VER {CLAS_Current[-4:]} | MIGHT CONTAIN FALSE POSITIVES.\n")
-        if CLAS_Update == True:
+        if CLAS_Update:
             output.write("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #\n")
         output.write("====================================================\n")
 
@@ -284,7 +279,7 @@ for file in logs:
         buff_error = loglines[3].strip()
         plugin_idx = 1
         for line in loglines:
-            if not "F4SE" in line and "PLUGINS:" in line:
+            if "F4SE" not in line and "PLUGINS:" in line:
                 plugin_idx = loglines.index(line)
 
         plugin_list = loglines[plugin_idx:]
@@ -320,7 +315,7 @@ for file in logs:
         ALIB_Load = BUFF_Load = False
 
         # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
-        if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
+        if CLAS_config.getboolean("MAIN", "FCX Mode"):
             output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
             output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n")
             output.write("-----\n")
@@ -361,14 +356,13 @@ for file in logs:
                 output.write("-----\n")
 
             list_ERRORLOG = []
-            for file in info.FO4_F4SE_Logs:
-                if fnmatch.fnmatch(file, ".log"):
-                    with open(file, "r+") as LOG_Check:
-                        Log_Errors = LOG_Check.read()
-                        if "error" in Log_Errors.lower():
-                            logname = str(file)
-                            if not logname == "f4se.log":
-                                list_ERRORLOG.append(logname)
+            for file in glob(info.FO4_F4SE_Logs + "/*.log"):
+                with open(file, "r+") as LOG_Check:
+                    Log_Errors = LOG_Check.read()
+                    if "error" in Log_Errors.lower():
+                        logname = str(file)
+                        if "f4se.log" not in logname:
+                            list_ERRORLOG.append(logname)
 
             if len(list_ERRORLOG) >= 1:
                 output.write("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #\n")
@@ -396,7 +390,7 @@ for file in logs:
                 output.write("FALLOUT 4 SCRIPT EXTENDER: (Download Build 0.6.23) https://f4se.silverlock.org\n")
                 output.write("-----\n")
 
-            if info.Address_Library.is_file() or ALIB_Load == True:
+            if info.Address_Library.is_file() or ALIB_Load is True:
                 output.write("REQUIRED: Address Library is (manually) installed. \n-----\n")
             else:
                 output.write("# CAUTION: Auto-Scanner cannot find the Adress Library file or it isn't (manually) installed! #\n")
@@ -404,7 +398,7 @@ for file in logs:
                 output.write("ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files\n")
                 output.write("-----\n")
 
-            if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file() or BUFF_Load == True:
+            if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file() or BUFF_Load is True:
                 with open(info.Buffout_INI, "r+") as BUFF_Custom:
                     BUFF_config = BUFF_Custom.read()
                     output.write("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----\n")
@@ -615,7 +609,7 @@ for file in logs:
             Buffout_Trap = True
             statC_BodyPhysics += 1
         # ===========================================================
-        if ("BSMemStorage" or "DataFileHandleReaderWriter") in logtext:
+        if ("BSMemStorage" or "DataFileHandleReaderWriter") in logtext or "[FF]" in plugin_list:
             output.write("# Checking for Plugin Limit Crash...........CULPRIT FOUND! #\n")
             output.write(f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}\n')
             Buffout_Trap = True
@@ -767,7 +761,7 @@ for file in logs:
 
         # ===========================================================
 
-        if Buffout_Trap == False:  # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
+        if not Buffout_Trap:  # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
             output.write("-----\n")
             output.write("# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n")
             output.write("Check below for mods that can cause frequent crashes and other problems.\n")
@@ -907,7 +901,7 @@ for file in logs:
             output.write("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n")
             output.write("-----\n")
             statL_scanned += 1
-        elif not "[00]" in logtext:
+        elif "[00]" not in logtext:
             output.write("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\n")
             output.write("Autoscan cannot continue. Try scanning a different crash log.\n")
             output.write("-----\n")
@@ -1264,7 +1258,7 @@ for file in logs:
         output.write("Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n")
         output.write("-----\n")
 
-        if CLAS_config.getboolean("MAIN", "FCX Mode") == True:
+        if CLAS_config.getboolean("MAIN", "FCX Mode"):
             output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
             output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n")
             output.write("-----\n")
@@ -1334,7 +1328,7 @@ for file in logs:
                 output.write("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n")
                 output.write("Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)\n")
                 output.write("-----\n")
-            if not "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
+            if "WeaponDebrisCrashFix.dll" not in logtext and gpu_nvidia:
                 output.write("# WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
                 output.write("This is a mandatory patch / fix for players with Nvidia graphics cards.\n")
                 output.write("Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files\n")
@@ -1347,7 +1341,7 @@ for file in logs:
                 output.write("# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n")
                 output.write("Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)\n")
                 output.write("-----\n")
-            if not "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
+            if "NVIDIA_Reflex.dll" not in logtext and gpu_nvidia:
                 output.write("# NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
                 output.write("This is a highly recommended mod that can reduce render latency.\n")
                 output.write("Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files\n")
@@ -1364,7 +1358,7 @@ for file in logs:
         list_DETFILES = []
         list_ALLPLUGINS = []
 
-        if not "f4se_1_10_163.dll" in logtext and "steam_api64.dll" in logtext:
+        if "f4se_1_10_163.dll" not in logtext and "steam_api64.dll" in logtext:
             output.write("AUTOSCAN CANNOT FIND FALLOUT 4 SCRIPT EXTENDER DLL!\n")
             output.write("MAKE SURE THAT F4SE IS CORRECTLY INSTALLED!\n")
             output.write("Link: https://f4se.silverlock.org\n")
@@ -1419,7 +1413,7 @@ for file in logs:
 
         output.write("LIST OF (POSSIBLE) FORM ID CULRIPTS:\n")
         for line in loglines:
-            if "Form ID:" in line and not "0xFF" in line:
+            if "Form ID:" in line and "0xFF" not in line:
                 line = line.replace("0x", "")
                 if "[00]" in logtext:
                     line = line.replace("Form ID: ", "")
@@ -1438,9 +1432,9 @@ for file in logs:
                 else:
                     list_DETFORMIDS.append(line.strip())
 
-                list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
-                for elem in list_DETFORMIDS:
-                    output.write(f"{elem}\n")
+        list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
+        for elem in list_DETFORMIDS:
+            output.write(f"{elem}\n")
 
         if not list_DETFORMIDS:
             output.write("* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *\n")
@@ -1454,7 +1448,7 @@ for file in logs:
         # ===========================================================
 
         List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".txt", ".uvd", ".wav", ".xwm", "data\\*"]
-        List_Exclude = ['""', "...", ".esp"]
+        List_Exclude = ['""', "...", ".esm", ".esp", ".esl"]
 
         output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
         List_Records = []
@@ -1480,10 +1474,11 @@ for file in logs:
         output.write("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n")
         output.write("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n")
         output.write("===============================================================================\n")
-        output.write(f"END OF AUTOSCAN | Author/Made By: Poet#9800 (DISCORD) | {CLAS_Date}")
+        output.write(f"END OF AUTOSCAN | Author / Made By: Poet#9800 (DISCORD) | {CLAS_Date}\n")
+        output.write("CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757")
 
     # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
-    if CLAS_config.getboolean("MAIN", "Move Unsolved") == True:
+    if CLAS_config.getboolean("MAIN", "Move Unsolved"):
         if not os.path.exists("CLAS-UNSOLVED"):
             os.mkdir("CLAS-UNSOLVED")
         if int(Buffout_Trap) == 1:
@@ -1502,6 +1497,7 @@ if info.Buffout_INI.is_file():
         os.rename(info.Buffout_INI, info.Buffout_TOML)
 
 # ========================== LOG END ==========================
+time.sleep(0.5)
 print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
 print("SCAN RESULTS ARE AVAILABE IN FILES NAMED crash-date-and-time-AUTOSCAN.md")
 print("===============================================================================")
@@ -1543,14 +1539,14 @@ if len(list_SCANFAIL) >= 1:
     print('FOR ALL OTHER ERRORS PLEASE CONTACT ME DIRECTLY, CONTACT INFO BELOW!')
 
 print("======================================================================")
-print("\nScanned all available logs in", (str(time.time() - start_time)[:7]), "seconds.")
+print("\nScanned all available logs in", (str(time.time() - 0.5 - start_time)[:7]), "seconds.")
 print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
 print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
 print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
 print("Number of Very Old / Wrong Formatting Logs : ", statL_veryold)
 print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
 print("-----")
-if CLAS_config.getboolean("MAIN", "Stat Logging") == True:
+if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
     print("Logs with Stack Overflow Crash...........", statC_Overflow)
     print("Logs with Active Effects Crash...........", statC_ActiveEffect)
     print("Logs with Bad Math Crash.................", statC_BadMath)
