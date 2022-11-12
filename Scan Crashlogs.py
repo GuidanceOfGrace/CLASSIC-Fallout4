@@ -58,7 +58,7 @@ def run_update():
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
-    if RequestsImportFailed:
+    if not RequestsImportFailed:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
     # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
