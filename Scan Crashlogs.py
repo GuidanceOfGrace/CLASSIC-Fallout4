@@ -54,7 +54,7 @@ def run_update():
     print("CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES...")
     print("(You can disable this check in Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {Python_Current} \n")
-    if not Python_Current[:4] in ["3.11", "3.10", "3.9", "3.8"]:
+    if not Python_Current[:4] in ["3.11", "3.10"] or not Python_Current[:3] in ["3.9", "3.8"]:
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
@@ -65,7 +65,7 @@ def run_update():
     # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
     # print("List of all installed packages:", installed_packages) | RESERVED
     # print("===============================================================================")
-    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
+    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
     return response.json()["name"]
 
 
@@ -1456,7 +1456,7 @@ for file in logs:
             if "Name" in line or any(elem in line for elem in List_Files):
                 if not any(elem in line for elem in List_Exclude):
                     line = line.replace('"', '')
-                    List_Records.append(line.strip())
+                    List_Records.append(f"{line.strip()}\n")
 
         List_Records = list(dict.fromkeys(List_Records))
         for elem in List_Records:
