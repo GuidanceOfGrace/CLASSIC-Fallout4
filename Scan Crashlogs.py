@@ -54,7 +54,7 @@ def run_update():
     print("CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES...")
     print("(You can disable this check in Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {Python_Current} \n")
-    if not Python_Current[:4] in ["3.11", "3.10"] or not Python_Current[:3] in ["3.9", "3.8"]:
+    if not Python_Current[:4] in ["3.11", "3.10", "3.9", "3.8"]:
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
