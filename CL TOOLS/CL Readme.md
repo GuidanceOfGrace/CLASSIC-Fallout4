@@ -1,9 +1,9 @@
 # THESE SCRIPTS ARE MAINLY INTENDED FOR USERS THAT KEEP A LARGE DATABASE OF CRASH LOG FILES #
 * THE LARGER THE DATABASE, THE BETTER THE RESULTS. AT LEAST 200 CRASH LOG FILES RECOMMENDED *
 
-* CL Compare.py * AND * CL Full Sort.py * can be used to narrow down the same call stacks in crash logs to specific mod plugins.
-The more crash logs (in terms of sheer numbers) and the more varied crash logs (from many different players) you have
-for any specific call stack address, the more accurate the results will be for that specific call stack.
+* CL Compare.py * AND * CL Full Sort.py * can be used to narrow the same call stacks in crash logs down to specific mod plugins.
+The more crash logs (in terms of quantity) and the more varied crash logs (from many different players) you have
+for any specific call stack address, the more accurate the results should be for that specific call stack.
 
 # HOW TO USE #
 
@@ -23,10 +23,10 @@ TIP 1: * CL Compare.py * will only work if there are AT LEAST 2 crash logs for t
 TIP 2: Some crashes can be caused by .dll (f4se) plugins or exclusively mod files (textures, meshes, etc.), so these scripts will never be 100% effective.
 
 TIP 3: If -RESULT.md output file is empty, that means the crash logs SHARE TOGETHER 0 PLUGINS (There's not a single specific plugin that apprears in all logs.)
-> Keep in mind that the script ignores Official Game DLCs from being listed in -RESULT.md (results with only Unofficial Fallout 4 Patch might also be a dud.)
+> Keep in mind that the script ignores Official Game DLCs from being listed in -RESULT.md (results with only Unofficial Fallout 4 Patch will always be a dud.)
 
 TIP 4: If you need crash logs with a specific call stack address, feel free to contact me and I'll provide, if I have any that match.
-> You can also check the Collective Modding Discord Server and download any crash logs yourself from the thread in 🚨-fo4-crash-logs channel.
+> You can also check the Collective Modding Discord Server and download any crash logs yourself from the relevant thread in 🚨-fo4-crash-logs channel.
 
-TIP 5: The call stack address can be longer than 7 characters in seemingly rare cases, this will mess up the results until I find a better way to detect such cases.
-> You can double-check by comparing the call stack address (all chars after + in EXCEPTION_ACCESS_VIOLATION line / main error) with the name of the folder (they should match).
+TIP 5: The call stack address can be longer than 7 characters in rare cases, this could rarely mess up the results until I find a better way to handle such cases.
+> You can double-check by comparing the call stack address (all chars after "+" in EXCEPTION_ACCESS_VIOLATION line / main error) with the folder name (they should match).
