@@ -12,7 +12,7 @@ try:
     import requests
     RequestsImportFailed = False
 except ImportError:
-    requests = 0  # PyCharm Supress Warning
+    requests = 0  # Supress PyCharm Warning
     RequestsImportFailed = True
 import configparser
 import subprocess
@@ -45,8 +45,8 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = "111122"  # DDMMYY
-CLAS_Current = "CLAS v5.95"
+CLAS_Date = "221122"  # DDMMYY
+CLAS_Current = "CLAS v5.99"
 CLAS_Update = False
 
 
@@ -54,7 +54,7 @@ def run_update():
     print("CHECKING FOR PACKAGE & CRASH LOG AUTO-SCANNER UPDATES...")
     print("(You can disable this check in Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {Python_Current} \n")
-    if not Python_Current[:4] in ["3.11", "3.10", "3.9", "3.8"]:
+    if Python_Current[:4] not in ["3.11", "3.10", "3.9.", "3.8."]:
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
@@ -105,7 +105,7 @@ statL_scanned = statL_incomplete = statL_failed = statL_veryold = 0
 statC_ActiveEffect = statC_AnimationPhysics = statC_Audio = statC_BA2Limit = statC_BGSM = statC_BitDefender = statC_BodyPhysics = statC_ConsoleCommands = statC_CorruptedTex = 0
 statC_DLL = statC_Equip = statC_Generic = statC_GridScrap = statC_Invalidation = statC_LoadOrder = statC_MCM = statC_BadMath = statC_NIF = statC_NPCPathing = statC_NVDebris = 0
 statC_NVDriver = statC_Null = statC_Overflow = statC_Papyrus = statC_Particles = statC_PluginLimit = statC_Rendering = statC_Texture = statC_CorruptedAudio = statC_LOD = 0
-statC_Decal = statC_MO2Unp = statC_VulkanMem = statC_VulkanSet = statC_Water = 0
+statC_MapMarker = statC_Redist = statC_Decal = statC_MO2Unp = statC_VulkanMem = statC_VulkanSet = statC_Water = 0
 # UNSOLVED CRASH MESSAGES
 statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = 0
 # KNOWN CRASH CONDITIONS
@@ -256,7 +256,6 @@ if info.Buffout_TOML.is_file():  # RENAME BECAUSE PYTHON CAN'T WRITE TO TOML
 
 print("\n PERFORMING SCAN... \n")
 start_time = time.time()
-
 logs = glob("crash-*.log")  # + glob("crash-*.txt") # For people who just HAVE to post their logs on pastebin.
 
 for file in logs:
@@ -317,8 +316,7 @@ for file in logs:
         # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
         if CLAS_config.getboolean("MAIN", "FCX Mode"):
             output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
-            output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n")
-            output.write("-----\n")
+            output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n-----\n")
             Error_List = []
             F4SE_Error = F4SE_Version = F4SE_Buffout = 0
             with open(info.FO4_F4SE_Path, "r") as LOG_Check:
@@ -401,7 +399,17 @@ for file in logs:
             if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file() or BUFF_Load is True:
                 with open(info.Buffout_INI, "r+") as BUFF_Custom:
                     BUFF_config = BUFF_Custom.read()
+
                     output.write("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----\n")
+                    BUFF_lines = BUFF_config.splitlines()
+                    for line in BUFF_lines:
+                        if "=" in line:
+                            if "true" in line or "false" in line or "-1" in line:
+                                pass
+                            else:
+                                output.write("# CAUTION: THE FOLLOWING *Buffout4.toml* VALUE OR PARAMETER IS INVALID #\n")
+                                output.write(f"{line} \n[ Correct all typos / formatting / capitalized letters from this line in Buffout4.toml.] \n-----\n")
+                    
                     if ("achievements.dll" or "UnlimitedSurvivalMode.dll") in logtext and "Achievements = true" in BUFF_config:
                         output.write("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
                         output.write("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.\n")
@@ -494,9 +502,9 @@ for file in logs:
 
         # OTHER | RESERVED
         # *[Creation Club Crash] | +01B59A4
-        # Uneducated Shooter (56789) | logtext.count("std::invalid_argument")
-        # logtext.count("BSResourceNiBinaryStream")
-        # logtext.count("ObjectBindPolicy")
+        # Uneducated Shooter (56789) | "std::invalid_argument"
+        # "BSResourceNiBinaryStream"
+        # "ObjectBindPolicy"
 
         # ===========================================================
         if "DLCBannerDLC01.dds" in logtext:
@@ -525,11 +533,11 @@ for file in logs:
         # ===========================================================
         if logtext.count("PipboyMapData") >= 2:
             output.write("# Checking for Equip Crash..................CULPRIT FOUND! #\n")
-            output.write(f'> Priority : [2] | PipboyMapData : {logtext.count("PipboyMapData")}\n')
+            output.write(f'> Priority : [3] | PipboyMapData : {logtext.count("PipboyMapData")}\n')
             Buffout_Trap = True
             statC_Equip += 1
         # ===========================================================
-        if (logtext.count("Papyrus") or logtext.count("VirtualMachine")) >= 2:
+        if ("Papyrus" or "VirtualMachine" or "Assertion failed") in logtext:
             output.write("# Checking for Script Crash.................CULPRIT FOUND! #\n")
             output.write(f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}\n')
             Buffout_Trap = True
@@ -553,11 +561,23 @@ for file in logs:
             Buffout_Trap = True
             statC_Rendering += 1
         # ===========================================================
+        if logtext.count("MSVCR110") >= 3 or ("MSVCR" or "MSVCP") in buff_error:
+            output.write("# Checking for C++ Redist Crash.............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [4] | MSVCR110.dll : {logtext.count("MSVCR110.dll")}\n')
+            Buffout_Trap = True
+            statC_Redist += 1
+        # ===========================================================
         if ("GridAdjacencyMapNode" or "PowerUtils") in logtext:
             output.write("# Checking for Grid Scrap Crash.............CULPRIT FOUND! #\n")
             output.write(f'> Priority : [5] | GridAdjacencyMapNode : {logtext.count("GridAdjacencyMapNode")} | PowerUtils : {logtext.count("PowerUtils")}\n')
             Buffout_Trap = True
             statC_GridScrap += 1
+        # ===========================================================
+        if ("HUDCompass" or "HUDCompassMarker" or "attachMovie()") in logtext:
+            output.write("# Checking for Map Marker Crash.............CULPRIT FOUND! #\n")
+            output.write(f'> Priority : [5] | HUDCompass : {logtext.count("HUDCompass")} | HUDCompassMarker : {logtext.count("HUDCompassMarker")}\n')
+            Buffout_Trap = True
+            statC_MapMarker += 1
         # ===========================================================
         if ("LooseFileStream" or "BSFadeNode" or "BSMultiBoundNode") in logtext and logtext.count("LooseFileAsyncStream") == 0:
             output.write("# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #\n")
@@ -698,7 +718,7 @@ for file in logs:
             output.write("> Priority : [5]\n")
             Buffout_Trap = True
             statU_CClub += 1
-
+        # ===========================================================
         if ("BGSMod::Attachment" or "BGSMod::Template" or "BGSMod::Template::Item") in logtext:
             output.write("Checking for *[Item Crash]................DETECTED!\n")
             output.write(f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n')
@@ -1119,8 +1139,6 @@ for file in logs:
                 output.write("-----\n")
                 Mod_Trap2 = 0
 
-        # inherentlimitations= "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\neven if fixes or patches for them are already installed. You can ignore these.]\n-----"
-
         nopluginlist = "# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\nAutoscan cannot continue. Try scanning a different crash log.\n-----\n"
         if "[00]" in logtext and Mod_Trap2 == 0:
             output.write("[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n")
@@ -1447,14 +1465,14 @@ for file in logs:
 
         # ===========================================================
 
-        List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".txt", ".uvd", ".wav", ".xwm", "data\\*"]
+        List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/"]
         List_Exclude = ['""', "...", ".esm", ".esp", ".esl"]
 
         output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
         List_Records = []
         for line in loglines:
-            if "Name" in line or any(elem in line for elem in List_Files):
-                if not any(elem in line for elem in List_Exclude):
+            if "Name" in line or any(elem in line.lower() for elem in List_Files):
+                if not any(elem in line.lower() for elem in List_Exclude):
                     line = line.replace('"', '')
                     List_Records.append(f"{line.strip()}\n")
 
@@ -1466,7 +1484,7 @@ for file in logs:
             output.write("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n")
             output.write("-----\n")
         else:
-            output.write("-----\n")
+            output.write("\n-----\n")
             output.write("These records were caught by Buffout 4 and some of them might be related to this crash.\n")
             output.write("Named records should give extra information on involved game objects and record types.\n")
             output.write("-----\n")
@@ -1509,7 +1527,7 @@ print("NEXUS MODS | https://www.nexusmods.com/users/64682231")
 print("SCAN SCRIPT PAGE | https://www.nexusmods.com/fallout4/mods/56255")
 print(random.choice(Sneaky_Tips))
 
-# ============ CHECK FOR EMPTY (FAUTLY) AUTO-SCANS ============
+# ============ CHECK FOR EMPTY (FAULTY) AUTO-SCANS ============
 list_SCANFAIL = []
 for file in glob("*-AUTOSCAN.md"):
     line_count = 0
@@ -1560,7 +1578,9 @@ if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
     print("Logs with Generic Crash..................", statC_Generic)
     print("Logs with BA2 Limit Crash................", statC_BA2Limit)
     print("Logs with Rendering Crash................", statC_Rendering)
+    print("Logs with C++ Redist Crash...............", statC_Redist)
     print("Logs with Grid Scrap Crash...............", statC_GridScrap)
+    print("Logs with Map Marker Crash...............", statC_MapMarker)
     print("Logs with Mesh (NIF) Crash...............", statC_NIF)
     print("Logs with Texture (DDS) Crash............", statC_Texture)
     print("Logs with Material (BGSM) Crash..........", statC_BGSM)

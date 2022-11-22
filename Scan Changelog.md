@@ -4,6 +4,17 @@
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
 // Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
 
+5.99
+* MAIN SCRIPT *
+- Auto-Scanner now checks for some types of Buffout4.toml corruption / invalid settings.
+- Fixed Update Check not working correctly while *Update Check = true*
+- Added detection for *Map Marker Crash* and *C++ Redist Crash*
+- Additional fixes for minor internal bugs and issues.
+
+* OTHER FILES *
+- Several improvements and fixes for *CL Full Scan* and *CL Compare* thanks to [evildarkarchon] on GitHub.
+- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+
 5.95
 * MAIN SCRIPT *
 - Added a slight delay before scan completes so text can show up correctly in the terminal.
