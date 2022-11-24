@@ -65,15 +65,22 @@ def run_update():
     # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
     # print("List of all installed packages:", installed_packages) | RESERVED
     # print("===============================================================================")
-    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
-    return response.json()["name"]
+        response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
+        return response.json()["name"]
+    else:
+        return None
 
 
 if CLAS_config.getboolean("MAIN", "Update Check"):
     CLAS_Received = run_update()
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
-        if CLAS_Received == CLAS_Current:
+        if CLAS_Received and CLAS_Received == CLAS_Current:
             print("You have the latest version of the Auto-Scanner!")
+            print("===============================================================================")
+        elif not CLAS_Received:
+            print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
+            print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
+            print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
             print("===============================================================================")
         else:
             print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
