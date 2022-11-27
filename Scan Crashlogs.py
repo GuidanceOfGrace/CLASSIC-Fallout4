@@ -371,7 +371,6 @@ for file in logs:
                                 if "f4se.log" not in logname:
                                     list_ERRORLOG.append(logname)
                     except OSError:
-                        print(f"Unable to scan log file {file}")
                         list_ERRORLOG.append(str(file))
                         continue
 
