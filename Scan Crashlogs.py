@@ -372,7 +372,7 @@ for file in logs:
                                 if "f4se.log" not in logname:
                                     list_ERRORLOG.append(logname)
                     except OSError:
-                        list_ERRORLOG.append(str(file))
+                        list_ERRORLOG.append(str(filepath))
                         continue
 
             if len(list_ERRORLOG) >= 1:
