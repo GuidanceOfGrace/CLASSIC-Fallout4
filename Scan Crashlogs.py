@@ -362,18 +362,19 @@ for file in logs:
 
             list_ERRORLOG = []
             for file in glob(f"{info.FO4_F4SE_Logs}/*.log"):
-                filepath = Path(file).resolve()
-                if filepath.is_file():
-                    try:
-                        with filepath.open("r+") as LOG_Check:
-                            Log_Errors = LOG_Check.read()
-                            if "error" in Log_Errors.lower():
-                                logname = str(filepath)
-                                if "f4se.log" not in logname:
-                                    list_ERRORLOG.append(logname)
-                    except OSError:
-                        list_ERRORLOG.append(str(filepath))
-                        continue
+                if "crash-" not in file:
+                    filepath = Path(file).resolve()
+                    if filepath.is_file():
+                        try:
+                            with filepath.open("r+") as LOG_Check:
+                                Log_Errors = LOG_Check.read()
+                                if "error" in Log_Errors.lower():
+                                    logname = str(filepath)
+                                    if "f4se.log" not in logname:
+                                        list_ERRORLOG.append(logname)
+                        except OSError:
+                            list_ERRORLOG.append(str(filepath))
+                            continue
 
             if len(list_ERRORLOG) >= 1:
                 output.write("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #\n")
