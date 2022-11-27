@@ -361,13 +361,14 @@ for file in logs:
                 output.write("-----\n")
 
             list_ERRORLOG = []
-            for file in glob(info.FO4_F4SE_Logs + "/*.log"):
-                with open(file, "r+") as LOG_Check:
-                    Log_Errors = LOG_Check.read()
-                    if "error" in Log_Errors.lower():
-                        logname = str(file)
-                        if "f4se.log" not in logname:
-                            list_ERRORLOG.append(logname)
+            for file in glob(f"{info.FO4_F4SE_Logs}/*.log"):
+                if Path(file).is_file():
+                    with open(file, "r+") as LOG_Check:
+                        Log_Errors = LOG_Check.read()
+                        if "error" in Log_Errors.lower():
+                            logname = str(file)
+                            if "f4se.log" not in logname:
+                                list_ERRORLOG.append(logname)
 
             if len(list_ERRORLOG) >= 1:
                 output.write("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #\n")
@@ -416,7 +417,7 @@ for file in logs:
                             else:
                                 output.write("# CAUTION: THE FOLLOWING *Buffout4.toml* VALUE OR PARAMETER IS INVALID #\n")
                                 output.write(f"{line} \n[ Correct all typos / formatting / capitalized letters from this line in Buffout4.toml.] \n-----\n")
-                    
+
                     if ("achievements.dll" or "UnlimitedSurvivalMode.dll") in logtext and "Achievements = true" in BUFF_config:
                         output.write("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
                         output.write("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.\n")
