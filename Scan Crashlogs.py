@@ -363,12 +363,17 @@ for file in logs:
             list_ERRORLOG = []
             for file in glob(f"{info.FO4_F4SE_Logs}/*.log"):
                 if Path(file).is_file():
-                    with open(file, "r+") as LOG_Check:
-                        Log_Errors = LOG_Check.read()
-                        if "error" in Log_Errors.lower():
-                            logname = str(file)
-                            if "f4se.log" not in logname:
-                                list_ERRORLOG.append(logname)
+                    try:
+                        with open(file, "r+") as LOG_Check:
+                            Log_Errors = LOG_Check.read()
+                            if "error" in Log_Errors.lower():
+                                logname = str(file)
+                                if "f4se.log" not in logname:
+                                    list_ERRORLOG.append(logname)
+                    except OSError:
+                        print(f"Unable to scan log file {file}")
+                        list_ERRORLOG.append(str(file))
+                        continue
 
             if len(list_ERRORLOG) >= 1:
                 output.write("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #\n")
