@@ -61,7 +61,7 @@ https://www.nexusmods.com/fallout4/articles/3769 which lists all important commu
 * CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER * segment checks the database for mods that are patched through my own Optimization Patches Collection mod.
 You are supposed to visit this page https://www.nexusmods.com/fallout4/mods/54872, then download and install the main file with your mod manager.
 
-* SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS * segment checks the crash log for any
+* LIST DETECTED (NAMED) RECORDS * segment shows if the crash log contains any
 mentions of Plugins, FormIDs or Game Files that were possibly involved when this crash occurred.
 If you weren't able to fix the crash so far, you can search for any Game Files, look up any FormIDs in FO4Edit
 or disable any Plugins listed in this segment to further confirm if they caused this crash or not. If all else fails, perform a Binary Search.
@@ -128,13 +128,11 @@ B must be the sussy boi since the game didn't crash with only Mod A enabled whil
 - (Future updates will likely take much longer due to lack of feedback / data for some crash errors.)
 - (Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.)
 
-5.99
+5.99-A | Hotfix
 * MAIN SCRIPT *
-- Auto-Scanner now checks for some types of Buffout4.toml corruption / invalid settings.
-- Fixed Update Check not working correctly while *Update Check = true*
-- Added detection for *Map Marker Crash* and *C++ Redist Crash*
-- Additional fixes for minor internal bugs and issues.
-
-* OTHER FILES *
-- Several improvements and fixes for *CL Full Scan* and *CL Compare* thanks to [evildarkarchon] on GitHub.
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+- Implemented fixes for several errors and issues based on bug reports and thanks to [evildarkarchon] on GitHub.
+- Auto-Scanner no longer ignores certain records while detecting files for the *List Of Detected (Named) Records*
+- [Better to expand detection and have it rarely report false postivies, than to skip detected records entirely.]
+- Fixed some cases where load order would be ignored even if *loadorder.txt* was provided.
+- Fixed duplicate Looks Menu (F4EE) parameter report.
+- Fixed some minor formatting issues.
