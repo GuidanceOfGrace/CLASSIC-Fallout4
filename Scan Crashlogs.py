@@ -65,15 +65,22 @@ def run_update():
     # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
     # print("List of all installed packages:", installed_packages) | RESERVED
     # print("===============================================================================")
-    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
-    return response.json()["name"]
+        response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
+        return response.json()["name"]
+    else:
+        return None
 
 
 if CLAS_config.getboolean("MAIN", "Update Check"):
     CLAS_Received = run_update()
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
-        if CLAS_Received == CLAS_Current:
+        if CLAS_Received and CLAS_Received == CLAS_Current:
             print("You have the latest version of the Auto-Scanner!")
+            print("===============================================================================")
+        elif not CLAS_Received:
+            print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
+            print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
+            print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
             print("===============================================================================")
         else:
             print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
@@ -354,13 +361,20 @@ for file in logs:
                 output.write("-----\n")
 
             list_ERRORLOG = []
-            for file in glob(info.FO4_F4SE_Logs + "/*.log"):
-                with open(file, "r+") as LOG_Check:
-                    Log_Errors = LOG_Check.read()
-                    if "error" in Log_Errors.lower():
-                        logname = str(file)
-                        if "f4se.log" not in logname:
-                            list_ERRORLOG.append(logname)
+            for file in glob(f"{info.FO4_F4SE_Logs}/*.log"):
+                if "crash-" not in file:
+                    filepath = Path(file).resolve()
+                    if filepath.is_file():
+                        try:
+                            with filepath.open("r+") as LOG_Check:
+                                Log_Errors = LOG_Check.read()
+                                if "error" in Log_Errors.lower():
+                                    logname = str(filepath)
+                                    if "f4se.log" not in logname:
+                                        list_ERRORLOG.append(logname)
+                        except OSError:
+                            list_ERRORLOG.append(str(filepath))
+                            continue
 
             if len(list_ERRORLOG) >= 1:
                 output.write("# CAUTION: THE FOLLOWING DLL LOGS ALSO REPORT ONE OR MORE ERRORS : #\n")
@@ -409,7 +423,7 @@ for file in logs:
                             else:
                                 output.write("# CAUTION: THE FOLLOWING *Buffout4.toml* VALUE OR PARAMETER IS INVALID #\n")
                                 output.write(f"{line} \n[ Correct all typos / formatting / capitalized letters from this line in Buffout4.toml.] \n-----\n")
-                    
+
                     if ("achievements.dll" or "UnlimitedSurvivalMode.dll") in logtext and "Achievements = true" in BUFF_config:
                         output.write("# CAUTION: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
                         output.write("Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.\n")
