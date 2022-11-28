@@ -292,7 +292,7 @@ for file in logs:
             plugin_list = []
             with open("loadorder.txt", "r", errors="ignore") as loadorder_check:
                 plugin_format = loadorder_check.readlines()
-                if len(plugin_format) >= 1:
+                if len(plugin_format) >= 1 and "[00]" not in plugin_list:
                     plugin_list.append("[00]")
                 for line in plugin_format:
                     line = "[LO] " + line.strip()
