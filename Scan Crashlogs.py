@@ -12,7 +12,6 @@ try:
     import requests
     RequestsImportFailed = False
 except ImportError:
-    requests = 0  # Supress PyCharm Warning
     RequestsImportFailed = True
 import configparser
 import subprocess
@@ -45,7 +44,7 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
 Python_Current = sys.version[:6]
-CLAS_Date = "221122"  # DDMMYY
+CLAS_Date = "281122"  # DDMMYY
 CLAS_Current = "CLAS v5.99"
 CLAS_Update = False
 
@@ -72,8 +71,8 @@ def run_update():
 
 
 if CLAS_config.getboolean("MAIN", "Update Check"):
-    CLAS_Received = run_update()
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
+        CLAS_Received = run_update()
         if CLAS_Received and CLAS_Received == CLAS_Current:
             print("You have the latest version of the Auto-Scanner!")
             print("===============================================================================")
@@ -471,12 +470,12 @@ for file in logs:
             else:
                 output.write("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-        if "F4EE: false" in logtext and "f4ee.dll" in logtext:
-            output.write("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #\n")
-            output.write("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.\n")
-            output.write("-----\n")
-        else:
-            output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
+            if "F4EE: false" in logtext and "f4ee.dll" in logtext:
+                output.write("# CAUTION: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #\n")
+                output.write("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.\n")
+                output.write("-----\n")
+            else:
+                output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
         output.write("====================================================\n")
         output.write("CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES...\n")
@@ -577,7 +576,7 @@ for file in logs:
         # ===========================================================
         if logtext.count("MSVCR110") >= 3 or ("MSVCR" or "MSVCP") in buff_error:
             output.write("# Checking for C++ Redist Crash.............CULPRIT FOUND! #\n")
-            output.write(f'> Priority : [4] | MSVCR110.dll : {logtext.count("MSVCR110.dll")}\n')
+            output.write(f'> Priority : [3] | MSVCR110.dll : {logtext.count("MSVCR110.dll")}\n')
             Buffout_Trap = True
             statC_Redist += 1
         # ===========================================================
@@ -736,7 +735,7 @@ for file in logs:
         if ("BGSMod::Attachment" or "BGSMod::Template" or "BGSMod::Template::Item") in logtext:
             output.write("Checking for *[Item Crash]................DETECTED!\n")
             output.write(f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n')
-            output.write(f'                        BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}')
+            output.write(f'                        BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n')
             Buffout_Trap = True
             statU_Item += 1
         # ===========================================================
@@ -885,7 +884,7 @@ for file in logs:
                       "WAR OF THE COMMONWEALTH \n"
                       "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]
 
-        if "[00]" in logtext:
+        if any("[00]" in elem for elem in plugin_list):
             for line in plugin_list:
                 for elem in List_Mods1:
                     if "File:" not in line and "[FE" not in line and elem in line:
@@ -924,18 +923,18 @@ for file in logs:
                 output.write("This usually prevents most common crashes with Classic Holstered Weapons.\n")
                 output.write("-----\n")
                 Mod_Trap1 = 0
-        if "[00]" in logtext and Mod_Trap1 == 0:
+        if any("[00]" in elem for elem in plugin_list) and Mod_Trap1 == 0:
             output.write("# CAUTION: ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n")
             output.write("You can disable any/all of them temporarily to confirm they caused this crash.\n")
             output.write("-----\n")
             statL_scanned += 1
-        elif "[00]" in logtext and Mod_Trap1 == 1:
+        elif any("[00]" in elem for elem in plugin_list) and Mod_Trap1 == 1:
             output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n")
             output.write("THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.\n")
             output.write("Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n")
             output.write("-----\n")
             statL_scanned += 1
-        elif "[00]" not in logtext:
+        else:
             output.write("# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\n")
             output.write("Autoscan cannot continue. Try scanning a different crash log.\n")
             output.write("-----\n")
@@ -1120,7 +1119,7 @@ for file in logs:
                       "Version 2.6.3 contains a resurrection script that will regularly crash the game. \n"
                       "Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]
 
-        if "[00]" in logtext:
+        if any("[00]" in elem for elem in plugin_list):
             for line in plugin_list:
                 for elem in List_Mods2:
                     if "File:" not in line and "[FE" not in line and elem in line:
@@ -1154,12 +1153,12 @@ for file in logs:
                 Mod_Trap2 = 0
 
         nopluginlist = "# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\nAutoscan cannot continue. Try scanning a different crash log.\n-----\n"
-        if "[00]" in logtext and Mod_Trap2 == 0:
+        if any("[00]" in elem for elem in plugin_list) and Mod_Trap2 == 0:
             output.write("[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n")
             output.write("even if fixes or patches for them are already installed. You can ignore these.]\n")
             output.write("-----\n")
 
-        elif "[00]" in logtext and Mod_Trap2 == 1:
+        elif any("[00]" in elem for elem in plugin_list) and Mod_Trap2 == 1:
             output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n")
             output.write("-----\n")
         elif logtext.count("[00]") == 0:
@@ -1247,7 +1246,7 @@ for file in logs:
                       "Xander's Aid",
                       "ZXC Micro Additions"]
 
-        if "[00]" in logtext:
+        if any("[00]" in elem for elem in plugin_list):
             for line in plugin_list:
                 for elem in List_Mods3:
                     if "File:" not in line and "[FE" not in line and elem in line:
@@ -1258,12 +1257,12 @@ for file in logs:
                         order_elem = List_Mods3.index(elem)
                         output.write(f"- Found: {line[0:9].strip()} {List_Warn3[order_elem]}\n")
                         Mod_Trap3 = 0
-        if "[00]" in logtext and Mod_Trap3 == 0:
+        if any("[00]" in elem for elem in plugin_list) and Mod_Trap3 == 0:
             output.write("-----\n")
             output.write("FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,\n")
             output.write("VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872\n")
             output.write("-----\n")
-        elif "[00]" in logtext and Mod_Trap3 == 1:
+        elif any("[00]" in elem for elem in plugin_list) and Mod_Trap3 == 1:
             output.write("# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n")
             output.write("-----\n")
         elif logtext.count("[00]") == 0:
@@ -1310,7 +1309,7 @@ for file in logs:
                 output.write("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files\n")
                 output.write("-----\n")
 
-        if "[00]" in logtext:
+        if any("[00]" in elem for elem in plugin_list):
             if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
                 output.write("*Canary Save File Monitor* is installed. \n-----\n")
             else:
@@ -1447,7 +1446,7 @@ for file in logs:
         for line in loglines:
             if "Form ID:" in line and "0xFF" not in line:
                 line = line.replace("0x", "")
-                if "[00]" in logtext:
+                if any("[00]" in elem for elem in plugin_list):
                     line = line.replace("Form ID: ", "")
                     line = line.strip()
                     ID_Only = line
@@ -1480,13 +1479,13 @@ for file in logs:
         # ===========================================================
 
         List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/"]
-        List_Exclude = ['""', "...", ".esm", ".esp", ".esl"]
+        List_Exclude = ['""', "...", "[FE:"]
 
         output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
         List_Records = []
         for line in loglines:
             if "Name" in line or any(elem in line.lower() for elem in List_Files):
-                if not any(elem in line.lower() for elem in List_Exclude):
+                if not any(elem in line for elem in List_Exclude):
                     line = line.replace('"', '')
                     List_Records.append(f"{line.strip()}\n")
 
@@ -1498,7 +1497,7 @@ for file in logs:
             output.write("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n")
             output.write("-----\n")
         else:
-            output.write("\n-----\n")
+            output.write("-----\n")
             output.write("These records were caught by Buffout 4 and some of them might be related to this crash.\n")
             output.write("Named records should give extra information on involved game objects and record types.\n")
             output.write("-----\n")
