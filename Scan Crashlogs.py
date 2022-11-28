@@ -292,10 +292,11 @@ for file in logs:
             plugin_list = []
             with open("loadorder.txt", "r", errors="ignore") as loadorder_check:
                 plugin_format = loadorder_check.readlines()
+                if len(plugin_format) >= 1:
+                    plugin_list.append("[00]")
                 for line in plugin_format:
                     line = "[LO] " + line.strip()
                     plugin_list.append(line)
-
         # BUFFOUT VERSION CHECK
         buff_latest = "Buffout 4 v1.26.2"
         output.write(f"Main Error: {buff_error}\n")
