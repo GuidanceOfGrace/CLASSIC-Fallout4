@@ -35,7 +35,10 @@ if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
                     "# Set or copy/paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4 \n",
                     "# Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else. \n",
                     "# I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
-                    "INI Path = "]
+                    "INI Path = \n\n",
+                    "# Set to true to have check for updates to Python module dependencies, does nothing if Update Check is false\n",
+                    "# This is an Advanced setting, do not change unless you know what you're doing.\n",
+                    "Python Module Update Check = true"]
     with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
         INI_Autoscan.write("".join(INI_Settings))
 
@@ -57,7 +60,7 @@ def run_update():
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
-    if not RequestsImportFailed:
+    if not RequestsImportFailed and CLAS_config.getboolean("MAIN", "Python Module Update Check"):
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
     # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
