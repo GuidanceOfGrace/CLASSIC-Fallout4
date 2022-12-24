@@ -39,7 +39,7 @@ if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
                     "# Set to true to have check for updates to Python module dependencies, does nothing if Update Check is false\n",
                     "# This is an Advanced setting, do not change unless you know what you're doing.\n",
                     "Python Module Update Check = true"]
-    with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
+    with open("Scan Crashlogs.ini", "w+", errors="ignore") as INI_Autoscan:
         INI_Autoscan.write("".join(INI_Settings))
 
 # Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments.
@@ -168,7 +168,7 @@ class Info:
             home_directory = str(Path.home())
             if os.path.isfile(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf"):
                 library_path = None
-                with open(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf") as steam_library_raw:
+                with open(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf", errors="ignore") as steam_library_raw:
                     steam_library = steam_library_raw.readlines()
                 for line in steam_library:
                     if "path" in line:
@@ -197,7 +197,7 @@ class Info:
                 self.FO4_F4SE_Path = Path(rf"{Path_Input.strip()}\F4SE\f4se.log")
                 self.FO4_Custom_Path = Path(rf"{Path_Input.strip()}\Fallout4Custom.ini")
                 CLAS_config.set("MAIN", "INI Path", Path_Input)
-                with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
+                with open("Scan Crashlogs.ini", "w+", errors="ignore") as INI_Autoscan:
                     CLAS_config.write(INI_Autoscan)
 
 
@@ -213,16 +213,16 @@ if CLAS_config.getboolean("MAIN", "FCX Mode"):
             F4C_config.add_section("Archive")
         F4C_config.set("Archive", "bInvalidateOlderFiles", "1")
         F4C_config.set("Archive", "sResourceDataDirsFinal", "")
-        with open(info.FO4_Custom_Path, "w+") as FO4_Custom:
+        with open(info.FO4_Custom_Path, "w+", errors="ignore") as FO4_Custom:
             F4C_config.write(FO4_Custom, space_around_delimiters=False)
     else:
-        with open(info.FO4_Custom_Path, "w+") as FO4_Custom:
+        with open(info.FO4_Custom_Path, "w+", errors="ignore") as FO4_Custom:
             F4C_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
             FO4_Custom.write(F4C_config)
 
 # Check if f4se.log exists and find game path inside.
 if info.FO4_F4SE_Path.is_file():
-    with open(info.FO4_F4SE_Path, "r", encoding="utf-8") as LOG_Check:
+    with open(info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
         Path_Check = LOG_Check.readlines()
         for line in Path_Check:
             if "plugin directory" in line:
@@ -329,7 +329,7 @@ for file in logs:
             output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n-----\n")
             Error_List = []
             F4SE_Error = F4SE_Version = F4SE_Buffout = 0
-            with open(info.FO4_F4SE_Path, "r") as LOG_Check:
+            with open(info.FO4_F4SE_Path, "r", errors="ignore") as LOG_Check:
                 Error_Check = LOG_Check.readlines()
                 for line in Error_Check:
                     if "0.6.23" in line:
@@ -369,7 +369,7 @@ for file in logs:
                     filepath = Path(file).resolve()
                     if filepath.is_file():
                         try:
-                            with filepath.open("r+") as LOG_Check:
+                            with filepath.open("r+", errors="ignore") as LOG_Check:
                                 Log_Errors = LOG_Check.read()
                                 if "error" in Log_Errors.lower():
                                     logname = str(filepath)
@@ -414,7 +414,7 @@ for file in logs:
                 output.write("-----\n")
 
             if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file() or BUFF_Load is True:
-                with open(info.Buffout_INI, "r+") as BUFF_Custom:
+                with open(info.Buffout_INI, "r+", errors="ignore") as BUFF_Custom:
                     BUFF_config = BUFF_Custom.read()
 
                     output.write("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----\n")
@@ -451,7 +451,7 @@ for file in logs:
                         BUFF_config = BUFF_config.replace("F4EE = false", "F4EE = true")
                     else:
                         output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
-                with open(info.Buffout_INI, "w+") as BUFF_Custom:
+                with open(info.Buffout_INI, "w+", errors="ignore") as BUFF_Custom:
                     BUFF_Custom.write(BUFF_config)
             else:
                 output.write("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't (manually) installed! #\n")
