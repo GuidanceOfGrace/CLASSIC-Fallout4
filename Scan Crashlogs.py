@@ -219,7 +219,7 @@ if CLAS_config.getboolean("MAIN", "FCX Mode"):
 
 # Check if f4se.log exists and find game path inside.
 if info.FO4_F4SE_Path.is_file():
-    with open(info.FO4_F4SE_Path, "r", encoding="utf-8") as LOG_Check:
+    with open(info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
         Path_Check = LOG_Check.readlines()
         for line in Path_Check:
             if "plugin directory" in line:
