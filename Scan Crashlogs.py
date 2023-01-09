@@ -275,7 +275,7 @@ for file in logs:
     with scanpath.open("w", encoding='utf-8-sig', errors="ignore") as output:
         output.write(logname)
         output.write("\nThis crash log was automatically scanned.\n")
-        output.write(f"VER {CLAS_Current[-4:]}-{Hotfix_Version}| MIGHT CONTAIN FALSE POSITIVES.\n")
+        output.write(f"VER {CLAS_Current[-4:]}{Hotfix_Version}| MIGHT CONTAIN FALSE POSITIVES.\n")
         if CLAS_Update:
             output.write("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #\n")
         output.write("====================================================\n")
