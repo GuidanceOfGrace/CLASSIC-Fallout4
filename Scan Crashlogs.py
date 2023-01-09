@@ -47,7 +47,7 @@ Python_Current = sys.version[:6]
 CLAS_Date = "281122"  # DDMMYY
 CLAS_Current = "CLAS v5.99"
 CLAS_Update = False
-Hotfix_Version = None
+Hotfix_Version = ""
 
 
 def run_update():
@@ -58,7 +58,7 @@ def run_update():
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
-    if not RequestsImportFailed and (isinstance(Hotfix_Version, str) and not "evil" in Hotfix_Version):
+    if not RequestsImportFailed:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
     # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -74,10 +74,10 @@ def run_update():
 if CLAS_config.getboolean("MAIN", "Update Check"):
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         CLAS_Received = run_update()
-        if CLAS_Received and CLAS_Received == CLAS_Current and (isinstance(Hotfix_Version, str) and not "evil" in Hotfix_Version):
+        if CLAS_Received and CLAS_Received == CLAS_Current:
             print("You have the latest version of the Auto-Scanner!")
             print("===============================================================================")
-        elif not CLAS_Received and (isinstance(Hotfix_Version, str) and not "evil" in Hotfix_Version):
+        elif not CLAS_Received :
             print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
             print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
             print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
