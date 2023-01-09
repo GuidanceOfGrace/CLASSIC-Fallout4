@@ -118,7 +118,7 @@ statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU
 # KNOWN CRASH CONDITIONS
 statM_CHW = 0
 
-print(f"Hello World! | Crash Log Auto-Scanner | Version {CLAS_Current[-4:]}-{Hotfix_Version} | Fallout 4")
+print(f"Hello World! | Crash Log Auto-Scanner | Version {CLAS_Current[-4:]}{Hotfix_Version} | Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
 print("===============================================================================")
 print("You should place this script into your Documents/My Games/Fallout4/F4SE folder.")
