@@ -58,7 +58,7 @@ def run_update():
         print("CAUTION: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
-    if not RequestsImportFailed:
+    if not RequestsImportFailed and not "evil" in Hotfix_Version:
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'requests'])
     # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -74,16 +74,16 @@ def run_update():
 if CLAS_config.getboolean("MAIN", "Update Check"):
     try:  # AUTO UPDATE PIP, INSTALL & LIST PACKAGES
         CLAS_Received = run_update()
-        if CLAS_Received and CLAS_Received == CLAS_Current:
+        if CLAS_Received and CLAS_Received == CLAS_Current and not "evil" in Hotfix_Version:
             print("You have the latest version of the Auto-Scanner!")
             print("===============================================================================")
-        elif not CLAS_Received:
+        elif not CLAS_Received and not "evil" in Hotfix_Version:
             print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
             print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
             print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
             print("===============================================================================")
         else:
-            print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
+            print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE OR IS AN UNOFFICIAL VERSION. \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
             print("===============================================================================")
             CLAS_Update = True
     except OSError:  # Exception might be too broad, check user feedback to narrow it down.
@@ -796,7 +796,7 @@ for file in logs:
         # ===========================================================
         if "+1B938F0" in buff_error or logtext.count("DATA\\MESHES\\AnimTextData\\AnimationFileData.") or logtext.count("anonymous namespace'::AnimationFileLookupSingletonHelper"):
             AnimationFileDataCount = logtext.count("DATA\\MESHES\\AnimTextData\\AnimationFileData.")
-            output.write("Checking for *[Vortex Animation Crash]....DETECTED!\n")
+            output.write("Checking for *[AnimationTextData Crash]....DETECTED!\n")
             output.write(f' Priority : [5] | AnimationFileData : {AnimationFileDataCount} | AnimationFileLookupSingletonHelper : {logtext.count("AnimationFileLookupSingletonHelper")}\n')
             Buffout_Trap = True
             statU_Vortex += 1
