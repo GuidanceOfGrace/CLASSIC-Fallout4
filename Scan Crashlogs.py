@@ -114,7 +114,7 @@ statC_DLL = statC_Equip = statC_Generic = statC_GridScrap = statC_Invalidation =
 statC_NVDriver = statC_Null = statC_Overflow = statC_Papyrus = statC_Particles = statC_PluginLimit = statC_Rendering = statC_Texture = statC_CorruptedAudio = statC_LOD = 0
 statC_MapMarker = statC_Redist = statC_Decal = statC_MO2Unp = statC_VulkanMem = statC_VulkanSet = statC_Water = 0
 # UNSOLVED CRASH MESSAGES
-statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = statU_Vortex = 0
+statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = statU_AnimationTextData = 0
 # KNOWN CRASH CONDITIONS
 statM_CHW = 0
 
@@ -799,7 +799,7 @@ for file in logs:
             output.write("Checking for *[AnimationTextData Crash]....DETECTED!\n")
             output.write(f' Priority : [5] | AnimationFileData : {AnimationFileDataCount} | AnimationFileLookupSingletonHelper : {logtext.count("AnimationFileLookupSingletonHelper")}\n')
             Buffout_Trap = True
-            statU_Vortex += 1
+            statU_AnimationTextData += 1
         # ===========================================================
 
         if not Buffout_Trap:  # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
@@ -1634,7 +1634,7 @@ if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
     print("Logs with *[Ammo Counter Crash]..........", statU_HUDAmmo)
     print("Logs with *[NPC Projectile Crash]........", statU_Projectile)
     print("Logs with *[Player Character Crash]......", statU_Player)
-    print("Logs with *[Vortex Animation Crash]......", statU_Vortex)
+    print("Logs with *[AnimationTextData Crash]......", statU_AnimationTextData)
     print("*Unsolved, see How To Read Crash Logs PDF")
     print("===========================================")
 sys.stdout.close()
