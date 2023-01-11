@@ -47,6 +47,7 @@ Python_Current = sys.version[:6]
 CLAS_Date = "281122"  # DDMMYY
 CLAS_Current = "CLAS v5.99"
 CLAS_Update = False
+Hotfix_Version = ""
 
 
 def run_update():
@@ -76,13 +77,13 @@ if CLAS_config.getboolean("MAIN", "Update Check"):
         if CLAS_Received and CLAS_Received == CLAS_Current:
             print("You have the latest version of the Auto-Scanner!")
             print("===============================================================================")
-        elif not CLAS_Received:
+        elif not CLAS_Received :
             print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
             print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
             print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
             print("===============================================================================")
         else:
-            print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
+            print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE OR IS AN UNOFFICIAL VERSION. \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
             print("===============================================================================")
             CLAS_Update = True
     except OSError:  # Exception might be too broad, check user feedback to narrow it down.
@@ -113,11 +114,11 @@ statC_DLL = statC_Equip = statC_Generic = statC_GridScrap = statC_Invalidation =
 statC_NVDriver = statC_Null = statC_Overflow = statC_Papyrus = statC_Particles = statC_PluginLimit = statC_Rendering = statC_Texture = statC_CorruptedAudio = statC_LOD = 0
 statC_MapMarker = statC_Redist = statC_Decal = statC_MO2Unp = statC_VulkanMem = statC_VulkanSet = statC_Water = 0
 # UNSOLVED CRASH MESSAGES
-statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = 0
+statU_Precomb = statU_Player = statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_INI = statU_CClub = statU_AnimationTextData = 0
 # KNOWN CRASH CONDITIONS
 statM_CHW = 0
 
-print("Hello World! | Crash Log Auto-Scanner | Version", CLAS_Current[-4:], "| Fallout 4")
+print(f"Hello World! | Crash Log Auto-Scanner | Version {CLAS_Current[-4:]}{Hotfix_Version} | Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
 print("===============================================================================")
 print("You should place this script into your Documents/My Games/Fallout4/F4SE folder.")
@@ -165,7 +166,7 @@ class Info:
             home_directory = str(Path.home())
             if os.path.isfile(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf"):
                 library_path = None
-                with open(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf") as steam_library_raw:
+                with open(rf"{home_directory}/.local/share/Steam/steamapps/libraryfolders.vdf", errors="ignore") as steam_library_raw:
                     steam_library = steam_library_raw.readlines()
                 for line in steam_library:
                     if "path" in line:
@@ -194,7 +195,7 @@ class Info:
                 self.FO4_F4SE_Path = Path(rf"{Path_Input.strip()}\F4SE\f4se.log")
                 self.FO4_Custom_Path = Path(rf"{Path_Input.strip()}\Fallout4Custom.ini")
                 CLAS_config.set("MAIN", "INI Path", Path_Input)
-                with open("Scan Crashlogs.ini", "w+") as INI_Autoscan:
+                with open("Scan Crashlogs.ini", "w+", errors="ignore") as INI_Autoscan:
                     CLAS_config.write(INI_Autoscan)
 
 
@@ -210,16 +211,16 @@ if CLAS_config.getboolean("MAIN", "FCX Mode"):
             F4C_config.add_section("Archive")
         F4C_config.set("Archive", "bInvalidateOlderFiles", "1")
         F4C_config.set("Archive", "sResourceDataDirsFinal", "")
-        with open(info.FO4_Custom_Path, "w+") as FO4_Custom:
+        with open(info.FO4_Custom_Path, "w+", errors="ignore") as FO4_Custom:
             F4C_config.write(FO4_Custom, space_around_delimiters=False)
     else:
-        with open(info.FO4_Custom_Path, "w+") as FO4_Custom:
+        with open(info.FO4_Custom_Path, "w+", errors="ignore") as FO4_Custom:
             F4C_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
             FO4_Custom.write(F4C_config)
 
 # Check if f4se.log exists and find game path inside.
 if info.FO4_F4SE_Path.is_file():
-    with open(info.FO4_F4SE_Path, "r", encoding="utf-8") as LOG_Check:
+    with open(info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
         Path_Check = LOG_Check.readlines()
         for line in Path_Check:
             if "plugin directory" in line:
@@ -274,7 +275,7 @@ for file in logs:
     with scanpath.open("w", encoding='utf-8-sig', errors="ignore") as output:
         output.write(logname)
         output.write("\nThis crash log was automatically scanned.\n")
-        output.write(f"VER {CLAS_Current[-4:]} | MIGHT CONTAIN FALSE POSITIVES.\n")
+        output.write(f"VER {CLAS_Current[-4:]}{Hotfix_Version}| MIGHT CONTAIN FALSE POSITIVES.\n")
         if CLAS_Update:
             output.write("# NOTICE: YOU NEED TO UPDATE THE AUTO-SCANNER! #\n")
         output.write("====================================================\n")
@@ -326,7 +327,7 @@ for file in logs:
             output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n-----\n")
             Error_List = []
             F4SE_Error = F4SE_Version = F4SE_Buffout = 0
-            with open(info.FO4_F4SE_Path, "r") as LOG_Check:
+            with open(info.FO4_F4SE_Path, "r", errors="ignore") as LOG_Check:
                 Error_Check = LOG_Check.readlines()
                 for line in Error_Check:
                     if "0.6.23" in line:
@@ -366,7 +367,7 @@ for file in logs:
                     filepath = Path(file).resolve()
                     if filepath.is_file():
                         try:
-                            with filepath.open("r+") as LOG_Check:
+                            with filepath.open("r+", errors="ignore") as LOG_Check:
                                 Log_Errors = LOG_Check.read()
                                 if "error" in Log_Errors.lower():
                                     logname = str(filepath)
@@ -411,7 +412,7 @@ for file in logs:
                 output.write("-----\n")
 
             if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file() or BUFF_Load is True:
-                with open(info.Buffout_INI, "r+") as BUFF_Custom:
+                with open(info.Buffout_INI, "r+", errors="ignore") as BUFF_Custom:
                     BUFF_config = BUFF_Custom.read()
 
                     output.write("REQUIRED: Buffout 4 is (manually) installed. Checking configuration...\n-----\n")
@@ -448,7 +449,7 @@ for file in logs:
                         BUFF_config = BUFF_config.replace("F4EE = false", "F4EE = true")
                     else:
                         output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
-                with open(info.Buffout_INI, "w+") as BUFF_Custom:
+                with open(info.Buffout_INI, "w+", errors="ignore") as BUFF_Custom:
                     BUFF_Custom.write(BUFF_config)
             else:
                 output.write("# CAUTION: Auto-Scanner cannot find Buffout 4 files or they aren't (manually) installed! #\n")
@@ -792,7 +793,13 @@ for file in logs:
             output.write(f'                        0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}\n')
             Buffout_Trap = True
             statU_Player += 1
-
+        # ===========================================================
+        if "+1B938F0" in buff_error or logtext.count("DATA\\MESHES\\AnimTextData\\AnimationFileData.") or logtext.count("anonymous namespace'::AnimationFileLookupSingletonHelper"):
+            AnimationFileDataCount = logtext.count("DATA\\MESHES\\AnimTextData\\AnimationFileData.")
+            output.write("Checking for *[AnimationTextData Crash]....DETECTED!\n")
+            output.write(f' Priority : [5] | AnimationFileData : {AnimationFileDataCount} | AnimationFileLookupSingletonHelper : {logtext.count("AnimationFileLookupSingletonHelper")}\n')
+            Buffout_Trap = True
+            statU_AnimationTextData += 1
         # ===========================================================
 
         if not Buffout_Trap:  # DEFINE CHECK IF NOTHING TRIGGERED BUFFOUT TRAP
@@ -1627,6 +1634,7 @@ if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
     print("Logs with *[Ammo Counter Crash]..........", statU_HUDAmmo)
     print("Logs with *[NPC Projectile Crash]........", statU_Projectile)
     print("Logs with *[Player Character Crash]......", statU_Player)
+    print("Logs with *[AnimationTextData Crash]......", statU_AnimationTextData)
     print("*Unsolved, see How To Read Crash Logs PDF")
     print("===========================================")
 sys.stdout.close()
