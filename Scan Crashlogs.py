@@ -148,6 +148,7 @@ class Info:
         self.Buffout_TOML: Path | None = None
         self.Address_Library: Path | None = None
         self.Game_Path: str | None = None
+        self.CreationKit: Path | None = None
 
         Loc_Found = False
         if platform.system() == "Windows":
@@ -247,6 +248,7 @@ info.Buffout_DLL = Path(rf"{info.Game_Path}\Data\F4SE\Plugins\Buffout4.dll")
 info.Buffout_INI = Path(rf"{info.Game_Path}\Data\F4SE\Plugins\Buffout4.ini")
 info.Buffout_TOML = Path(rf"{info.Game_Path}\Data\F4SE\Plugins\Buffout4.toml")
 info.Address_Library = Path(rf"{info.Game_Path}\Data\F4SE\Plugins\version-1-10-163-0.bin")
+info.CreationKit = Path(rf"{info.Game_Path}\CreationKit.exe")
 
 if info.Buffout_TOML.is_file():  # RENAME BECAUSE PYTHON CAN'T WRITE TO TOML
     try:
@@ -1309,13 +1311,14 @@ for file in logs:
                 output.write("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.\n")
                 output.write("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files\n")
 
-            if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or Path(info.Game_Path).joinpath("winhttp.dll").is_file():
-                output.write("*Creation Kit Fixes* is (manually) installed. \n-----\n")
-            elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
-                output.write("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
-                output.write("This is a highly recommended patch for the Fallout 4 Creation Kit.\n")
-                output.write("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files\n")
-                output.write("-----\n")
+            if info.CreationKit.is_file():
+                if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or Path(info.Game_Path).joinpath("winhttp.dll").is_file():
+                    output.write("*Creation Kit Fixes* is (manually) installed. \n-----\n")
+                elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
+                    output.write("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
+                    output.write("This is a highly recommended patch for the Fallout 4 Creation Kit.\n")
+                    output.write("Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files\n")
+                    output.write("-----\n")
 
         if any("[00]" in elem for elem in plugin_list):
             if any("CanarySaveFileMonitor" in elem for elem in plugin_list):
