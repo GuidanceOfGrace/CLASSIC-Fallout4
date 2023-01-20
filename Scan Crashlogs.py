@@ -1308,6 +1308,7 @@ for file in logs:
                 output.write("# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
                 output.write("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.\n")
                 output.write("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files\n")
+            
             if (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("CreationKit.exe")):
                 if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()):
                     output.write("*Creation Kit Fixes* is (manually) installed. \n-----\n")
