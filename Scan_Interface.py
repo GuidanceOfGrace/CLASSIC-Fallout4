@@ -11,10 +11,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from PyQt5.QtGui import QDesktopServices, QColor, QPalette
 from PyQt5.QtCore import Qt, QUrl
 
-# Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments.
-CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
-CLAS_config.optionxform = str  # type: ignore
-CLAS_config.read("Scan Crashlogs.ini")
+CLAS_config = Scan_Crashlogs.CLAS_config
 
 
 class Ui_CLAS_MainWin(object):
