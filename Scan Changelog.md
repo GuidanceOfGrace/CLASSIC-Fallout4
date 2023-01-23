@@ -4,6 +4,44 @@
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
 // Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
 
+6.00 | Major Update | The GUI is here!
+* MAIN SCRIPT *
+- Fixed a major problem in code logic that made Auto-Scanner fail to detect some crash messages / errors.
+- Fixed an issue where Auto-Scanner would sometimes look for Buffout 4 files even if they didn't exist.
+- Fixed an issue where load order from provided *loadorder.txt* would be sometimes completely ignored.
+- Fixed an issue where Auto-Scanner sometimes failed to detect *Precombines Crash* messages / errors.
+- Fixed wrong link given for *Previs Repair Pack*, it was linking to *High FPS Physics Fix* instead.
+- Fixed several issues where Auto-Scanner would sometimes fail to scan logs due to unicode errors.
+- Fixed an issue where Auto-Scanner sometimes failed to install / detect required Python modules.
+- Fixed and optimized the update check code, fingers crossed it doesn't break anything again...
+- Merged detection for *[Bad INI Crash]* with the *[Save Crash]*, crash info has been updated.
+- Added a warning message when Auto-Scanner detects *Fallout4Custom.ini* file corruption.
+- Improved detection accuracy for *Weapon Debris Crash* and *NPC Pathing Crash*.
+- Readjusted a couple of crash message / error prioritiy designations.
+- Added counters for detected *Form IDs* and *Named Records*.
+- Added support for VR (Virtual Reality) crash logs.
+- Added detection for the following crash types:
+> *Game Corruption Crash*
+> *Leveled List Crash*
+> *[Looks Menu Crash]*
+
+- These crash messages / errors are no longer Unsolved, crash info has been updated:
+> *Player Character Crash*
+> *Precombines Crash*
+
+* OTHER FILES *
+- Crash Log Auto Scanner.exe has an interface from which you can adjust settings and visit important articles in a few clicks.
+- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+
+5.99-A | Hotfix
+* MAIN SCRIPT *
+- Implemented fixes for several errors and issues based on bug reports and thanks to [evildarkarchon] on GitHub.
+- Auto-Scanner no longer ignores certain records while detecting files for the *List Of Detected (Named) Records*
+ [Better to expand detection and have it rarely report false postivies, than to skip detected records entirely.]
+- Fixed some cases where load order would be ignored even if *loadorder.txt* was provided.
+- Fixed duplicate Looks Menu (F4EE) parameter report.
+- Fixed some minor formatting issues.
+
 5.99
 * MAIN SCRIPT *
 - Auto-Scanner now checks for some types of Buffout4.toml corruption / invalid settings.
