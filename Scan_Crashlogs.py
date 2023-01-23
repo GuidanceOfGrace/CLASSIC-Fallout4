@@ -208,7 +208,7 @@ def scan_logs():
                 F4C_config.set("Archive", "sResourceDataDirsFinal", "")
                 with open(info.FO4_Custom_Path, "w+", encoding="utf-8", errors="ignore") as FO4_Custom:
                     F4C_config.write(FO4_Custom, space_around_delimiters=False)
-            except configparser.MissingSectionHeade:
+            except configparser.MissingSectionHeaderError:
                 print("# WARNING: YOUR Fallout4Custom.ini FILE MIGHT BE BROKEN #\n")
                 print("Disable FCX Mode or delete this INI file and create a new one.\n")
                 print("I also strongly advise using BethINI to readjust your INI settings.\n-----\n")
@@ -1358,7 +1358,7 @@ def scan_logs():
                     output.write("# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.\n")
                     output.write("Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files\n")
 
-                if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or Path(info.Game_Path).joinpath("winhttp.dll").is_file():
+                if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()):
                     output.write("*Creation Kit Fixes* is (manually) installed. \n-----\n")
                 elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
                     output.write("# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n")
@@ -1487,7 +1487,7 @@ def scan_logs():
                         PL_matches.append(item)
                 if PL_matches:
                     PL_result.append(PL_matches)
-                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")
+                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n") # type: ignore
 
             if not PL_result:
                 output.write("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *\n")
