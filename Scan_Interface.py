@@ -11,10 +11,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from PyQt5.QtGui import QDesktopServices, QColor, QPalette
 from PyQt5.QtCore import Qt, QUrl
 
-# Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments.
-CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
-CLAS_config.optionxform = str  # type: ignore
-CLAS_config.read("Scan Crashlogs.ini")
+CLAS_config = Scan_Crashlogs.CLAS_config
 
 
 class Ui_CLAS_MainWin(object):
@@ -39,7 +36,7 @@ class Ui_CLAS_MainWin(object):
             self.Line_SelectedFolder.setText(SCAN_folder)
         # Change text color to gray.
         LSF_palette = self.Line_SelectedFolder.palette()
-        LSF_palette.setColor(QPalette.Text, QColor(Qt.darkGray))
+        LSF_palette.setColor(QPalette.Text, QColor(Qt.darkGray)) # type: ignore
         self.Line_SelectedFolder.setPalette(LSF_palette)
         
         # Button - Browse Folder
@@ -75,8 +72,8 @@ class Ui_CLAS_MainWin(object):
         # SEPARATOR LINE 1
         self.Line_Separator_1 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_1.setGeometry(QtCore.QRect(40, 180, 560, 20))
-        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.HLine)
-        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.HLine) # type: ignore
+        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Sunken) # type: ignore
         self.Line_Separator_1.setObjectName("Line_Separator_1")
         # SEPARATOR TEXT 1 (SETTINGS)
         self.LBL_Settings = QtWidgets.QLabel(CLAS_MainWin)
@@ -124,8 +121,8 @@ class Ui_CLAS_MainWin(object):
         # SEPARATOR LINE 2
         self.Line_Separator_2 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_2.setGeometry(QtCore.QRect(40, 310, 560, 20))
-        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.Line_Separator_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.HLine) # type: ignore
+        self.Line_Separator_2.setFrameShadow(QtWidgets.QFrame.Sunken) # type: ignore
         self.Line_Separator_2.setObjectName("Line_Separator_2")
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
         self.LBL_ArtWeb = QtWidgets.QLabel(CLAS_MainWin)
@@ -187,8 +184,8 @@ class Ui_CLAS_MainWin(object):
         # TEXT Label - About
         self.TXT_About = QtWidgets.QLabel(CLAS_MainWin)
         self.TXT_About.setGeometry(QtCore.QRect(30, 520, 300, 16))
-        self.TXT_About.setInputMethodHints(QtCore.Qt.ImhHiddenText)
-        self.TXT_About.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.TXT_About.setInputMethodHints(QtCore.Qt.ImhHiddenText) # type: ignore
+        self.TXT_About.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop) # type: ignore
         self.TXT_About.setObjectName("TXT_About")
         # TEXT Label - Contributors
         self.TXT_Contributors = QtWidgets.QLabel(CLAS_MainWin)
@@ -211,13 +208,13 @@ class Ui_CLAS_MainWin(object):
                 CLAS_config.write(INI_Autoscan)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette()
-            LSF_palette.setColor(QPalette.Text, QColor(Qt.black))
+            LSF_palette.setColor(QPalette.Text, QColor(Qt.black)) # type: ignore
             self.Line_SelectedFolder.setPalette(LSF_palette)
 
     def SelectFolder_INI(self):
         INI_folder = QFileDialog.getExistingDirectory() #QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
-            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You set the new path to: \n" + INI_folder)
+            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You set the new path to: \n" + INI_folder) # type: ignore
             CLAS_config.set("MAIN", "INI Path", INI_folder)
             with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
                 CLAS_config.write(INI_Autoscan)
