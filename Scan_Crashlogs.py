@@ -279,7 +279,7 @@ def scan_logs():
 
     for file in glob(f"{SCAN_folder}/crash-*.log"): # + glob(f"{SCAN_folder}/crash-*.txt")
         logpath = Path(file).resolve()
-        scanpath = Path(str(logpath.name).replace(".log", "-AUTOSCAN.md")).resolve()
+        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve()
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
         with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
