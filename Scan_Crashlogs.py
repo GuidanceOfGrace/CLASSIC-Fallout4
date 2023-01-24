@@ -45,6 +45,7 @@ CLAS_Date = "230123"  # DDMMYY
 CLAS_Current = "CLAS v6.00"
 CLAS_Updated = False
 
+
 def run_update():
     global CLAS_Current
     global CLAS_Updated
@@ -76,6 +77,7 @@ def run_update():
         print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
         print("===============================================================================")
     return
+
 
 def scan_logs():
     if CLAS_config.getboolean("MAIN", "Update Check"):
@@ -117,7 +119,6 @@ def scan_logs():
     print("Click on the green Code button and Download Zip, then extract and install.")
     print("===============================================================================")
     FO4_STEAM_ID = 377160
-
 
     class Info:
         def __init__(self):
@@ -191,7 +192,6 @@ def scan_logs():
                     CLAS_config.set("MAIN", "INI Path", Path_Input)
                     with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
                         CLAS_config.write(INI_Autoscan)
-
 
     info = Info()
     # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
@@ -277,9 +277,9 @@ def scan_logs():
     if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
         SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
 
-    for file in glob(f"{SCAN_folder}/crash-*.log"): # + glob(f"{SCAN_folder}/crash-*.txt")
+    for file in glob(f"{SCAN_folder}/crash-*.log"):  # + glob(f"{SCAN_folder}/crash-*.txt")
         logpath = Path(file).resolve()
-        scanpath = Path(str(logpath.name).replace(".log", "-AUTOSCAN.md")).resolve()
+        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve()
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
         with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
@@ -678,7 +678,7 @@ def scan_logs():
                 output.write(f'> Priority : [3] | +0D09AB7 | TESLevItem : {logtext.count("TESLevItem")}\n')
                 Buffout_Trap = True
                 statC_LeveledList += 1
-            # ===========================================================   
+            # ===========================================================
             if "BSMemStorage" in logtext or "DataFileHandleReaderWriter" in logtext or "[FF]" in plugins_list:
                 output.write("# Checking for Plugin Limit Crash...........CULPRIT FOUND! #\n")
                 output.write(f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}\n')
@@ -888,13 +888,13 @@ def scan_logs():
                           "EXTREME PARTICLES OVERHAUL \n"
                           "- Can cause particle effects related crashes, its INI file raises particle count to 500000. \n"
                           "  Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789",
-                          
+
                           "FALLOUT SAKHALIN \n"
                           "- Breaks the precombine system all across Far Harbor which will randomly crash your game.",
 
                           "HUD76 HUD REPLACER \n"
                           "- Can sometimes cause interface and pip-boy related bugs, glitches and crashes.",
-                          
+
                           "KNOCKOUT FRAMEWORK \n"
                           "- Confirm that you have installed the latest version (1.4.0+) of this mod. \n"
                           "  Older versions cause weird behavior and crashes during prolonged game sessions. \n"
@@ -1092,7 +1092,7 @@ def scan_logs():
                           "GIVE ME THAT BOTTLE \n"
                           "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n"
                           "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files",
-                          
+
                           "HUD CAPS \n"
                           "- Often breaks the Save / Quicksave function due to poor script implementation. \n"
                           "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n"
@@ -1470,14 +1470,14 @@ def scan_logs():
                     line = line.replace("File: ", "")
                     line = line.replace('"', '')
                     list_DETPLUGINS.append(line.strip())
-            
-            list_DETPLUGINS = list(filter(None, list_DETPLUGINS)) #Remove empty elements in list.
+
+            list_DETPLUGINS = list(filter(None, list_DETPLUGINS))  # Remove empty elements in list.
             list_remove = ["Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm"]
             for elem in list_remove:
                 if elem in list_DETPLUGINS:
                     list_DETPLUGINS.remove(elem)
-            
-            list_DETPLUGINS = Counter(list_DETPLUGINS) #list(dict.fromkeys(list_DETPLUGINS))
+
+            list_DETPLUGINS = Counter(list_DETPLUGINS)  # list(dict.fromkeys(list_DETPLUGINS))
             PL_result = []
 
             for elem in list_ALLPLUGINS:
@@ -1487,7 +1487,7 @@ def scan_logs():
                         PL_matches.append(item)
                 if PL_matches:
                     PL_result.append(PL_matches)
-                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n") # type: ignore
+                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")  # type: ignore
 
             if not PL_result:
                 output.write("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *\n")
@@ -1522,7 +1522,7 @@ def scan_logs():
                                     list_DETFORMIDS.append(Full_Line.replace("    ", ""))
                     else:
                         list_DETFORMIDS.append(line.strip())
-            
+
             list_DETFORMIDS = sorted(list_DETFORMIDS)
             list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
             for elem in list_DETFORMIDS:
@@ -1549,11 +1549,11 @@ def scan_logs():
                     if not any(elem in line for elem in List_Exclude):
                         line = line.replace('"', '')
                         List_Records.append(f"{line.strip()}\n")
-            
+
             List_Records = sorted(List_Records)
-            List_Records = Counter(List_Records) #list(dict.fromkeys(List_Records))
+            List_Records = Counter(List_Records)  # list(dict.fromkeys(List_Records))
             for item in List_Records:
-                output.write("{} : {} \n".format(item.replace("\n",""),List_Records[item]))
+                output.write("{} : {} \n".format(item.replace("\n", ""), List_Records[item]))
 
             if not List_Records:
                 output.write("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n")
@@ -1614,7 +1614,7 @@ def scan_logs():
             for line in autoscan_log:
                 if line != "\n":
                     line_count += 1
-        if int(line_count) <= 20: # Adjust if necessary. Failed scans are usually 16 lines.
+        if int(line_count) <= 20:  # Adjust if necessary. Failed scans are usually 16 lines.
             list_SCANFAIL.append(scanname.replace("-AUTOSCAN.md", ".log"))
             statL_failed += 1
 
@@ -1697,7 +1697,8 @@ def scan_logs():
         print("===========================================")
     return
 
-if __name__ == "__main__": # AKA only autorun when NOT imported.
+
+if __name__ == "__main__":  # AKA only autorun when NOT imported.
     CLAS_Scan = scan_logs()
     sys.stdout.close()
     os.system("pause")
