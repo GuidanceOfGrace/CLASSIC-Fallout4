@@ -3,11 +3,15 @@
 # LINKS #
 
 Latest Python Download : https://www.python.org/downloads/windows
+
 Python For Win 7 Download : https://github.com/NulAsh/cpython/releases
 
 How To Install Buffout 4 : https://www.nexusmods.com/fallout4/articles/3115
+
 Important Patches & Fixes : https://www.nexusmods.com/fallout4/articles/3769
+
 Advanced Troubleshooting: https://www.nexusmods.com/fallout4/articles/4141
+
 Crash Log Auto-Scanner: https://www.nexusmods.com/fallout4/mods/56255
 
 HOW TO READ CRASH LOGS Online Doc: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
