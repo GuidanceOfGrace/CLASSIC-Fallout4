@@ -92,6 +92,14 @@ class Ui_CLAS_MainWin(object):
         self.ChkBT_FCXMode.setObjectName("ChkBT_FCXMode")
         self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode)
         
+        # Check Box - IMI Mode
+        self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
+        self.ChkBT_IMIMode.setGeometry(QtCore.QRect(260, 235, 110, 50))
+        if CLAS_config.getboolean("MAIN", "IMI Mode"):
+            self.ChkBT_IMIMode.setChecked(True)
+        self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
+        self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode)
+        
         # Check Box - INI Update
         self.ChkBT_Update = QtWidgets.QCheckBox(CLAS_MainWin)
         self.ChkBT_Update.setGeometry(QtCore.QRect(420, 230, 110, 20))
@@ -226,14 +234,24 @@ class Ui_CLAS_MainWin(object):
         QDesktopServices.openUrl(QUrl("https://discord.com/invite/7ZZbrsGQh4"))
         
     def Update_Popup(self):
-        if Scan_Crashlogs.CLAS_Updated is True:
+        if Scan_Crashlogs.run_update():
             QtWidgets.QMessageBox.information(CLAS_MainWin, "CLAS Update", "You have the latest version of Crash Log Auto Scanner!")
         else:
             QtWidgets.QMessageBox.warning(CLAS_MainWin, "CLAS Update", "New Crash Log Auto Scanner version detected!\nPress OK to open the CLAS Nexus Page.")
             QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255?tab=files"))
 
         # ====================== CHECK BOXES ========================
-        
+
+    def Bool_IMIMode(self):
+        if self.ChkBT_IMIMode.isChecked():
+            CLAS_config.set("MAIN", "IMI Mode", "true")
+            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
+                CLAS_config.write(INI_Autoscan)
+        else:
+            CLAS_config.set("MAIN", "IMI Mode", "false")
+            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
+                CLAS_config.write(INI_Autoscan)
+
     def Bool_INIStats(self):
         if self.ChkBT_Stats.isChecked():
             CLAS_config.set("MAIN", "Stat Logging", "true")
@@ -278,12 +296,14 @@ class Ui_CLAS_MainWin(object):
 
     def retranslateUi(self, CLAS_MainWin):
         _translate = QtCore.QCoreApplication.translate
-        CLAS_MainWin.setWindowTitle(_translate("CLAS_MainWin", "Crash Log Auto Scanner GUI 6.00"))
+        CLAS_MainWin.setWindowTitle(_translate("CLAS_MainWin", "Crash Log Auto Scanner GUI 6.06"))
         self.ArtBT_Bufout4.setText(_translate("CLAS_MainWin", "BUFFOUT 4 INSTALLATION"))
         self.ArtBT_Patches.setText(_translate("CLAS_MainWin", "IMPORTANT PATCHES LIST"))
         self.ArtBT_Trblshoot.setText(_translate("CLAS_MainWin", "ADVANCED TROUBLESHOOTING"))
         self.ChkBT_FCXMode.setText(_translate("CLAS_MainWin", "FCX MODE"))
         self.ChkBT_FCXMode.setToolTip(_translate("CLAS_MainWin", "<html><head/><body><p>Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.</p></body></html>"))
+        self.ChkBT_IMIMode.setText(_translate("CLAS_MainWin", "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS"))
+        self.ChkBT_IMIMode.setToolTip(_translate("CLAS_MainWin", "<html><head/><body><p>Enable if you want Auto-Scanner to hide all manual installation warnings. I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. </p></body></html>"))
         self.ChkBT_Stats.setText(_translate("CLAS_MainWin", "STAT LOGGING"))
         self.ChkBT_Stats.setToolTip(_translate("CLAS_MainWin", "<html><head/><body><p>Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window. </p></body></html>"))
         self.ChkBT_Unsolved.setText(_translate("CLAS_MainWin", "MOVE UNSOLVED"))

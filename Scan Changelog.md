@@ -4,6 +4,17 @@
 // Future updates will likely take much longer due to lack of feedback / data for some crash errors.
 // Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
 
+6.06
+* MAIN SCRIPT *
+- Added *IMI Mode* to Auto-Scanner INI settings, which allows you to ignore / hide manual installation warnings.
+- Fixed Auto-Scanner saving *-AUTOSCAN.md* files in the root folder instead of any custom set path.
+- Fixed all instances of duplicate text in the terminal due to recent code changes.
+- Fixed the update check function for the 6th and last time.
+
+* CLAS GUI *
+- Fixed INI settings not updating immedialtely on first launch thanks to [evildarkarchon] on GitHub.
+- Fixed *Check For Updates* so it no longer warns about an update if you have the latest version.
+
 6.00 | Major Update | The GUI is here!
 * MAIN SCRIPT *
 - Fixed a major problem in code logic that made Auto-Scanner fail to detect some crash messages / errors.
