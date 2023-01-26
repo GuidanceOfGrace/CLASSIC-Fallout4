@@ -354,8 +354,8 @@ def scan_logs():
                 output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
                 output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n-----\n")
                 Error_List = []
+                F4SE_Error = F4SE_Version = F4SE_Buffout = 0
                 if info.FO4_F4SE_Path.is_file():
-                    F4SE_Error = F4SE_Version = F4SE_Buffout = 0
                     with open(info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
                         Error_Check = LOG_Check.readlines()
                         for line in Error_Check:
@@ -367,7 +367,6 @@ def scan_logs():
                             if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
                                 F4SE_Buffout = 1
                 if info.FO4_F4SEVR_Path.is_file():
-                    F4SE_Error = F4SE_Version = F4SE_Buffout = 0
                     with open(info.FO4_F4SEVR_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
                         Error_Check = LOG_Check.readlines()
                         for line in Error_Check:
