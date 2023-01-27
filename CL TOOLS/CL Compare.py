@@ -4,16 +4,11 @@ from glob import glob
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.")
+parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.", nargs="?", default=str(Path.cwd()))
 args = parser.parse_args()
 
-if args.error_code:
-    folder_name = Path(args.error_code).resolve().name
-    scanpath = str(Path(args.error_code).resolve())
-else:
-    folder_name = Path.cwd().name
-    scanpath = str(Path.cwd())
-
+folder_name = Path(args.error_code).resolve().name
+scanpath = str(Path(args.error_code).resolve())
 # READ 4TH LINE FROM EACH .log AND GRAB LAST 7 CHARS
 print("Hello World! | Crash Logs Compare | Fallout 4")
 
