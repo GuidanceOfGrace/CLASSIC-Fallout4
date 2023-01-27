@@ -1,8 +1,14 @@
+import argparse
 import os
 from glob import glob
 from pathlib import Path
-folder_name = Path.cwd().name
 
+parser = argparse.ArgumentParser()
+parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.", nargs="?", default=str(Path.cwd()))
+args = parser.parse_args()
+
+folder_name = Path(args.error_code).resolve().name
+scanpath = str(Path(args.error_code).resolve())
 # READ 4TH LINE FROM EACH .log AND GRAB LAST 7 CHARS
 print("Hello World! | Crash Logs Compare | Fallout 4")
 
@@ -10,7 +16,7 @@ File_Index = 0
 # Declaring the Master Lists here to appease VSCode's type checker/linter
 Master_ListP = []
 Master_ListM = []
-for file in glob("crash-*.log"):
+for file in glob(f"{scanpath}/crash-*.log"):
     File_Index += 1
     Plugin_IDX: int = int()
     F4SE_IDX: int = int()
@@ -60,7 +66,7 @@ for elem in list_remove:
     if elem in Master_ListM:
         Master_ListM.remove(elem)
 
-with open(f"{folder_name}-RESULT.md", "w") as Master_Output:
+with open(f"{scanpath}/{folder_name}-RESULT.md", "w") as Master_Output:
     Master_Output.write(f"LIST OF PLUGINS SEEN IN ALL AVAILABLE CRASH LOGS WITH THIS STACK CALL : {folder_name}\n")
     for item in sorted(Master_ListP):
         Master_Output.write(f"{item}\n")
