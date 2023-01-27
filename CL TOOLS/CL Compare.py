@@ -4,7 +4,7 @@ from glob import glob
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.", required=False)
+parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.")
 args = parser.parse_args()
 
 if args.error_code:
