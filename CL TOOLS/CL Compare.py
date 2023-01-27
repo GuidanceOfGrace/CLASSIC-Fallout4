@@ -9,7 +9,7 @@ args = parser.parse_args()
 
 if args.error_code:
     folder_name = Path(args.error_code).resolve().name
-    scanpath = str(Path(args.error_code).absolute())
+    scanpath = str(Path(args.error_code).resolve())
 else:
     folder_name = Path.cwd().name
     scanpath = str(Path.cwd())
