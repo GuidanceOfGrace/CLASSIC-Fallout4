@@ -354,8 +354,8 @@ def scan_logs():
                 output.write("* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n")
                 output.write("[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n-----\n")
                 Error_List = []
+                F4SE_Error = F4SE_Version = F4SE_Buffout = 0
                 if info.FO4_F4SE_Path.is_file():
-                    F4SE_Error = F4SE_Version = F4SE_Buffout = 0
                     with open(info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
                         Error_Check = LOG_Check.readlines()
                         for line in Error_Check:
@@ -367,7 +367,6 @@ def scan_logs():
                             if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
                                 F4SE_Buffout = 1
                 if info.FO4_F4SEVR_Path.is_file():
-                    F4SE_Error = F4SE_Version = F4SE_Buffout = 0
                     with open(info.FO4_F4SEVR_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
                         Error_Check = LOG_Check.readlines()
                         for line in Error_Check:
@@ -497,27 +496,27 @@ def scan_logs():
                         output.write("BUFFOUT 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359?tab=files\n")
                         output.write("-----\n")
 
-                else:  # INSTRUCTIONS FOR MANUAL FIXING WHEN FCX MODE IS FALSE
-                    if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
-                        output.write("# WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
-                        output.write("FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.\n")
-                        output.write("-----\n")
-                    else:
-                        output.write("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----\n")
+            else:  # INSTRUCTIONS FOR MANUAL FIXING WHEN FCX MODE IS FALSE
+                if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
+                    output.write("# WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #\n")
+                    output.write("FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.\n")
+                    output.write("-----\n")
+                else:
+                    output.write("Achievements parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-                    if "MemoryManager: true" in logtext and "BakaScrapHeap.dll" in logtext:
-                        output.write("# WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #\n")
-                        output.write("FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.\n")
-                        output.write("-----\n")
-                    else:
-                        output.write("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----\n")
+                if "MemoryManager: true" in logtext and "BakaScrapHeap.dll" in logtext:
+                    output.write("# WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #\n")
+                    output.write("FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.\n")
+                    output.write("-----\n")
+                else:
+                    output.write("Memory Manager parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
-                    if "F4EE: false" in logtext and "f4ee.dll" in logtext:
-                        output.write("# WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #\n")
-                        output.write("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.\n")
-                        output.write("-----\n")
-                    else:
-                        output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
+                if "F4EE: false" in logtext and "f4ee.dll" in logtext:
+                    output.write("# WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #\n")
+                    output.write("FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.\n")
+                    output.write("-----\n")
+                else:
+                    output.write("Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured. \n-----\n")
 
             output.write("====================================================\n")
             output.write("CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES...\n")
