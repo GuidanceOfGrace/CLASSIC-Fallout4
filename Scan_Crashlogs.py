@@ -1708,6 +1708,9 @@ def scan_logs():
     return
 
 if __name__ == "__main__": # AKA only autorun when NOT imported.
+    import argparse
+    parser = argparse.ArgumentParser()
+    args = parser.parse_args()
     CLAS_Scan = scan_logs()
     sys.stdout.close()
     os.system("pause")
