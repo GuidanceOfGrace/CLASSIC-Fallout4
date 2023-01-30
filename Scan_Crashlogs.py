@@ -52,6 +52,12 @@ CLAS_Date = "250123"  # DDMMYY
 CLAS_Current = "CLAS v6.06"
 CLAS_Updated = False
 
+def write_ini_value_to_file(section: str | None = None, value: str | None = None):
+    if isinstance(section, str) and isinstance(value, str):
+        with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
+            CLAS_config.set("MAIN", section, value)
+            CLAS_config.write(INI_Autoscan)
+
 def run_update():
     global CLAS_Current
     global CLAS_Updated
