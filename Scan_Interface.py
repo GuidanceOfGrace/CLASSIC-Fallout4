@@ -212,9 +212,6 @@ class Ui_CLAS_MainWin(object):
         if SCAN_folder:
             self.Line_SelectedFolder.setText(SCAN_folder)
             write_ini_value_to_file("Scan Path", SCAN_folder)
-            CLAS_config.set("MAIN", "Scan Path", SCAN_folder)
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette()
             LSF_palette.setColor(QPalette.Text, QColor(Qt.black)) # type: ignore
@@ -224,9 +221,7 @@ class Ui_CLAS_MainWin(object):
         INI_folder = QFileDialog.getExistingDirectory() #QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
             QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You set the new path to: \n" + INI_folder) # type: ignore
-            CLAS_config.set("MAIN", "INI Path", INI_folder)
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("INI Path", INI_folder)
         
         # ================== POP-UPS / WARNINGS =====================
         
@@ -245,53 +240,33 @@ class Ui_CLAS_MainWin(object):
 
     def Bool_IMIMode(self):
         if self.ChkBT_IMIMode.isChecked():
-            CLAS_config.set("MAIN", "IMI Mode", "true")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("IMI Mode", "true")
         else:
-            CLAS_config.set("MAIN", "IMI Mode", "false")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("IMI Mode", "false")
 
     def Bool_INIStats(self):
         if self.ChkBT_Stats.isChecked():
-            CLAS_config.set("MAIN", "Stat Logging", "true")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("Stat Logging", "true")
         else:
-            CLAS_config.set("MAIN", "Stat Logging", "false")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("Stat Logging", "false")
 
     def Bool_INIUnsolved(self):
         if self.ChkBT_Unsolved.isChecked():
-            CLAS_config.set("MAIN", "Move Unsolved", "true")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("Move Unsolved", "true")
         else:
-            CLAS_config.set("MAIN", "Move Unsolved", "false")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("Move Unsolved", "false")
 
     def Bool_INIUpdate(self):
         if self.ChkBT_Update.isChecked():
-            CLAS_config.set("MAIN", "Update Check", "true")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("Update Check", "true")
         else:
-            CLAS_config.set("MAIN", "Update Check", "false")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("Update Check", "false")
 
     def Bool_FCXMode(self):
         if self.ChkBT_FCXMode.isChecked():
-            CLAS_config.set("MAIN", "FCX Mode", "true")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("FCX Mode", "true")
         else:
-            CLAS_config.set("MAIN", "FCX Mode", "false")
-            with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                CLAS_config.write(INI_Autoscan)
+            write_ini_value_to_file("FCX Mode", "false")
             
         # ======================== METADATA =========================
 

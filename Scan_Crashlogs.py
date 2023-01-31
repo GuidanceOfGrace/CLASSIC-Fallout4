@@ -211,9 +211,7 @@ def scan_logs():
                     self.FO4_F4SE_Path = Path(rf"{Path_Input.strip()}/F4SE/f4se.log")
                     self.FO4_F4SEVR_Path = Path(rf"{Path_Input.strip()}/F4SE/f4sevr.log")
                     self.FO4_Custom_Path = Path(rf"{Path_Input.strip()}/Fallout4Custom.ini")
-                    CLAS_config.set("MAIN", "INI Path", Path_Input)
-                    with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-                        CLAS_config.write(INI_Autoscan)
+                    write_ini_value_to_file("INI Path", Path_Input)
 
     info = Info()
     # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
