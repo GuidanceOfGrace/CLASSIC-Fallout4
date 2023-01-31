@@ -54,10 +54,13 @@ CLAS_Updated = False
 
 
 def write_ini_value_to_file(section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
-    if isinstance(section, str) and isinstance(value, str):  # The python interpreter doesn't enforce type annotations, so being safe here
+    if isinstance(section, str) and isinstance(value, str):
         CLAS_config.set("MAIN", section, value)
-        with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-            CLAS_config.write(INI_Autoscan)
+    else:
+        CLAS_config.set("MAIN", str(section), str(value))
+    
+    with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
+        CLAS_config.write(INI_Autoscan)
 
 
 def run_update():
