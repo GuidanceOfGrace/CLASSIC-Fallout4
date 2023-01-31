@@ -52,11 +52,13 @@ CLAS_Date = "250123"  # DDMMYY
 CLAS_Current = "CLAS v6.06"
 CLAS_Updated = False
 
-def write_ini_value_to_file(section: str | None = None, value: str | None = None):
-    if isinstance(section, str) and isinstance(value, str):
+
+def write_ini_value_to_file(section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
+    if isinstance(section, str) and isinstance(value, str):  # The python interpreter doesn't enforce type annotations, so being safe here
+        CLAS_config.set("MAIN", section, value)
         with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-            CLAS_config.set("MAIN", section, value)
             CLAS_config.write(INI_Autoscan)
+
 
 def run_update():
     global CLAS_Current
@@ -77,7 +79,7 @@ def run_update():
             print("You have the latest version of the Auto-Scanner!")
         else:
             print("\n [!] YOUR AUTO-SCANNER VERSION IS OUT OF DATE \n Please download the latest version from here: \n https://www.nexusmods.com/fallout4/mods/56255 \n")
-            print("===============================================================================")  
+            print("===============================================================================")
     return CLAS_Updated
 
 
@@ -119,11 +121,12 @@ print("Click on the green Code button and Download Zip, then extract and install
 print("===============================================================================")
 Start_Time = time.perf_counter()
 
+
 def scan_logs():
     print("\n PERFORMING SCAN... \n")
     global Sneaky_Tips
     global Start_Time
-    
+
     # =================== STATISTICS LOGGING ===================
     # MAIN STATS
     statL_scanned = statL_incomplete = statL_failed = statL_veryold = 0
@@ -137,7 +140,6 @@ def scan_logs():
     statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_CClub = statU_LooksMenu = 0
     # KNOWN CRASH CONDITIONS
     statM_CHW = 0
-
 
     class Info:
         def __init__(self):
@@ -158,7 +160,7 @@ def scan_logs():
             self.Buffout_TOML: Path | None = None
             self.Address_Library: Path | None = None
             self.Game_Path: str | None = None
-            
+
             FO4_STEAM_ID = 377160
             Loc_Found = False
             if platform.system() == "Windows":
@@ -212,7 +214,6 @@ def scan_logs():
                     CLAS_config.set("MAIN", "INI Path", Path_Input)
                     with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
                         CLAS_config.write(INI_Autoscan)
-
 
     info = Info()
     # Create/Open Fallout4Custom.ini and check Archive Invalidaton & other settings.
@@ -296,7 +297,7 @@ def scan_logs():
     if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
         SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
 
-    for file in glob(f"{SCAN_folder}/crash-*.log"): # + glob(f"{SCAN_folder}/crash-*.txt")
+    for file in glob(f"{SCAN_folder}/crash-*.log"):  # + glob(f"{SCAN_folder}/crash-*.txt")
         logpath = Path(file).resolve()
         scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
         logname = logpath.name
@@ -904,13 +905,13 @@ def scan_logs():
                           "EXTREME PARTICLES OVERHAUL \n"
                           "- Can cause particle effects related crashes, its INI file raises particle count to 500000. \n"
                           "  Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789",
-                          
+
                           "FALLOUT SAKHALIN \n"
                           "- Breaks the precombine system all across Far Harbor which will randomly crash your game.",
 
                           "HUD76 HUD REPLACER \n"
                           "- Can sometimes cause interface and pip-boy related bugs, glitches and crashes.",
-                          
+
                           "KNOCKOUT FRAMEWORK \n"
                           "- Confirm that you have installed the latest version (1.4.0+) of this mod. \n"
                           "  Older versions cause weird behavior and crashes during prolonged game sessions. \n"
@@ -1108,7 +1109,7 @@ def scan_logs():
                           "GIVE ME THAT BOTTLE \n"
                           "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n"
                           "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files",
-                          
+
                           "HUD CAPS \n"
                           "- Often breaks the Save / Quicksave function due to poor script implementation. \n"
                           "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n"
@@ -1486,14 +1487,14 @@ def scan_logs():
                     line = line.replace("File: ", "")
                     line = line.replace('"', '')
                     list_DETPLUGINS.append(line.strip())
-            
-            list_DETPLUGINS = list(filter(None, list_DETPLUGINS)) #Remove empty elements in list.
+
+            list_DETPLUGINS = list(filter(None, list_DETPLUGINS))  # Remove empty elements in list.
             list_remove = ["Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm"]
             for elem in list_remove:
                 if elem in list_DETPLUGINS:
                     list_DETPLUGINS.remove(elem)
-            
-            list_DETPLUGINS = Counter(list_DETPLUGINS) # list(dict.fromkeys(list_DETPLUGINS))
+
+            list_DETPLUGINS = Counter(list_DETPLUGINS)  # list(dict.fromkeys(list_DETPLUGINS))
             PL_result = []
 
             for elem in list_ALLPLUGINS:
@@ -1503,7 +1504,7 @@ def scan_logs():
                         PL_matches.append(item)
                 if PL_matches:
                     PL_result.append(PL_matches)
-                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n") # type: ignore
+                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")  # type: ignore
 
             if not PL_result:
                 output.write("* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *\n")
@@ -1538,7 +1539,7 @@ def scan_logs():
                                     list_DETFORMIDS.append(Full_Line.replace("    ", ""))
                     else:
                         list_DETFORMIDS.append(line.strip())
-            
+
             list_DETFORMIDS = sorted(list_DETFORMIDS)
             list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
             for elem in list_DETFORMIDS:
@@ -1565,11 +1566,11 @@ def scan_logs():
                     if not any(elem in line for elem in List_Exclude):
                         line = line.replace('"', '')
                         List_Records.append(f"{line.strip()}\n")
-            
+
             List_Records = sorted(List_Records)
-            List_Records = Counter(List_Records) # list(dict.fromkeys(List_Records))
+            List_Records = Counter(List_Records)  # list(dict.fromkeys(List_Records))
             for item in List_Records:
-                output.write("{} : {} \n".format(item.replace("\n",""),List_Records[item]))
+                output.write("{} : {} \n".format(item.replace("\n", ""), List_Records[item]))
 
             if not List_Records:
                 output.write("* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n")
@@ -1630,7 +1631,7 @@ def scan_logs():
             for line in autoscan_log:
                 if line != "\n":
                     line_count += 1
-        if int(line_count) <= 20: # Adjust if necessary. Failed scans are usually 16 lines.
+        if int(line_count) <= 20:  # Adjust if necessary. Failed scans are usually 16 lines.
             list_SCANFAIL.append(scanname.replace("-AUTOSCAN.md", ".log"))
             statL_failed += 1
 
@@ -1713,10 +1714,43 @@ def scan_logs():
         print("===========================================")
     return
 
-if __name__ == "__main__": # AKA only autorun when NOT imported.
+
+if __name__ == "__main__":  # AKA only autorun when NOT imported.
     import argparse
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="Buffout 4 Crash Log Auto-Scanner")  
+    # Argument values will simply change INI values since that requires the least refactoring
+    # I will figure out a better way in a future iteration, this iteration simply mimics the GUI.
+    parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")
+    parser.add_argument("--imi-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
+    parser.add_argument("--stat-logging", action=argparse.BooleanOptionalAction, help="Enable (or disable) Stat Logging")
+    parser.add_argument("--move-unsolved", action=argparse.BooleanOptionalAction, help="Enable (or disable) moving unsolved logs to a aeparate directory")
+    parser.add_argument("--ini-path", type=Path, help="Set the directory that stores the game's INI files.")
+    parser.add_argument("--scan-path", type=Path, help="Set which directory to scan")
     args = parser.parse_args()
+
+    scan_path: Path = args.scan_path  # VSCode gives me type errors because args.* is set at runtime (doesn't know what types it's dealing with).
+    ini_path: Path = args.ini_path  # Using intermediate variables with type annotations to satisfy it.
+
+    # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
+    # So it will respect current INI values if not specified on the command line.
+    if isinstance(args.fcx_mode, bool) and not args.fcx_mode == CLAS_config.getboolean("MAIN", "FCX Mode"):
+        write_ini_value_to_file("FCX Mode", str(args.fcx_mode).lower())
+
+    if isinstance(args.imi_mode, bool) and not args.imi_mode == CLAS_config.getboolean("MAIN", "IMI Mode"):
+        write_ini_value_to_file("IMI Mode", str(args.imi_mode).lower())
+
+    if isinstance(args.stat_logging, bool) and not args.stat_logging == CLAS_config.getboolean("MAIN", "Stat Logging"):
+        write_ini_value_to_file("Stat Logging", str(args.stat_logging).lower())
+
+    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CLAS_config.getboolean("MAIN", "Move Unsolved"):
+        write_ini_value_to_file("Move Unsolved", str(args.move_unsolved).lower())
+
+    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CLAS_config.get("MAIN", "INI Path"):
+        write_ini_value_to_file("INI Path", str(Path(ini_path).resolve()))
+
+    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CLAS_config.get("MAIN", "Scan Path"):
+        write_ini_value_to_file("Scan Path", str(Path(scan_path).resolve()))
+
     CLAS_Scan = scan_logs()
-    sys.stdout.close()
+    sys.stdout.close()  # Do we still need this line since we're no longer using stdout to write to the scan file? - evildarkarchon
     os.system("pause")

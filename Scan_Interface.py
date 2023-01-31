@@ -12,7 +12,7 @@ from PyQt5.QtGui import QDesktopServices, QColor, QPalette
 from PyQt5.QtCore import Qt, QUrl
 
 CLAS_config = Scan_Crashlogs.CLAS_config
-
+write_ini_value_to_file = Scan_Crashlogs.write_ini_value_to_file
 
 class Ui_CLAS_MainWin(object):
     def setupUi(self, CLAS_MainWin):
@@ -211,6 +211,7 @@ class Ui_CLAS_MainWin(object):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
             self.Line_SelectedFolder.setText(SCAN_folder)
+            write_ini_value_to_file("Scan Path", SCAN_folder)
             CLAS_config.set("MAIN", "Scan Path", SCAN_folder)
             with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
                 CLAS_config.write(INI_Autoscan)
