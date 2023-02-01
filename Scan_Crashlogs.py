@@ -1720,7 +1720,7 @@ if __name__ == "__main__":  # AKA only autorun when NOT imported.
     import argparse
     parser = argparse.ArgumentParser(prog="Buffout 4 Crash Log Auto-Scanner")  
     # Argument values will simply change INI values since that requires the least refactoring
-    # I will figure out a better way in a future iteration, this iteration simply mimics the GUI.
+    # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
     parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")
     parser.add_argument("--imi-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
     parser.add_argument("--stat-logging", action=argparse.BooleanOptionalAction, help="Enable (or disable) Stat Logging")
