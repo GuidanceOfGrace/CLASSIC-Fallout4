@@ -656,7 +656,7 @@ def scan_logs():
             # ===========================================================
             if "DefaultTexture_Black" in logtext or "NiAlphaProperty" in logtext:
                 output.write("# Checking for Material (BGSM) Crash........CULPRIT FOUND! #\n")
-                output.write(f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}')
+                output.write(f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}\n')
                 Buffout_Trap = True
                 statC_BGSM += 1
             # ===========================================================
