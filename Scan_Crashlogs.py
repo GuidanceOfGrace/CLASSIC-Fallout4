@@ -33,11 +33,11 @@ def createlistbetweentextheaders(source, start, end=""):  # This function partia
     if len(end) < 1:
         end = None
     
-    for i in source:
-        if not isinstance(i, str):
+    for elem in source:
+        if not isinstance(elem, str):
             raise TypeError("Source list must contain only strings.")
         
-        i = i.strip()
+        elem = elem.strip()
 
     output = []
     if len(source) > 1:
