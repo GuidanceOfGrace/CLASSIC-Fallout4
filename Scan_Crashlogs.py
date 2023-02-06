@@ -18,6 +18,38 @@ except Exception:
 if platform.system() == "Windows":
     import ctypes.wintypes
 
+def createlistbetweentextheaders(source, start, end = ""): # This function partially brought to you by Github Copilot (been trying to figure out how to do this for a while)
+    """Returns a list of lines between two text headers."""
+    if not isinstance(source, list):
+        raise TypeError("Source must be a list.")
+    
+    if not isinstance(start, str):
+        raise TypeError("Start must be a string.")
+    
+    if not isinstance(end, str):
+        raise TypeError("End must be a string.")
+    
+    if len(end) < 1:
+        end = None
+    
+    output = []
+    if len(source) > 1:
+        start_index = source.index(start)
+        end_index = 0
+    
+        if end:
+            end_index = source.index(end)
+            output = source[start_index + 1 : end_index]
+        else:
+            output = source[start_index + 1 :]
+    
+    while "" in output:
+        output.remove("")
+    if len(output) == 0:
+        output = ["[EMPTY]"]
+    
+    return output
+
 if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
     INI_Settings = ["[MAIN]\n",
                     "# This file contains configuration settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
@@ -42,7 +74,7 @@ if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
                     "# If no path is set, Auto-Scanner will search for logs in the same folder you're running it from. \n",
                     "Scan Path = "]
     with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-        INI_Autoscan.write("".join(INI_Settings))
+        INI_Autoscan.writelines(INI_Settings)
 
 # Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments.
 CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
