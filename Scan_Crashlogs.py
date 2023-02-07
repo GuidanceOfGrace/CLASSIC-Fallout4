@@ -37,7 +37,7 @@ def createlistbetweentextheaders(source, start, end=""):  # This function partia
         if not isinstance(elem, str):
             raise TypeError("Source list must contain only strings.")
         
-        elem = elem.strip()
+        source[source.index(elem)] = elem.strip()
 
     output = []
     if len(source) > 1:
@@ -52,8 +52,6 @@ def createlistbetweentextheaders(source, start, end=""):  # This function partia
 
     while "" in output:
         output.remove("")
-    if len(output) == 0:
-        output = ["[EMPTY]"]
 
     return output
 
