@@ -17,7 +17,7 @@ Crash Log Auto-Scanner: https://www.nexusmods.com/fallout4/mods/56255
 HOW TO READ CRASH LOGS Online Doc: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
 ===========================================================================
-# CONTENTS #
+# CONTENTS & FILES #
 
 Crash Log Auto-Scanner is bundled with several files:
 
@@ -73,23 +73,7 @@ or disable any Plugins listed in this segment to further confirm if they caused 
 ===========================================================================
 # THINGS TO DO IF NO CRASH LOGS ARE GIVEN OR IF AUTO-SCAN DOESN'T HELP #
 
-0. Make sure that you've installed all Buffout 4 requirements correctly! And it's best that you install everything manually, WITHOUT using your Mod Manager!
-Install all programs manually and files by manually placing them into required folders. This ensures that all required files are ALWAYS loaded by the game.
-
-1. Run Plugin Checker in Wrye Bash and do what it says. Instructions at the end of this article: https://www.nexusmods.com/fallout4/articles/3115
-
-2. Run FO4Edit and load all of your mods, then select all mod plugins (CTRL + A), right click and check for errors.
-If any plugins have a bunch of errors (IGNORE Base Game and DLC plugins), disable or clean them by using Quick Auto Clean from FO4Edit
-or by opening and resaving that plugin with the Creation Kit. Manually install Creation Kit Fixes as well: https://www.nexusmods.com/fallout4/mods/51165
-
-3. Carefully read both https://www.nexusmods.com/fallout4/articles/3115 for list of mods that frequently cause crashes or other problems and
-https://www.nexusmods.com/fallout4/articles/3769 for list of important community patches and fixes for the base game and mods.
-Disable, fix, test and install any mods relevant to your situation. If all else fails, perform a binary search.
-
-4. Reset your INI files. This is done by deleting all .ini files inside your Documents\My Games\Fallout4 folder and running the game
-once directly through Fallout4Launcher.exe. Once you reach the main menu, exit the game and run BethINI to readjust INI settings.
-
-5. Find the culprit(s) through a BINARY SEARCH. Sometimes, your only viable option is brute force. Instructions below.
+> READ THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/4141
 
 ===========================================================================
 # BINARY SEARCH 101 #
@@ -124,33 +108,30 @@ Crash
 A | B CDEFGH
 No Crash
 
-B must be the sussy boi since the game didn't crash with only Mod A enabled while all other mods are disabled, but it did crash with both Mod A & B enabled.
+B must be the culprit since the game didn't crash with only Mod A enabled while all other mods are disabled, but it did crash with both Mod A & B enabled.
 
 ===========================================================================
 # LATEST CHANGES #
 
-6.00 | Major Update | The GUI is here!
+6.11
 * MAIN SCRIPT *
-- Fixed a major problem in code logic that made Auto-Scanner fail to detect some crash messages / errors.
-- Fixed an issue where Auto-Scanner would sometimes look for Buffout 4 files even if they didn't exist.
-- Fixed an issue where load order from provided *loadorder.txt* would be sometimes completely ignored.
-- Fixed an issue where Auto-Scanner sometimes failed to detect *Precombines Crash* messages / errors.
-- Fixed wrong link given for *Previs Repair Pack*, it was linking to *High FPS Physics Fix* instead.
-- Fixed several issues where Auto-Scanner would sometimes fail to scan logs due to unicode errors.
-- Fixed an issue where Auto-Scanner sometimes failed to install / detect required Python modules.
-- Fixed and optimized the update check code, fingers crossed it doesn't break anything again...
-- Merged detection for *[Bad INI Crash]* with the *[Save Crash]*, crash info has been updated.
-- Added a warning message when Auto-Scanner detects *Fallout4Custom.ini* file corruption.
-- Improved detection accuracy for *Weapon Debris Crash* and *NPC Pathing Crash*.
-- Readjusted a couple of crash message / error prioritiy designations.
-- Added counters for detected *Form IDs* and *Named Records*.
-- Added support for VR (Virtual Reality) crash logs.
+- Fixed an issue where Auto-Scanner would do the opposite of intended while *Move Unsolved = true*.
+- Auto-Scanner should now warn you when trying to scan *.txt* crash logs (only *.log* are allowed).
+- Expanded exception parameters when *Fallout4Custom.ini* cannot be automatically modified.
+- Fixed the timing for *Scanned all available logs in X seconds* while using the GUI.
+- Changed *Bitdefender Crash* to *Antivirus Crash*, crash info has been updated.
+- Update checks are now skipped entirely if any error occurs to prevent crashes.
+- Adjusted text and updated links for some detected mods and plugins.
+- Added detection for functions for the *List Of Detected (Named) Records*.
+- Added detection for *NPC Pathing Crash* caused by followers / companions.
+- Added detection for the *[GPU Overclock Crash]* | Expect false positives.
 
-- Added detection for the following crash types:
-> *Game Corruption Crash*
-> *Leveled List Crash*
-> *[Looks Menu Crash]*
+[Crash info was already listed, but detection wasn't implemented until now.]
 
-- These crash messages / errors are no longer Unsolved, crash info has been updated:
-> *Player Character Crash*
-> *Precombines Crash*
+* CLAS GUI *
+- General code optimization and cleanup to resolve / suppress various IDE warnings.
+- Now merged both scripts into the EXE, this should prevent some specific crashes.
+
+* OTHER FILES *
+- General improvements to *CL Compare.py* thanks to [evildarkarchon] on GitHub.
+- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
