@@ -227,7 +227,7 @@ def scan_logs():
                         if "path" in line:
                             library_path = Path(line.split('"')[3])
                         if str(FO4_STEAM_ID) in line:
-                            library_path = library_path.joinpath("steamapps") # type: ignore
+                            library_path = library_path.joinpath("steamapps")  # type: ignore
                             settings_path = library_path.joinpath("compatdata", str(FO4_STEAM_ID), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", "Fallout4")
                             if library_path.joinpath("common", "Fallout 4").exists() and settings_path.exists():
                                 self.FO4_Custom_Path = settings_path.joinpath("Fallout4Custom.ini")
@@ -918,66 +918,66 @@ def scan_logs():
             Mod_Trap1 = 1
 
             """Dictionary method that preserves numerical and alphabetical order of mods"""
-            mods1 = {}
-            mods1[0]["mod"] = " DamageThresholdFramework.esm"
-            mods1[1]["mod"] = " Endless Warfare.esm"
-            mods1[2]["mod"] = " ExtendedWeaponSystem.esm"
-            mods1[3]["mod"] = " EPO.esp"
-            mods1[4]["mod"] = " SakhalinWasteland"
-            mods1[5]["mod"] = " 76HUD"
-            mods1[6]["mod"] = " Knockout Framework.esm"
-            mods1[7]["mod"] = " NCRenegade"
-            mods1[8]["mod"] = " Respawnable Legendary Bosses"
-            mods1[9]["mod"] = " Scrap Everything - Core"
-            mods1[10]["mod"] = " Scrap Everything - Ultimate"
-            mods1[11]["mod"] = " Shade Girl Leather Outfits"
-            mods1[12]["mod"] = " SpringCleaning.esm"
-            mods1[13]["mod"] = " (STO) NO"
-            mods1[14]["mod"] = " TacticalTablet.esp"
-            mods1[15]["mod"] = " True Nights v03.esp"
-            mods1[16]["mod"] = " WeaponsFramework"
-            mods1[17]["mod"] = " WOTC.esp"
-
-            mods1[0]["warn"] = ["DAMAGE THRESHOLD FRAMEWORK \n",
-                                "- Can cause crashes in combat on some occasions due to how damage calculations are done."]
-            mods1[1]["warn"] = ["ENDLESS WARFARE \n",
-                                "- Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding."]
-            mods1[2]["warn"] = ["EXTENDED WEAPON SYSTEMS \n",
-                                "- Alternative to Tactical Reload that suffers from similar weapon related problems and crashes."]
-            mods1[3]["warn"] = ["EXTREME PARTICLES OVERHAUL \n",
-                                "- Can cause particle effects related crashes, its INI file raises particle count to 500000. \n",
-                                "  Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789"]
-            mods1[4]["warn"] = ["FALLOUT SAKHALIN \n",
-                                "- Breaks the precombine system all across Far Harbor which will randomly crash your game."]
-            mods1[5]["warn"] = ["HUD76 HUD REPLACER \n",
-                                "- Can sometimes cause interface and pip-boy related bugs, glitches and crashes."]
-            mods1[6]["warn"] = ["KNOCKOUT FRAMEWORK \n",
-                                "- Confirm that you have installed the latest version (1.4.0+) of this mod. \n",
-                                "  Older versions cause weird behavior and crashes during prolonged game sessions. \n",
-                                "  Knockout Framework Link: https://www.nexusmods.com/fallout4/mods/27086?tab=files"]
-            mods1[7]["warn"] = ["NCR RENEGADE ARMOR \n",
-                                "- Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit."]
-            mods1[8]["warn"] = ["RESPAWNABLE LEGENDARY BOSSES \n",
-                                "- Can sometimes cause Deathclaw / Behmoth boulder projectile crashes for unknown reasons."]
-            mods1[9]["warn"] = ["SCRAP EVERYTHING (CORE) \n",
-                                "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]
-            mods1[10]["warn"] = ["SCRAP EVERYTHING (ULTIMATE) \n",
-                                 "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]
-            mods1[11]["warn"] = ["SHADE GIRL LEATHER OUTFITS \n",
-                                 "- Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes."]
-            mods1[12]["warn"] = ["SPRING CLEANING \n",
-                                 "- Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file."]
-            mods1[13]["warn"] = ["STALKER TEXTURE OVERHAUL \n",
-                                 "- Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes."]
-            mods1[14]["warn"] = ["TACTICAL TABLET \n",
-                                 "- Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO."]
-            mods1[15]["warn"] = ["TRUE NIGHTS \n",
-                                 "- Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed."]
-            mods1[16]["warn"] = ["WEAPONS FRAMEWORK BETA \n",
-                                 "- Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods. \n"
-                                 "  Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769"]
-            mods1[17]["warn"] = ["WAR OF THE COMMONWEALTH \n",
-                                 "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]
+            mods1 = {
+                0: {"mod": " DamageThresholdFramework.esm",
+                    "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
+                             "- Can cause crashes in combat on some occasions due to how damage calculations are done."]},
+                1: {"mod": " Endless Warfare.esm",
+                    "warn": ["ENDLESS WARFARE \n",
+                             "- Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding."]},
+                2: {"mod": " ExtendedWeaponSystem.esm",
+                    "warn": ["EXTENDED WEAPON SYSTEMS \n",
+                             "- Alternative to Tactical Reload that suffers from similar weapon related problems and crashes."]},
+                3: {"mod": " EPO.esp",
+                    "warn": ["EXTREME PARTICLES OVERHAUL \n",
+                             "- Can cause particle effects related crashes, its INI file raises particle count to 500000. \n",
+                             "  Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789"]},
+                4: {"mod": " SakhalinWasteland",
+                    "warn": ["FALLOUT SAKHALIN \n",
+                             "- Breaks the precombine system all across Far Harbor which will randomly crash your game."]},
+                5: {"mod": " 76HUD",
+                    "warn": ["HUD76 HUD REPLACER \n",
+                             "- Can sometimes cause interface and pip-boy related bugs, glitches and crashes."]},
+                6: {"mod": " Knockout Framework.esm",
+                    "warn": ["KNOCKOUT FRAMEWORK \n",
+                             "- Confirm that you have installed the latest version (1.4.0+) of this mod. \n",
+                             "  Older versions cause weird behavior and crashes during prolonged game sessions. \n",
+                             "  Knockout Framework Link: https://www.nexusmods.com/fallout4/mods/27086?tab=files"]},
+                7: {"mod": " NCRenegade",
+                    "warn": ["NCR RENEGADE ARMOR \n",
+                             "- Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit."]},
+                8: {"mod": " Respawnable Legendary Bosses",
+                    "warn": ["RESPAWNABLE LEGENDARY BOSSES \n",
+                             "- Can sometimes cause Deathclaw / Behmoth boulder projectile crashes for unknown reasons."]},
+                9: {"mod": " Scrap Everything - Core",
+                    "warn": ["SCRAP EVERYTHING (CORE) \n",
+                             "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]},
+                10: {"mod": " Scrap Everything - Ultimate",
+                     "warn": ["SCRAP EVERYTHING (ULTIMATE) \n",
+                              "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]},
+                11: {"mod": " Shade Girl Leather Outfits",
+                     "warn": ["SHADE GIRL LEATHER OUTFITS \n",
+                              "- Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes."]},
+                12: {"mod": " SpringCleaning.esm",
+                     "warn": ["SPRING CLEANING \n",
+                              "- Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file."]},
+                13: {"mod": " (STO) NO",
+                     "warn": ["STALKER TEXTURE OVERHAUL \n",
+                              "- Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes."]},
+                14: {"mod": " TacticalTablet.esp",
+                     "warn": ["TACTICAL TABLET \n",
+                              "- Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO."]},
+                15: {"mod": " True Nights v03.esp",
+                     "warn": ["TRUE NIGHTS \n",
+                              "- Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed."]},
+                16: {"mod": " WeaponsFramework",
+                     "warn": ["WEAPONS FRAMEWORK BETA \n",
+                              "- Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods. \n"
+                              "  Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769"]},
+                17: {"mod": " WOTC.esp",
+                     "warn": ["WAR OF THE COMMONWEALTH \n",
+                              "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]}
+            }
 
             if plugins_loaded:
                 for line in plugins_list:
@@ -1046,152 +1046,153 @@ def scan_logs():
             Mod_Trap2 = no_repeat1 = no_repeat2 = 1  # MOD TRAP 2 | NEED 8 SPACES FOR ESL [FE:XXX]
 
             # Needs 1 empty space as prefix to prevent duplicates.
-            mods2 = {}
-            mods2[0]["mod"] = " DLCUltraHighResolution.esm"
-            mods2[1]["mod"] = " AAF.esm"
-            mods2[2]["mod"] = " ArmorKeywords.esm"
-            mods2[3]["mod"] = " BTInteriors_Project.esp"
-            mods2[4]["mod"] = " CombatZoneRestored.esp"
-            mods2[5]["mod"] = " D.E.C.A.Y.esp"
-            mods2[6]["mod"] = " EveryonesBestFriend"
-            mods2[7]["mod"] = " M8r_Item_Tags"
-            mods2[8]["mod"] = " Fo4FI_FPS_fix"
-            mods2[9]["mod"] = " BostonFPSFixAIO.esp"
-            mods2[10]["mod"] = " FunctionalDisplays.esp"
-            mods2[11]["mod"] = " skeletonmaleplayer"
-            mods2[12]["mod"] = " skeletonfemaleplayer"
-            mods2[13]["mod"] = " Give Me That Bottle.esp"
-            mods2[14]["mod"] = " CapsWidget"
-            mods2[15]["mod"] = " Homemaker.esm"
-            mods2[16]["mod"] = " Horizon.esm"
-            mods2[17]["mod"] = " ESPExplorerFO4.esp"
-            mods2[18]["mod"] = " LegendaryModification.esp"
-            mods2[19]["mod"] = " LooksMenu Customization Compendium.esp"
-            mods2[20]["mod"] = " MilitarizedMinutemen.esp"
-            mods2[21]["mod"] = " MoreUniques"
-            mods2[22]["mod"] = " NAC.es"
-            mods2[23]["mod"] = " Northland Diggers New.esp"
-            mods2[24]["mod"] = " Project Zeta.esp"
-            mods2[25]["mod"] = " Rusty Face Fix"
-            mods2[26]["mod"] = " SKKCraftableWeaponsAmmo"
-            mods2[27]["mod"] = " SOTS.esp"
-            mods2[28]["mod"] = " StartMeUp.esp"
-            mods2[29]["mod"] = " SuperMutantRedux.esp"
-            mods2[30]["mod"] = " TacticalReload.esm"
-            mods2[31]["mod"] = " Creatures and Monsters.esp"
-            mods2[32]["mod"] = " ZombieWalkers"
-
-            mods2[0]["warn"] = ["HIGH RESOLUTION DLC. I STRONGLY ADVISE NOT USING IT! \n",
-                                "- Right click on Fallout 4 in your Steam Library folder, then select Properties \n",
-                                "  Switch to the DLC tab and uncheck / disable the High Resolution Texture Pack",]
-            mods2[1]["warn"] = ["ADVANCED ANIMATION FRAMEWORK \n",
-                                "- Latest AAF version only available on Moddingham | AAF Tech Support: https://discord.gg/gWZuhMC \n",
-                                "  Latest AAF Link (register / login to download): https://www.moddingham.com/viewtopic.php?t=2 \n",
-                                "-----\n",
-                                "- Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs \n",
-                                "  If you notice AAF realted problems, remove latest version of Looks Menu and switch to 1.6.18"]
-            mods2[2]["warn"] = ["ARMOR AND WEAPONS KEYWORDS\n",
-                                "- If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul \n",
-                                "  Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files \n",
-                                "  Patches to remove AWKCR: https://www.nexusmods.com/fallout4/mods/40752"]
-            mods2[3]["warn"] = ["BEANTOWN INTERIORS \n",
-                                "- Usually causes fps drops, stuttering, crashing and culling issues in multiple locations. \n",
-                                "  Patch Link: https://www.nexusmods.com/fallout4/mods/53894?tab=files"]
-            mods2[4]["warn"] = ["COMBAT ZONE RESTORED \n",
-                                "- Contains few small issues and NPCs usually have trouble navigating the interior space. \n",
-                                "  Patch Link: https://www.nexusmods.com/fallout4/mods/59329?tab=files"]
-            mods2[5]["warn"] = ["DECAY BETTER GHOULS \n",
-                                "- You have to install DECAY Redux patch to prevent its audio files from crashing the game. \n",
-                                "  Patch Link: https://www.nexusmods.com/fallout4/mods/59025?tab=files"]
-            mods2[6]["warn"] = ["EVERYONE'S BEST FRIEND \n",
-                                "- This mod needs a compatibility patch to properly work with the Unofficial Patch (UFO4P). \n",
-                                "  Patch Link: https://www.nexusmods.com/fallout4/mods/43409?tab=files"]
-            mods2[7]["warn"] = ["FALLUI ITEM SORTER (OLD) \n",
-                                "- This is an outdated item tagging / sorting patch that can cause crashes or conflicts in all kinds of situations. \n",
-                                "  I strongly recommend to instead generate your own sorting patch and place it last in your load order. \n",
-                                "  That way, you won't experience any conflicts / crashes and even modded items will be sorted. \n",
-                                "  Generate Sorting Patch With This: https://www.nexusmods.com/fallout4/mods/48826?tab=files"]
-            mods2[8]["warn"] = ["FO4FI FPS FIX \n",
-                                "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
-                                "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]
-            mods2[9]["warn"] = ["BOSTON FPS FIX \n",
-                                "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
-                                "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]
-            mods2[10]["warn"] = ["FUNCTIONAL DISPLAYS \n",
-                                 "- Frequently causes object model (nif) related crashes and this needs to be manually corrected. \n",
-                                 "  Advised Fix: Open its Meshes folder and delete everything inside EXCEPT for the Functional Displays folder."]
-            mods2[11]["warn"] = ["GENDER SPECIFIC SKELETONS (MALE) \n",
-                                 "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
-                                 "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]
-            mods2[12]["warn"] = ["GENDER SPECIFIC SKELETONS (FEMALE) \n",
-                                 "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
-                                 "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]
-            mods2[13]["warn"] = ["GIVE ME THAT BOTTLE \n",
-                                 "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n",
-                                 "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files"]
-            mods2[14]["warn"] = ["HUD CAPS \n",
-                                 "- Often breaks the Save / Quicksave function due to poor script implementation. \n",
-                                 "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n",
-                                 "  Fix Link: https://drive.google.com/file/d/1egmtKVR7mSbjRgo106UbXv_ySKBg5az2"]
-            mods2[15]["warn"] = ["HOMEMAKER \n",
-                                 "- Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n",
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]
-            mods2[16]["warn"] = ["HORIZON \n",
-                                 "- I highly recommend installing these patches for 1.8.7 until newer version is released. \n",
-                                 "  Patch Link 1: https://www.nexusmods.com/fallout4/mods/65911?tab=files \n",
-                                 "  Patch Link 2: https://www.nexusmods.com/fallout4/mods/61998?tab=files"]
-            mods2[17]["warn"] = ["IN GAME ESP EXPLORER \n",
-                                 "- Can cause a crash when pressing F10 due to a typo in the INI settings. \n",
-                                 "  Fix Link: https://www.nexusmods.com/fallout4/mods/64752?tab=files \n",
-                                 "  OR Switch To: https://www.nexusmods.com/fallout4/mods/56922?tab=files"]
-            mods2[18]["warn"] = ["LEGENDARY MODIFICATION \n",
-                                 "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
-                                 "  Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files"]
-            mods2[19]["warn"] = ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",
-                                 "- Apparently breaks the original Looks Menu mod by turning off some important values. \n",
-                                 "  Fix Link: https://www.nexusmods.com/fallout4/mods/56465?tab=files"]
-            mods2[20]["warn"] = ["MILITARIZED MINUTEMEN \n"
-                                 "- Can occasionally crash the game due to a broken mesh on some minutemen outfits. \n"
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/55301?tab=files"]
-            mods2[21]["warn"] = ["MORE UNIQUE WEAPONS EXPANSION \n",
-                                 "- Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n",
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files"]
-            mods2[22]["warn"] = ["NATURAL AND ATMOSPHERIC COMMONWEALTH \n",
-                                 "- If you notice weird looking skin tones with either NAC or NACX, install this patch. \n",
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files"]
-            mods2[23]["warn"] = ["NORTHLAND DIGGERS RESOURCES \n",
-                                 "- Contains various bugs and issues that can cause crashes or negatively affect other mods. \n",
-                                 "  Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files"]
-            mods2[24]["warn"] = ["PROJECT ZETA \n",
-                                 "- Invasion quests seem overly buggy or trigger too frequently, minor sound issues. \n",
-                                 "  Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files"]
-            mods2[25]["warn"] = ["RAIDER OVERHAUL \n",
-                                 "- Old mod that requires several patches to function as intended. Use ONE Version instead. \n",
-                                 "  Upated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files"]
-            mods2[26]["warn"] = ["RUSTY FACE FIX \n",
-                                 "- Can cause script lag or even crash the game in very rare cases. Switch to REDUX Version instead. \n",
-                                 "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]
-            mods2[27]["warn"] = ["SKK CRAFT WEAPONS AND SCRAP AMMO \n",
-                                 "- Version 008 is incompatible with AWKCR and will cause crashes while saving the game. \n",
-                                 "  Advised Fix: Use Version 007 or remove AWKCR and switch to Equipment and Crafting Overhaul instead."]
-            mods2[28]["warn"] = ["SOUTH OF THE SEA \n",
-                                 "- Very unstable mod that consistently and frequently causes strange problems and crashes. \n",
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/59792?tab=files"]
-            mods2[29]["warn"] = ["START ME UP \n",
-                                 "- Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n",
-                                 "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files",]
-            mods2[29]["warn"] = ["SUPER MUTANT REDUX \n",
-                                 "- Causes crashes at specific locations or with certain Super Muntant enemies and items. \n",
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]
-            mods2[30]["warn"] = ["TACTICAL RELOAD \n",
-                                 "- Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended. \n",
-                                 "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/62737"]
-            mods2[31]["warn"] = ["UNIQUE NPCs CREATURES AND MONSTERS \n",
-                                 "- Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent. \n",
-                                 "  Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files"]
-            mods2[32]["warn"] = ["ZOMBIE WALKERS \n",
-                                 "- Version 2.6.3 contains a resurrection script that will regularly crash the game. \n",
-                                 "  Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]
+            mods2 = {
+                0: {"mod": " DLCUltraHighResolution.esm",
+                    "warn": ["HIGH RESOLUTION DLC. I STRONGLY ADVISE NOT USING IT! \n",
+                             "- Right click on Fallout 4 in your Steam Library folder, then select Properties \n",
+                             "  Switch to the DLC tab and uncheck / disable the High Resolution Texture Pack"]},
+                1: {"mod": " AAF.esm",
+                    "warn": ["ADVANCED ANIMATION FRAMEWORK \n",
+                             "- Latest AAF version only available on Moddingham | AAF Tech Support: https://discord.gg/gWZuhMC \n",
+                             "  Latest AAF Link (register / login to download): https://www.moddingham.com/viewtopic.php?t=2 \n",
+                             "-----\n",
+                             "- Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs \n",
+                             "  If you notice AAF realted problems, remove latest version of Looks Menu and switch to 1.6.18"]},
+                2: {"mod": " ArmorKeywords.esm",
+                    "warn": ["ARMOR AND WEAPONS KEYWORDS\n",
+                             "- If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul \n",
+                             "  Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files \n",
+                             "  Patches to remove AWKCR: https://www.nexusmods.com/fallout4/mods/40752"]},
+                3: {"mod": " BTInteriors_Project.esp",
+                    "warn": ["BEANTOWN INTERIORS \n",
+                             "- Usually causes fps drops, stuttering, crashing and culling issues in multiple locations. \n",
+                             "  Patch Link: https://www.nexusmods.com/fallout4/mods/53894?tab=files"]},
+                4: {"mod": " CombatZoneRestored.esp",
+                    "warn": ["COMBAT ZONE RESTORED \n",
+                             "- Contains few small issues and NPCs usually have trouble navigating the interior space. \n",
+                             "  Patch Link: https://www.nexusmods.com/fallout4/mods/59329?tab=files"]},
+                5: {"mod": " D.E.C.A.Y.esp",
+                    "warn": ["DECAY BETTER GHOULS \n",
+                             "- You have to install DECAY Redux patch to prevent its audio files from crashing the game. \n",
+                             "  Patch Link: https://www.nexusmods.com/fallout4/mods/59025?tab=files"]},
+                6: {"mod": " EveryonesBestFriend",
+                    "warn": ["EVERYONE'S BEST FRIEND \n",
+                             "- This mod needs a compatibility patch to properly work with the Unofficial Patch (UFO4P). \n",
+                             "  Patch Link: https://www.nexusmods.com/fallout4/mods/43409?tab=files"]},
+                7: {"mod": " M8r_Item_Tags",
+                    "warn": ["FALLUI ITEM SORTER (OLD) \n",
+                             "- This is an outdated item tagging / sorting patch that can cause crashes or conflicts in all kinds of situations. \n",
+                             "  I strongly recommend to instead generate your own sorting patch and place it last in your load order. \n",
+                             "  That way, you won't experience any conflicts / crashes and even modded items will be sorted. \n",
+                             "  Generate Sorting Patch With This: https://www.nexusmods.com/fallout4/mods/48826?tab=files"]},
+                8: {"mod": " Fo4FI_FPS_fix",
+                    "warn": ["FO4FI FPS FIX \n",
+                             "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
+                             "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
+                9: {"mod": " BostonFPSFixAIO.esp",
+                    "warn": ["BOSTON FPS FIX \n",
+                             "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
+                             "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
+                10: {"mod": " FunctionalDisplays.esp",
+                     "warn": ["FUNCTIONAL DISPLAYS \n",
+                              "- Frequently causes object model (nif) related crashes and this needs to be manually corrected. \n",
+                              "  Advised Fix: Open its Meshes folder and delete everything inside EXCEPT for the Functional Displays folder."]},
+                11: {"mod": " skeletonmaleplayer",
+                     "warn": ["GENDER SPECIFIC SKELETONS (MALE) \n",
+                              "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
+                              "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]},
+                12: {"mod": " skeletonfemaleplayer",
+                     "warn": ["GENDER SPECIFIC SKELETONS (FEMALE) \n",
+                              "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
+                              "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]},
+                13: {"mod": " Give Me That Bottle.esp",
+                     "warn": ["GIVE ME THAT BOTTLE \n",
+                              "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n",
+                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files"]},
+                14: {"mod": " CapsWidget",
+                     "warn": ["HUD CAPS \n",
+                              "- Often breaks the Save / Quicksave function due to poor script implementation. \n",
+                              "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n",
+                              "  Fix Link: https://drive.google.com/file/d/1egmtKVR7mSbjRgo106UbXv_ySKBg5az2"]},
+                15: {"mod": " Homemaker.esm",
+                     "warn": ["HOMEMAKER \n",
+                              "- Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n",
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
+                16: {"mod": " Horizon.esm",
+                     "warn": ["HORIZON \n",
+                              "- I highly recommend installing these patches for 1.8.7 until newer version is released. \n",
+                              "  Patch Link 1: https://www.nexusmods.com/fallout4/mods/65911?tab=files \n",
+                              "  Patch Link 2: https://www.nexusmods.com/fallout4/mods/61998?tab=files"]},
+                17: {"mod": " ESPExplorerFO4.esp",
+                     "warn": ["IN GAME ESP EXPLORER \n",
+                              "- Can cause a crash when pressing F10 due to a typo in the INI settings. \n",
+                              "  Fix Link: https://www.nexusmods.com/fallout4/mods/64752?tab=files \n",
+                              "  OR Switch To: https://www.nexusmods.com/fallout4/mods/56922?tab=files"]},
+                18: {"mod": " LegendaryModification.esp",
+                     "warn": ["LEGENDARY MODIFICATION \n",
+                              "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
+                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files"]},
+                19: {"mod": " LooksMenu Customization Compendium.esp",
+                     "warn": ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",
+                              "- Apparently breaks the original Looks Menu mod by turning off some important values. \n",
+                              "  Fix Link: https://www.nexusmods.com/fallout4/mods/56465?tab=files"]},
+                20: {"mod": " MilitarizedMinutemen.esp",
+                     "warn": ["MILITARIZED MINUTEMEN \n"
+                              "- Can occasionally crash the game due to a broken mesh on some minutemen outfits. \n"
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/55301?tab=files"]},
+                21: {"mod": " MoreUniques",
+                     "warn": ["MORE UNIQUE WEAPONS EXPANSION \n",
+                              "- Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n",
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files"]},
+                22: {"mod": " NAC.es",
+                     "warn": ["NATURAL AND ATMOSPHERIC COMMONWEALTH \n",
+                              "- If you notice weird looking skin tones with either NAC or NACX, install this patch. \n",
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files"]},
+                23: {"mod": " Northland Diggers New.esp",
+                     "warn": ["NORTHLAND DIGGERS RESOURCES \n",
+                              "- Contains various bugs and issues that can cause crashes or negatively affect other mods. \n",
+                              "  Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files"]},
+                24: {"mod": " Project Zeta.esp",
+                     "warn": ["PROJECT ZETA \n",
+                              "- Invasion quests seem overly buggy or trigger too frequently, minor sound issues. \n",
+                              "  Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files"]},
+                25: {"mod": " Rusty Face Fix",
+                     "warn": ["RUSTY FACE FIX \n",
+                              "- Can cause script lag or even crash the game in very rare cases. Switch to REDUX Version instead. \n",
+                              "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]},
+                26: {"mod": " SKKCraftableWeaponsAmmo",
+                     "warn": ["SKK CRAFT WEAPONS AND SCRAP AMMO \n",
+                              "- Version 008 is incompatible with AWKCR and will cause crashes while saving the game. \n",
+                              "  Advised Fix: Use Version 007 or remove AWKCR and switch to Equipment and Crafting Overhaul instead."]},
+                27: {"mod": "RaiderOverhaul.esp",
+                     "warn": ["RAIDER OVERHAUL \n",
+                              "- Old mod that requires several patches to function as intended. Use ONE Version instead. \n",
+                              "  Upated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files"]},
+                28: {"mod": " SOTS.esp",
+                     "warn": ["SOUTH OF THE SEA \n",
+                              "- Very unstable mod that consistently and frequently causes strange problems and crashes. \n",
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/59792?tab=files"]},
+                29: {"mod": " StartMeUp.esp",
+                     "warn": ["START ME UP \n",
+                              "- Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n",
+                              "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files"]},
+                30: {"mod": " SuperMutantRedux.esp",
+                     "warn": ["SUPER MUTANT REDUX \n",
+                              "- Causes crashes at specific locations or with certain Super Muntant enemies and items. \n",
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]},
+                31: {"mod": " TacticalReload.esm",
+                     "warn": ["TACTICAL RELOAD \n",
+                              "- Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended. \n",
+                              "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/62737"]},
+                32: {"mod": " Creatures and Monsters.esp",
+                     "warn": ["UNIQUE NPCs CREATURES AND MONSTERS \n",
+                              "- Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent. \n",
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files"]},
+                33: {"mod": " ZombieWalkers",
+                     "warn": ["ZOMBIE WALKERS \n",
+                              "- Version 2.6.3 contains a resurrection script that will regularly crash the game. \n",
+                              "  Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]}
+            }
 
             if plugins_loaded:
                 for line in plugins_list:
@@ -1249,78 +1250,79 @@ def scan_logs():
             Mod_Trap3 = 1  # MOD TRAP 3 | NEED 8 SPACES FOR ESL [FE:XXX]
 
             # Needs 1 empty space as prefix to prevent duplicates.
-            mods3 = {}
-            mods3[0]["mod"] = " Beyond the Borders"
-            mods3[1]["mod"] = " Deadly Commonwealth Expansion"
-            mods3[2]["mod"] = " Dogmeat and Strong Armor"
-            mods3[3]["mod"] = " DoYourDamnJobCodsworth"
-            mods3[4]["mod"] = " ConcordEXPANDED"
-            mods3[5]["mod"] = " HagenEXPANDED"
-            mods3[6]["mod"] = " GlowingSeaEXPANDED"
-            mods3[7]["mod"] = " SalemEXPANDED"
-            mods3[8]["mod"] = " SwampsEXPANDED"
-            mods3[9]["mod"] = " _hod"
-            mods3[10]["mod"] = " ImmersiveBeantown"
-            mods3[11]["mod"] = " CovenantComplex"
-            mods3[12]["mod"] = " GunnersPlazaInterior"
-            mods3[13]["mod"] = " ImmersiveHubCity"
-            mods3[14]["mod"] = " Immersive_Lexington"
-            mods3[15]["mod"] = " Immersive Nahant"
-            mods3[16]["mod"] = " Immersive S Boston"
-            mods3[17]["mod"] = " MutilatedDeadBodies"
-            mods3[18]["mod"] = " Vault4.esp"
-            mods3[19]["mod"] = " atlanticofficesf23"
-            mods3[20]["mod"] = " Minutemen Supply Caches"
-            mods3[21]["mod"] = " moreXplore"
-            mods3[22]["mod"] = " NEST_BUNKER_PROJECT"
-            mods3[23]["mod"] = " Raider Children.esp"
-            mods3[24]["mod"] = " sectorv"
-            mods3[25]["mod"] = " SettlementShelters"
-            mods3[25]["mod"] = " subwayrunnerdynamiclighting"
-            mods3[26]["mod"] = " 3DNPC_FO4Settler.esp"
-            mods3[27]["mod"] = " 3DNPC_FO4.esp"
-            mods3[28]["mod"] = " The Hollow"
-            mods3[29]["mod"] = " nvvault1080"
-            mods3[30]["mod"] = " Vertibird Faction Paint Schemes"
-            mods3[31]["mod"] = " MojaveImports.esp"
-            mods3[32]["mod"] = " Firelance2.5"
-            mods3[33]["mod"] = " zxcMicroAdditions"
+            mods3 = {
+                0: {"mod": " Beyond the Borders",
+                    "name": "Beyond the Borders"},
+                1: {"mod": " Deadly Commonwealth Expansion",
+                    "name": "Deadly Commonwealth Expansion"},
+                2: {"mod": " Dogmeat and Strong Armor",
+                    "name": "Dogmeat and Strong Armor"},
+                3: {"mod": " DoYourDamnJobCodsworth",
+                    "name": "Do Your Damn JobCodsworth"},
+                4: {"mod": " ConcordEXPANDED",
+                    "name": "Concord EXPANDED"},
+                5: {"mod": " HagenEXPANDED",
+                    "name": "Hagen EXPANDED"},
+                6: {"mod": " GlowingSeaEXPANDED",
+                    "name": "Glowing Sea EXPANDED"},
+                7: {"mod": " SalemEXPANDED",
+                    "name": "Salem EXPANDED"},
+                8: {"mod": " SwampsEXPANDED",
+                    "name": "Swamps EXPANDED"},
+                9: {"mod": " _hod",
+                    "name": "Halls of the Dead"},
+                10: {"mod": " ImmersiveBeantown",
+                     "name": "Immersive Beantown"},
+                11: {"mod": " CovenantComplex",
+                     "name": "Covenant Complex"},
+                12: {"mod": " GunnersPlazaInterior",
+                     "name": "Gunners Plaza Interior"},
+                13: {"mod": " ImmersiveHubCity",
+                     "name": "Immersive Hub City"},
+                14: {"mod": " Immersive_Lexington",
+                     "name": "Immersive & Extended Lexington"},
+                15: {"mod": " Immersive Nahant",
+                     "name": "Immersive & Extended Nahant"},
+                16: {"mod:": " Immersive S Boston",
+                     "name": "Immersive Military Checkpoint"},
+                17: {"mod": " MutilatedDeadBodies",
+                     "name": "Mutilated Dead Bodies"},
+                18: {"mod": " Vault4.esp",
+                     "name": "Fourville (Vault 4)"},
+                19: {"mod": "atlanticofficesf23",
+                     "name": "Lost Building of Atlantic"},
+                20: {"mod": " Minutemen Supply Caches",
+                     "name": "Minutemen Supply Caches"},
+                21: {"mod": " moreXplore",
+                    "name": "More Xplore"},
+                22: {"mod": " NEST_BUNKER_PROJECT",
+                    "name": "NEST Bunker Project"},
+                23: {"mod": " Raider Children.esp",
+                    "name": "Raider Children"},
+                24: {"mod": " sectorv",
+                    "name": "Sector V"},
+                25: {"mod": " SettlementShelters",
+                    "name": "Settlement Shelters"},
+                26: {"mod": " subwayrunnerdynamiclighting",
+                    "name": "Subway Runner (Dynamic Lights)"},
+                27: {"mod": " 3DNPC_FO4Settler.esp",
+                     "name": "Settlers of the Commonwealth"},
+                28: {"mod": " 3DNPC_FO4.esp",
+                    "name": "Tales from the Commonwealth"},
+                29: {"mod": " The Hollow",
+                    "name": "The Hollow"},
+                30: {"mod": " nvvault1080",
+                    "name": "Vault 1080 (Vault 80)"},
+                31: {"mod": " Vertibird Faction Paint Schemes",
+                    "name": "Vertibird Faction Paint Schemes"},
+                32: {"mod": " MojaveImports.esp",
+                     "name": "Wasteland Imports (Mojave Imports)"},
+                33: {"mod": " Firelance2.5",
+                    "name": "Xander's Aid"},
+                34: {"mod": " zxcMicroAdditions",
+                    "name": "ZXC Micro Additions"}
 
-            mods3[0]["name"] = "Beyond the Borders"
-            mods3[1]["name"] = "Deadly Commonwealth Expansion"
-            mods3[2]["name"] = "Dogmeat and Strong Armor"
-            mods3[3]["name"] = "Do Your Damn Job Codsworth"
-            mods3[4]["name"] = "Concord Expanded"
-            mods3[5]["name"] = "Fort Hagen Expanded"
-            mods3[6]["name"] = "Glowing Sea Expanded"
-            mods3[7]["name"] = "Salem Expanded"
-            mods3[8]["name"] = "Swamps Expanded"
-            mods3[9]["name"] = "Hearts Of Darkness"
-            mods3[10]["name"] = "Immersive Beantown Brewery"
-            mods3[11]["name"] = "Immersive Covenant Compound"
-            mods3[12]["name"] = "Immersive Gunners Plaza"
-            mods3[13]["name"] = "Immersive Hub City"
-            mods3[14]["name"] = "Immersive & Extended Lexington"
-            mods3[15]["name"] = "Immersive & Extended Nahant"
-            mods3[16]["name"] = "Immersive Military Checkpoint"
-            mods3[17]["name"] = "Mutilated Dead Bodies"
-            mods3[18]["name"] = "Fourville (Vault 4)"
-            mods3[19]["name"] = "Lost Building of Atlantic"
-            mods3[20]["name"] = "Minutemen Supply Caches"
-            mods3[21]["name"] = "MoreXplore"
-            mods3[22]["name"] = "NEST BUNKER PROJECT"
-            mods3[23]["name"] = "Raider Children"
-            mods3[24]["name"] = "Sector Five - Rise and Fall"
-            mods3[25]["name"] = "Settlement Shelters"
-            mods3[26]["name"] = "Subway Runner (Dynamic Lights)"
-            mods3[26]["name"] = "Settlers of the Commonwealth"
-            mods3[27]["name"] = "Tales from the Commonwealth"
-            mods3[28]["name"] = "The Hollow"
-            mods3[29]["name"] = "Vault 1080 (Vault 80)"
-            mods3[30]["name"] = "Vertibird Faction Paint Schemes"
-            mods3[31]["name"] = "Wasteland Imports (Mojave Imports)"
-            mods3[32]["name"] = "Xander's Aid"
-            mods3[33]["name"] = "ZXC Micro Additions"
+            }
 
             if plugins_loaded:
                 for line in plugins_list:
