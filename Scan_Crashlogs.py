@@ -10,13 +10,13 @@ import configparser
 from glob import glob
 from pathlib import Path
 from collections import Counter
-try:
-    import requests
-except Exception:
-    subprocess.run(['pip', 'install', 'requests'], shell=True)
-
 if platform.system() == "Windows":
     import ctypes.wintypes
+
+try:
+    import requests
+except (ImportError, ModuleNotFoundError):
+    subprocess.run(['pip', 'install', 'requests'], shell=True)
 
 '''
 def createlistbetweentextheaders(source, start, end=""):  # This function partially brought to you by Github Copilot (been trying to figure out how to do this for a while)
@@ -59,12 +59,12 @@ def createlistbetweentextheaders(source, start, end=""):  # This function partia
 if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
     INI_Settings = ["[MAIN]\n",
                     "# This file contains configuration settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
-                    "# Set to true if you want Auto-Scanner to check Python modules and if the latest vesion is installed. \n",
+                    "# Set to true if you want Auto-Scanner to check Python modules and if the latest version is installed. \n",
                     "Update Check = true\n\n",
                     "# FCX - File Check eXtended | If Auto-Scanner fails to scan your logs, revert this setting back to false. \n",
                     "# Set to true if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly. \n",
                     "FCX Mode = true\n\n",
-                    "# IMI - Ignore Manual Installaton | Set to true if you want Auto-Scanner to hide all manual installation warnings. \n",
+                    "# IMI - Ignore Manual Installation | Set to true if you want Auto-Scanner to hide all manual installation warnings. \n",
                     "# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. \n",
                     "IMI Mode = false\n\n",
                     "# Set to true if you want Auto-Scanner to show extra stats about scanned logs in the command line window. \n",
@@ -86,8 +86,8 @@ if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
 CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
-CLAS_Date = "250123"  # DDMMYY
-CLAS_Current = "CLAS v6.06"
+CLAS_Date = "070223"  # DDMMYY
+CLAS_Current = "CLAS v6.11"
 CLAS_Updated = False
 
 
@@ -97,18 +97,17 @@ def write_ini_value_to_file(section: str, value: str):  # Convenience function f
     else:
         CLAS_config.set("MAIN", str(section), str(value))
 
-    with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-        CLAS_config.write(INI_Autoscan)
+    with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_AUTOSCAN:
+        CLAS_config.write(INI_AUTOSCAN)
 
 
 def run_update():
     global CLAS_Current
     global CLAS_Updated
-    global Py_Updated
     print("CHECKING YOUR PYTHON VERSION & CRASH LOG AUTO SCANNER UPDATES...")
     print("(You can disable this check in the EXE or Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {sys.version[:6]} \n")
-    if sys.version[:4] not in ["3.11", "3.10", "3.9.", "3.8."]:
+    if sys.version[:4] not in ["3.11", "3.10", "3.9."]:
         print("WARNING: YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.")
         print("FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads")
         print("FOR WINDOWS 7: https://github.com/adang1345/PythonWin7")
@@ -128,11 +127,8 @@ if CLAS_config.getboolean("MAIN", "Update Check") is True:
     try:
         import requests
         CLAS_CheckUpdates = run_update()
-    except (ImportError, ModuleNotFoundError) as exc:
+    except (ImportError, ModuleNotFoundError):
         subprocess.run(['pip', 'install', 'requests'], shell=True)
-        import requests
-        CLAS_CheckUpdates = run_update()
-    except Exception:
         print("AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.")
         print("CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255")
         print("MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads")
@@ -148,7 +144,7 @@ Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. Yo
                "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
                "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
                "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
-               "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Crticle and Auto-Scanner Nexus Page from time to time for updates.\n"]
+               "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
 print("Hello World! | Crash Log Auto-Scanner | Version", CLAS_Current[-4:], "| Fallout 4")
 print("CRASH LOGS MUST BE .log AND IN THE SAME FOLDER WITH THIS SCRIPT!")
@@ -160,25 +156,23 @@ print("WARNING: Crash Log Auto-Scanner will not work correctly on Windows 7 syst
 print("For Win 7, install this Py version: https://github.com/adang1345/PythonWin7")
 print("Click on the green Code button and Download Zip, then extract and install.")
 print("===============================================================================")
-Start_Time = time.perf_counter()
 
 
 def scan_logs():
     print("\n PERFORMING SCAN... \n")
+    Start_Time = time.perf_counter()
     global Sneaky_Tips
-    global Start_Time
 
     # =================== STATISTICS LOGGING ===================
-    # MAIN STATS
-    statL_scanned = statL_incomplete = statL_failed = statL_veryold = 0
+    # SCANNED LOGS STATS
+    statL_scanned = statL_incomplete = statL_failed = 0
     # KNOWN CRASH MESSAGES
-    statC_ActiveEffect = statC_AnimationPhysics = statC_Audio = statC_BA2Limit = statC_BGSM = statC_BitDefender = statC_BodyPhysics = statC_ConsoleCommands = statC_CorruptedTex = 0
     statC_DLL = statC_Equip = statC_Generic = statC_GridScrap = statC_Invalidation = statC_LoadOrder = statC_MCM = statC_BadMath = statC_NIF = statC_NPCPathing = statC_NVDebris = 0
+    statC_ActiveEffect = statC_AnimationPhysics = statC_Audio = statC_BA2Limit = statC_BGSM = statC_Antivirus = statC_BodyPhysics = statC_ConsoleCommands = statC_LeveledList = 0
     statC_NVDriver = statC_Null = statC_Overflow = statC_Papyrus = statC_Particles = statC_PluginLimit = statC_Rendering = statC_Texture = statC_CorruptedAudio = statC_LOD = 0
     statC_MapMarker = statC_Redist = statC_Decal = statC_MO2Unpack = statC_VulkanMem = statC_VulkanSet = statC_Water = statC_Precomb = statC_Player = statC_GameCorruption = 0
-    statC_LeveledList = 0
     # UNSOLVED CRASH MESSAGES
-    statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_CClub = statU_LooksMenu = 0
+    statU_Save = statU_HUDAmmo = statU_Patrol = statU_Projectile = statU_Item = statU_Input = statU_CClub = statU_LooksMenu = statU_Overclock = 0
     # KNOWN CRASH CONDITIONS
     statM_CHW = 0
 
@@ -207,8 +201,8 @@ def scan_logs():
             if platform.system() == "Windows":
                 # Using shell32.dll to look up Documents directory path. Thanks, StackOverflow!
                 # Unsure os.path.expanduser('~/Documents') works if default path was changed.
-                CSIDL_PERSONAL = 5       # (My) Documents
-                SHGFP_TYPE_CURRENT = 0   # Get current, not default value.
+                CSIDL_PERSONAL = 5  # (My) Documents
+                SHGFP_TYPE_CURRENT = 0  # Get current, not default value.
                 User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)  # type: ignore
                 ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, User_Documents)  # type: ignore
                 Doc_Path = Path(User_Documents.value)
@@ -223,10 +217,10 @@ def scan_logs():
                     library_path = None
                     with libraryfolders_path.open(encoding="utf-8", errors="ignore") as steam_library_raw:
                         steam_library = steam_library_raw.readlines()
-                    for line in steam_library:
-                        if "path" in line:
-                            library_path = Path(line.split('"')[3])
-                        if str(FO4_STEAM_ID) in line:
+                    for library_line in steam_library:
+                        if "path" in library_line:
+                            library_path = Path(library_line.split('"')[3])
+                        if str(FO4_STEAM_ID) in library_line:
                             library_path = library_path.joinpath("steamapps")  # type: ignore
                             settings_path = library_path.joinpath("compatdata", str(FO4_STEAM_ID), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", "Fallout4")
                             if library_path.joinpath("common", "Fallout 4").exists() and settings_path.exists():
@@ -271,7 +265,7 @@ def scan_logs():
                 F4C_config.set("Archive", "sResourceDataDirsFinal", "")
                 with open(info.FO4_Custom_Path, "w+", encoding="utf-8", errors="ignore") as FO4_Custom:
                     F4C_config.write(FO4_Custom, space_around_delimiters=False)
-            except configparser.MissingSectionHeaderError:
+            except (configparser.MissingSectionHeaderError, configparser.ParsingError):
                 print("# WARNING: YOUR Fallout4Custom.ini FILE MIGHT BE BROKEN #\n")
                 print("Disable FCX Mode or delete this INI file and create a new one.\n")
                 print("I also strongly advise using BethINI to readjust your INI settings.\n-----\n")
@@ -363,6 +357,7 @@ def scan_logs():
                     plugins_index = loglines.index(line)
                 if "[00]" in line:
                     plugins_loaded = True
+                    break
 
             plugins_list = loglines[plugins_index:]
             if os.path.exists("loadorder.txt"):
@@ -384,21 +379,17 @@ def scan_logs():
                                f"Latest Buffout Version: {buff_latest[10:17]} (VR: v1.29.0)\n"])
 
             if buff_ver.casefold() == buff_latest.casefold() or buff_ver.casefold() == buffVR_latest.casefold():
-                output.write("You have the lastest version of Buffout 4!\n")
+                output.write("You have the latest version of Buffout 4!\n")
             else:
                 output.writelines(["# REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY AUTOSCAN # \n",
                                    "UPDATE BO4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/47359 \n",
                                    "BO4 FOR VIRTUAL REALITY: https://www.nexusmods.com/fallout4/mods/64880 \n"])
-            if "v1." not in buff_ver:
-                statL_veryold += 1
-                statL_scanned -= 1
 
             output.writelines(["====================================================\n",
                                "CHECKING IF BUFFOUT 4 FILES/SETTINGS ARE CORRECT...\n",
                                "====================================================\n"])
 
-            ALIB_Load = BUFF_Load = False
-
+            ALIB_Loaded = False
             # CHECK IF F4SE.LOG EXISTS AND REPORTS ANY ERRORS
             if CLAS_config.getboolean("MAIN", "FCX Mode"):
                 output.writelines(["* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n",
@@ -443,7 +434,7 @@ def scan_logs():
 
                 if F4SE_Buffout == 1:
                     output.write("Script Extender reports that Buffout 4.dll was found and loaded correctly. \n-----\n")
-                    ALIB_Load = BUFF_Load = True
+                    ALIB_Loaded = True
                 else:
                     output.writelines(["# SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #\n",
                                        "Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115\n",
@@ -451,14 +442,14 @@ def scan_logs():
                                        "-----\n"])
 
                 list_ERRORLOG = []
-                for file in glob(f"{info.FO4_F4SE_Logs}/*.log"):
-                    if "crash-" not in file:
-                        filepath = Path(file).resolve()
+                for filename in glob(f"{info.FO4_F4SE_Logs}/*.log"):
+                    if "crash-" not in filename:
+                        filepath = Path(filename).resolve()
                         if filepath.is_file():
                             try:
                                 with filepath.open("r+", encoding="utf-8", errors="ignore") as LOG_Check:
                                     Log_Errors = LOG_Check.read()
-                                    if "error" in Log_Errors.lower():
+                                    if "error" in Log_Errors.lower() or "failed" in Log_Errors.lower():
                                         logname = str(filepath)
                                         if "f4se.log" not in logname:
                                             list_ERRORLOG.append(logname)
@@ -476,7 +467,7 @@ def scan_logs():
                 else:
                     output.write("Available DLL logs do not report any additional errors, all is well. \n-----\n")
 
-            # CHECK BUFFOUT 4 REQUIREMENTS AND TOML SETTINGS
+                # CHECK BUFFOUT 4 REQUIREMENTS AND TOML SETTINGS
                 if CLAS_config.getboolean("MAIN", "IMI Mode") is False:
                     if info.Preloader_XML.is_file() and info.Preloader_DLL.is_file():
                         output.writelines(["OPTIONAL: Plugin Preloader is (manually) installed.\n\n",
@@ -495,10 +486,10 @@ def scan_logs():
                                            "FALLOUT 4 SCRIPT EXTENDER: (Download Latest Build) https://f4se.silverlock.org\n",
                                            "-----\n"])
 
-                    if info.Address_Library.is_file() or ALIB_Load is True:
+                    if info.Address_Library.is_file() or ALIB_Loaded is True:
                         output.write("REQUIRED: Address Library is (manually) installed. \n-----\n")
                     else:
-                        output.writelines(["# WARNING: Auto-Scanner cannot find the Adress Library file or it isn't (manually) installed! #\n",
+                        output.writelines(["# WARNING: Auto-Scanner cannot find the Address Library file or it isn't (manually) installed! #\n",
                                            "FIX: Place the *version-1-10-163-0.bin* file manually into Fallout 4/Data/F4SE/Plugins folder.\n",
                                            "ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327?tab=files\n",
                                            "-----\n"])
@@ -579,7 +570,7 @@ def scan_logs():
             # ====================== HEADER ERRORS ======================
 
             if ".dll" in buff_error and "tbbmalloc" not in buff_error:
-                output.write("# MAIN ERROR REPORTS A DLL WAS INVLOVED IN THIS CRASH! # \n-----\n")
+                output.write("# MAIN ERROR REPORTS A DLL WAS INVOLVED IN THIS CRASH! # \n-----\n")
 
             if "EXCEPTION_STACK_OVERFLOW" in buff_error:
                 output.writelines(["# Checking for Stack Overflow Crash.........CULPRIT FOUND! #\n",
@@ -606,13 +597,9 @@ def scan_logs():
                 statC_Null += 1
 
             # ======================= MAIN ERRORS =======================
-
             # OTHER | RESERVED
-            # *[Creation Club Crash] | +01B59A4
+            # "BSResourceNiBinaryStream" | "ObjectBindPolicy"
             # Uneducated Shooter (56789) | "std::invalid_argument"
-            # "BSResourceNiBinaryStream"
-            # "ObjectBindPolicy"
-
             # ===========================================================
             if "DLCBannerDLC01.dds" in logtext:
                 output.writelines(["# Checking for DLL Crash....................CULPRIT FOUND! #\n",
@@ -705,11 +692,12 @@ def scan_logs():
                 Buffout_Trap = True
                 statC_BGSM += 1
             # ===========================================================
-            if (logtext.count("bdhkm64.dll") or logtext.count("usvfs::hook_DeleteFileW")) >= 2:
-                output.writelines(["# Checking for BitDefender Crash............CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}\n'])
+            if (logtext.count("bdhkm64.dll") or logtext.count("usvfs::hook_DeleteFileW")) >= 2 or "BSTextureStreamer::Manager" in logtext or "BSTextureStreamer::zlibStreamDetail" in logtext:
+                output.writelines(["# Checking for Antivirus Crash....................CULPRIT FOUND! #\n",
+                                   f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}\n',
+                                   f'                   BSTextureStreamer::Manager : {logtext.count("BSTextureStreamer::Manager")} | BSTextureStreamer::zlibStreamDetail : {logtext.count("BSTextureStreamer::zlibStreamDetail")}\n'])
                 Buffout_Trap = True
-                statC_BitDefender += 1
+                statC_Antivirus += 1
             # ===========================================================
             if (logtext.count("PathingCell") or logtext.count("BSPathBuilder") or logtext.count("PathManagerServer")) >= 2:
                 output.writelines(["# Checking for NPC Pathing Crash (S)........CULPRIT FOUND! #\n",
@@ -717,12 +705,18 @@ def scan_logs():
                                    f'                   PathManagerServer : {logtext.count("PathManagerServer")}\n'])
                 Buffout_Trap = True
                 statC_NPCPathing += 1
-            elif (logtext.count("NavMesh") or logtext.count("BSNavmeshObstacleData") or logtext.count("DynamicNavmesh") or logtext.count("PathingRequest")) >= 2:
+            # ==============================
+            if (logtext.count("NavMesh") or logtext.count("BSNavmeshObstacleData") or logtext.count("DynamicNavmesh") or logtext.count("PathingRequest")) >= 2:
                 output.writelines(["# Checking for NPC Pathing Crash (D)........CULPRIT FOUND! #\n",
                                    f'> Priority : [3] | NavMesh : {logtext.count("NavMesh")} | BSNavmeshObstacleData : {logtext.count("BSNavmeshObstacleData")}\n',
                                    f'                   DynamicNavmesh : {logtext.count("DynamicNavmesh")} PathingRequest : {logtext.count("PathingRequest")}\n'])
                 Buffout_Trap = True
-                statC_NPCPathing += 1
+            # ==============================
+            if "+248B26A" in buff_error or "MovementAgentPathFollowerVirtual" in logtext or "PathingStreamSaveGame" in logtext or "BGSProcedurePatrolExecState" in logtext or "CustomActorPackageData" in logtext:
+                output.writelines(["# Checking for NPC Pathing Crash (F)........CULPRIT FOUND! #\n",
+                                   f'> Priority : [3] | +248B26A | MovementAgentPathFollowerVirtual : {logtext.count("MovementAgentPathFollowerVirtual")} | PathingStreamSaveGame : {logtext.count("PathingStreamSaveGame")}\n',
+                                   f'                   BGSProcedurePatrolExecState : {logtext.count("BGSProcedurePatrolExecState")} CustomActorPackageData : {logtext.count("CustomActorPackageData")}\n'])
+                Buffout_Trap = True
             # ===========================================================
             if logtext.count("X3DAudio1_7.dll") >= 3 or logtext.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in buff_error:
                 output.writelines(["# Checking for Audio Driver Crash...........CULPRIT FOUND! #\n",
@@ -838,9 +832,9 @@ def scan_logs():
                 Buffout_Trap = True
                 statU_CClub += 1
             # ===========================================================
-            if "BGSMod::Attachment" in logtext or "BGSMod::Template" in logtext or "BGSMod::Template::Item" in logtext:
+            if "+0B2C44B" in buff_error or "TESObjectARMO" in logtext or "TESObjectWEAP" in logtext or "BGSMod::Attachment" in logtext or "BGSMod::Template" in logtext or "BGSMod::Template::Item" in logtext:
                 output.writelines(["# Checking for *[Item Crash]................DETECTED! #\n",
-                                   f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n',
+                                   f'> Priority : [5] | +0B2C44B | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n',
                                    f'                   BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n'])
                 Buffout_Trap = True
                 statU_Item += 1
@@ -883,9 +877,16 @@ def scan_logs():
             # ===========================================================
             if "HUDAmmoCounter" in logtext:
                 output.writelines(["# Checking for *[Ammo Counter Crash]........DETECTED! #\n",
-                                   f'> Priority : [5] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}\n'])
+                                   f'> Priority : [4] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}\n'])
                 Buffout_Trap = True
                 statU_HUDAmmo += 1
+            # ===========================================================
+            if "ShadowSceneNode" in logtext or "myID3D11DeviceContext" in logtext or "BSDeferredDecal" in logtext or "BSDFDecal" in logtext:
+                output.write("Checking for *[GPU Overclock Crash].......DETECTED!\n")
+                output.write(f'> Priority : [2] | ShadowSceneNode : {logtext.count("ShadowSceneNode")} | myID3D11DeviceContext : {logtext.count("myID3D11DeviceContext")}\n')
+                output.write(f'                   BSDeferredDecal : {logtext.count("BSDeferredDecal")} | BSDFDecal : {logtext.count("BSDFDecal")}\n')
+                Buffout_Trap = True
+                statU_Overclock += 1
             # ===========================================================
             if "BGSProjectile" in logtext or "CombatProjectileAimController" in logtext:
                 output.writelines(["# Checking for *[NPC Projectile Crash].....DETECTED! #\n",
@@ -894,7 +895,7 @@ def scan_logs():
             # ===========================================================
             if logtext.count("PlayerCharacter") >= 1 and (logtext.count("0x00000007") or logtext.count("0x00000014") or logtext.count("0x00000008")) >= 3:
                 output.writelines(["# Checking for *[Player Character Crash]....DETECTED! #\n",
-                                   f'> Priority : [5] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}\n',
+                                   f'> Priority : [4] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}\n',
                                    f'                   0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}\n'])
                 Buffout_Trap = True
                 statC_Player += 1
@@ -922,58 +923,75 @@ def scan_logs():
                 0: {"mod": " DamageThresholdFramework.esm",
                     "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
                              "- Can cause crashes in combat on some occasions due to how damage calculations are done."]},
+                             
                 1: {"mod": " Endless Warfare.esm",
                     "warn": ["ENDLESS WARFARE \n",
                              "- Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding."]},
+                             
                 2: {"mod": " ExtendedWeaponSystem.esm",
                     "warn": ["EXTENDED WEAPON SYSTEMS \n",
-                             "- Alternative to Tactical Reload that suffers from similar weapon related problems and crashes."]},
+                             "- This mod currently has heavy conflicts with Tactical Reload. Use either one or the other."]},
+                             
                 3: {"mod": " EPO.esp",
                     "warn": ["EXTREME PARTICLES OVERHAUL \n",
                              "- Can cause particle effects related crashes, its INI file raises particle count to 500000. \n",
                              "  Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789"]},
+                             
                 4: {"mod": " SakhalinWasteland",
                     "warn": ["FALLOUT SAKHALIN \n",
                              "- Breaks the precombine system all across Far Harbor which will randomly crash your game."]},
+                             
                 5: {"mod": " 76HUD",
                     "warn": ["HUD76 HUD REPLACER \n",
                              "- Can sometimes cause interface and pip-boy related bugs, glitches and crashes."]},
+                             
                 6: {"mod": " Knockout Framework.esm",
                     "warn": ["KNOCKOUT FRAMEWORK \n",
                              "- Confirm that you have installed the latest version (1.4.0+) of this mod. \n",
                              "  Older versions cause weird behavior and crashes during prolonged game sessions. \n",
                              "  Knockout Framework Link: https://www.nexusmods.com/fallout4/mods/27086?tab=files"]},
+                             
                 7: {"mod": " NCRenegade",
                     "warn": ["NCR RENEGADE ARMOR \n",
                              "- Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit."]},
+                             
                 8: {"mod": " Respawnable Legendary Bosses",
                     "warn": ["RESPAWNABLE LEGENDARY BOSSES \n",
-                             "- Can sometimes cause Deathclaw / Behmoth boulder projectile crashes for unknown reasons."]},
+                             "- Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons."]},
+                             
                 9: {"mod": " Scrap Everything - Core",
                     "warn": ["SCRAP EVERYTHING (CORE) \n",
                              "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]},
+                             
                 10: {"mod": " Scrap Everything - Ultimate",
                      "warn": ["SCRAP EVERYTHING (ULTIMATE) \n",
                               "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]},
+                              
                 11: {"mod": " Shade Girl Leather Outfits",
                      "warn": ["SHADE GIRL LEATHER OUTFITS \n",
                               "- Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes."]},
+                              
                 12: {"mod": " SpringCleaning.esm",
                      "warn": ["SPRING CLEANING \n",
                               "- Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file."]},
+                              
                 13: {"mod": " (STO) NO",
                      "warn": ["STALKER TEXTURE OVERHAUL \n",
                               "- Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes."]},
+                              
                 14: {"mod": " TacticalTablet.esp",
                      "warn": ["TACTICAL TABLET \n",
                               "- Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO."]},
+                              
                 15: {"mod": " True Nights v03.esp",
                      "warn": ["TRUE NIGHTS \n",
                               "- Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed."]},
+                              
                 16: {"mod": " WeaponsFramework",
                      "warn": ["WEAPONS FRAMEWORK BETA \n",
                               "- Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods. \n"
                               "  Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769"]},
+                              
                 17: {"mod": " WOTC.esp",
                      "warn": ["WAR OF THE COMMONWEALTH \n",
                               "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]}
@@ -1035,159 +1053,189 @@ def scan_logs():
                                    "-----\n"])
                 statL_scanned += 1
             else:
-                output.writelines(["# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\n",
-                                   "Autoscan cannot continue. Try scanning a different crash log.\n",
-                                   "-----\n"])
+                output.write(nopluginlist)
                 statL_incomplete += 1
 
             output.writelines(["====================================================\n",
                                "CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES\n",
                                "====================================================\n"])
-            Mod_Trap2 = no_repeat1 = no_repeat2 = 1  # MOD TRAP 2 | NEED 8 SPACES FOR ESL [FE:XXX]
+            Mod_Trap2 = no_repeat1 = 1  # MOD TRAP 2 | NEED 8 SPACES FOR ESL [FE:XXX]
 
-            # Needs 1 empty space as prefix to prevent duplicates.
+            # Needs 1 empty space as prefix to prevent most duplicates.
             mods2 = {
                 0: {"mod": " DLCUltraHighResolution.esm",
                     "warn": ["HIGH RESOLUTION DLC. I STRONGLY ADVISE NOT USING IT! \n",
                              "- Right click on Fallout 4 in your Steam Library folder, then select Properties \n",
                              "  Switch to the DLC tab and uncheck / disable the High Resolution Texture Pack"]},
+                             
                 1: {"mod": " AAF.esm",
                     "warn": ["ADVANCED ANIMATION FRAMEWORK \n",
                              "- Latest AAF version only available on Moddingham | AAF Tech Support: https://discord.gg/gWZuhMC \n",
                              "  Latest AAF Link (register / login to download): https://www.moddingham.com/viewtopic.php?t=2 \n",
                              "-----\n",
                              "- Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs \n",
-                             "  If you notice AAF realted problems, remove latest version of Looks Menu and switch to 1.6.18"]},
+                             "  If you notice AAF related problems, remove latest version of Looks Menu and switch to 1.6.18"]},
+                             
                 2: {"mod": " ArmorKeywords.esm",
                     "warn": ["ARMOR AND WEAPONS KEYWORDS\n",
                              "- If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul \n",
-                             "  Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files \n",
-                             "  Patches to remove AWKCR: https://www.nexusmods.com/fallout4/mods/40752"]},
+                             "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files \n",
+                             "  Patches to remove AWKCR: https://www.nexusmods.com/fallout4/mods/40752?tab=files"]},
+                             
                 3: {"mod": " BTInteriors_Project.esp",
                     "warn": ["BEANTOWN INTERIORS \n",
                              "- Usually causes fps drops, stuttering, crashing and culling issues in multiple locations. \n",
                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/53894?tab=files"]},
+                             
                 4: {"mod": " CombatZoneRestored.esp",
                     "warn": ["COMBAT ZONE RESTORED \n",
                              "- Contains few small issues and NPCs usually have trouble navigating the interior space. \n",
                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/59329?tab=files"]},
+                             
                 5: {"mod": " D.E.C.A.Y.esp",
                     "warn": ["DECAY BETTER GHOULS \n",
                              "- You have to install DECAY Redux patch to prevent its audio files from crashing the game. \n",
                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/59025?tab=files"]},
+                             
                 6: {"mod": " EveryonesBestFriend",
                     "warn": ["EVERYONE'S BEST FRIEND \n",
                              "- This mod needs a compatibility patch to properly work with the Unofficial Patch (UFO4P). \n",
                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/43409?tab=files"]},
+                             
                 7: {"mod": " M8r_Item_Tags",
                     "warn": ["FALLUI ITEM SORTER (OLD) \n",
                              "- This is an outdated item tagging / sorting patch that can cause crashes or conflicts in all kinds of situations. \n",
                              "  I strongly recommend to instead generate your own sorting patch and place it last in your load order. \n",
                              "  That way, you won't experience any conflicts / crashes and even modded items will be sorted. \n",
                              "  Generate Sorting Patch With This: https://www.nexusmods.com/fallout4/mods/48826?tab=files"]},
+                             
                 8: {"mod": " Fo4FI_FPS_fix",
                     "warn": ["FO4FI FPS FIX \n",
                              "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
+                             
                 9: {"mod": " BostonFPSFixAIO.esp",
                     "warn": ["BOSTON FPS FIX \n",
                              "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
+                             
                 10: {"mod": " FunctionalDisplays.esp",
                      "warn": ["FUNCTIONAL DISPLAYS \n",
                               "- Frequently causes object model (nif) related crashes and this needs to be manually corrected. \n",
                               "  Advised Fix: Open its Meshes folder and delete everything inside EXCEPT for the Functional Displays folder."]},
+                              
                 11: {"mod": " skeletonmaleplayer",
                      "warn": ["GENDER SPECIFIC SKELETONS (MALE) \n",
                               "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
                               "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]},
+                              
                 12: {"mod": " skeletonfemaleplayer",
                      "warn": ["GENDER SPECIFIC SKELETONS (FEMALE) \n",
                               "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
                               "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]},
+                              
                 13: {"mod": " Give Me That Bottle.esp",
                      "warn": ["GIVE ME THAT BOTTLE \n",
                               "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n",
                               "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files"]},
+                              
                 14: {"mod": " CapsWidget",
                      "warn": ["HUD CAPS \n",
                               "- Often breaks the Save / Quicksave function due to poor script implementation. \n",
                               "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n",
                               "  Fix Link: https://drive.google.com/file/d/1egmtKVR7mSbjRgo106UbXv_ySKBg5az2"]},
+                              
                 15: {"mod": " Homemaker.esm",
                      "warn": ["HOMEMAKER \n",
                               "- Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n",
                               "  Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
+                              
                 16: {"mod": " Horizon.esm",
                      "warn": ["HORIZON \n",
                               "- I highly recommend installing these patches for 1.8.7 until newer version is released. \n",
                               "  Patch Link 1: https://www.nexusmods.com/fallout4/mods/65911?tab=files \n",
                               "  Patch Link 2: https://www.nexusmods.com/fallout4/mods/61998?tab=files"]},
+                              
                 17: {"mod": " ESPExplorerFO4.esp",
                      "warn": ["IN GAME ESP EXPLORER \n",
                               "- Can cause a crash when pressing F10 due to a typo in the INI settings. \n",
-                              "  Fix Link: https://www.nexusmods.com/fallout4/mods/64752?tab=files \n",
-                              "  OR Switch To: https://www.nexusmods.com/fallout4/mods/56922?tab=files"]},
+                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/56922?tab=files \n"]},
+                              
                 18: {"mod": " LegendaryModification.esp",
                      "warn": ["LEGENDARY MODIFICATION \n",
                               "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
-                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/55503?tab=files"]},
+                              "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files"]},
+                              
                 19: {"mod": " LooksMenu Customization Compendium.esp",
                      "warn": ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",
                               "- Apparently breaks the original Looks Menu mod by turning off some important values. \n",
                               "  Fix Link: https://www.nexusmods.com/fallout4/mods/56465?tab=files"]},
+                              
                 20: {"mod": " MilitarizedMinutemen.esp",
                      "warn": ["MILITARIZED MINUTEMEN \n"
                               "- Can occasionally crash the game due to a broken mesh on some minutemen outfits. \n"
-                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/55301?tab=files"]},
+                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/32369?tab=files"]},
+                              
                 21: {"mod": " MoreUniques",
                      "warn": ["MORE UNIQUE WEAPONS EXPANSION \n",
                               "- Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n",
                               "  Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files"]},
+                              
                 22: {"mod": " NAC.es",
                      "warn": ["NATURAL AND ATMOSPHERIC COMMONWEALTH \n",
                               "- If you notice weird looking skin tones with either NAC or NACX, install this patch. \n",
                               "  Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files"]},
+                              
                 23: {"mod": " Northland Diggers New.esp",
                      "warn": ["NORTHLAND DIGGERS RESOURCES \n",
                               "- Contains various bugs and issues that can cause crashes or negatively affect other mods. \n",
                               "  Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files"]},
+                              
                 24: {"mod": " Project Zeta.esp",
                      "warn": ["PROJECT ZETA \n",
                               "- Invasion quests seem overly buggy or trigger too frequently, minor sound issues. \n",
                               "  Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files"]},
+                              
                 25: {"mod": "RaiderOverhaul.esp",
                      "warn": ["RAIDER OVERHAUL \n",
                               "- Old mod that requires several patches to function as intended. Use ONE Version instead. \n",
-                              "  Upated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files"]},
+                              "  Updated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files"]},
+                              
                 26: {"mod": " Rusty Face Fix",
                      "warn": ["RUSTY FACE FIX \n",
                               "- Can cause script lag or even crash the game in very rare cases. Switch to REDUX Version instead. \n",
                               "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]},
+                              
                 27: {"mod": " SKKCraftableWeaponsAmmo",
                      "warn": ["SKK CRAFT WEAPONS AND SCRAP AMMO \n",
                               "- Version 008 is incompatible with AWKCR and will cause crashes while saving the game. \n",
                               "  Advised Fix: Use Version 007 or remove AWKCR and switch to Equipment and Crafting Overhaul instead."]},
+                              
                 28: {"mod": " SOTS.esp",
                      "warn": ["SOUTH OF THE SEA \n",
                               "- Very unstable mod that consistently and frequently causes strange problems and crashes. \n",
-                              "  Patch Link: https://www.nexusmods.com/fallout4/mods/59792?tab=files"]},
+                              "  Updated Version: https://www.nexusmods.com/fallout4/mods/63152?tab=files"]},
+                              
                 29: {"mod": " StartMeUp.esp",
                      "warn": ["START ME UP \n",
                               "- Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n",
                               "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files"]},
+                              
                 30: {"mod": " SuperMutantRedux.esp",
                      "warn": ["SUPER MUTANT REDUX \n",
-                              "- Causes crashes at specific locations or with certain Super Muntant enemies and items. \n",
+                              "- Causes crashes at specific locations or with certain Super Mutant enemies and items. \n",
                               "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]},
+                              
                 31: {"mod": " TacticalReload.esm",
                      "warn": ["TACTICAL RELOAD \n",
                               "- Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended. \n",
-                              "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/62737"]},
+                              "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/67716?tab=files"]},
+                              
                 32: {"mod": " Creatures and Monsters.esp",
                      "warn": ["UNIQUE NPCs CREATURES AND MONSTERS \n",
                               "- Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent. \n",
                               "  Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files"]},
+                              
                 33: {"mod": " ZombieWalkers",
                      "warn": ["ZOMBIE WALKERS \n",
                               "- Version 2.6.3 contains a resurrection script that will regularly crash the game. \n",
@@ -1218,7 +1266,7 @@ def scan_logs():
                         output.writelines([f"[!] Found: {line[0:9].strip()} CUSTOM RACE SKELETON MOD\n",
                                            "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
                                            "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n"])
-                        no_repeat2 = Mod_Trap2 = 0
+                        Mod_Trap2 = 0
 
                 if "FallSouls.dll" in logtext:
                     output.writelines([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
@@ -1227,7 +1275,7 @@ def scan_logs():
                                        "-----\n"])
                     Mod_Trap2 = 0
 
-            nopluginlist = "# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\nAutoscan cannot continue. Try scanning a different crash log.\n-----\n"
+            nopluginlist = "# BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #\nAutoscan cannot continue. Try scanning a different crash log\nOR copy-paste your *loadorder.txt* into the scanner folder.\n-----\n"
             if plugins_loaded and Mod_Trap2 == 0:
                 output.writelines([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
                                    "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n",
@@ -1249,7 +1297,7 @@ def scan_logs():
                                "====================================================\n"])
             Mod_Trap3 = 1  # MOD TRAP 3 | NEED 8 SPACES FOR ESL [FE:XXX]
 
-            # Needs 1 empty space as prefix to prevent duplicates.
+            # Needs 1 empty space as prefix to prevent most duplicates.
             mods3 = {
                 0: {"mod": " Beyond the Borders",
                     "name": "Beyond the Borders"},
@@ -1321,7 +1369,6 @@ def scan_logs():
                      "name": "Xander's Aid"},
                 34: {"mod": " zxcMicroAdditions",
                      "name": "ZXC Micro Additions"}
-
             }
 
             if plugins_loaded:
@@ -1338,12 +1385,12 @@ def scan_logs():
                             Mod_Trap3 = 0
             if plugins_loaded and Mod_Trap3 == 0:
                 output.writelines(["-----\n",
-                                  "FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,\n",
+                                   "FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,\n",
                                    "VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872\n",
                                    "-----\n"])
             elif plugins_loaded and Mod_Trap3 == 1:
                 output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
-                                  "-----\n"])
+                                   "-----\n"])
             elif plugins_loaded is False:
                 output.write(nopluginlist)
 
@@ -1370,21 +1417,21 @@ def scan_logs():
 
             if CLAS_config.getboolean("MAIN", "FCX Mode"):
                 output.writelines(["* NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *\n",
-                                  "[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n",
+                                   "[ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]\n",
                                    "-----\n"])
 
                 if info.VR_EXE.is_file() and info.VR_Buffout.is_file():
                     output.write("*Buffout 4 VR Version* is (manually) installed. \n-----\n")
                 elif info.VR_EXE.is_file() and not info.VR_Buffout.is_file():
                     output.writelines(["# BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                      "# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.\n",
+                                       "# This is a mandatory Buffout 4 port for the VR Version of Fallout 4.\n",
                                        "Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files\n"])
 
                 if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()):
                     output.write("*Creation Kit Fixes* is (manually) installed. \n-----\n")
                 elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
                     output.writelines(["# CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                      "This is a highly recommended patch for the Fallout 4 Creation Kit.\n",
+                                       "This is a highly recommended patch for the Fallout 4 Creation Kit.\n",
                                        "Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files\n",
                                        "-----\n"])
 
@@ -1393,7 +1440,7 @@ def scan_logs():
                     output.write("*Canary Save File Monitor* is installed. \n-----\n")
                 else:
                     output.writelines(["# CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                      "This is a highly recommended mod that can detect save file corrpution.\n",
+                                       "This is a highly recommended mod that can detect save file corruption.\n",
                                        "Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files\n",
                                        "-----\n"])
 
@@ -1401,7 +1448,7 @@ def scan_logs():
                     output.write("*High FPS Physics Fix* is installed. \n-----\n")
                 else:
                     output.writelines(["# HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                      "This is a mandatory patch / fix that prevents game engine problems.\n",
+                                       "This is a mandatory patch / fix that prevents game engine problems.\n",
                                        "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n",
                                        "-----\n"])
 
@@ -1462,35 +1509,36 @@ def scan_logs():
                 output.write(nopluginlist)
 
             output.writelines(["====================================================\n",
-                               "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS...\n",
+                               "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CULPRITS...\n",
                                "====================================================\n"])
 
             list_DETPLUGINS = []
             list_DETFORMIDS = []
-            list_DETFILES = []
             list_ALLPLUGINS = []
 
-            if ("f4se_1_10_163.dll" in logtext or "f4sevr_1_2_72.dll" in logtext) and "steam_api64.dll" in logtext:
-                pass
-            else:
-                output.writelines(["# CRASH LOG FAILED TO LIST MODULES OR F4SE IS NOT INSTALLED! #\n",
-                                   "CHECK IF SCRIPT EXTENDER (F4SE) IS CORRECTLY INSTALLED! \n",
-                                   "Script Extender Link: https://f4se.silverlock.org \n",
-                                   "-----\n"])
+            for line in loglines:
+                if "MODULES:" in line:  # Check if crash log lists DLL and F4SE modules.
+                    module_index = loglines.index(line)
+                    next_line = loglines[module_index + 1]
+                    if len(next_line) > 1:
+                        if ("f4se_1_10_163.dll" in logtext or "f4sevr_1_2_72.dll" in logtext) and "steam_api64.dll" in logtext:
+                            break
+                        else:
+                            output.write("# CRASH LOG FAILED TO LIST ALL MODULES OR F4SE IS NOT INSTALLED #\n")
+                            output.write("CHECK IF SCRIPT EXTENDER (F4SE) IS CORRECTLY INSTALLED! \n")
+                            output.write("Script Extender Link: https://f4se.silverlock.org \n")
+                            output.write("-----\n")
+
+            output.write("LIST OF (POSSIBLE) PLUGIN CULPRITS:\n")
 
             for line in loglines:
-                if len(line) >= 6 and "]" in line[4]:
-                    list_ALLPLUGINS.append(line.strip())
-                if len(line) >= 7 and "]" in line[5]:
-                    list_ALLPLUGINS.append(line.strip())
-                if len(line) >= 10 and "]" in line[8]:
-                    list_ALLPLUGINS.append(line.strip())
-                if len(line) >= 11 and "]" in line[9]:
-                    list_ALLPLUGINS.append(line.strip())
+                if "[" in line and "]" in line:  # Append all lines with Plugin IDs to list.
+                    start_index = line.index("[")
+                    end_index = line.index("]")
+                    if end_index - start_index == 3 or end_index - start_index == 7:
+                        list_ALLPLUGINS.append(line.strip())
 
-            output.write("LIST OF (POSSIBLE) PLUGIN CULRIPTS:\n")
-            for line in loglines:
-                if "File:" in line and "Fallout4.esm" not in line:
+                if "File:" in line and "Fallout4.esm" not in line:  # Append detected Plugins to list.
                     line = line.replace("File: ", "")
                     line = line.replace('"', '')
                     list_DETPLUGINS.append(line.strip())
@@ -1501,9 +1549,8 @@ def scan_logs():
                 if elem in list_DETPLUGINS:
                     list_DETPLUGINS.remove(elem)
 
-            list_DETPLUGINS = Counter(list_DETPLUGINS)  # list(dict.fromkeys(list_DETPLUGINS))
+            list_DETPLUGINS = Counter(list_DETPLUGINS)
             PL_result = []
-
             for elem in list_ALLPLUGINS:
                 PL_matches = []
                 for item in list_DETPLUGINS:
@@ -1514,7 +1561,7 @@ def scan_logs():
                     output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")  # type: ignore
 
             if not PL_result:
-                output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULRIPTS *\n",
+                output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
                                    "-----\n"])
             else:
                 output.writelines(["-----\n",
@@ -1525,7 +1572,7 @@ def scan_logs():
 
             # ===========================================================
 
-            output.write("LIST OF (POSSIBLE) FORM ID CULRIPTS:\n")
+            output.write("LIST OF (POSSIBLE) FORM ID CULPRITS:\n")
             for line in loglines:
                 if "Form ID:" in line or "FormID:" in line and "0xFF" not in line:
                     line = line.replace("0x", "")
@@ -1548,12 +1595,12 @@ def scan_logs():
                         list_DETFORMIDS.append(line.strip())
 
             list_DETFORMIDS = sorted(list_DETFORMIDS)
-            list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))
+            list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))  # Removes duplicates as dicts cannot have them.
             for elem in list_DETFORMIDS:
                 output.write(f"{elem}\n")
 
             if not list_DETFORMIDS:
-                output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULRIPTS *\n",
+                output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
                                    "-----\n"])
             else:
                 output.writelines(["-----\n",
@@ -1569,7 +1616,7 @@ def scan_logs():
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
             List_Records = []
             for line in loglines:
-                if "Name" in line or "EditorID:" in line or any(elem in line.lower() for elem in List_Files):
+                if "Name:" in line or "EditorID:" in line or "Function:" in line or any(elem in line.lower() for elem in List_Files):
                     if not any(elem in line for elem in List_Exclude):
                         line = line.replace('"', '')
                         List_Records.append(f"{line.strip()}\n")
@@ -1600,13 +1647,12 @@ def scan_logs():
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
             if not os.path.exists("CLAS-UNSOLVED"):
                 os.mkdir("CLAS-UNSOLVED")
-            if int(Buffout_Trap) == 1:
+            if Buffout_Trap is False:
                 uCRASH_path = "CLAS-UNSOLVED/" + logname
                 shutil.move(logname, uCRASH_path)
                 uSCAN_path = "CLAS-UNSOLVED/" + logname + "-AUTOSCAN.md"
                 shutil.move(logname + "-AUTOSCAN.md", uSCAN_path)
 
-    # dict.fromkeys -> Create dictionary, removes duplicates as dicts cannot have them.
     # BUFFOUT.INI BACK TO BUFFOUT.TOML BECAUSE PYTHON CAN'T WRITE
     if info.Buffout_INI.is_file():
         try:
@@ -1619,7 +1665,7 @@ def scan_logs():
     # ========================== LOG END ==========================
     time.sleep(0.5)
     print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
-    print("SCAN RESULTS ARE AVAILABE IN FILES NAMED crash-date-and-time-AUTOSCAN.md")
+    print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md")
     print("===============================================================================")
     print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
     print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115")
@@ -1629,41 +1675,31 @@ def scan_logs():
     print("SCAN SCRIPT PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(Sneaky_Tips))
 
-    # ============ CHECK FOR EMPTY (FAULTY) AUTO-SCANS ============
+    # ============ CHECK FOR FAULTY LOGS & AUTO-SCANS =============
     list_SCANFAIL = []
-    for file in glob(f"{SCAN_folder}/crash-*-AUTOSCAN.md"):
-        line_count = 0
-        scanname = str(file)
-        with open(file, encoding="utf-8", errors="ignore") as autoscan_log:
-            for line in autoscan_log:
-                if line != "\n":
-                    line_count += 1
-        if int(line_count) <= 20:  # Adjust if necessary. Failed scans are usually 16 lines.
-            list_SCANFAIL.append(scanname.replace("-AUTOSCAN.md", ".log"))
-            statL_failed += 1
+    for file in glob(f"{SCAN_folder}/crash-*"):
+        scan_name = str(file)
+        with open(file, encoding="utf-8", errors="ignore") as LOG_Check:
+            Line_Check = LOG_Check.readlines()
+            line_count = sum(1 for _ in Line_Check)
+            if ".txt" in scan_name or line_count < 20:  # Adjust if necessary. Failed scans are usually 16 lines.
+                list_SCANFAIL.append(scan_name)
+                statL_failed += 1
+                statL_scanned -= 1
 
     if len(list_SCANFAIL) >= 1:
         print("NOTICE: AUTOSCANNER WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
         for elem in list_SCANFAIL:
             print(elem)
         print("===============================================================================")
-        print("To troubleshoot this, right click on Scan Crashlogs.py and select option 'Edit With IDLE'")
-        print("Once it opens the code, press [F5] to run the script. Any error messages will appear in red.")
-        print("-----")
-        print('If any given error contains "codec cant decode byte", you can fix this in two ways:')
-        print('1.] Move all crash logs and the scan script into a folder with short and simple path name, example: "C:\\Crash Logs"')
-        print("-----")
-        print('2.] Open the original crash log with Notepad, select File > Save As... and make sure that Encoding is set to UTF-8,')
-        print('then press Save and overwrite the original crash log file. Run the Scan Crashlogs script again after that.')
-        print("-----")
-        print('FOR ALL OTHER ERRORS PLEASE CONTACT ME DIRECTLY, CONTACT INFO BELOW!')
+        print("Most common reason for this are logs being incomplete or in the wrong format.")
+        print("Make sure that your crash logs are saved with .log file format, NOT .txt!")
 
     print("======================================================================")
     print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - Start_Time)[:7]), "seconds.")
     print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
     print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
     print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
-    print("Number of Very Old / Wrong Formatting Logs : ", statL_veryold)
     print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
     print("-----")
     if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
@@ -1687,7 +1723,7 @@ def scan_logs():
         print("Logs with Precombines Crash..............", statC_Precomb)
         print("Logs with Texture (DDS) Crash............", statC_Texture)
         print("Logs with Material (BGSM) Crash..........", statC_BGSM)
-        print("Logs with BitDefender Crash..............", statC_BitDefender)
+        print("Logs with Antivirus Crash................", statC_Antivirus)
         print("Logs with NPC Pathing Crash..............", statC_NPCPathing)
         print("Logs with Audio Driver Crash.............", statC_Audio)
         print("Logs with Body Physics Crash.............", statC_BodyPhysics)
@@ -1716,13 +1752,14 @@ def scan_logs():
         print("Logs with *[Looks Menu Crash]............", statU_LooksMenu)
         print("Logs with *[NPC Patrol Crash]............", statU_Patrol)
         print("Logs with *[Ammo Counter Crash]..........", statU_HUDAmmo)
+        print("Logs with *[GPU Overclock Crash].........", statU_Overclock)
         print("Logs with *[NPC Projectile Crash]........", statU_Projectile)
         print("*Unsolved, see How To Read Crash Logs PDF")
         print("===========================================")
     return
 
 
-if __name__ == "__main__":  # AKA only autorun when NOT imported.
+if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     import argparse
     parser = argparse.ArgumentParser(prog="Buffout 4 Crash Log Auto-Scanner", description="All command-line options are saved to the INI file.")
     # Argument values will simply change INI values since that requires the least refactoring
@@ -1730,7 +1767,7 @@ if __name__ == "__main__":  # AKA only autorun when NOT imported.
     parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")
     parser.add_argument("--imi-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
     parser.add_argument("--stat-logging", action=argparse.BooleanOptionalAction, help="Enable (or disable) Stat Logging")
-    parser.add_argument("--move-unsolved", action=argparse.BooleanOptionalAction, help="Enable (or disable) moving unsolved logs to a aeparate directory")
+    parser.add_argument("--move-unsolved", action=argparse.BooleanOptionalAction, help="Enable (or disable) moving unsolved logs to a separate directory")
     parser.add_argument("--ini-path", type=Path, help="Set the directory that stores the game's INI files.")
     parser.add_argument("--scan-path", type=Path, help="Set which directory to scan")
     args = parser.parse_args()
@@ -1758,6 +1795,5 @@ if __name__ == "__main__":  # AKA only autorun when NOT imported.
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CLAS_config.get("MAIN", "Scan Path"):
         write_ini_value_to_file("Scan Path", str(Path(scan_path).resolve()))
 
-    CLAS_Scan = scan_logs()
-    sys.stdout.close()  # Do we still need this line since we're no longer using stdout to write to the scan file? - evildarkarchon
+    scan_logs()
     os.system("pause")

@@ -1,8 +1,27 @@
 =====================================================================================================
 # CHANGELOG #
 
-// Future updates will likely take much longer due to lack of feedback / data for some crash errors.
-// Porting Auto-Scanner to Skyrim will be next. If you're reading this and want to help, let me know.
+6.11
+* MAIN SCRIPT *
+- Fixed an issue where Auto-Scanner would do the opposite of intended while *Move Unsolved = true*.
+- Auto-Scanner should now warn you when trying to scan *.txt* crash logs (only *.log* are allowed).
+- Expanded exception parameters when *Fallout4Custom.ini* cannot be automatically modified.
+- Fixed the timing for *Scanned all available logs in X seconds* while using the GUI.
+- Changed *Bitdefender Crash* to *Antivirus Crash*, crash info has been updated.
+- Update checks are now skipped entirely if any error occurs to prevent crashes.
+- Adjusted text and updated links for some detected mods and plugins.
+- Added detection for functions for the *List Of Detected (Named) Records*.
+- Added detection for *NPC Pathing Crash* caused by followers / companions.
+- Added detection for the *[GPU Overclock Crash]* | Expect false positives.
+  [Crash info was already listed, but detection wasn't implemented until now.]
+
+* CLAS GUI *
+- General code optimization and cleanup to resolve / suppress various IDE warnings.
+- Now merged both scripts into the EXE, this should prevent some specific crashes.
+
+* OTHER FILES *
+- General improvements to *CL Compare.py* thanks to [evildarkarchon] on GitHub.
+- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
 
 6.06
 * MAIN SCRIPT *
