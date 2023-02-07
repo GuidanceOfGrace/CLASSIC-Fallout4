@@ -1283,7 +1283,7 @@ def scan_logs():
                      "name": "Immersive & Extended Lexington"},
                 15: {"mod": " Immersive Nahant",
                      "name": "Immersive & Extended Nahant"},
-                16: {"mod:": " Immersive S Boston",
+                16: {"mod": " Immersive S Boston",
                      "name": "Immersive Military Checkpoint"},
                 17: {"mod": " MutilatedDeadBodies",
                      "name": "Mutilated Dead Bodies"},
@@ -1294,36 +1294,36 @@ def scan_logs():
                 20: {"mod": " Minutemen Supply Caches",
                      "name": "Minutemen Supply Caches"},
                 21: {"mod": " moreXplore",
-                    "name": "More Xplore"},
+                     "name": "More Xplore"},
                 22: {"mod": " NEST_BUNKER_PROJECT",
-                    "name": "NEST Bunker Project"},
+                     "name": "NEST Bunker Project"},
                 23: {"mod": " Raider Children.esp",
-                    "name": "Raider Children"},
+                     "name": "Raider Children"},
                 24: {"mod": " sectorv",
-                    "name": "Sector V"},
+                     "name": "Sector V"},
                 25: {"mod": " SettlementShelters",
-                    "name": "Settlement Shelters"},
+                     "name": "Settlement Shelters"},
                 26: {"mod": " subwayrunnerdynamiclighting",
-                    "name": "Subway Runner (Dynamic Lights)"},
+                     "name": "Subway Runner (Dynamic Lights)"},
                 27: {"mod": " 3DNPC_FO4Settler.esp",
                      "name": "Settlers of the Commonwealth"},
                 28: {"mod": " 3DNPC_FO4.esp",
-                    "name": "Tales from the Commonwealth"},
+                     "name": "Tales from the Commonwealth"},
                 29: {"mod": " The Hollow",
-                    "name": "The Hollow"},
+                     "name": "The Hollow"},
                 30: {"mod": " nvvault1080",
-                    "name": "Vault 1080 (Vault 80)"},
+                     "name": "Vault 1080 (Vault 80)"},
                 31: {"mod": " Vertibird Faction Paint Schemes",
-                    "name": "Vertibird Faction Paint Schemes"},
+                     "name": "Vertibird Faction Paint Schemes"},
                 32: {"mod": " MojaveImports.esp",
                      "name": "Wasteland Imports (Mojave Imports)"},
                 33: {"mod": " Firelance2.5",
-                    "name": "Xander's Aid"},
+                     "name": "Xander's Aid"},
                 34: {"mod": " zxcMicroAdditions",
-                    "name": "ZXC Micro Additions"}
+                     "name": "ZXC Micro Additions"}
 
             }
-
+            
             if plugins_loaded:
                 for line in plugins_list:
                     for elem in mods3.keys():
