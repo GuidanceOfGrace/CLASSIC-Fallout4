@@ -240,18 +240,20 @@ def scan_logs():
             if not Loc_Found:
                 if "fallout4" in CLAS_config.get("MAIN", "INI Path").lower():
                     INI_Line = CLAS_config.get("MAIN", "INI Path").strip()
-                    self.FO4_F4SE_Logs = rf"{INI_Line}/F4SE"
-                    self.FO4_F4SE_Path = Path(rf"{INI_Line}/F4SE/f4se.log")
-                    self.FO4_F4SEVR_Path = Path(rf"{INI_Line}/F4SE/f4sevr.log")
-                    self.FO4_Custom_Path = Path(rf"{INI_Line}/Fallout4Custom.ini")
+                    INI_Path = Path(INI_Line)
+                    self.FO4_F4SE_Logs = str(INI_Path.joinpath("F4SE"))
+                    self.FO4_F4SE_Path = INI_Path.joinpath("F4SE", "f4se.log")
+                    self.FO4_F4SEVR_Path = INI_Path.joinpath("F4SE", "f4sevr.log")
+                    self.FO4_Custom_Path = INI_Path.joinpath("Fallout4Custom.ini")
                 else:
                     print("> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR Fallout4.ini IS LOCATED < <")
                     Path_Input = input("(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
                     print("You entered :", Path_Input, "| This path will be automatically added to Scan Crashlogs.ini")
-                    self.FO4_F4SE_Logs = rf"{Path_Input.strip()}/F4SE"
-                    self.FO4_F4SE_Path = Path(rf"{Path_Input.strip()}/F4SE/f4se.log")
-                    self.FO4_F4SEVR_Path = Path(rf"{Path_Input.strip()}/F4SE/f4sevr.log")
-                    self.FO4_Custom_Path = Path(rf"{Path_Input.strip()}/Fallout4Custom.ini")
+                    IN_Path = Path(Path_Input.strip())
+                    self.FO4_F4SE_Logs = str(IN_Path.joinpath("F4SE"))
+                    self.FO4_F4SE_Path = IN_Path.joinpath("F4SE", "f4se.log")
+                    self.FO4_F4SEVR_Path = IN_Path.joinpath("F4SE", "f4sevr.log")
+                    self.FO4_Custom_Path = IN_Path.joinpath("Fallout4Custom.ini")
                     write_ini_value_to_file("INI Path", Path_Input)
 
     info = Info()
