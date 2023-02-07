@@ -981,13 +981,13 @@ def scan_logs():
                 for line in plugins_list:
                     for elem in mods1.keys():
                         if "File:" not in line and "[FE" not in line and mods1[elem]["mod"] in line:
-                            warn = mods1[elem]["warn"]
-                            output.writelines([f"[!] Found: {line[0:5].strip()} {''.join(warn)}\n",
+                            warn = ''.join(mods1[elem]["warn"])
+                            output.writelines([f"[!] Found: {line[0:5].strip()} {warn}\n",
                                                "-----\n"])
                             Mod_Trap1 = 0
                         elif "File:" not in line and "[FE" in line and mods1[elem]["mod"] in line:
-                            warn = mods1[elem]["warn"]
-                            output.writelines([f"[!] Found: {line[0:9].strip()} {''.join(warn)}\n",
+                            warn = ''.join(mods1[elem]["warn"])
+                            output.writelines([f"[!] Found: {line[0:9].strip()} {warn}\n",
                                                "-----\n"])
                             Mod_Trap1 = 0
 
@@ -1195,12 +1195,12 @@ def scan_logs():
                 for line in plugins_list:
                     for elem in mods2.keys():
                         if "File:" not in line and "[FE" not in line and mods2[elem]["mod"] in line:
-                            warn = mods2[elem]["warn"]
+                            warn = ''.join(mods2[elem]["warn"])
                             output.writelines([f"[!] Found: {line[0:5].strip()} {warn}\n",
                                                "-----\n"])
                             Mod_Trap2 = 0
                         elif "File:" not in line and "[FE" in line and mods2[elem]["mod"] in line:
-                            warn = mods2[elem]["warn"]
+                            warn = ''.join(mods2[elem]["warn"])
                             output.writelines([f"[!] Found: {line[0:9].strip()} {warn}\n",
                                                "-----\n"])
                             Mod_Trap2 = 0
@@ -1397,11 +1397,11 @@ def scan_logs():
                     for elem in mods3.keys():
                         if "File:" not in line and "[FE" not in line and mods3[elem]["mod"] in line:
                             # order_elem = List_Mods3.index(elem)
-                            name = mods3[elem]["name"]
+                            name = ''.join(mods3[elem]["name"])
                             output.write(f"- Found: {line[0:5].strip()} {name}\n")
                             Mod_Trap3 = 0
                         elif "File:" not in line and "[FE" in line and mods3[elem]["mod"] in line:
-                            name = mods3[elem]["name"]
+                            name = ''.join(mods3[elem]["name"])
                             output.write(f"- Found: {line[0:9].strip()} {name}\n")
                             Mod_Trap3 = 0
             if plugins_loaded and Mod_Trap3 == 0:
