@@ -18,7 +18,7 @@ except Exception:
 if platform.system() == "Windows":
     import ctypes.wintypes
 
-
+'''
 def createlistbetweentextheaders(source, start, end=""):  # This function partially brought to you by Github Copilot (been trying to figure out how to do this for a while)
     """Returns a list of lines between two text headers."""
     if not isinstance(source, list):
@@ -54,7 +54,7 @@ def createlistbetweentextheaders(source, start, end=""):  # This function partia
         output.remove("")
 
     return output
-
+'''
 
 if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
     INI_Settings = ["[MAIN]\n",
@@ -1323,7 +1323,7 @@ def scan_logs():
                      "name": "ZXC Micro Additions"}
 
             }
-            
+
             if plugins_loaded:
                 for line in plugins_list:
                     for elem in mods3.keys():
