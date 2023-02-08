@@ -806,7 +806,7 @@ def scan_logs():
                                    f'> Priority : [5] | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n',
                                    f'                   BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n'])
                 Buffout_Trap = True
-                stats["known"]["Item"] += 1
+                stats["unsolved"]["Item"] += 1
             # ===========================================================
             if "+0CDAD30" in buff_error or "BGSSaveLoadManager" in logtext or "BGSSaveLoadThread" in logtext or "BGSSaveFormBuffer" in logtext:
                 output.writelines(["# Checking for *[Save Crash]................DETECTED! #\n",
