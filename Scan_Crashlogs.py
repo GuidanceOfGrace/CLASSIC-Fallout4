@@ -136,7 +136,7 @@ def scan_logs():
     stats["main"] = {"scanned": 0, "incomplete": 0, "failed": 0, "veryold": 0}
     # KNOWN CRASH MESSAGES
     stats["known"] = {"ActiveEffect": 0, "AnimationPhysics": 0, "Audio": 0, "BA2Limit": 0, "BGSM": 0, "BitDefender": 0, "BodyPhysics": 0, "ConsoleCommands": 0, "CorruptedTex": 0,
-                      "DLL": 0, "Equip": 0, "Generic": 0, "GridScrap": 0, "Invalidation": 0, "LoadOrder": 0, "MCM": 0, "BadMath": 0, "NIF": 0, "NPCPathing": 0, "NVDebris": 0,
+                      "DLL": 0, "Equip": 0, "Generic": 0, "GridScrap": 0, "Invalidation": 0, "LoadOrder": 0, "MCM": 0, "BadMath": 0, "NIF": 0, "NPCPathfinding": 0, "NVDebris": 0,
                       "NVDriver": 0, "Null": 0, "Overflow": 0, "Papyrus": 0, "Particles": 0, "PluginLimit": 0, "Rendering": 0, "Texture": 0, "CorruptedAudio": 0, "LOD": 0,
                       "MapMarker": 0, "Redist": 0, "Decal": 0, "MO2Unpack": 0, "VulkanMem": 0, "VulkanSet": 0, "Water": 0, "Precomb": 0, "Player": 0, "GameCorruption": 0,
                       "LeveledList": 0}
