@@ -275,12 +275,12 @@ class UiClasMainwin(object):
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
-            self.Line_SelectedFolder.setText(SCAN_folder)
+            self.Line_SelectedFolder.setText(SCAN_folder) # type: ignore
             write_ini_value_to_file("Scan Path", SCAN_folder)
             # Change text color back to black.
-            LSF_palette = self.Line_SelectedFolder.palette()
+            LSF_palette = self.Line_SelectedFolder.palette() # type: ignore
             LSF_palette.setColor(QPalette.Text, QColor(Qt.black))  # type: ignore
-            self.Line_SelectedFolder.setPalette(LSF_palette)
+            self.Line_SelectedFolder.setPalette(LSF_palette) # type: ignore
 
     @staticmethod
     def SelectFolder_INI():
@@ -307,31 +307,31 @@ class UiClasMainwin(object):
         # ====================== CHECK BOXES ========================
 
     def Bool_IMIMode(self):
-        if self.ChkBT_IMIMode.isChecked():
+        if self.ChkBT_IMIMode.isChecked(): # type: ignore
             write_ini_value_to_file("IMI Mode", "true")
         else:
             write_ini_value_to_file("IMI Mode", "false")
 
     def Bool_INIStats(self):
-        if self.ChkBT_Stats.isChecked():
+        if self.ChkBT_Stats.isChecked(): # type: ignore
             write_ini_value_to_file("Stat Logging", "true")
         else:
             write_ini_value_to_file("Stat Logging", "false")
 
     def Bool_INIUnsolved(self):
-        if self.ChkBT_Unsolved.isChecked():
+        if self.ChkBT_Unsolved.isChecked(): # type: ignore
             write_ini_value_to_file("Move Unsolved", "true")
         else:
             write_ini_value_to_file("Move Unsolved", "false")
 
     def Bool_INIUpdate(self):
-        if self.ChkBT_Update.isChecked():
+        if self.ChkBT_Update.isChecked(): # type: ignore
             write_ini_value_to_file("Update Check", "true")
         else:
             write_ini_value_to_file("Update Check", "false")
 
     def Bool_FCXMode(self):
-        if self.ChkBT_FCXMode.isChecked():
+        if self.ChkBT_FCXMode.isChecked(): # type: ignore
             write_ini_value_to_file("FCX Mode", "true")
         else:
             write_ini_value_to_file("FCX Mode", "false")
