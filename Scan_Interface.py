@@ -31,8 +31,8 @@ class Ui_CLAS_MainWin(object):
         self.Line_SelectedFolder.setGeometry(QtCore.QRect(20, 30, 450, 22))
         self.Line_SelectedFolder.setObjectName("Line_SelectedFolder")
         self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
-        if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
-            SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
+        if len(CLAS_config["MAIN"]["Scan Path"]) > 1:
+            SCAN_folder = CLAS_config["MAIN"]["Scan Path"]
             self.Line_SelectedFolder.setText(SCAN_folder)
         # Change text color to gray.
         LSF_palette = self.Line_SelectedFolder.palette()

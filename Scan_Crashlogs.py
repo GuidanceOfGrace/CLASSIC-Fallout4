@@ -18,44 +18,6 @@ except Exception:
 if platform.system() == "Windows":
     import ctypes.wintypes
 
-'''
-def createlistbetweentextheaders(source, start, end=""):  # This function partially brought to you by Github Copilot (been trying to figure out how to do this for a while)
-    """Returns a list of lines between two text headers."""
-    if not isinstance(source, list):
-        raise TypeError("Source must be a list.")
-
-    if not isinstance(start, str):
-        raise TypeError("Start must be a string.")
-
-    if not isinstance(end, str):
-        raise TypeError("End must be a string.")
-
-    if len(end) < 1:
-        end = None
-
-    for elem in source:
-        if not isinstance(elem, str):
-            raise TypeError("Source list must contain only strings.")
-
-        source[source.index(elem)] = elem.strip()
-
-    output = []
-    if len(source) > 1:
-        start_index = source.index(start)
-        end_index = 0
-
-        if end:
-            end_index = source.index(end)
-            output = source[start_index + 1: end_index]
-        else:
-            output = source[start_index + 1:]
-
-    while "" in output:
-        output.remove("")
-
-    return output
-'''
-
 if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
     INI_Settings = ["[MAIN]\n",
                     "# This file contains configuration settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
@@ -93,9 +55,9 @@ CLAS_Updated = False
 
 def write_ini_value_to_file(section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
     if isinstance(section, str) and isinstance(value, str):
-        CLAS_config.set("MAIN", section, value)
+        CLAS_config["MAIN"][section] = value
     else:
-        CLAS_config.set("MAIN", str(section), str(value))
+        CLAS_config["MAIN"][str(section)] = str(value)
 
     with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
         CLAS_config.write(INI_Autoscan)
@@ -238,8 +200,8 @@ def scan_logs():
                                 break
             # Prompt manual input if ~\Documents\My Games\Fallout4 cannot be found.
             if not Loc_Found:
-                if "fallout4" in CLAS_config.get("MAIN", "INI Path").lower():
-                    INI_Line = CLAS_config.get("MAIN", "INI Path").strip()
+                if "fallout4" in CLAS_config["MAIN"]["INI Path"].lower():
+                    INI_Line = CLAS_config["MAIN"]["INI Path"].strip()
                     INI_Path = Path(INI_Line)
                     self.FO4_F4SE_Logs = str(INI_Path.joinpath("F4SE"))
                     self.FO4_F4SE_Path = INI_Path.joinpath("F4SE", "f4se.log")
@@ -267,8 +229,8 @@ def scan_logs():
                 F4C_config.read(info.FO4_Custom_Path)
                 if "Archive" not in F4C_config.sections():
                     F4C_config.add_section("Archive")
-                F4C_config.set("Archive", "bInvalidateOlderFiles", "1")
-                F4C_config.set("Archive", "sResourceDataDirsFinal", "")
+                F4C_config["Archive"]["bInvalidateOlderFiles"] = "1"
+                F4C_config["Archive"]["sResourceDataDirsFinal"] = ""
                 with open(info.FO4_Custom_Path, "w+", encoding="utf-8", errors="ignore") as FO4_Custom:
                     F4C_config.write(FO4_Custom, space_around_delimiters=False)
             except configparser.MissingSectionHeaderError:
@@ -336,8 +298,8 @@ def scan_logs():
     # ===========================================================
 
     SCAN_folder = os.getcwd()
-    if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
-        SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
+    if len(CLAS_config["MAIN"]["Scan Path"]) > 1:
+        SCAN_folder = CLAS_config["MAIN"]["Scan Path"]
 
     for file in glob(f"{SCAN_folder}/crash-*.log"):  # + glob(f"{SCAN_folder}/crash-*.txt")
         logpath = Path(file).resolve()
@@ -1752,10 +1714,10 @@ if __name__ == "__main__":  # AKA only autorun when NOT imported.
     if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CLAS_config.getboolean("MAIN", "Move Unsolved"):
         write_ini_value_to_file("Move Unsolved", str(args.move_unsolved).lower())
 
-    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CLAS_config.get("MAIN", "INI Path"):
+    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CLAS_config["MAIN"]["INI Path"]:
         write_ini_value_to_file("INI Path", str(Path(ini_path).resolve()))
 
-    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CLAS_config.get("MAIN", "Scan Path"):
+    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CLAS_config["MAIN"]["Scan Path"]:
         write_ini_value_to_file("Scan Path", str(Path(scan_path).resolve()))
 
     CLAS_Scan = scan_logs()
