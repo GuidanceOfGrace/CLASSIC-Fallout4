@@ -102,7 +102,7 @@ class UiClasMainwin(object):
 
         # Button - Check Updates
         self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(410, 150, 130, 24))
+        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(410, 150, 150, 24))
         self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
         self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
         self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)
@@ -167,7 +167,7 @@ class UiClasMainwin(object):
 
         # Check Box - INI Unsolved
         self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(420, 270, 120, 20))
+        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(420, 270, 130, 20))
         self.ChkBT_Unsolved.setText("MOVE UNSOLVED")
         self.ChkBT_Unsolved.setToolTip("Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder. (Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
@@ -195,37 +195,37 @@ class UiClasMainwin(object):
 
         # Button - Article Buffout 4
         self.ArtBT_Buffout4 = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 150, 30))
+        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 180, 30))
         self.ArtBT_Buffout4.setObjectName("ArtBT_Buffout4")
         self.ArtBT_Buffout4.setText("BUFFOUT 4 INSTALLATION")
         self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115")))  # type: ignore
         # Button - Article Advanced Troubleshooting
         self.ArtBT_Troubleshoot = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(220, 370, 200, 30))
+        self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(230, 370, 210, 30))
         self.ArtBT_Troubleshoot.setObjectName("ArtBT_Troubleshoot")
         self.ArtBT_Troubleshoot.setText("ADVANCED TROUBLESHOOTING")
         self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141")))  # type: ignore
         # Button - Article Important Patches
         self.ArtBT_Patches = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Patches.setGeometry(QtCore.QRect(450, 370, 150, 30))
+        self.ArtBT_Patches.setGeometry(QtCore.QRect(450, 370, 180, 30))
         self.ArtBT_Patches.setObjectName("ArtBT_Patches")
         self.ArtBT_Patches.setText("IMPORTANT PATCHES LIST")
         self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769")))  # type: ignore
         # Button - Website Buffout 4
         self.WebBT_Buffout4_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 150, 30))
+        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 180, 30))
         self.WebBT_Buffout4_Nexus.setObjectName("WebBT_Buffout4")
         self.WebBT_Buffout4_Nexus.setText("BUFFOUT 4 NEXUS PAGE")
         self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359")))  # type: ignore
         # Button - Website CLAS Nexus
         self.WebBT_CLAS_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(220, 420, 200, 30))
+        self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(230, 420, 210, 30))
         self.WebBT_CLAS_Nexus.setObjectName("WebBT_CLAS_Nexus")
         self.WebBT_CLAS_Nexus.setText("AUTO SCANNER NEXUS PAGE")
         self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255")))  # type: ignore
         # Button - Website CLAS Github
         self.WebBT_CLAS_Github = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(450, 420, 150, 30))
+        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(450, 420, 180, 30))
         self.WebBT_CLAS_Github.setObjectName("WebBT_CLAS_Git")
         self.WebBT_CLAS_Github.setText("AUTO SCANNER GITHUB")
         self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases")))  # type: ignore
@@ -253,7 +253,7 @@ class UiClasMainwin(object):
         self.TXT_Window.setObjectName("TXT_Window")
         # TEXT Label - About
         self.TXT_About = QtWidgets.QLabel(CLAS_MainWin)
-        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 300, 16))
+        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 320, 16))
         self.TXT_About.setInputMethodHints(Qt.InputMethodHint.ImhHiddenText)  # type: ignore
         self.TXT_About.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignTop)  # type: ignore
         self.TXT_About.setObjectName("TXT_About")
