@@ -3,10 +3,10 @@
 
 import sys
 import Scan_Crashlogs
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtGui import QDesktopServices, QColor, QPalette
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt, QUrl
+from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtGui import QDesktopServices, QColor, QPalette
 
 CLAS_Current = Scan_Crashlogs.CLAS_Current
 CLAS_config = Scan_Crashlogs.CLAS_config
@@ -64,13 +64,14 @@ class UiClasMainwin(object):
         self.Line_SelectedFolder = QtWidgets.QLineEdit(CLAS_MainWin)
         self.Line_SelectedFolder.setGeometry(QtCore.QRect(20, 30, 450, 22))
         self.Line_SelectedFolder.setObjectName("Line_SelectedFolder")
+        self.Line_SelectedFolder.setStyleSheet("color: darkgray;")
         self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
         if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
             SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
             self.Line_SelectedFolder.setText(SCAN_folder)
         # Change text color to gray.
         LSF_palette = self.Line_SelectedFolder.palette()
-        LSF_palette.setColor(QPalette.Text, QColor(Qt.darkGray))  # type: ignore
+        # LSF_palette.setColor(QPalette.text, QColor(Qt.darkgray)) # type: ignore
         self.Line_SelectedFolder.setPalette(LSF_palette)
 
         # Button - Browse Folder
@@ -101,7 +102,7 @@ class UiClasMainwin(object):
 
         # Button - Check Updates
         self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(410, 150, 130, 24))
+        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(410, 150, 150, 24))
         self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
         self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
         self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)
@@ -111,8 +112,8 @@ class UiClasMainwin(object):
         # SEPARATOR LINE 1
         self.Line_Separator_1 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_1.setGeometry(QtCore.QRect(40, 180, 560, 20))
-        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.HLine)  # type: ignore
-        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Sunken)  # type: ignore
+        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.Shape.HLine)  # type: ignore
+        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)  # type: ignore
         self.Line_Separator_1.setObjectName("Line_Separator_1")
         # SEPARATOR TEXT 1 (SETTINGS)
         self.LBL_Settings = QtWidgets.QLabel(CLAS_MainWin)
@@ -166,7 +167,7 @@ class UiClasMainwin(object):
 
         # Check Box - INI Unsolved
         self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(420, 270, 120, 20))
+        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(420, 270, 130, 20))
         self.ChkBT_Unsolved.setText("MOVE UNSOLVED")
         self.ChkBT_Unsolved.setToolTip("Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder. (Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
@@ -179,8 +180,8 @@ class UiClasMainwin(object):
         # SEPARATOR LINE 2
         self.Line_Separator_2 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_2.setGeometry(QtCore.QRect(40, 310, 560, 20))
-        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.HLine)  # type: ignore
-        self.Line_Separator_2.setFrameShadow(QtWidgets.QFrame.Sunken)  # type: ignore
+        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.Shape.HLine)  # type: ignore
+        self.Line_Separator_2.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)  # type: ignore
         self.Line_Separator_2.setObjectName("Line_Separator_2")
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
         self.LBL_ArtWeb = QtWidgets.QLabel(CLAS_MainWin)
@@ -194,40 +195,40 @@ class UiClasMainwin(object):
 
         # Button - Article Buffout 4
         self.ArtBT_Buffout4 = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 150, 30))
+        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 180, 30))
         self.ArtBT_Buffout4.setObjectName("ArtBT_Buffout4")
         self.ArtBT_Buffout4.setText("BUFFOUT 4 INSTALLATION")
-        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115"))) # type: ignore
+        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115")))  # type: ignore
         # Button - Article Advanced Troubleshooting
         self.ArtBT_Troubleshoot = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(220, 370, 200, 30))
+        self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(230, 370, 210, 30))
         self.ArtBT_Troubleshoot.setObjectName("ArtBT_Troubleshoot")
         self.ArtBT_Troubleshoot.setText("ADVANCED TROUBLESHOOTING")
-        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141"))) # type: ignore
-        # Button - Article Important Patches 
+        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141")))  # type: ignore
+        # Button - Article Important Patches
         self.ArtBT_Patches = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Patches.setGeometry(QtCore.QRect(450, 370, 150, 30))
+        self.ArtBT_Patches.setGeometry(QtCore.QRect(450, 370, 180, 30))
         self.ArtBT_Patches.setObjectName("ArtBT_Patches")
         self.ArtBT_Patches.setText("IMPORTANT PATCHES LIST")
-        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769"))) # type: ignore
+        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769")))  # type: ignore
         # Button - Website Buffout 4
         self.WebBT_Buffout4_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 150, 30))
+        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 180, 30))
         self.WebBT_Buffout4_Nexus.setObjectName("WebBT_Buffout4")
         self.WebBT_Buffout4_Nexus.setText("BUFFOUT 4 NEXUS PAGE")
-        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359"))) # type: ignore
+        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359")))  # type: ignore
         # Button - Website CLAS Nexus
         self.WebBT_CLAS_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(220, 420, 200, 30))
+        self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(230, 420, 210, 30))
         self.WebBT_CLAS_Nexus.setObjectName("WebBT_CLAS_Nexus")
         self.WebBT_CLAS_Nexus.setText("AUTO SCANNER NEXUS PAGE")
-        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255"))) # type: ignore
+        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255")))  # type: ignore
         # Button - Website CLAS Github
         self.WebBT_CLAS_Github = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(450, 420, 150, 30))
+        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(450, 420, 180, 30))
         self.WebBT_CLAS_Github.setObjectName("WebBT_CLAS_Git")
         self.WebBT_CLAS_Github.setText("AUTO SCANNER GITHUB")
-        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases"))) # type: ignore
+        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases")))  # type: ignore
 
         # BOTTOM
 
@@ -252,9 +253,9 @@ class UiClasMainwin(object):
         self.TXT_Window.setObjectName("TXT_Window")
         # TEXT Label - About
         self.TXT_About = QtWidgets.QLabel(CLAS_MainWin)
-        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 300, 16))
-        self.TXT_About.setInputMethodHints(QtCore.Qt.ImhHiddenText)  # type: ignore
-        self.TXT_About.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)  # type: ignore
+        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 320, 16))
+        self.TXT_About.setInputMethodHints(Qt.InputMethodHint.ImhHiddenText)  # type: ignore
+        self.TXT_About.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignTop)  # type: ignore
         self.TXT_About.setObjectName("TXT_About")
         self.TXT_About.setText("Crash Log Auto Scanner (CLAS) | Made by: Poet #9800")
         # TEXT Label - Contributors
@@ -275,12 +276,12 @@ class UiClasMainwin(object):
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
-            self.Line_SelectedFolder.setText(SCAN_folder) # type: ignore
+            self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
             write_ini_value_to_file("Scan Path", SCAN_folder)
             # Change text color back to black.
-            LSF_palette = self.Line_SelectedFolder.palette() # type: ignore
-            LSF_palette.setColor(QPalette.Text, QColor(Qt.black))  # type: ignore
-            self.Line_SelectedFolder.setPalette(LSF_palette) # type: ignore
+            LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
+            self.Line_SelectedFolder.setPalette(LSF_palette)  # type: ignore
 
     @staticmethod
     def SelectFolder_INI():
@@ -307,31 +308,31 @@ class UiClasMainwin(object):
         # ====================== CHECK BOXES ========================
 
     def Bool_IMIMode(self):
-        if self.ChkBT_IMIMode.isChecked(): # type: ignore
+        if self.ChkBT_IMIMode.isChecked():  # type: ignore
             write_ini_value_to_file("IMI Mode", "true")
         else:
             write_ini_value_to_file("IMI Mode", "false")
 
     def Bool_INIStats(self):
-        if self.ChkBT_Stats.isChecked(): # type: ignore
+        if self.ChkBT_Stats.isChecked():  # type: ignore
             write_ini_value_to_file("Stat Logging", "true")
         else:
             write_ini_value_to_file("Stat Logging", "false")
 
     def Bool_INIUnsolved(self):
-        if self.ChkBT_Unsolved.isChecked(): # type: ignore
+        if self.ChkBT_Unsolved.isChecked():  # type: ignore
             write_ini_value_to_file("Move Unsolved", "true")
         else:
             write_ini_value_to_file("Move Unsolved", "false")
 
     def Bool_INIUpdate(self):
-        if self.ChkBT_Update.isChecked(): # type: ignore
+        if self.ChkBT_Update.isChecked():  # type: ignore
             write_ini_value_to_file("Update Check", "true")
         else:
             write_ini_value_to_file("Update Check", "false")
 
     def Bool_FCXMode(self):
-        if self.ChkBT_FCXMode.isChecked(): # type: ignore
+        if self.ChkBT_FCXMode.isChecked():  # type: ignore
             write_ini_value_to_file("FCX Mode", "true")
         else:
             write_ini_value_to_file("FCX Mode", "false")
@@ -343,4 +344,4 @@ if __name__ == "__main__":
     ui = UiClasMainwin()
     ui.setup_ui(CLAS_MainWin)
     CLAS_MainWin.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
