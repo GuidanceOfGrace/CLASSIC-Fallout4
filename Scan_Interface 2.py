@@ -280,7 +280,7 @@ class UiClasMainwin(object):
             write_ini_value_to_file("Scan Path", SCAN_folder)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
-            LSF_palette.setColor(QPalette.Text, QColor(Qt.black))  # type: ignore
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
             self.Line_SelectedFolder.setPalette(LSF_palette)  # type: ignore
 
     @staticmethod
