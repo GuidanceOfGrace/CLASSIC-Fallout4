@@ -3,10 +3,10 @@
 
 import sys
 import Scan_Crashlogs
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import Qt, QUrl
-from PyQt6.QtWidgets import QFileDialog
-from PyQt6.QtGui import QDesktopServices, QColor, QPalette
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtWidgets import QFileDialog
+from PySide6.QtGui import QDesktopServices, QColor, QPalette
 
 CLAS_Current = Scan_Crashlogs.CLAS_Current
 CLAS_config = Scan_Crashlogs.CLAS_config
@@ -79,7 +79,7 @@ class UiClasMainwin(object):
         self.RegBT_Browse.setGeometry(QtCore.QRect(490, 30, 130, 24))
         self.RegBT_Browse.setObjectName("RegBT_Browse")
         self.RegBT_Browse.setText("Browse Folder...")
-        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)
+        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN) # type: ignore
 
         # Button - SCAN (CRASH LOGS)
         self.RegBT_SCAN = QtWidgets.QPushButton(CLAS_MainWin)
@@ -90,7 +90,7 @@ class UiClasMainwin(object):
         self.RegBT_SCAN.setFont(font)
         self.RegBT_SCAN.setObjectName("RegBT_SCAN")
         self.RegBT_SCAN.setText("SCAN LOGS")
-        self.RegBT_SCAN.clicked.connect(self.CrashLogs_SCAN)
+        self.RegBT_SCAN.clicked.connect(self.CrashLogs_SCAN) # type: ignore
 
         # Button - Set INI Path
         self.RegBT_ChangeINI = QtWidgets.QPushButton(CLAS_MainWin)
@@ -98,14 +98,14 @@ class UiClasMainwin(object):
         self.RegBT_ChangeINI.setObjectName("RegBT_ChangeINI")
         self.RegBT_ChangeINI.setText("CHANGE INI PATH")
         self.RegBT_ChangeINI.setToolTip("Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.")
-        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI)
+        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI) # type: ignore
 
         # Button - Check Updates
         self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
         self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(410, 150, 150, 24))
         self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
         self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
-        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)
+        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup) # type: ignore
 
         # SEGMENT - SETTINGS
 
@@ -133,7 +133,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "FCX Mode"):
             self.ChkBT_FCXMode.setChecked(True)
         self.ChkBT_FCXMode.setObjectName("ChkBT_FCXMode")
-        self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode)
+        self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode) # type: ignore
 
         # Check Box - IMI Mode
         self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -143,7 +143,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "IMI Mode"):
             self.ChkBT_IMIMode.setChecked(True)
         self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
-        self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode)
+        self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode) # type: ignore
 
         # Check Box - INI Update
         self.ChkBT_Update = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -153,7 +153,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "Update Check"):
             self.ChkBT_Update.setChecked(True)
         self.ChkBT_Update.setObjectName("ChkBT_Update")
-        self.ChkBT_Update.stateChanged.connect(self.Bool_INIUpdate)
+        self.ChkBT_Update.stateChanged.connect(self.Bool_INIUpdate) # type: ignore
 
         # Check Box - INI Stats
         self.ChkBT_Stats = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -163,7 +163,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "Stat Logging"):
             self.ChkBT_Stats.setChecked(True)
         self.ChkBT_Stats.setObjectName("ChkBT_Stats")
-        self.ChkBT_Stats.stateChanged.connect(self.Bool_INIStats)
+        self.ChkBT_Stats.stateChanged.connect(self.Bool_INIStats) # type: ignore
 
         # Check Box - INI Unsolved
         self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -173,7 +173,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
             self.ChkBT_Unsolved.setChecked(True)
         self.ChkBT_Unsolved.setObjectName("ChkBT_Unsolved")
-        self.ChkBT_Unsolved.stateChanged.connect(self.Bool_INIUnsolved)
+        self.ChkBT_Unsolved.stateChanged.connect(self.Bool_INIUnsolved) # type: ignore
 
         # SEGMENT - ARTICLES / WEBSITES
 
@@ -238,14 +238,14 @@ class UiClasMainwin(object):
         self.RegBT_Help.setObjectName("RegBT_Help")
         self.RegBT_Help.setText("HELP")
         self.RegBT_Help.setToolTip("How To Use CLAS GUI")
-        self.RegBT_Help.clicked.connect(self.Help_Popup)
+        self.RegBT_Help.clicked.connect(self.Help_Popup) # type: ignore
         # Button - EXIT
         self.RegBT_Exit = QtWidgets.QPushButton(CLAS_MainWin)
         self.RegBT_Exit.setGeometry(QtCore.QRect(510, 480, 110, 24))
         self.RegBT_Exit.setObjectName("RegBT_Exit")
         self.RegBT_Exit.setText("EXIT")
         self.RegBT_Exit.setToolTip("Exit CLAS GUI")
-        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)
+        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close) # type: ignore
 
         # TEXT Box - Window
         self.TXT_Window = QtWidgets.QTextBrowser(CLAS_MainWin)
