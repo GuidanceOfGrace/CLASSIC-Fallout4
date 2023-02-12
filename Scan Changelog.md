@@ -1,6 +1,22 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.25
+* MAIN SCRIPT *
+- Adjusted all warning / caution messages to show up only when their specific conditions are met.
+- Auto-Scanner now checks for reported errors in log files located in the Fallout 4 root folder.
+- Auto-Scanner now checks the *Fallout4.exe* version which will be useful at a later date.
+- Auto-Scanner now checks if all required F4SE script files are found and accounted for.
+- Auto-Scanner should now correctly warn you if your current Python version is older than *3.9*.
+- Added a new segment named *CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS*
+- Moved all local Fallout 4 & Buffout 4 file checks to a separate script *Scan_Gamefiles.py*.
+[You can run Scan_Gamefiles.py yourself to get a report about file warnings and suggestions.]
+[Changing IMI Mode to true in Scan Crashlogs.ini will ignore some warnings for convenience.]
+
+* CLAS GUI *
+- Added *Scan Game Files* button that runs previously mentioned *Scan_Gamefiles.py* script.
+- Slight adjustments to some options and text positions, added some basic instructions.
+
 6.11
 * MAIN SCRIPT *
 - Fixed an issue where Auto-Scanner would do the opposite of intended while *Move Unsolved = true*.
@@ -13,7 +29,7 @@
 - Added detection for functions for the *List Of Detected (Named) Records*.
 - Added detection for *NPC Pathing Crash* caused by followers / companions.
 - Added detection for the *[GPU Overclock Crash]* | Expect false positives.
-  [Crash info was already listed, but detection wasn't implemented until now.]
+[Crash info was already listed, but detection wasn't implemented until now.]
 
 * CLAS GUI *
 - General code optimization and cleanup to resolve / suppress various IDE warnings.

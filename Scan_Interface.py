@@ -10,7 +10,7 @@ from PyQt5.QtGui import QDesktopServices, QColor, QPalette
 
 CLAS_Current = Scan_Crashlogs.CLAS_Current
 CLAS_config = Scan_Crashlogs.CLAS_config
-write_ini_value_to_file = Scan_Crashlogs.write_ini_value_to_file
+clas_ini_update = Scan_Crashlogs.clas_ini_update
 
 
 # noinspection PyUnresolvedReferences
@@ -38,7 +38,8 @@ class UiClasMainwin(object):
         self.RegBT_CheckUpdates = None
         self.RegBT_Exit = None
         self.RegBT_Help = None
-        self.RegBT_SCAN = None
+        self.RegBT_SCAN_LOGS = None
+        self.RegBT_SCAN_FILES = None
 
         self.TXT_About = None
         self.TXT_Contributors = None
@@ -80,20 +81,31 @@ class UiClasMainwin(object):
         self.RegBT_Browse.setText("Browse Folder...")
         self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)
 
-        # Button - SCAN (CRASH LOGS)
-        self.RegBT_SCAN = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_SCAN.setGeometry(QtCore.QRect(220, 80, 200, 40))
+        # Button - SCAN LOGS (CRASH LOGS)
+        self.RegBT_SCAN_LOGS = QtWidgets.QPushButton(CLAS_MainWin)
+        self.RegBT_SCAN_LOGS.setGeometry(QtCore.QRect(220, 80, 200, 40))
         font = QtGui.QFont()
         font.setPointSize(10)
         font.setBold(True)
-        self.RegBT_SCAN.setFont(font)
-        self.RegBT_SCAN.setObjectName("RegBT_SCAN")
-        self.RegBT_SCAN.setText("SCAN LOGS")
-        self.RegBT_SCAN.clicked.connect(self.CrashLogs_SCAN)
+        self.RegBT_SCAN_LOGS.setFont(font)
+        self.RegBT_SCAN_LOGS.setObjectName("RegBT_SCAN_LOGS")
+        self.RegBT_SCAN_LOGS.setText("SCAN LOGS")
+        self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)
+
+        # Button - SCAN FILES (GAME FILES)
+        self.RegBT_SCAN_FILES = QtWidgets.QPushButton(CLAS_MainWin)
+        self.RegBT_SCAN_FILES.setGeometry(QtCore.QRect(245, 150, 150, 32))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.RegBT_SCAN_FILES.setFont(font)
+        self.RegBT_SCAN_FILES.setObjectName("RegBT_SCAN_FILES")
+        self.RegBT_SCAN_FILES.setText("Scan Game Files")
+        self.RegBT_SCAN_FILES.clicked.connect(self.Gamefiles_SCAN)
 
         # Button - Set INI Path
         self.RegBT_ChangeINI = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_ChangeINI.setGeometry(QtCore.QRect(90, 150, 130, 24))
+        self.RegBT_ChangeINI.setGeometry(QtCore.QRect(90, 150, 130, 32))
         self.RegBT_ChangeINI.setObjectName("RegBT_ChangeINI")
         self.RegBT_ChangeINI.setText("CHANGE INI PATH")
         self.RegBT_ChangeINI.setToolTip("Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.")
@@ -101,7 +113,7 @@ class UiClasMainwin(object):
 
         # Button - Check Updates
         self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(410, 150, 130, 24))
+        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(420, 150, 130, 32))
         self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
         self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
         self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)
@@ -138,7 +150,7 @@ class UiClasMainwin(object):
         self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
         self.ChkBT_IMIMode.setGeometry(QtCore.QRect(260, 235, 110, 50))
         self.ChkBT_IMIMode.setText("IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS")
-        self.ChkBT_IMIMode.setToolTip("Enable if you want Auto-Scanner to hide all manual installation warnings. I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. ")
+        self.ChkBT_IMIMode.setToolTip("Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. ")
         if CLAS_config.getboolean("MAIN", "IMI Mode"):
             self.ChkBT_IMIMode.setChecked(True)
         self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
@@ -146,7 +158,7 @@ class UiClasMainwin(object):
 
         # Check Box - INI Update
         self.ChkBT_Update = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Update.setGeometry(QtCore.QRect(420, 230, 110, 20))
+        self.ChkBT_Update.setGeometry(QtCore.QRect(430, 230, 110, 20))
         self.ChkBT_Update.setText("UPDATE CHECK")
         self.ChkBT_Update.setToolTip("Enable if you want Auto-Scanner to check your Python version and if all required packages are installed. ")
         if CLAS_config.getboolean("MAIN", "Update Check"):
@@ -166,9 +178,9 @@ class UiClasMainwin(object):
 
         # Check Box - INI Unsolved
         self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(420, 270, 120, 20))
+        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(430, 270, 120, 20))
         self.ChkBT_Unsolved.setText("MOVE UNSOLVED")
-        self.ChkBT_Unsolved.setToolTip("Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder. (Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
+        self.ChkBT_Unsolved.setToolTip("Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
             self.ChkBT_Unsolved.setChecked(True)
         self.ChkBT_Unsolved.setObjectName("ChkBT_Unsolved")
@@ -271,12 +283,19 @@ class UiClasMainwin(object):
     @staticmethod
     def CrashLogs_SCAN():
         Scan_Crashlogs.scan_logs()
+        
+    def Gamefiles_SCAN(self):
+        from Scan_Gamefiles import scan_mainfiles
+        from Scan_Gamefiles import scan_modfiles
+        combined_result = scan_mainfiles() + scan_modfiles()
+        for item in combined_result:
+            print(item)
 
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
             self.Line_SelectedFolder.setText(SCAN_folder) # type: ignore
-            write_ini_value_to_file("Scan Path", SCAN_folder)
+            clas_ini_update("Scan Path", SCAN_folder)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette() # type: ignore
             LSF_palette.setColor(QPalette.Text, QColor(Qt.black))  # type: ignore
@@ -286,8 +305,8 @@ class UiClasMainwin(object):
     def SelectFolder_INI():
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
-            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You set the new path to: \n" + INI_folder)  # type: ignore
-            write_ini_value_to_file("INI Path", INI_folder)
+            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)  # type: ignore
+            clas_ini_update("INI Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
 
@@ -298,7 +317,7 @@ class UiClasMainwin(object):
 
     @staticmethod
     def Update_Popup():
-        if Scan_Crashlogs.run_update():
+        if Scan_Crashlogs.clas_update_run():
             QtWidgets.QMessageBox.information(CLAS_MainWin, "CLAS Update", "You have the latest version of Crash Log Auto Scanner!")
         else:
             QtWidgets.QMessageBox.warning(CLAS_MainWin, "CLAS Update", "New Crash Log Auto Scanner version detected!\nPress OK to open the CLAS Nexus Page.")
@@ -308,36 +327,45 @@ class UiClasMainwin(object):
 
     def Bool_IMIMode(self):
         if self.ChkBT_IMIMode.isChecked(): # type: ignore
-            write_ini_value_to_file("IMI Mode", "true")
+            clas_ini_update("IMI Mode", "true")
         else:
-            write_ini_value_to_file("IMI Mode", "false")
+            clas_ini_update("IMI Mode", "false")
 
     def Bool_INIStats(self):
         if self.ChkBT_Stats.isChecked(): # type: ignore
-            write_ini_value_to_file("Stat Logging", "true")
+            clas_ini_update("Stat Logging", "true")
         else:
-            write_ini_value_to_file("Stat Logging", "false")
+            clas_ini_update("Stat Logging", "false")
 
     def Bool_INIUnsolved(self):
         if self.ChkBT_Unsolved.isChecked(): # type: ignore
-            write_ini_value_to_file("Move Unsolved", "true")
+            clas_ini_update("Move Unsolved", "true")
         else:
-            write_ini_value_to_file("Move Unsolved", "false")
+            clas_ini_update("Move Unsolved", "false")
 
     def Bool_INIUpdate(self):
         if self.ChkBT_Update.isChecked(): # type: ignore
-            write_ini_value_to_file("Update Check", "true")
+            clas_ini_update("Update Check", "true")
         else:
-            write_ini_value_to_file("Update Check", "false")
+            clas_ini_update("Update Check", "false")
 
     def Bool_FCXMode(self):
         if self.ChkBT_FCXMode.isChecked(): # type: ignore
-            write_ini_value_to_file("FCX Mode", "true")
+            clas_ini_update("FCX Mode", "true")
         else:
-            write_ini_value_to_file("FCX Mode", "false")
+            clas_ini_update("FCX Mode", "false")
 
 
 if __name__ == "__main__":
+
+    gui_prompt = """\
+-----
+PRESS 'SCAN LOGS' BUTTON TO SCAN ALL AVAILABLE BUFFOUT 4 CRASH LOGS
+OR
+PRESS 'Scan Game Files' BUTTON TO CHECK YOUR FALLOUT 4 GAME FILES
+-----
+    """
+    print(gui_prompt)
     app = QtWidgets.QApplication(sys.argv)
     CLAS_MainWin = QtWidgets.QDialog()
     ui = UiClasMainwin()
