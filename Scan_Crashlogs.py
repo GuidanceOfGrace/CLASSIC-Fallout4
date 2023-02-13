@@ -272,7 +272,8 @@ def scan_logs():
                 from Scan_Gamefiles import scan_mainfiles
                 mainfiles_result = scan_mainfiles()
                 for line in mainfiles_result:
-                    output.writelines([line,"\n"])
+                    output.writelines(line)
+                output.write("\n")
             else:
                 # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
                 if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
@@ -663,6 +664,7 @@ def scan_logs():
                 if plugins_loaded:
                     for elem in mods.keys():
                         if mods[elem]["mod_1"] in plugins_list and mods[elem]["mod_2"] in plugins_list:
+                            warn = ''.join(mods[elem]["warn"])
                             output.writelines([f"[!] Found: {warn}\n",
                                                "-----\n"])
                             mod_trap = True
@@ -749,7 +751,7 @@ def scan_logs():
                      "warn": ["WAR OF THE COMMONWEALTH \n",
                               "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]}
             }
-
+            Mod_Check1 = False
             if plugins_loaded:
                 Mod_Check1 = check_plugins(Mods1, Mod_Trap1)
 
@@ -784,7 +786,7 @@ def scan_logs():
                     output.write("This usually prevents most common crashes with Classic Holstered Weapons.\n")
                     output.write("-----\n")
                     Mod_Trap1 = True
-
+            
             if plugins_loaded and (Mod_Check1 or Mod_Trap1) is True:
                 output.writelines(["# [!] CAUTION : ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n",
                                    "  You can disable any/all of them temporarily to confirm they caused this crash.\n",
@@ -845,12 +847,12 @@ def scan_logs():
                     "warn": ["MOD_1_NAME ❌ CONFLICTS WITH : MOD_2_NAME \n",
                              "- TEMPLATE."]},
             }
-            
+            Mod_Check2 = False
             if plugins_loaded:
                 Mod_Check2 = check_conflicts(Mods2, Mod_Trap2)
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
-
+            
             if plugins_loaded and (Mod_Check2 or Mod_Trap2) is True:
                 output.writelines(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
                                    "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
@@ -1045,24 +1047,24 @@ def scan_logs():
                               "- Version 2.6.3 contains a resurrection script that will regularly crash the game. \n",
                               "  Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]}
             }
-
+            Mod_Check3 = False
             if plugins_loaded:
                 Mod_Check3 = check_plugins(Mods3, Mod_Trap3)
+                for line in loglines:
+                    # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+                    if no_repeat1 is False and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
+                        output.writelines([f"[!] Found: {line[0:9].strip()} THUGGYSMURF QUEST MOD\n",
+                                           "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
+                                           "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
+                                           "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
+                                           "-----\n"])
+                        no_repeat1 = Mod_Trap3 = True
 
-                # =============== SPECIAL MOD / PLUGIN CHECKS ===============
-                if no_repeat1 is False and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
-                    output.writelines([f"[!] Found: {line[0:9].strip()} THUGGYSMURF QUEST MOD\n",
-                                       "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
-                                       "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
-                                       "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
-                                       "-----\n"])
-                    no_repeat1 = Mod_Trap3 = True
-
-                if no_repeat2 is False and "File:" not in line and ("CaN.esm" or "AnimeRace_Nanako.esp") in line:
-                    output.writelines([f"[!] Found: {line[0:9].strip()} CUSTOM RACE SKELETON MOD\n",
-                                       "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
-                                       "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n"])
-                    no_repeat2 = Mod_Trap3 = True
+                    if no_repeat2 is False and "File:" not in line and ("CaN.esm" or "AnimeRace_Nanako.esp") in line:
+                        output.writelines([f"[!] Found: {line[0:9].strip()} CUSTOM RACE SKELETON MOD\n",
+                                           "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
+                                           "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n"])
+                        no_repeat2 = Mod_Trap3 = True
 
                 if "FallSouls.dll" in logtext:
                     output.writelines([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
@@ -1163,7 +1165,7 @@ def scan_logs():
                 34: {"mod": " zxcMicroAdditions",
                      "warn": "ZXC Micro Additions"}
             }
-
+            Mod_Check4 = False
             if plugins_loaded:
                 Mod_Check4 = check_plugins(Mods4, Mod_Trap4)
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============

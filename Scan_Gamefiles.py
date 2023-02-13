@@ -2,6 +2,7 @@ import os
 import stat
 import platform
 import configparser
+from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
 from Scan_Crashlogs import clas_ini_create
@@ -79,38 +80,38 @@ Warn_BLOG_NOTE_Modules = """\
 
 
 # =================== DEFINE LOCAL FILES ===================
+@dataclass
 class Info:
-    def __init__(self):
-        # FO4 GAME FILES
-        self.Address_Library: Path | None = None
-        self.Buffout_DLL: Path | None = None
-        self.Buffout_INI: Path | None = None
-        self.Buffout_TOML: Path | None = None
-        self.F4CK_EXE: Path | None = None
-        self.F4CK_Fixes: Path | None = None
-        self.F4SE_DLL: Path | None = None
-        self.F4SE_Loader: Path | None = None
-        self.F4SE_SDLL: Path | None = None
-        self.F4SE_VRDLL: Path | None = None
-        self.F4SE_VRLoader: Path | None = None
-        self.FO4_EXE: Path | None = None
-        self.Game_Path: str | None = None
-        self.Game_Scripts: Path | None = None
-        self.Preloader_DLL: Path | None = None
-        self.Preloader_XML: Path | None = None
-        self.Steam_INI: Path | None = None
-        self.VR_Buffout: Path | None = None
-        self.VR_EXE: Path | None = None
-        # FO4 DOC FILES
-        self.BO4_Achievements: Path | None = None
-        self.BO4_Looksmenu: Path | None = None
-        self.BO4_BakaSH: Path | None = None
-        self.FO4_F4SE_Logs: Path | None = None
-        self.FO4_F4SE_Path: Path | None = None
-        self.FO4_F4SEVR_Path: Path | None = None
-        self.FO4_Custom_Path: Path | None = None
-
-    def docs_file_check(self, docs_location):
+    # FO4 GAME FILES
+    Address_Library: Path = field(default_factory=Path)
+    Buffout_DLL: Path = field(default_factory=Path)
+    Buffout_INI: Path = field(default_factory=Path)
+    Buffout_TOML: Path = field(default_factory=Path)
+    F4CK_EXE: Path = field(default_factory=Path)
+    F4CK_Fixes: Path = field(default_factory=Path)
+    F4SE_DLL: Path = field(default_factory=Path)
+    F4SE_Loader: Path = field(default_factory=Path)
+    F4SE_SDLL: Path = field(default_factory=Path)
+    F4SE_VRDLL: Path = field(default_factory=Path)
+    F4SE_VRLoader: Path = field(default_factory=Path)
+    FO4_EXE: Path = field(default_factory=Path)
+    Game_Path: str = field(default_factory=str)
+    Game_Scripts: Path = field(default_factory=Path)
+    Preloader_DLL: Path = field(default_factory=Path)
+    Preloader_XML: Path = field(default_factory=Path)
+    Steam_INI: Path = field(default_factory=Path)
+    VR_Buffout: Path = field(default_factory=Path)
+    VR_EXE: Path = field(default_factory=Path)
+    # FO4 DOC FILES
+    BO4_Achievements: Path = field(default_factory=Path)
+    BO4_Looksmenu: Path = field(default_factory=Path)
+    BO4_BakaSH: Path = field(default_factory=Path)
+    FO4_F4SE_Logs: str = field(default_factory=str)
+    FO4_F4SE_Path: Path = field(default_factory=Path)
+    FO4_F4SEVR_Path: Path = field(default_factory=Path)
+    FO4_Custom_Path: Path = field(default_factory=Path)
+    
+    def docs_file_check(self, docs_location: Path):
         self.BO4_Achievements = docs_location.joinpath("My Games", "Fallout4", "F4SE", "achievements.log")
         self.BO4_Looksmenu = docs_location.joinpath("My Games", "Fallout4", "F4SE", "f4ee.log")
         self.BO4_BakaSH = docs_location.joinpath("My Games", "Fallout4", "F4SE", "BakaScrapHeap.log")
@@ -164,7 +165,7 @@ def docs_path_check():
             return Manual_Docs
 
 
-info.docs_file_check(docs_path_check())
+info.docs_file_check(docs_path_check()) # type: ignore
 
 
 # =================== CHECK MAIN FILES ===================
@@ -453,7 +454,7 @@ def scan_modfiles():
         else:
             scan_modfiles_report.append("❌ *Fallout 4 VR* is NOT installed.\n  -----")
 
-        if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()):
+        if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()): # type: ignore
             scan_modfiles_report.append("✔️ *Creation Kit Fixes* is (manually) installed.\n  -----")
         elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
             scan_modfiles_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
