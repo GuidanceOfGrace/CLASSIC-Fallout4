@@ -209,37 +209,37 @@ class UiClasMainwin(object):
         self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 150, 30))
         self.ArtBT_Buffout4.setObjectName("ArtBT_Buffout4")
         self.ArtBT_Buffout4.setText("BUFFOUT 4 INSTALLATION")
-        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115")))
+        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115"))) # type: ignore
         # Button - Article Advanced Troubleshooting
         self.ArtBT_Troubleshoot = QtWidgets.QPushButton(CLAS_MainWin)
         self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(220, 370, 200, 30))
         self.ArtBT_Troubleshoot.setObjectName("ArtBT_Troubleshoot")
         self.ArtBT_Troubleshoot.setText("ADVANCED TROUBLESHOOTING")
-        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141")))
+        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141"))) # type: ignore
         # Button - Article Important Patches 
         self.ArtBT_Patches = QtWidgets.QPushButton(CLAS_MainWin)
         self.ArtBT_Patches.setGeometry(QtCore.QRect(450, 370, 150, 30))
         self.ArtBT_Patches.setObjectName("ArtBT_Patches")
         self.ArtBT_Patches.setText("IMPORTANT PATCHES LIST")
-        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769")))
+        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769"))) # type: ignore
         # Button - Website Buffout 4
         self.WebBT_Buffout4_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
         self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 150, 30))
         self.WebBT_Buffout4_Nexus.setObjectName("WebBT_Buffout4")
         self.WebBT_Buffout4_Nexus.setText("BUFFOUT 4 NEXUS PAGE")
-        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359")))
+        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359"))) # type: ignore
         # Button - Website CLAS Nexus
         self.WebBT_CLAS_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
         self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(220, 420, 200, 30))
         self.WebBT_CLAS_Nexus.setObjectName("WebBT_CLAS_Nexus")
         self.WebBT_CLAS_Nexus.setText("AUTO SCANNER NEXUS PAGE")
-        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255")))
+        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255"))) # type: ignore
         # Button - Website CLAS Github
         self.WebBT_CLAS_Github = QtWidgets.QPushButton(CLAS_MainWin)
         self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(450, 420, 150, 30))
         self.WebBT_CLAS_Github.setObjectName("WebBT_CLAS_Git")
         self.WebBT_CLAS_Github.setText("AUTO SCANNER GITHUB")
-        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases")))
+        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases"))) # type: ignore
 
         # BOTTOM
 
