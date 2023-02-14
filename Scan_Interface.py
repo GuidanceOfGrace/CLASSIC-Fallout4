@@ -3,10 +3,10 @@
 
 import sys
 import Scan_Crashlogs
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtGui import QDesktopServices, QColor, QPalette
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtWidgets import QFileDialog
+from PySide6.QtGui import QDesktopServices, QColor, QPalette
 
 CLAS_Current = Scan_Crashlogs.CLAS_Current
 CLAS_config = Scan_Crashlogs.CLAS_config
@@ -71,7 +71,7 @@ class UiClasMainwin(object):
             self.Line_SelectedFolder.setText(SCAN_folder)
         # Change text color to gray.
         LSF_palette = self.Line_SelectedFolder.palette()
-        LSF_palette.setColor(QPalette.Text, QColor(Qt.darkGray))  # type: ignore
+        LSF_palette.setColor(QPalette.Text, QColor("darkgray"))  # type: ignore
         self.Line_SelectedFolder.setPalette(LSF_palette)
 
         # Button - Browse Folder
@@ -79,7 +79,7 @@ class UiClasMainwin(object):
         self.RegBT_Browse.setGeometry(QtCore.QRect(490, 30, 130, 24))
         self.RegBT_Browse.setObjectName("RegBT_Browse")
         self.RegBT_Browse.setText("Browse Folder...")
-        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)
+        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)  # type: ignore
 
         # Button - SCAN LOGS (CRASH LOGS)
         self.RegBT_SCAN_LOGS = QtWidgets.QPushButton(CLAS_MainWin)
@@ -90,7 +90,7 @@ class UiClasMainwin(object):
         self.RegBT_SCAN_LOGS.setFont(font)
         self.RegBT_SCAN_LOGS.setObjectName("RegBT_SCAN_LOGS")
         self.RegBT_SCAN_LOGS.setText("SCAN LOGS")
-        self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)
+        self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)  # type: ignore
 
         # Button - SCAN FILES (GAME FILES)
         self.RegBT_SCAN_FILES = QtWidgets.QPushButton(CLAS_MainWin)
@@ -101,7 +101,7 @@ class UiClasMainwin(object):
         self.RegBT_SCAN_FILES.setFont(font)
         self.RegBT_SCAN_FILES.setObjectName("RegBT_SCAN_FILES")
         self.RegBT_SCAN_FILES.setText("Scan Game Files")
-        self.RegBT_SCAN_FILES.clicked.connect(self.Gamefiles_SCAN)
+        self.RegBT_SCAN_FILES.clicked.connect(self.Gamefiles_SCAN)  # type: ignore
 
         # Button - Set INI Path
         self.RegBT_ChangeINI = QtWidgets.QPushButton(CLAS_MainWin)
@@ -109,22 +109,22 @@ class UiClasMainwin(object):
         self.RegBT_ChangeINI.setObjectName("RegBT_ChangeINI")
         self.RegBT_ChangeINI.setText("CHANGE INI PATH")
         self.RegBT_ChangeINI.setToolTip("Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.")
-        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI)
+        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI)  # type: ignore
 
         # Button - Check Updates
         self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(420, 150, 130, 32))
+        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(420, 150, 140, 32))
         self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
         self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
-        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)
+        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)  # type: ignore
 
         # SEGMENT - SETTINGS
 
         # SEPARATOR LINE 1
         self.Line_Separator_1 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_1.setGeometry(QtCore.QRect(40, 180, 560, 20))
-        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.HLine)  # type: ignore
-        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Sunken)  # type: ignore
+        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.Shape.HLine)  # type: ignore
+        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)  # type: ignore
         self.Line_Separator_1.setObjectName("Line_Separator_1")
         # SEPARATOR TEXT 1 (SETTINGS)
         self.LBL_Settings = QtWidgets.QLabel(CLAS_MainWin)
@@ -144,7 +144,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "FCX Mode"):
             self.ChkBT_FCXMode.setChecked(True)
         self.ChkBT_FCXMode.setObjectName("ChkBT_FCXMode")
-        self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode)
+        self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode)  # type: ignore
 
         # Check Box - IMI Mode
         self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -154,7 +154,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "IMI Mode"):
             self.ChkBT_IMIMode.setChecked(True)
         self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
-        self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode)
+        self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode)  # type: ignore
 
         # Check Box - INI Update
         self.ChkBT_Update = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -164,7 +164,7 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "Update Check"):
             self.ChkBT_Update.setChecked(True)
         self.ChkBT_Update.setObjectName("ChkBT_Update")
-        self.ChkBT_Update.stateChanged.connect(self.Bool_INIUpdate)
+        self.ChkBT_Update.stateChanged.connect(self.Bool_INIUpdate)  # type: ignore
 
         # Check Box - INI Stats
         self.ChkBT_Stats = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -174,17 +174,17 @@ class UiClasMainwin(object):
         if CLAS_config.getboolean("MAIN", "Stat Logging"):
             self.ChkBT_Stats.setChecked(True)
         self.ChkBT_Stats.setObjectName("ChkBT_Stats")
-        self.ChkBT_Stats.stateChanged.connect(self.Bool_INIStats)
+        self.ChkBT_Stats.stateChanged.connect(self.Bool_INIStats)  # type: ignore
 
         # Check Box - INI Unsolved
         self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(430, 270, 120, 20))
+        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(430, 270, 130, 20))
         self.ChkBT_Unsolved.setText("MOVE UNSOLVED")
         self.ChkBT_Unsolved.setToolTip("Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
             self.ChkBT_Unsolved.setChecked(True)
         self.ChkBT_Unsolved.setObjectName("ChkBT_Unsolved")
-        self.ChkBT_Unsolved.stateChanged.connect(self.Bool_INIUnsolved)
+        self.ChkBT_Unsolved.stateChanged.connect(self.Bool_INIUnsolved)  # type: ignore
 
         # SEGMENT - ARTICLES / WEBSITES
 
@@ -206,40 +206,40 @@ class UiClasMainwin(object):
 
         # Button - Article Buffout 4
         self.ArtBT_Buffout4 = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 150, 30))
+        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 170, 30))
         self.ArtBT_Buffout4.setObjectName("ArtBT_Buffout4")
         self.ArtBT_Buffout4.setText("BUFFOUT 4 INSTALLATION")
-        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115"))) # type: ignore
+        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115")))  # type: ignore
         # Button - Article Advanced Troubleshooting
         self.ArtBT_Troubleshoot = QtWidgets.QPushButton(CLAS_MainWin)
         self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(220, 370, 200, 30))
         self.ArtBT_Troubleshoot.setObjectName("ArtBT_Troubleshoot")
         self.ArtBT_Troubleshoot.setText("ADVANCED TROUBLESHOOTING")
-        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141"))) # type: ignore
-        # Button - Article Important Patches 
+        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141")))  # type: ignore
+        # Button - Article Important Patches
         self.ArtBT_Patches = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Patches.setGeometry(QtCore.QRect(450, 370, 150, 30))
+        self.ArtBT_Patches.setGeometry(QtCore.QRect(430, 370, 180, 30))
         self.ArtBT_Patches.setObjectName("ArtBT_Patches")
         self.ArtBT_Patches.setText("IMPORTANT PATCHES LIST")
-        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769"))) # type: ignore
+        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769")))  # type: ignore
         # Button - Website Buffout 4
         self.WebBT_Buffout4_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 150, 30))
+        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 170, 30))
         self.WebBT_Buffout4_Nexus.setObjectName("WebBT_Buffout4")
         self.WebBT_Buffout4_Nexus.setText("BUFFOUT 4 NEXUS PAGE")
-        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359"))) # type: ignore
+        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359")))  # type: ignore
         # Button - Website CLAS Nexus
         self.WebBT_CLAS_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
         self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(220, 420, 200, 30))
         self.WebBT_CLAS_Nexus.setObjectName("WebBT_CLAS_Nexus")
         self.WebBT_CLAS_Nexus.setText("AUTO SCANNER NEXUS PAGE")
-        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255"))) # type: ignore
+        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255")))  # type: ignore
         # Button - Website CLAS Github
         self.WebBT_CLAS_Github = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(450, 420, 150, 30))
+        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(435, 420, 170, 30))
         self.WebBT_CLAS_Github.setObjectName("WebBT_CLAS_Git")
         self.WebBT_CLAS_Github.setText("AUTO SCANNER GITHUB")
-        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases"))) # type: ignore
+        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases")))  # type: ignore
 
         # BOTTOM
 
@@ -249,14 +249,14 @@ class UiClasMainwin(object):
         self.RegBT_Help.setObjectName("RegBT_Help")
         self.RegBT_Help.setText("HELP")
         self.RegBT_Help.setToolTip("How To Use CLAS GUI")
-        self.RegBT_Help.clicked.connect(self.Help_Popup)
+        self.RegBT_Help.clicked.connect(self.Help_Popup)  # type: ignore
         # Button - EXIT
         self.RegBT_Exit = QtWidgets.QPushButton(CLAS_MainWin)
         self.RegBT_Exit.setGeometry(QtCore.QRect(510, 480, 110, 24))
         self.RegBT_Exit.setObjectName("RegBT_Exit")
         self.RegBT_Exit.setText("EXIT")
         self.RegBT_Exit.setToolTip("Exit CLAS GUI")
-        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)
+        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)  # type: ignore
 
         # TEXT Box - Window
         self.TXT_Window = QtWidgets.QTextBrowser(CLAS_MainWin)
@@ -264,9 +264,9 @@ class UiClasMainwin(object):
         self.TXT_Window.setObjectName("TXT_Window")
         # TEXT Label - About
         self.TXT_About = QtWidgets.QLabel(CLAS_MainWin)
-        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 300, 16))
-        self.TXT_About.setInputMethodHints(QtCore.Qt.ImhHiddenText)  # type: ignore
-        self.TXT_About.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)  # type: ignore
+        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 320, 16))
+        self.TXT_About.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)  # type: ignore
+        self.TXT_About.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignTop)  # type: ignore
         self.TXT_About.setObjectName("TXT_About")
         self.TXT_About.setText("Crash Log Auto Scanner (CLAS) | Made by: Poet #9800")
         # TEXT Label - Contributors
@@ -283,7 +283,7 @@ class UiClasMainwin(object):
     @staticmethod
     def CrashLogs_SCAN():
         Scan_Crashlogs.scan_logs()
-        
+
     def Gamefiles_SCAN(self):
         from Scan_Gamefiles import scan_mainfiles
         from Scan_Gamefiles import scan_modfiles
@@ -294,12 +294,12 @@ class UiClasMainwin(object):
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
-            self.Line_SelectedFolder.setText(SCAN_folder) # type: ignore
+            self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
             clas_ini_update("Scan Path", SCAN_folder)
             # Change text color back to black.
-            LSF_palette = self.Line_SelectedFolder.palette() # type: ignore
-            LSF_palette.setColor(QPalette.Text, QColor(Qt.black))  # type: ignore
-            self.Line_SelectedFolder.setPalette(LSF_palette) # type: ignore
+            LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
+            self.Line_SelectedFolder.setPalette(LSF_palette)  # type: ignore
 
     @staticmethod
     def SelectFolder_INI():
@@ -326,31 +326,31 @@ class UiClasMainwin(object):
         # ====================== CHECK BOXES ========================
 
     def Bool_IMIMode(self):
-        if self.ChkBT_IMIMode.isChecked(): # type: ignore
+        if self.ChkBT_IMIMode.isChecked():  # type: ignore
             clas_ini_update("IMI Mode", "true")
         else:
             clas_ini_update("IMI Mode", "false")
 
     def Bool_INIStats(self):
-        if self.ChkBT_Stats.isChecked(): # type: ignore
+        if self.ChkBT_Stats.isChecked():  # type: ignore
             clas_ini_update("Stat Logging", "true")
         else:
             clas_ini_update("Stat Logging", "false")
 
     def Bool_INIUnsolved(self):
-        if self.ChkBT_Unsolved.isChecked(): # type: ignore
+        if self.ChkBT_Unsolved.isChecked():  # type: ignore
             clas_ini_update("Move Unsolved", "true")
         else:
             clas_ini_update("Move Unsolved", "false")
 
     def Bool_INIUpdate(self):
-        if self.ChkBT_Update.isChecked(): # type: ignore
+        if self.ChkBT_Update.isChecked():  # type: ignore
             clas_ini_update("Update Check", "true")
         else:
             clas_ini_update("Update Check", "false")
 
     def Bool_FCXMode(self):
-        if self.ChkBT_FCXMode.isChecked(): # type: ignore
+        if self.ChkBT_FCXMode.isChecked():  # type: ignore
             clas_ini_update("FCX Mode", "true")
         else:
             clas_ini_update("FCX Mode", "false")
@@ -371,4 +371,4 @@ PRESS 'Scan Game Files' BUTTON TO CHECK YOUR FALLOUT 4 GAME FILES
     ui = UiClasMainwin()
     ui.setup_ui(CLAS_MainWin)
     CLAS_MainWin.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
