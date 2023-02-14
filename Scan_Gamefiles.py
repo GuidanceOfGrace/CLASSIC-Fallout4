@@ -110,7 +110,7 @@ class Info:
     FO4_F4SE_Path: Path = field(default_factory=Path)
     FO4_F4SEVR_Path: Path = field(default_factory=Path)
     FO4_Custom_Path: Path = field(default_factory=Path)
-    
+
     def docs_file_check(self, docs_location: Path):
         self.BO4_Achievements = docs_location.joinpath("My Games", "Fallout4", "F4SE", "achievements.log")
         self.BO4_Looksmenu = docs_location.joinpath("My Games", "Fallout4", "F4SE", "f4ee.log")
@@ -165,7 +165,7 @@ def docs_path_check():
             return Manual_Docs
 
 
-info.docs_file_check(docs_path_check()) # type: ignore
+info.docs_file_check(docs_path_check())  # type: ignore
 
 
 # =================== CHECK MAIN FILES ===================
@@ -264,7 +264,6 @@ def scan_mainfiles():
                         continue
         return list_log_errors
 
-
     if len(clas_log_errors(info.FO4_F4SE_Logs)) >= 1:
         scan_mainfiles_report.append(Warn_SCAN_Log_Errors)
         errorlist = []
@@ -317,8 +316,8 @@ def scan_mainfiles():
         scan_mainfiles_report.append("✔️ All F4SE Script files are accounted for in your Fallout 4 / Data / Scripts folder.\n")
     else:
         scan_mainfiles_report.extend(["# ❌ CAUTION : SOME F4SE SCRIPT FILES ARE MISSING #",
-                                       "  YOU NEED TO REINSTALL FALLOUT 4 SCRIPT EXTENDER",
-                                       "  F4SE LINK: https://f4se.silverlock.org \n"])
+                                      "  YOU NEED TO REINSTALL FALLOUT 4 SCRIPT EXTENDER",
+                                      "  F4SE LINK: https://f4se.silverlock.org \n"])
 
     # CHECK FALLOUT4.EXE INTEGRITY
     if info.FO4_EXE.is_file():
@@ -454,7 +453,7 @@ def scan_modfiles():
         else:
             scan_modfiles_report.append("❌ *Fallout 4 VR* is NOT installed.\n  -----")
 
-        if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()): # type: ignore
+        if (info.F4CK_EXE.is_file() and os.path.exists(info.F4CK_Fixes)) or (isinstance(info.Game_Path, str) and Path(info.Game_Path).joinpath("winhttp.dll").is_file()):  # type: ignore
             scan_modfiles_report.append("✔️ *Creation Kit Fixes* is (manually) installed.\n  -----")
         elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
             scan_modfiles_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
