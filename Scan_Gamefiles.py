@@ -2,6 +2,7 @@ import os
 import stat
 import platform
 import configparser
+import hashlib
 from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
@@ -110,6 +111,7 @@ class Info:
     FO4_F4SE_Path: Path = field(default_factory=Path)
     FO4_F4SEVR_Path: Path = field(default_factory=Path)
     FO4_Custom_Path: Path = field(default_factory=Path)
+    FO4_Hash_1_10_163: str = "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"
 
     def docs_file_check(self, docs_location: Path):
         self.BO4_Achievements = docs_location.joinpath("My Games", "Fallout4", "F4SE", "achievements.log")
@@ -322,11 +324,11 @@ def scan_mainfiles():
     # CHECK FALLOUT4.EXE INTEGRITY
     if info.FO4_EXE.is_file():
         FO4_EXE_Size = os.path.getsize(info.FO4_EXE)
-        if FO4_EXE_Size == 65503104 and not info.Steam_INI.is_file():
+        if FO4_EXE_Size == 65503104 and hashlib.sha512(info.FO4_EXE.read_bytes()).hexdigest() == info.FO4_Hash_1_10_163 and not info.Steam_INI.is_file():
             scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
                                           "    * This is the version BEFORE the 2023 Update *",
                                           "  -----"])
-        # elif FO4_EXE_Size == xxxxxxxx and not info.Steam_INI.is_file():
+        # elif FO4_EXE_Size == xxxxxxxx and hashlib.sha512(info.FO4_EXE.read_bytes()).hexdigest() == xxxxxxxx and not info.Steam_INI.is_file():
         #    scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.xx.xxx.x]",
         #                                  "   * This is the version AFTER the 2023 Update *",
         #                                  "  -----"])
