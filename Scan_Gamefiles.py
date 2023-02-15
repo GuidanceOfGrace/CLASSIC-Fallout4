@@ -111,7 +111,7 @@ class Info:
     FO4_F4SE_Path: Path = field(default_factory=Path)
     FO4_F4SEVR_Path: Path = field(default_factory=Path)
     FO4_Custom_Path: Path = field(default_factory=Path)
-    FO4_Hash_1_10_163: str = "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"
+    FO4_Hash: dict[str, str] = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
 
     def docs_file_check(self, docs_location: Path):
         self.BO4_Achievements = docs_location.joinpath("My Games", "Fallout4", "F4SE", "achievements.log")
@@ -324,7 +324,7 @@ def scan_mainfiles():
     # CHECK FALLOUT4.EXE INTEGRITY
     if info.FO4_EXE.is_file():
         FO4_EXE_Size = os.path.getsize(info.FO4_EXE)
-        if FO4_EXE_Size == 65503104 and hashlib.sha512(info.FO4_EXE.read_bytes()).hexdigest() == info.FO4_Hash_1_10_163 and not info.Steam_INI.is_file():
+        if FO4_EXE_Size == 65503104 and hashlib.sha512(info.FO4_EXE.read_bytes()).hexdigest() == info.FO4_Hash["1.10.163"] and not info.Steam_INI.is_file():
             scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
                                           "    * This is the version BEFORE the 2023 Update *",
                                           "  -----"])
@@ -335,7 +335,7 @@ def scan_mainfiles():
         elif FO4_EXE_Size == 65503104 and not info.Steam_INI.is_file():
             scan_mainfiles_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
         elif FO4_EXE_Size == 65503104 and info.Steam_INI.is_file():
-            scan_mainfiles_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
+            scan_mainfiles_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
 
     # CHECK FALLOUT 4 ROOT FOLDER LOG ERRORS
     if len(clas_log_errors(info.Game_Path)) >= 1:
