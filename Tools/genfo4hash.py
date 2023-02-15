@@ -3,7 +3,7 @@ import hashlib
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Generate a hash of the Fallout 4 executable")
-parser.add_argument("--print", action="store_true", help="Print the hash to the console.")
+parser.add_argument("--print", "-p", action="store_true", help="Print the hash to the console.")
 parser.add_argument("path", type=str, help="Path to the Fallout 4 executable")
 args = parser.parse_args()
 
