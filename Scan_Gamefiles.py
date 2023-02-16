@@ -111,7 +111,7 @@ class Info:
     FO4_F4SE_Path: Path = field(default_factory=Path)
     FO4_F4SEVR_Path: Path = field(default_factory=Path)
     FO4_Custom_Path: Path = field(default_factory=Path)
-    FO4_Hash: dict[str, str] = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
+    FO4_Hash: dict[str, str] = field(default_factory=dict)
 
     def docs_file_check(self, docs_location: Path):
         self.BO4_Achievements = docs_location.joinpath("My Games", "Fallout4", "F4SE", "achievements.log")
@@ -299,6 +299,8 @@ def scan_mainfiles():
     info.Buffout_INI = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.ini")
     info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
     info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
+    # FALLLOUT 4 HASHES
+    info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
 
     # CHECK F4SE SCRIPT FILES INTEGRITY
     def f4se_scripts_check(scripts_dir, f4se_scripts):
