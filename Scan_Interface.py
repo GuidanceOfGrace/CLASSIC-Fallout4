@@ -1,5 +1,4 @@
-# CRASH LOG AUTO SCANNER GUI WITH PYQT5 (PYTHON 3.9 COMPLIANT)
-# PYQT6 GIVES ERROR DURING PYINSTALLER SETUP (CAN'T FIND DLL)
+# CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 
 import sys
 import Scan_Crashlogs
@@ -148,7 +147,7 @@ class UiClasMainwin(object):
 
         # Check Box - IMI Mode
         self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_IMIMode.setGeometry(QtCore.QRect(260, 235, 110, 50))
+        self.ChkBT_IMIMode.setGeometry(QtCore.QRect(260, 210, 100, 100))
         self.ChkBT_IMIMode.setText("IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS")
         self.ChkBT_IMIMode.setToolTip("Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. ")
         if CLAS_config.getboolean("MAIN", "IMI Mode"):

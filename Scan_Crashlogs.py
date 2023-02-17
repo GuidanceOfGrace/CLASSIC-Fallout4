@@ -15,6 +15,11 @@ try:
 except (ImportError, ModuleNotFoundError):
     subprocess.run(['pip', 'install', 'requests'], shell=True)
 
+''' AUTHOR NOTES (POET):
+- In cases where output.write is used instead of output.writelines, this is so I can more easily copy-paste specific content.
+- (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
+- Comments marked as RESERVED in all scripts are intended for future updates, do not edit / move / remove.
+'''
 
 # =================== CLAS INI FILE ===================
 def clas_ini_create():
@@ -50,8 +55,8 @@ clas_ini_create()
 CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
-CLAS_Date = "120223"  # DDMMYY
-CLAS_Current = "CLAS v6.25"
+CLAS_Date = "170223"  # DDMMYY
+CLAS_Current = "CLAS v6.35"
 CLAS_Updated = False
 
 
@@ -75,12 +80,12 @@ Warn_CLAS_Outdated_Scanner = """
 Warn_CLAS_Python_Platform = """
 [!] WARNING : NEWEST PYTHON VERSIONS ARE NOT OFFICIALLY SUPPORTED ON WINDOWS 7/8/8.1
     Install the newest Py version from here: https://github.com/adang1345/PythonWin7
-    Click on the green Code button and Download Zip, then extract and install newest Py 3.11
+    Click on green Code button and Download Zip, then extract and install Python 3.11
 """
 Warn_CLAS_Python_Version = """
 [!] WARNING : YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.
     FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads
-    OR WINDOWS 7: https://github.com/adang1345/PythonWin7
+    FOR WIN 7 / 8 / 8.1 : https://github.com/adang1345/PythonWin7
 """
 Warn_CLAS_Update_Failed = """
 [!] WARNING : AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
@@ -129,6 +134,8 @@ Warn_BLOG_NOTE_Modules = """\
       CHECK IF SCRIPT EXTENDER (F4SE) IS CORRECTLY INSTALLED! \n")
       Script Extender Link: https://f4se.silverlock.org \n")
 """
+
+
 # =================== UPDATE FUNCTION ===================
 
 
@@ -138,11 +145,11 @@ def clas_update_check():
     print("CHECKING YOUR PYTHON VERSION & CRASH LOG AUTO SCANNER UPDATES...")
     print("(You can disable this check in the EXE or Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {sys.version[:6]} \n")
-    if sys.version_info[:2] < (3, 9): # Better method for checking python version, IMO. - evildarkarchon
+    if sys.version_info[:2] < (3, 9):
         print(Warn_CLAS_Python_Version)
         if platform.system() == "Windows":
             os_version = int(platform.win32_ver()[0])
-            if os_version < 10: # there are probably still people using windows 8/8.1, so this check is better than just checking for 7. - evildarkarchon
+            if os_version < 10:
                 print(Warn_CLAS_Python_Platform)
         os.system("pause")
     else:
@@ -191,19 +198,10 @@ print("=========================================================================
 
 def scan_logs():
     print("PERFORMING SCAN... \n")
-    Start_Time = time.perf_counter()
+    statL_scanned = statL_incomplete = statL_failed = 0
+    start_time = time.perf_counter()
+    crash_template_stats = {}
     global Sneaky_Tips
-
-    # =================== STATISTICS LOGGING ===================
-    stats = {
-        "main": {"scanned": 0, "incomplete": 0, "failed": 0}, # SCANNED LOGS STATS
-        "known": {"dll": 0, "equip": 0, "generic": 0, "gridscrap": 0, "invalidation": 0, "loadorder": 0, "mcm": 0, "badmath": 0, "nif": 0, "npcpathing": 0, "nvdebris": 0,
-                  "activeeffect": 0, "animationphysics": 0, "audio": 0, "ba2limit": 0, "bgsm": 0, "antivirus": 0, "bodyphysics": 0, "consolecommands": 0, "leveledlist": 0,
-                  "nvdriver": 0, "null": 0, "overflow": 0, "papyrus": 0, "particles": 0, "pluginlimit": 0, "rendering": 0, "texture": 0, "corruptedaudio": 0, "lod": 0,
-                  "mapmarker": 0, "redist": 0, "decal": 0, "mo2unpack": 0, "vulkanmem": 0, "vulkanset": 0, "water": 0, "precomb": 0, "player": 0, "gamecorruption": 0}, # KNOWN CRASH MESSAGES
-        "unknown": {"save": 0, "hudammo": 0, "patrol": 0, "projectile": 0, "item": 0, "input": 0, "cclub": 0, "looksmenu": 0, "overclock": 0}, # UNSOLVED CRASH MESSAGES
-        "conditions": {"chw": 0} # KNOWN CRASH CONDITIONS
-    }
 
     # =================== AUTOSCAN REPORT ===================
 
@@ -242,7 +240,7 @@ def scan_logs():
                 plugins_list = []
                 with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
                     plugin_format = loadorder_check.readlines()
-                    if len(plugin_format) >= 1 and "[00]" not in plugins_list:
+                    if len(plugin_format) >= 1 and not any("[00]" in elem for elem in plugins_list):
                         plugins_list.append("[00]")
                     for line in plugin_format:
                         line = "[LO] " + line.strip()
@@ -269,8 +267,12 @@ def scan_logs():
                 from Scan_Gamefiles import scan_mainfiles
                 mainfiles_result = scan_mainfiles()
                 for line in mainfiles_result:
-                    output.writelines(line)
-                output.write("\n")
+                    try:
+                        output.writelines(str(line))
+                        output.write("\n")
+                    except TypeError:
+                        output.write(line)
+                        output.write("\n")
             else:
                 # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
                 if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
@@ -291,345 +293,327 @@ def scan_logs():
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
                                "====================================================\n"])
-            Culprit_Known = False  # RETURN TRUE IF ANY KNOWN CRASH MESSAGE IS FOUND
+            global Culprit_Trap
+            Culprit_Trap = False  # RETURN TRUE IF ANY POSSIBLE CRASH CULPRIT IS FOUND OR DETECTED
 
-            # ====================== HEADER ERRORS ======================
+            # =============== CRASH / STAT CHECK TEMPLATE ===============
+            def crash_template(crash_prefix, crash_main, crash_suffix, crash_stat):
+                global Culprit_Trap
+                if "CULPRIT FOUND" in crash_suffix or "DETECTED" in crash_suffix:
+                    Culprit_Trap = True
 
+                if "Logs with" in crash_prefix:  # FOR STAT LOGGING
+                    print(f"{crash_prefix}{crash_main}{crash_suffix}", end='')
+                else:  # MODIFY OUTPUT WHEN NOT CALLED FOR LOGGING
+                    output.write(f"{crash_prefix}{crash_main}{crash_suffix}")
+
+                if crash_stat in crash_template_stats:
+                    crash_template_stats[crash_stat] += 1
+                else:
+                    crash_template_stats[crash_stat] = 0
+
+                return crash_template_stats[crash_stat]
+
+            # ===================== HEADER CULPRITS =====================
             if ".dll" in buff_error.lower() and "tbbmalloc" not in buff_error.lower():
                 output.write(Warn_SCAN_NOTE_DLL)
 
             if "EXCEPTION_STACK_OVERFLOW" in buff_error:
-                output.writelines(["# Checking for Stack Overflow Crash.........CULPRIT FOUND! #\n",
-                                   "> Priority : [5]\n"])
-                Culprit_Known = True
-                stats["known"]["overflow"] += 1
+                crash_template("# Checking for ", "Stack Overflow Crash.........", "CULPRIT FOUND! #\n", "statC_Overflow")
+                output.write("> Priority : [5]\n")
 
             if "0x000100000000" in buff_error:
-                output.writelines(["# Checking for Bad Pointer Crash............CULPRIT FOUND! #\n",
-                                   "> Priority : [5]\n"])
-                Culprit_Known = True
-                stats["known"]["activeeffect"] += 1
+                crash_template("# Checking for ", "Active Effects Crash..........", "CULPRIT FOUND! #\n", "statC_ActiveEffects")
+                output.write("> Priority : [5]\n")
 
             if "EXCEPTION_INT_DIVIDE_BY_ZERO" in buff_error:
-                output.writelines(["# Checking for Divide By Zero Crash.........CULPRIT FOUND! #\n",
-                                   "> Priority : [5]\n"])
-                Culprit_Known = True
-                stats["known"]["badmath"] += 1
+                crash_template("# Checking for ", "Bad Math Crash................", "CULPRIT FOUND! #\n", "statC_BadMath")
+                output.write("> Priority : [5]\n")
 
             if "0x000000000000" in buff_error:
-                output.writelines(["# Checking for Null Crash...................CULPRIT FOUND! #\n",
-                                   "> Priority : [5]\n"])
-                Culprit_Known = True
-                stats["known"]["null"] += 1
+                crash_template("# Checking for ", "Null Crash................", "CULPRIT FOUND! #\n", "statC_Null")
+                output.write("> Priority : [5]\n")
 
-            # ======================= MAIN ERRORS =======================
+            # ====================== MAIN CULPRITS ======================
             # OTHER | RESERVED
             # "BSResourceNiBinaryStream" | "ObjectBindPolicy"
             # Uneducated Shooter (56789) | "std::invalid_argument"
             # ===========================================================
             if "DLCBannerDLC01.dds" in logtext:
-                output.writelines(["# Checking for DLL Crash....................CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | DLCBannerDLC01.dds : {logtext.count("DLCBannerDLC01.dds")}\n'])
-                Culprit_Known = True
-                stats["known"]["dll"] += 1
+                crash_template("# Checking for ", "DLL Crash....................", "CULPRIT FOUND! #\n", "statC_DLL")
+                output.write(f'> Priority : [5] | DLCBannerDLC01.dds : {logtext.count("DLCBannerDLC01.dds")}\n')
+
             # ===========================================================
             if "BGSLocation" in logtext and "BGSQueuedTerrainInitialLoad" in logtext:
-                output.writelines(["# Checking for LOD Crash....................CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | BGSLocation : {logtext.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {logtext.count("BGSQueuedTerrainInitialLoad")}\n'])
-                Culprit_Known = True
-                stats["known"]["lod"] += 1
+                crash_template("# Checking for ", "LOD Crash....................", "CULPRIT FOUND! #\n", "statC_LOD")
+                output.write(f'> Priority : [5] | BGSLocation : {logtext.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {logtext.count("BGSQueuedTerrainInitialLoad")}\n')
+
             # ===========================================================
             if "FaderData" in logtext or "FaderMenu" in logtext or "UIMessage" in logtext:
-                output.writelines(["# Checking for MCM Crash....................CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | FaderData : {logtext.count("FaderData")} | FaderMenu : {logtext.count("FaderMenu")} | UIMessage : {logtext.count("UIMessage")}\n'])
-                Culprit_Known = True
-                stats["known"]["mcm"] += 1
+                crash_template("# Checking for ", "MCM Crash....................", "CULPRIT FOUND! #\n", "statC_MCM")
+                output.write(f'> Priority : [3] | FaderData : {logtext.count("FaderData")} | FaderMenu : {logtext.count("FaderMenu")} | UIMessage : {logtext.count("UIMessage")}\n')
+
             # ===========================================================
             if "BGSDecalManager" in logtext or "BSTempEffectGeometryDecal" in logtext:
-                output.writelines(["# Checking for Decal Crash..................CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | BGSDecalManager : {logtext.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {logtext.count("BSTempEffectGeometryDecal")}\n'])
-                Culprit_Known = True
-                stats["known"]["decal"] += 1
+                crash_template("# Checking for ", "Decal Crash..................", "CULPRIT FOUND! #\n", "statC_Decal")
+                output.write(f'> Priority : [5] | BGSDecalManager : {logtext.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {logtext.count("BSTempEffectGeometryDecal")}\n')
+
             # ===========================================================
             if logtext.count("PipboyMapData") >= 2:
-                output.writelines(["# Checking for Equip Crash..................CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | PipboyMapData : {logtext.count("PipboyMapData")}\n'])
-                Culprit_Known = True
-                stats["known"]["equip"] += 1
+                crash_template("# Checking for ", "Equip Crash..................", "CULPRIT FOUND! #\n", "statC_Equip")
+                output.write(f'> Priority : [3] | PipboyMapData : {logtext.count("PipboyMapData")}\n')
+
             # ===========================================================
             if "Papyrus" in logtext or "VirtualMachine" in logtext or "Assertion failed" in logtext:
-                output.writelines(["# Checking for Script Crash.................CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}\n'])
-                Culprit_Known = True
-                stats["known"]["papyrus"] += 1
+                crash_template("# Checking for ", "Script Crash.................", "CULPRIT FOUND! #\n", "statC_Papyrus")
+                output.write(f'> Priority : [3] | Papyrus : {logtext.count("Papyrus")} | VirtualMachine : {logtext.count("VirtualMachine")}\n')
+
             # ===========================================================
             if logtext.count("tbbmalloc.dll") >= 3 or "tbbmalloc" in buff_error:
-                output.writelines(["# Checking for Generic Crash................CULPRIT FOUND! #\n",
-                                   f'> Priority : [2] | tbbmalloc.dll : {logtext.count("tbbmalloc.dll")}\n'])
-                Culprit_Known = True
-                stats["known"]["generic"] += 1
+                crash_template("# Checking for ", "Generic Crash................", "CULPRIT FOUND! #\n", "statC_Generic")
+                output.write(f'> Priority : [2] | tbbmalloc.dll : {logtext.count("tbbmalloc.dll")}\n')
+
             # ===========================================================
             if "LooseFileAsyncStream" in logtext:
-                output.writelines(["# Checking for BA2 Limit Crash..............CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | LooseFileAsyncStream : {logtext.count("LooseFileAsyncStream")}\n'])
-                Culprit_Known = True
-                stats["known"]["ba2limit"] += 1
+                crash_template("# Checking for ", "BA2 Limit Crash..............", "CULPRIT FOUND! #\n", "statC_BA2Limit")
+                output.write(f'> Priority : [5] | LooseFileAsyncStream : {logtext.count("LooseFileAsyncStream")}\n')
+
             # ===========================================================
             if logtext.count("d3d11.dll") >= 3 or "d3d11" in buff_error:
-                output.writelines(["# Checking for Rendering Crash..............CULPRIT FOUND! #\n",
-                                   f'> Priority : [4] | d3d11.dll : {logtext.count("d3d11.dll")}\n'])
-                Culprit_Known = True
-                stats["known"]["rendering"] += 1
+                crash_template("# Checking for ", "Rendering Crash..............", "CULPRIT FOUND! #\n", "statC_Rendering")
+                output.write(f'> Priority : [4] | d3d11.dll : {logtext.count("d3d11.dll")}\n')
+
             # ===========================================================
             if logtext.count("MSVCR110") >= 4 or "MSVCR" in buff_error or "MSVCP" in buff_error:
-                output.writelines(["# Checking for C++ Redist Crash.............CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | MSVCR110.dll : {logtext.count("MSVCR110.dll")}\n'])
-                Culprit_Known = True
-                stats["known"]["redist"] += 1
+                crash_template("# Checking for ", "C++ Redist Crash.............", "CULPRIT FOUND! #\n", "statC_Redist")
+                output.write(f'> Priority : [3] | MSVCR110.dll : {logtext.count("MSVCR110.dll")}\n')
+
             # ===========================================================
             if "GridAdjacencyMapNode" in logtext or "PowerUtils" in logtext:
-                output.writelines(["# Checking for Grid Scrap Crash.............CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | GridAdjacencyMapNode : {logtext.count("GridAdjacencyMapNode")} | PowerUtils : {logtext.count("PowerUtils")}\n'])
-                Culprit_Known = True
-                stats["known"]["gridscrap"] += 1
+                crash_template("# Checking for ", "Grid Scrap Crash.............", "CULPRIT FOUND! #\n", "statC_GridScrap")
+                output.write(f'> Priority : [5] | GridAdjacencyMapNode : {logtext.count("GridAdjacencyMapNode")} | PowerUtils : {logtext.count("PowerUtils")}\n')
+
             # ===========================================================
             if "HUDCompass" in logtext or "HUDCompassMarker" in logtext or "attachMovie()" in logtext:
-                output.writelines(["# Checking for Map Marker Crash.............CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | HUDCompass : {logtext.count("HUDCompass")} | HUDCompassMarker : {logtext.count("HUDCompassMarker")}\n'])
-                Culprit_Known = True
-                stats["known"]["mapmarker"] += 1
+                crash_template("# Checking for ", "Map Marker Crash.............", "CULPRIT FOUND! #\n", "statC_MapMarker")
+                output.write(f'> Priority : [5] | HUDCompass : {logtext.count("HUDCompass")} | HUDCompassMarker : {logtext.count("HUDCompassMarker")}\n')
+
             # ===========================================================
             if ("LooseFileStream" in logtext or "BSFadeNode" in logtext or "BSMultiBoundNode" in logtext) and logtext.count("LooseFileAsyncStream") == 0:
-                output.writelines(["# Checking for Mesh (NIF) Crash.............CULPRIT FOUND! #\n",
-                                   f'> Priority : [4] | LooseFileStream : {logtext.count("LooseFileStream")} | BSFadeNode : {logtext.count("BSFadeNode")}\n',
-                                   f'                   BSMultiBoundNode : {logtext.count("BSMultiBoundNode")}\n'])
-                Culprit_Known = True
-                stats["known"]["nif"] += 1
+                crash_template("# Checking for ", "Mesh (NIF) Crash.............", "CULPRIT FOUND! #\n", "statC_Mesh")
+                output.write(f'> Priority : [4] | LooseFileStream : {logtext.count("LooseFileStream")} | BSFadeNode : {logtext.count("BSFadeNode")}\n')
+                output.write(f'                   BSMultiBoundNode : {logtext.count("BSMultiBoundNode")}\n')
+
             # ===========================================================
             if "Create2DTexture" in logtext or "DefaultTexture" in logtext:
-                output.writelines(["# Checking for Texture (DDS) Crash..........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | Create2DTexture : {logtext.count("Create2DTexture")} | DefaultTexture : {logtext.count("DefaultTexture")}\n'])
-                Culprit_Known = True
-                stats["known"]["texture"] += 1
+                crash_template("# Checking for ", "Texture (DDS) Crash..........", "CULPRIT FOUND! #\n", "statC_Texture")
+                output.write(f'> Priority : [3] | Create2DTexture : {logtext.count("Create2DTexture")} | DefaultTexture : {logtext.count("DefaultTexture")}\n')
+
             # ===========================================================
             if "DefaultTexture_Black" in logtext or "NiAlphaProperty" in logtext:
-                output.writelines(["# Checking for Material (BGSM) Crash........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}\n'])
-                Culprit_Known = True
-                stats["known"]["bgsm"] += 1
+                crash_template("# Checking for ", "Material (BGSM) Crash........", "CULPRIT FOUND! #\n", "statC_Material")
+                output.write(f'> Priority : [3] | DefaultTexture_Black : {logtext.count("DefaultTexture_Black")} | NiAlphaProperty : {logtext.count("NiAlphaProperty")}\n')
+
             # ===========================================================
             if (logtext.count("bdhkm64.dll") or logtext.count("usvfs::hook_DeleteFileW")) >= 2 or "BSTextureStreamer::Manager" in logtext or "BSTextureStreamer::zlibStreamDetail" in logtext:
-                output.writelines(["# Checking for Antivirus Crash....................CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}\n',
-                                   f'                   BSTextureStreamer::Manager : {logtext.count("BSTextureStreamer::Manager")} | BSTextureStreamer::zlibStreamDetail : {logtext.count("BSTextureStreamer::zlibStreamDetail")}\n'])
-                Culprit_Known = True
-                stats["known"]["antivirus"] += 1
+                crash_template("# Checking for ", "Antivirus Crash....................", "CULPRIT FOUND! #\n", "statC_Antivirus")
+                output.write(f'> Priority : [5] | bdhkm64.dll : {logtext.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {logtext.count("usvfs::hook_DeleteFileW")}\n')
+                output.write(f'                   BSTextureStreamer::Manager : {logtext.count("BSTextureStreamer::Manager")} | BSTextureStreamer::zlibStreamDetail : {logtext.count("BSTextureStreamer::zlibStreamDetail")}\n')
+
             # ===========================================================
             if (logtext.count("PathingCell") or logtext.count("BSPathBuilder") or logtext.count("PathManagerServer")) >= 2:
-                output.writelines(["# Checking for NPC Pathing Crash (S)........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | PathingCell : {logtext.count("PathingCell")} | BSPathBuilder : {logtext.count("BSPathBuilder")}\n',
-                                   f'                   PathManagerServer : {logtext.count("PathManagerServer")}\n'])
-                Culprit_Known = True
-                stats["known"]["npcpathing"] += 1
+                crash_template("# Checking for ", "NPC Pathing Crash (S)........", "CULPRIT FOUND! #\n", "statC_NPCPathing")
+                output.write(f'> Priority : [3] | PathingCell : {logtext.count("PathingCell")} | BSPathBuilder : {logtext.count("BSPathBuilder")}\n')
+                output.write(f'                   PathManagerServer : {logtext.count("PathManagerServer")}\n')
+
             # ==============================
             if (logtext.count("NavMesh") or logtext.count("BSNavmeshObstacleData") or logtext.count("DynamicNavmesh") or logtext.count("PathingRequest")) >= 2:
-                output.writelines(["# Checking for NPC Pathing Crash (D)........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | NavMesh : {logtext.count("NavMesh")} | BSNavmeshObstacleData : {logtext.count("BSNavmeshObstacleData")}\n',
-                                   f'                   DynamicNavmesh : {logtext.count("DynamicNavmesh")} PathingRequest : {logtext.count("PathingRequest")}\n'])
-                Culprit_Known = True
+                crash_template("# Checking for ", "NPC Pathing Crash (D)........", "CULPRIT FOUND! #\n", "statC_NPCPathingD")
+                output.write(f'> Priority : [3] | NavMesh : {logtext.count("NavMesh")} | BSNavmeshObstacleData : {logtext.count("BSNavmeshObstacleData")}\n')
+                output.write(f'                   DynamicNavmesh : {logtext.count("DynamicNavmesh")} PathingRequest : {logtext.count("PathingRequest")}\n')
+
             # ==============================
             if "+248B26A" in buff_error or "MovementAgentPathFollowerVirtual" in logtext or "PathingStreamSaveGame" in logtext or "BGSProcedurePatrolExecState" in logtext or "CustomActorPackageData" in logtext:
-                output.writelines(["# Checking for NPC Pathing Crash (F)........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | +248B26A | MovementAgentPathFollowerVirtual : {logtext.count("MovementAgentPathFollowerVirtual")} | PathingStreamSaveGame : {logtext.count("PathingStreamSaveGame")}\n',
-                                   f'                   BGSProcedurePatrolExecState : {logtext.count("BGSProcedurePatrolExecState")} CustomActorPackageData : {logtext.count("CustomActorPackageData")}\n'])
-                Culprit_Known = True
+                crash_template("# Checking for ", "NPC Pathing Crash (F)........", "CULPRIT FOUND! #\n", "statC_NPCPathingF")
+                output.write(f'> Priority : [3] | +248B26A | MovementAgentPathFollowerVirtual : {logtext.count("MovementAgentPathFollowerVirtual")} | PathingStreamSaveGame : {logtext.count("PathingStreamSaveGame")}\n')
+                output.write(f'                   BGSProcedurePatrolExecState : {logtext.count("BGSProcedurePatrolExecState")} CustomActorPackageData : {logtext.count("CustomActorPackageData")}\n')
+
             # ===========================================================
             if logtext.count("X3DAudio1_7.dll") >= 3 or logtext.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in buff_error:
-                output.writelines(["# Checking for Audio Driver Crash...........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | X3DAudio1_7.dll : {logtext.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {logtext.count("XAudio2_7.dll")}\n'])
-                Culprit_Known = True
-                stats["known"]["audio"] += 1
+                crash_template("# Checking for ", "Audio Driver Crash...........", "CULPRIT FOUND! #\n", "statC_Audio")
+                output.write(f'> Priority : [5] | X3DAudio1_7.dll : {logtext.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {logtext.count("XAudio2_7.dll")}\n')
+
             # ===========================================================
             if logtext.count("cbp.dll") >= 3 or "skeleton.nif" in logtext or "cbp.dll" in buff_error:
-                output.writelines(["# Checking for Body Physics Crash...........CULPRIT FOUND! #\n",
-                                   f'> Priority : [4] | cbp.dll : {logtext.count("cbp.dll")} | skeleton.nif : {logtext.count("skeleton.nif")}\n'])
-                Culprit_Known = True
-                stats["known"]["bodyphysics"] += 1
+                crash_template("# Checking for ", "Body Physics Crash...........", "CULPRIT FOUND! #\n", "statC_BodyPhysics")
+                output.write(f'> Priority : [4] | cbp.dll : {logtext.count("cbp.dll")} | skeleton.nif : {logtext.count("skeleton.nif")}\n')
+
             # ===========================================================
             if "+0D09AB7" in buff_error or "TESLevItem" in logtext:
-                output.writelines(["# Checking for Leveled List Crash...........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | +0D09AB7 : {logtext.count("+0D09AB7")} | TESLevItem : {logtext.count("TESLevItem")}\n'])
-                Culprit_Known = True
-                stats["known"]["leveledlist"] += 1
+                crash_template("# Checking for ", "Leveled List Crash...........", "CULPRIT FOUND! #\n", "statC_LeveledList")
+                output.write(f'> Priority : [3] | +0D09AB7 : {logtext.count("+0D09AB7")} | TESLevItem : {logtext.count("TESLevItem")}\n')
+
             # ===========================================================
-            if "BSMemStorage" in logtext or "DataFileHandleReaderWriter" in logtext or "[FF]" in plugins_list:
-                output.writelines(["# Checking for Plugin Limit Crash...........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}\n'])
-                Culprit_Known = True
-                stats["known"]["pluginlimit"] += 1
+            if any("[FF]" in elem for elem in plugins_list) or (logtext.count("BSMemStorage") and logtext.count("DataFileHandleReaderWriter")) >= 2:
+                crash_template("# Checking for ", "Plugin Limit Crash...........", "CULPRIT FOUND! #\n", "statC_PluginLimit")
+                output.write(f'> Priority : [5] | BSMemStorage : {logtext.count("BSMemStorage")} | DataFileHandleReaderWriter : {logtext.count("DataFileHandleReaderWriter")}\n')
+
             # ===========================================================
             if "+0DB9300" in buff_error or "GamebryoSequenceGenerator" in logtext:
-                output.writelines(["# Checking for Plugin Order Crash...........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | +0DB9300 | GamebryoSequenceGenerator : {logtext.count("GamebryoSequenceGenerator")}\n'])
-                Culprit_Known = True
-                stats["known"]["loadorder"] += 1
+                crash_template("# Checking for ", "Plugin Order Crash...........", "CULPRIT FOUND! #\n", "statC_PluginOrder")
+                output.write(f'> Priority : [5] | +0DB9300 | GamebryoSequenceGenerator : {logtext.count("GamebryoSequenceGenerator")}\n')
+
             # ===========================================================
             if logtext.count("BSD3DResourceCreator") >= 3:
-                output.writelines(["# Checking for MO2 Extractor Crash..........CULPRIT FOUND! #\n",
-                                   f'> Priority : [3] | BSD3DResourceCreator : {logtext.count("BSD3DResourceCreator")}\n'])
-                Culprit_Known = True
-                stats["known"]["mo2unpack"] += 1
+                crash_template("# Checking for ", "MO2 Extractor Crash..........", "CULPRIT FOUND! #\n", "statC_MO2Unpack")
+                output.write(f'> Priority : [3] | BSD3DResourceCreator : {logtext.count("BSD3DResourceCreator")}\n')
+
             # ===========================================================
             if "+03EE452" in buff_error or "flexRelease_x64" in buff_error or (logtext.count("flexRelease_x64.dll") or logtext.count("CheckRefAgainstConditionsFunc")) >= 2:
-                output.writelines(["# Checking for Nvidia Debris Crash..........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | +03EE452 | flexRelease_x64.dll : {logtext.count("flexRelease_x64.dll")} | CheckRefAgainstConditionsFunc : {logtext.count("CheckRefAgainstConditionsFunc")}\n'])
-                Culprit_Known = True
-                stats["known"]["nvdebris"] += 1
+                crash_template("# Checking for ", "Nvidia Debris Crash..........", "CULPRIT FOUND! #\n", "statC_NVDebris")
+                output.write(f'> Priority : [5] | +03EE452 | flexRelease_x64.dll : {logtext.count("flexRelease_x64.dll")} | CheckRefAgainstConditionsFunc : {logtext.count("CheckRefAgainstConditionsFunc")}\n')
+
             # ===========================================================
             if logtext.count("nvwgf2umx.dll") >= 10 or "nvwgf2umx" in buff_error or "USER32.dll" in buff_error:
-                output.writelines(["# Checking for Nvidia Driver Crash..........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | nvwgf2umx.dll : {logtext.count("nvwgf2umx.dll")} | USER32.dll : {logtext.count("USER32.dll")}\n'])
-                Culprit_Known = True
-                stats["known"]["nvdriver"] += 1
+                crash_template("# Checking for ", "Nvidia Driver Crash..........", "CULPRIT FOUND! #\n", "statC_NVDriver")
+                output.write(f'> Priority : [5] | nvwgf2umx.dll : {logtext.count("nvwgf2umx.dll")} | USER32.dll : {logtext.count("USER32.dll")}\n')
+
+            # ===========================================================
+            if "NVIDIA_Reflex.dll" in logtext and (logtext.count("Buffout4.dll") >= 3 or "3A0000" in buff_error or "AD0000" in buff_error or "8E0000" in buff_error):
+                crash_template("# Checking for ", "Nvidia Reflex Crash..........", "CULPRIT FOUND! #\n", "statC_NVReflex")
+                output.write(f'> Priority : [4] | *Currently no clear indicators for this crash* \n')
+
             # ===========================================================
             if (logtext.count("KERNELBASE.dll") or logtext.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in logtext:
-                output.writelines(["# Checking for Vulkan Memory Crash..........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | KERNELBASE.dll : {logtext.count("KERNELBASE.dll")} | MSVCP140.dll : {logtext.count("MSVCP140.dll")}\n',
-                                   f'                   DxvkSubmissionQueue : {logtext.count("DxvkSubmissionQueue")}\n'])
-                Culprit_Known = True
-                stats["known"]["vulkanmem"] += 1
+                crash_template("# Checking for ", "Vulkan Memory Crash..........", "CULPRIT FOUND! #\n", "statC_VulkanMem")
+                output.write(f'> Priority : [5] | KERNELBASE.dll : {logtext.count("KERNELBASE.dll")} | MSVCP140.dll : {logtext.count("MSVCP140.dll")}\n')
+                output.write(f'                   DxvkSubmissionQueue : {logtext.count("DxvkSubmissionQueue")}\n')
+
             # ===========================================================
             if "dxvk::DXGIAdapter" in logtext or "dxvk::DXGIFactory" in logtext:
-                output.writelines(["# Checking for Vulkan Settings Crash........CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | dxvk::DXGIAdapter : {logtext.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {logtext.count("dxvk::DXGIFactory")}\n'])
-                Culprit_Known = True
-                stats["known"]["vulkanset"] += 1
+                crash_template("# Checking for ", "Vulkan Settings Crash........", "CULPRIT FOUND! #\n", "statC_VulkanSet")
+                output.write(f'> Priority : [5] | dxvk::DXGIAdapter : {logtext.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {logtext.count("dxvk::DXGIFactory")}\n')
+
             # ===========================================================
             if "BSXAudio2DataSrc" in logtext or "BSXAudio2GameSound" in logtext:
-                output.writelines(["# Checking for Corrupted Audio Crash........CULPRIT FOUND! #\n",
-                                   f'> Priority : [4] | BSXAudio2DataSrc : {logtext.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {logtext.count("BSXAudio2GameSound")}\n'])
-                Culprit_Known = True
-                stats["known"]["corruptedaudio"] += 1
+                crash_template("# Checking for ", "Corrupted Audio Crash........", "CULPRIT FOUND! #\n", "statC_CorruptedAudio")
+                output.write(f'> Priority : [4] | BSXAudio2DataSrc : {logtext.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {logtext.count("BSXAudio2GameSound")}\n')
+
             # ===========================================================
             if "SysWindowCompileAndRun" in logtext or "ConsoleLogPrinter" in logtext:
-                output.writelines(["# Checking for Console Command Crash........CULPRIT FOUND! #\n",
-                                   f'> Priority : [1] | SysWindowCompileAndRun : {logtext.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {logtext.count("ConsoleLogPrinter")}\n'])
-                Culprit_Known = True
-                stats["known"]["consolecommands"] += 1
+                crash_template("# Checking for ", "Console Command Crash........", "CULPRIT FOUND! #\n", "statC_ConsoleCommand")
+                output.write(f'> Priority : [1] | SysWindowCompileAndRun : {logtext.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {logtext.count("ConsoleLogPrinter")}\n')
+
             # ===========================================================
             if "+1B938F0" in buff_error or "AnimTextData\\AnimationFileData" in logtext or "AnimationFileLookupSingletonHelper" in logtext:
-                output.writelines(["# Checking for Game Corruption Crash........CULPRIT FOUND! #\n",
-                                   f' Priority : [5] | +1B938F0 | AnimationFileData : {logtext.count("AnimationFileData")} | AnimationFileLookup : {logtext.count("AnimationFileLookupSingletonHelper")}\n'])
-                Culprit_Known = True
-                stats["known"]["gamecorruption"] += 1
+                crash_template("# Checking for ", "Game Corruption Crash........", "CULPRIT FOUND! #\n", "statC_GameCorruption")
+                output.write(f' Priority : [5] | +1B938F0 | AnimationFileData : {logtext.count("AnimationFileData")} | AnimationFileLookup : {logtext.count("AnimationFileLookupSingletonHelper")}\n')
+
             # ===========================================================
             if "BGSWaterCollisionManager" in logtext:
-                output.writelines(["# Checking for Water Collision Crash........CULPRIT FOUND! #\n",
-                                   "PLEASE CONTACT ME AS SOON AS POSSIBLE! (CONTACT INFO BELOW)\n",
-                                   f'> Priority : [6] | BGSWaterCollisionManager : {logtext.count("BGSWaterCollisionManager")}\n'])
-                Culprit_Known = True
-                stats["known"]["water"] += 1
+                crash_template("# Checking for ", "Water Collision Crash........", "CULPRIT FOUND! #\n", "statC_Water")
+                output.write("[!] PLEASE CONTACT ME IF YOU GOT THIS CRASH! (CONTACT INFO BELOW)\n")
+                output.write(f'> Priority : [6] | BGSWaterCollisionManager : {logtext.count("BGSWaterCollisionManager")}\n')
+
             # ===========================================================
             if "ParticleSystem" in logtext:
-                output.writelines(["# Checking for Particle Effects Crash.......CULPRIT FOUND! #\n",
-                                   f'> Priority : [4] | ParticleSystem : {logtext.count("ParticleSystem")}\n'])
-                Culprit_Known = True
-                stats["known"]["particles"] += 1
-            # ===========================================================
-            if "+1FCC07E" in buff_error or "BSAnimationGraphManager" in logtext or "hkbVariableBindingSet" in logtext or "hkbHandIkControlsModifier" in logtext or "hkbBehaviorGraph" in logtext or "hkbModifierList" in logtext:
-                output.writelines(["# Checking for Animation / Physics Crash....CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | +1FCC07E | hkbVariableBindingSet : {logtext.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {logtext.count("hkbHandIkControlsModifier")}\n',
-                                   f'                   hkbBehaviorGraph : {logtext.count("hkbBehaviorGraph")} | hkbModifierList : {logtext.count("hkbModifierList")} | BSAnimationGraphManager : {logtext.count("BSAnimationGraphManager")}\n'])
-                Culprit_Known = True
-                stats["known"]["animationphysics"] += 1
-            # ===========================================================
-            if "DLCBanner05.dds" in logtext:
-                output.writelines(["# Checking for Archive Invalidation Crash...CULPRIT FOUND! #\n",
-                                   f'> Priority : [5] | DLCBanner05.dds : {logtext.count("DLCBanner05.dds")}\n'])
-                Culprit_Known = True
-                stats["known"]["invalidation"] += 1
-            # ===========================================================
-            output.write(" ---------- Unsolved Crash Culprits Below ---------- \n")
-            output.write("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
-            Culprit_LowAcc = False
+                crash_template("# Checking for ", "Particle Effects Crash.......", "CULPRIT FOUND! #\n", "statC_Particles")
+                output.write(f'> Priority : [4] | ParticleSystem : {logtext.count("ParticleSystem")}\n')
 
-            if "+01B59A4" in buff_error:
-                output.writelines(["# Checking for *[Creation Club Crash].......DETECTED! #\n",
-                                   f'> Priority : [3] | +01B59A4\n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["cclub"] += 1
-            # ===========================================================
-            if "+0B2C44B" in buff_error or "TESObjectARMO" in logtext or "TESObjectWEAP" in logtext or "BGSMod::Attachment" in logtext or "BGSMod::Template" in logtext or "BGSMod::Template::Item" in logtext:
-                output.writelines(["# Checking for *[Item Crash]................DETECTED! #\n",
-                                   f'> Priority : [5] | +0B2C44B | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n',
-                                   f'                   BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n',
-                                   f'                   TESObjectARMO : {logtext.count("TESObjectARMO")} | TESObjectWEAP : {logtext.count("TESObjectWEAP")}\n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["item"] += 1
-            # ===========================================================
-            if "+0CDAD30" in buff_error or "BGSSaveLoadManager" in logtext or "BGSSaveLoadThread" in logtext or "BGSSaveFormBuffer" in logtext:
-                output.writelines(["# Checking for *[Save Crash]................DETECTED! #\n",
-                                   f'> Priority : [4] | +0CDAD30 | BGSSaveLoadManager : {logtext.count("BGSSaveLoadManager")}\n',
-                                   f'                   BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")} | BGSSaveLoadThread : {logtext.count("BGSSaveLoadThread")}\n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["save"] += 1
-            # ===========================================================
-            if "ButtonEvent" in logtext or "MenuControls" in logtext or "MenuOpenCloseHandler" in logtext or "PlayerControls" in logtext or "DXGISwapChain" in logtext:
-                output.writelines(["# Checking for *[Input Crash]...............DETECTED! #\n",
-                                   f'> Priority : [4] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}\n',
-                                   f'                   MenuOpenCloseHandler : {logtext.count("MenuOpenCloseHandler")} | PlayerControls : {logtext.count("PlayerControls")}\n',
-                                   f'                   DXGISwapChain : {logtext.count("DXGISwapChain")}\n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["input"] += 1
-            # ===========================================================
-            if "+1D13DA7" in buff_error and ("BSShader" in logtext or "BSBatchRenderer" in logtext or "ShadowSceneNode" in logtext):
-                output.writelines(["# Checking for *[Looks Menu Crash]..........DETECTED! #\n",
-                                   f'> Priority : [5] | +1D13DA7 \n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["looksmenu"] += 1
-            # ===========================================================
-            if "BGSProcedurePatrol" in logtext or "BGSProcedurePatrolExecState" in logtext or "PatrolActorPackageData" in logtext:
-                output.writelines(["# Checking for *[NPC Patrol Crash]..........DETECTED! #\n",
-                                   f'> Priority : [5] | BGSProcedurePatrol : {logtext.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {logtext.count("BGSProcedurePatrolExecState")}\n',
-                                   f'                   PatrolActorPackageData : {logtext.count("PatrolActorPackageData")}\n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["patrol"] += 1
-            # ===========================================================
-            if "BSPackedCombinedSharedGeomDataExtra" in logtext or "BSPackedCombinedGeomDataExtra" in logtext or "BGSCombinedCellGeometryDB" in logtext or "BGSStaticCollection" in logtext or "TESObjectCELL" in logtext:
-                output.writelines(["# Checking for *[Precombines Crash].........DETECTED! #\n",
-                                   f'> Priority : [4] | BGSStaticCollection : {logtext.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {logtext.count("BGSCombinedCellGeometryDB")}\n',
-                                   f'                   BSPackedCombinedGeomDataExtra : {logtext.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {logtext.count("TESObjectCELL")}\n',
-                                   f'                   BSPackedCombinedSharedGeomDataExtra : {logtext.count("BSPackedCombinedSharedGeomDataExtra")}\n'])
-                Culprit_LowAcc = True
-                stats["known"]["precomb"] += 1
-            # ===========================================================
-            if "HUDAmmoCounter" in logtext:
-                output.writelines(["# Checking for *[Ammo Counter Crash]........DETECTED! #\n",
-                                   f'> Priority : [4] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}\n'])
-                Culprit_LowAcc = True
-                stats["unknown"]["hudammo"] += 1
-            # ===========================================================
-            if "ShadowSceneNode" in logtext or "myID3D11DeviceContext" in logtext or "BSDeferredDecal" in logtext or "BSDFDecal" in logtext:
-                output.write("Checking for *[GPU Overclock Crash].......DETECTED!\n")
-                output.write(f'> Priority : [2] | ShadowSceneNode : {logtext.count("ShadowSceneNode")} | myID3D11DeviceContext : {logtext.count("myID3D11DeviceContext")}\n')
-                output.write(f'                   BSDeferredDecal : {logtext.count("BSDeferredDecal")} | BSDFDecal : {logtext.count("BSDFDecal")}\n')
-                Culprit_LowAcc = True
-                stats["unknown"]["overclock"] += 1
-            # ===========================================================
-            if "BGSProjectile" in logtext or "CombatProjectileAimController" in logtext:
-                output.writelines(["# Checking for *[NPC Projectile Crash].....DETECTED! #\n",
-                                   f'> Priority : [5] | BGSProjectile : {logtext.count("BGSProjectile")} | CombatProjectileAimController : {logtext.count("CombatProjectileAimController")}\n'])
-                Culprit_LowAcc = True
             # ===========================================================
             if logtext.count("PlayerCharacter") >= 1 and (logtext.count("0x00000007") or logtext.count("0x00000014") or logtext.count("0x00000008")) >= 3:
-                output.writelines(["# Checking for *[Player Character Crash]....DETECTED! #\n",
-                                   f'> Priority : [4] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}\n',
-                                   f'                   0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}\n'])
-                Culprit_LowAcc = True
-                stats["known"]["player"] += 1
+                crash_template("# Checking for ", "Player Character Crash.......", "CULPRIT FOUND! #\n", "statC_Player")
+                output.write(f'> Priority : [4] | PlayerCharacter : {logtext.count("PlayerCharacter")} | 0x00000007 : {logtext.count("0x00000007")}\n')
+                output.write(f'                   0x00000008 : {logtext.count("0x00000008")} | 0x000000014 : {logtext.count("0x00000014")}\n')
+
+            # ===========================================================
+            if "+1FCC07E" in buff_error or "BSAnimationGraphManager" in logtext or "hkbVariableBindingSet" in logtext or "hkbHandIkControlsModifier" in logtext or "hkbBehaviorGraph" in logtext or "hkbModifierList" in logtext:
+                crash_template("# Checking for ", "Animation / Physics Crash....", "CULPRIT FOUND! #\n", "statC_AnimationPhysics")
+                output.write(f'> Priority : [5] | +1FCC07E | hkbVariableBindingSet : {logtext.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {logtext.count("hkbHandIkControlsModifier")}\n')
+                output.write(f'                   hkbBehaviorGraph : {logtext.count("hkbBehaviorGraph")} | hkbModifierList : {logtext.count("hkbModifierList")} | BSAnimationGraphManager : {logtext.count("BSAnimationGraphManager")}\n')
+
+            # ===========================================================
+            if "DLCBanner05.dds" in logtext:
+                crash_template("# Checking for ", "Archive Invalidation Crash...", "CULPRIT FOUND! #\n", "statC_Invalidation")
+                output.write(f'> Priority : [5] | DLCBanner05.dds : {logtext.count("DLCBanner05.dds")}\n')
+
+            # ===========================================================
+            output.write("\n ---------- Unsolved Crash Culprits Below ---------- \n")
+            output.write("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
             # ===========================================================
 
-            if not Culprit_Known and not Culprit_LowAcc:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
+            if "+01B59A4" in buff_error:
+                crash_template("# Checking for ", "*[Creation Club Crash].......", "DETECTED! #\n", "statU_CClub")
+                output.write(f'> Priority : [3] | +01B59A4\n')
+
+            # ===========================================================
+            if "+0B2C44B" in buff_error or "TESObjectARMO" in logtext or "TESObjectWEAP" in logtext or "BGSMod::Attachment" in logtext or "BGSMod::Template" in logtext or "BGSMod::Template::Item" in logtext:
+                crash_template("# Checking for ", "*[Item Crash]................", "DETECTED! #\n", "statU_Item")
+                output.write(f'> Priority : [5] | +0B2C44B | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n')
+                output.write(f'                   TESObjectARMO : {logtext.count("TESObjectARMO")} | TESObjectWEAP : {logtext.count("TESObjectWEAP")}\n')
+                output.write(f'                   BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n')
+
+            # ===========================================================
+            if "+0CDAD30" in buff_error or "BGSSaveLoadManager" in logtext or "BGSSaveLoadThread" in logtext or "BGSSaveFormBuffer" in logtext:
+                crash_template("# Checking for ", "*[Save Crash]................", "DETECTED! #\n", "statU_Save")
+                output.write(f'> Priority : [4] | +0CDAD30 | BGSSaveLoadManager : {logtext.count("BGSSaveLoadManager")}\n')
+                output.write(f'                   BGSSaveFormBuffer : {logtext.count("BGSSaveFormBuffer")} | BGSSaveLoadThread : {logtext.count("BGSSaveLoadThread")}\n')
+
+            # ===========================================================
+            if "ButtonEvent" in logtext or "MenuControls" in logtext or "MenuOpenCloseHandler" in logtext or "PlayerControls" in logtext or "DXGISwapChain" in logtext:
+                crash_template("# Checking for ", "*[Input Crash]...............", "DETECTED! #\n", "statU_Input")
+                output.write(f'> Priority : [4] | ButtonEvent : {logtext.count("ButtonEvent")} | MenuControls : {logtext.count("MenuControls")}\n')
+                output.write(f'                   MenuOpenCloseHandler : {logtext.count("MenuOpenCloseHandler")} | PlayerControls : {logtext.count("PlayerControls")}\n')
+                output.write(f'                   DXGISwapChain : {logtext.count("DXGISwapChain")}\n')
+
+            # ===========================================================
+            if ("SS2" in logtext or "StartWorkshop" in logtext or "IsWithinBuildableArea" in logtext) and ("+01F498D" in buff_error or "+03F89A3" in buff_error):
+                crash_template("# Checking for ", "*[SS2 / WF Crash]............", "DETECTED! #\n", "statU_SS2WF")
+                output.write(f'> Priority : [4] | +01F498D | +03F89A3 | StartWorkshop : {logtext.count("StartWorkshop")} | IsWithinBuildableArea : {logtext.count("IsWithinBuildableArea")}\n')
+
+            # ===========================================================
+            if "+1D13DA7" in buff_error and ("BSShader" in logtext or "BSBatchRenderer" in logtext or "ShadowSceneNode" in logtext):
+                crash_template("# Checking for ", "*[Looks Menu Crash]..........", "DETECTED! #\n", "statU_LooksMenu")
+                output.write(f'> Priority : [5] | +1D13DA7 | BSShader : {logtext.count("BSShader")} | BSBatchRenderer : {logtext.count("BSBatchRenderer")}\n')
+                output.write(f'                   ShadowSceneNode : {logtext.count("ShadowSceneNode")}\n')
+
+            # ===========================================================
+            if "BGSProcedurePatrol" in logtext or "BGSProcedurePatrolExecState" in logtext or "PatrolActorPackageData" in logtext:
+                crash_template("# Checking for ", "*[NPC Patrol Crash]..........", "DETECTED! #\n", "statU_Patrol")
+                output.write(f'> Priority : [5] | BGSProcedurePatrol : {logtext.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {logtext.count("BGSProcedurePatrolExecState")}\n')
+                output.write(f'                   PatrolActorPackageData : {logtext.count("PatrolActorPackageData")}\n')
+
+            # ===========================================================
+            if "BSPackedCombinedSharedGeomDataExtra" in logtext or "BSPackedCombinedGeomDataExtra" in logtext or "BGSCombinedCellGeometryDB" in logtext or "BGSStaticCollection" in logtext or "TESObjectCELL" in logtext:
+                crash_template("# Checking for ", "*[Precombines Crash].........", "DETECTED! #\n", "statC_Precomb")
+                output.write(f'> Priority : [4] | BGSStaticCollection : {logtext.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {logtext.count("BGSCombinedCellGeometryDB")}\n')
+                output.write(f'                   BSPackedCombinedGeomDataExtra : {logtext.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {logtext.count("TESObjectCELL")}\n')
+                output.write(f'                   BSPackedCombinedSharedGeomDataExtra : {logtext.count("BSPackedCombinedSharedGeomDataExtra")}\n')
+
+            # ===========================================================
+            if "HUDAmmoCounter" in logtext:
+                crash_template("# Checking for ", "*[Ammo Counter Crash]........", "DETECTED! #\n", "statU_HUDAmmo")
+                output.write(f'> Priority : [4] | HUDAmmoCounter : {logtext.count("HUDAmmoCounter")}\n')
+
+            # ===========================================================
+            if "ShadowSceneNode" in logtext or "myID3D11DeviceContext" in logtext or "BSDeferredDecal" in logtext or "BSDFDecal" in logtext:
+                crash_template("# Checking for ", "*[GPU Overclock Crash].......", "DETECTED! #\n", "statU_Overclock")
+                output.write(f'> Priority : [2] | ShadowSceneNode : {logtext.count("ShadowSceneNode")} | myID3D11DeviceContext : {logtext.count("myID3D11DeviceContext")}\n')
+                output.write(f'                   BSDeferredDecal : {logtext.count("BSDeferredDecal")} | BSDFDecal : {logtext.count("BSDFDecal")}\n')
+
+            # ===========================================================
+            if "BGSProjectile" in logtext or "CombatProjectileAimController" in logtext:
+                crash_template("# Checking for ", "*[NPC Projectile Crash].....", "DETECTED! #\n", "statU_Projectile")
+                output.write(f'> Priority : [5] | BGSProjectile : {logtext.count("BGSProjectile")} | CombatProjectileAimController : {logtext.count("CombatProjectileAimController")}\n')
+
+            # ===========================================================
+            if logtext.count("NvCamera64.dll") >= 3 or "NiCamera" in logtext or "WorldRoot Camera" in logtext:
+                crash_template("# Checking for ", "*[Camera Position Crash]....", "DETECTED! #\n", "statU_Camera")
+                output.write(f'> Priority : [3] | NiCamera : {logtext.count("NiCamera")} | WorldRoot Camera : {logtext.count("WorldRoot Camera")}\n')
+
+            # ===========================================================
+
+            if Culprit_Trap is False:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
                 output.writelines(["-----\n",
                                    "# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
                                    "Check below for mods that can cause frequent crashes and other problems.\n",
@@ -752,24 +736,25 @@ def scan_logs():
                 Mod_Check1 = check_plugins(Mods1, Mod_Trap1)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+                statM_CHW = 0
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
                                        "You should disable CHW to further confirm this.\n",
                                        "Visit the main crash logs article for additional solutions.\n",
                                        "-----\n"])
-                    stats["conditions"]["chw"] += 1
+                    statM_CHW += 1
                     Mod_Trap1 = True
-                    Culprit_Known = True
+                    Culprit_Trap = True
                 elif logtext.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" in logtext or "HHS.dll" in logtext or "cbp.dll" in logtext or "Body.nif" in logtext):
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
                                        "You should disable CHW to further confirm this.\n",
                                        "Visit the main crash logs article for additional solutions.\n",
                                        "-----\n"])
-                    stats["conditions"]["chw"] += 1
+                    statM_CHW += 1
                     Mod_Trap1 = True
-                    Culprit_Known = True
+                    Culprit_Trap = True
                 elif "ClassicHolsteredWeapons" in logtext and "d3d11" in buff_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
                                        "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
@@ -787,16 +772,16 @@ def scan_logs():
                 output.writelines(["# [!] CAUTION : ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n",
                                    "  You can disable any/all of them temporarily to confirm they caused this crash.\n",
                                    "-----\n"])
-                stats["main"]["scanned"] += 1
+                statL_scanned += 1
             elif plugins_loaded and (Mod_Check1 and Mod_Trap1) is False:
                 output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n",
                                    "THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.\n",
                                    "Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n",
                                    "-----\n"])
-                stats["main"]["scanned"] += 1
+                statL_scanned += 1
             else:
                 output.write(Warn_BLOG_NOTE_Plugins)
-                stats["main"]["incomplete"] += 1
+                statL_incomplete += 1
 
             output.writelines(["====================================================\n",
                                "CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS...\n",
@@ -838,10 +823,28 @@ def scan_logs():
                     "warn": ["THE FENS SHERIFF'S DEPARTMENT ❌ CONFLICTS WITH : VARIED DIAMOND CITY GUARDS \n",
                              "- Both mods heavily modify Diamond City Guards records. Auto-Scanner suggests using one of these mods only, not both."]},
 
-                6: {"mod_1": " MOD_1.esm",
+                6: {"mod_1": " Fallout4Upscaler.dll",
+                    "mod_2": " NVIDIA_Reflex.dll",
+                    "warn": ["FALLOUT 4 UPSCALER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
+                             "- Both mods likely use the same DLL hooks. This can crash the game or cause weird mod behavior. \n",
+                             "- If you encounter problems or crashes, Auto-Scanner suggests using one of these mods only, not both."]},
+
+                7: {"mod_1": " vulkan",
+                    "mod_2": " NVIDIA_Reflex.dll",
+                    "warn": ["VULKAN RENDERER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
+                             "- Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior. \n",
+                             "- If you encounter Nvidia Driver crashes, Auto-Scanner suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support"]},
+
+                8: {"mod_1": " CustomCamera.esp",
+                    "mod_2": " CameraTweaks.esp",
+                    "warn": ["CUSTOM CAMERA ❌ CONFLICTS WITH : CAMERA TWEAKS \n",
+                             "- Both mods make changes to the in-game camera. Auto-Scanner suggests using Camera Tweaks only, since it's an updated alternative."]},
+
+                9: {"mod_1": " MOD_1.esm",
                     "mod_2": " MOD_2.esm",
                     "warn": ["MOD_1_NAME ❌ CONFLICTS WITH : MOD_2_NAME \n",
                              "- TEMPLATE."]},
+
             }
             Mod_Check2 = False
             if plugins_loaded:
@@ -1198,7 +1201,12 @@ def scan_logs():
                 from Scan_Gamefiles import scan_modfiles
                 modfiles_result = scan_modfiles()
                 for line in modfiles_result:
-                    output.writelines([line, "\n"])
+                    try:
+                        output.writelines(str(line))
+                        output.write("\n")
+                    except TypeError:
+                        output.write(line)
+                        output.write("\n")
 
             if plugins_loaded:
                 if any("CanarySaveFileMonitor" in elem for elem in plugins_list):
@@ -1260,7 +1268,7 @@ def scan_logs():
                 elif "NVIDIA_Reflex.dll" in logtext and not gpu_nvidia and gpu_amd:
                     output.writelines(["❌ *Nvidia Reflex Support* is installed, but...\n",
                                        "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
-                                       "  Nvidia Reflex Support is only required for Nvidia GPUs (NOT AMD / OTHER)\n",
+                                       "  Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)\n",
                                        "  -----\n"])
                 if "NVIDIA_Reflex.dll" not in logtext and gpu_nvidia:
                     output.writelines(["# ❌ NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
@@ -1406,7 +1414,7 @@ def scan_logs():
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
             if not os.path.exists("CLAS-UNSOLVED"):
                 os.mkdir("CLAS-UNSOLVED")
-            if Culprit_Known is False:  # and Culprit_LowAcc is False | RESERVED
+            if Culprit_Trap is False:
                 uCRASH_path = "CLAS-UNSOLVED/" + logname
                 shutil.move(logname, uCRASH_path)
                 uSCAN_path = "CLAS-UNSOLVED/" + logname + "-AUTOSCAN.md"
@@ -1434,8 +1442,8 @@ def scan_logs():
             line_count = sum(1 for _ in Line_Check)
             if ".txt" in scan_name or line_count < 20:  # Adjust if necessary. Failed scans are usually 16 lines.
                 list_SCANFAIL.append(scan_name)
-                stats["main"]["failed"] += 1
-                stats["main"]["scanned"] -= 1
+                statL_failed += 1
+                statL_scanned -= 1
 
     if len(list_SCANFAIL) >= 1:
         print("NOTICE: Auto-Scanner WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
@@ -1448,71 +1456,75 @@ def scan_logs():
     # ====================== TERMINAL OUTPUT END ======================
 
     print("======================================================================")
-    print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - Start_Time)[:7]), "seconds.")
-    print("Number of Scanned Logs (No Autoscan Errors): ", stats["main"]["scanned"])
-    print("Number of Incomplete Logs (No Plugins List): ", stats["main"]["incomplete"])
-    print("Number of Failed Logs (Autoscan Can't Scan): ", stats["main"]["failed"])
+    print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - start_time)[:7]), "seconds.")
+    print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
+    print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
+    print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
     print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
     print("-----")
     if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
-        print("Logs with Stack Overflow Crash...........", stats["known"]["overflow"])
-        print("Logs with Active Effects Crash...........", stats["known"]["activeeffect"])
-        print("Logs with Bad Math Crash.................", stats["known"]["badmath"])
-        print("Logs with Null Crash.....................", stats["known"]["null"])
-        print("Logs with DLL Crash......................", stats["known"]["dll"])
-        print("Logs with LOD Crash......................", stats["known"]["lod"])
-        print("Logs with MCM Crash......................", stats["known"]["mcm"])
-        print("Logs with Decal Crash....................", stats["known"]["decal"])
-        print("Logs with Equip Crash....................", stats["known"]["equip"])
-        print("Logs with Script Crash...................", stats["known"]["papyrus"])
-        print("Logs with Generic Crash..................", stats["known"]["generic"])
-        print("Logs with BA2 Limit Crash................", stats["known"]["ba2limit"])
-        print("Logs with Rendering Crash................", stats["known"]["rendering"])
-        print("Logs with C++ Redist Crash...............", stats["known"]["redist"])
-        print("Logs with Grid Scrap Crash...............", stats["known"]["gridscrap"])
-        print("Logs with Map Marker Crash...............", stats["known"]["mapmarker"])
-        print("Logs with Mesh (NIF) Crash...............", stats["known"]["nif"])
-        print("Logs with Precombines Crash..............", stats["known"]["precomb"])
-        print("Logs with Texture (DDS) Crash............", stats["known"]["texture"])
-        print("Logs with Material (BGSM) Crash..........", stats["known"]["bgsm"])
-        print("Logs with Antivirus Crash................", stats["known"]["antivirus"])
-        print("Logs with NPC Pathing Crash..............", stats["known"]["npcpathing"])
-        print("Logs with Audio Driver Crash.............", stats["known"]["audio"])
-        print("Logs with Body Physics Crash.............", stats["known"]["bodyphysics"])
-        print("Logs with Leveled List Crash.............", stats["known"]["leveledlist"])
-        print("Logs with Plugin Limit Crash.............", stats["known"]["pluginlimit"])
-        print("Logs with Plugin Order Crash.............", stats["known"]["loadorder"])
-        print("Logs with MO2 Extractor Crash............", stats["known"]["mo2unpack"])
-        print("Logs with Nvidia Debris Crash............", stats["known"]["nvdebris"])
-        print("Logs with Nvidia Driver Crash............", stats["known"]["nvdriver"])
-        print("Logs with Vulkan Memory Crash............", stats["known"]["vulkanmem"])
-        print("Logs with Vulkan Settings Crash..........", stats["known"]["vulkanset"])
-        print("Logs with Console Command Crash..........", stats["known"]["consolecommands"])
-        print("Logs with Game Corruption Crash..........", stats["known"]["gamecorruption"])
-        print("Logs with Water Collision Crash..........", stats["known"]["water"])
-        print("Logs with Particle Effects Crash.........", stats["known"]["particles"])
-        print("Logs with Player Character Crash.........", stats["known"]["player"])
-        print("Logs with Animation / Physics Crash......", stats["known"]["animationphysics"])
-        print("Logs with Archive Invalidation Crash.....", stats["known"]["invalidation"])
+        print(crash_template("Logs with ", "Stack Overflow Crash.........", ".. ", "statC_Overflow"))
+        print(crash_template("Logs with ", "Active Effects Crash.........", ".. ", "statC_ActiveEffects"))
+        print(crash_template("Logs with ", "Bad Math Crash...............", ".. ", "statC_BadMath"))
+        print(crash_template("Logs with ", "Null Crash...................", ".. ", "statC_Null"))
+        print(crash_template("Logs with ", "DLL Crash....................", ".. ", "statC_DLL"))
+        print(crash_template("Logs with ", "LOD Crash....................", ".. ", "statC_LOD"))
+        print(crash_template("Logs with ", "MCM Crash....................", ".. ", "statC_MCM"))
+        print(crash_template("Logs with ", "Decal Crash..................", ".. ", "statC_Decal"))
+        print(crash_template("Logs with ", "Equip Crash..................", ".. ", "statC_Equip"))
+        print(crash_template("Logs with ", "Script Crash.................", ".. ", "statC_Papyrus"))
+        print(crash_template("Logs with ", "Generic Crash................", ".. ", "statC_Generic"))
+        print(crash_template("Logs with ", "Antivirus Crash..............", ".. ", "statC_Antivirus"))
+        print(crash_template("Logs with ", "BA2 Limit Crash..............", ".. ", "statC_BA2Limit"))
+        print(crash_template("Logs with ", "Rendering Crash..............", ".. ", "statC_Rendering"))
+        print(crash_template("Logs with ", "C++ Redist Crash.............", ".. ", "statC_Redist"))
+        print(crash_template("Logs with ", "Grid Scrap Crash.............", ".. ", "statC_GridScrap"))
+        print(crash_template("Logs with ", "Map Marker Crash.............", ".. ", "statC_MapMarker"))
+        print(crash_template("Logs with ", "Mesh (NIF) Crash.............", ".. ", "statC_Mesh"))
+        print(crash_template("Logs with ", "Texture (DDS) Crash..........", ".. ", "statC_Texture"))
+        print(crash_template("Logs with ", "Material (BGSM) Crash........", ".. ", "statC_Material"))
+        print(crash_template("Logs with ", "NPC Pathing Crash............", ".. ", "statC_NPCPathing"))
+        print(crash_template("Logs with ", "Precombines Crash............", ".. ", "statC_Precomb"))
+        print(crash_template("Logs with ", "Audio Driver Crash...........", ".. ", "statC_Audio"))
+        print(crash_template("Logs with ", "Body Physics Crash...........", ".. ", "statC_BodyPhysics"))
+        print(crash_template("Logs with ", "Leveled List Crash...........", ".. ", "statC_LeveledList"))
+        print(crash_template("Logs with ", "Plugin Limit Crash...........", ".. ", "statC_PluginLimit"))
+        print(crash_template("Logs with ", "Plugin Order Crash...........", ".. ", "statC_PluginOrder"))
+        print(crash_template("Logs with ", "MO2 Extractor Crash..........", ".. ", "statC_MO2Unpack"))
+        print(crash_template("Logs with ", "Nvidia Debris Crash..........", ".. ", "statC_NVDebris"))
+        print(crash_template("Logs with ", "Nvidia Driver Crash..........", ".. ", "statC_NVDriver"))
+        print(crash_template("Logs with ", "Nvidia Reflex Crash..........", ".. ", "statC_NVReflex"))
+        print(crash_template("Logs with ", "Vulkan Memory Crash..........", ".. ", "statC_VulkanMem"))
+        print(crash_template("Logs with ", "Vulkan Settings Crash........", ".. ", "statC_VulkanSet"))
+        print(crash_template("Logs with ", "Console Command Crash........", ".. ", "statC_ConsoleCommand"))
+        print(crash_template("Logs with ", "Game Corruption Crash........", ".. ", "statC_GameCorruption"))
+        print(crash_template("Logs with ", "Water Collision Crash........", ".. ", "statC_Water"))
+        print(crash_template("Logs with ", "Particle Effects Crash.......", ".. ", "statC_Particles"))
+        print(crash_template("Logs with ", "Player Character Crash.......", ".. ", "statC_Player"))
+        print(crash_template("Logs with ", "Animation / Physics Crash....", ".. ", "statC_AnimationPhysics"))
+        print(crash_template("Logs with ", "Archive Invalidation Crash...", ".. ", "statC_Invalidation"))
         print("-----")
-        print("Crashes caused by Clas. Hols. Weapons....", stats["conditions"]["chw"])
+        print("Crashes caused by Clas. Hols. Weapons....", statM_CHW)
         print("-----")
-        print("Logs with *[Creation Club Crash].........", stats["unknown"]["cclub"])
-        print("Logs with *[Item Crash]..................", stats["unknown"]["item"])
-        print("Logs with *[Save Crash]..................", stats["unknown"]["save"])
-        print("Logs with *[Input Crash].................", stats["unknown"]["input"])
-        print("Logs with *[Looks Menu Crash]............", stats["unknown"]["looksmenu"])
-        print("Logs with *[NPC Patrol Crash]............", stats["unknown"]["patrol"])
-        print("Logs with *[Ammo Counter Crash]..........", stats["unknown"]["hudammo"])
-        print("Logs with *[GPU Overclock Crash].........", stats["unknown"]["overclock"])
-        print("Logs with *[NPC Projectile Crash]........", stats["unknown"]["projectile"])
-        print("*Unsolved, see How To Read Crash Logs PDF")
+        print(crash_template("Logs with ", "*[Item Crash]................", ".. ", "statU_Item"))
+        print(crash_template("Logs with ", "*[Save Crash]................", ".. ", "statU_Save"))
+        print(crash_template("Logs with ", "*[Input Crash]...............", ".. ", "statU_Input"))
+        print(crash_template("Logs with ", "*[SS2 / WF Crash]............", ".. ", "statU_SS2WF"))
+        print(crash_template("Logs with ", "*[Looks Menu Crash]..........", ".. ", "statU_LooksMenu"))
+        print(crash_template("Logs with ", "*[NPC Patrol Crash]..........", ".. ", "statU_Patrol"))
+        print(crash_template("Logs with ", "*[Ammo Counter Crash]........", ".. ", "statU_HUDAmmo"))
+        print(crash_template("Logs with ", "*[Creation Club Crash].......", ".. ", "statU_CClub"))
+        print(crash_template("Logs with ", "*[GPU Overclock Crash].......", ".. ", "statU_Overclock"))
+        print(crash_template("Logs with ", "*[NPC Projectile Crash]......", ".. ", "statU_Projectile"))
+        print(crash_template("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera"))
+        print(" *Unsolved, see How To Read Crash Logs PDF")
         print("===========================================")
     return
 
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     import argparse
+
     parser = argparse.ArgumentParser(prog="Buffout 4 Crash Log Auto-Scanner", description="All command-line options are saved to the INI file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon

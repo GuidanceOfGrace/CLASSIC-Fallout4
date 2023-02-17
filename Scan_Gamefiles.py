@@ -266,10 +266,8 @@ def scan_mainfiles():
 
     if len(clas_log_errors(info.FO4_F4SE_Logs)) >= 1:
         scan_mainfiles_report.append(Warn_SCAN_Log_Errors)
-        errorlist = []
         for elem in clas_log_errors(info.FO4_F4SE_Logs):
-            errorlist.append(f"{elem}\n-----\n")
-        scan_mainfiles_report.append(errorlist)
+             scan_mainfiles_report.append(f"{elem}\n-----\n")
     else:
         scan_mainfiles_report.append("✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
 
@@ -326,22 +324,20 @@ def scan_mainfiles():
             scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
                                           "    * This is the version BEFORE the 2023 Update *",
                                           "  -----"])
-        # elif FO4_EXE_Size == xxxxxxxx and not info.Steam_INI.is_file():
+        # elif FO4_EXE_Size == xxxxxxxx and not info.Steam_INI.is_file(): | RESERVED
         #    scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.xx.xxx.x]",
         #                                  "   * This is the version AFTER the 2023 Update *",
         #                                  "  -----"])
         elif FO4_EXE_Size == 65503104 and not info.Steam_INI.is_file():
             scan_mainfiles_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
-        elif FO4_EXE_Size == 65503104 and info.Steam_INI.is_file():
+        elif FO4_EXE_Size == 65503104 and info.Steam_INI.is_file():  # Intentional, don't change the unicode icon.
             scan_mainfiles_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
 
     # CHECK FALLOUT 4 ROOT FOLDER LOG ERRORS
     if len(clas_log_errors(info.Game_Path)) >= 1:
         scan_mainfiles_report.append(Warn_SCAN_Log_Errors)
-        errorlist = []
         for elem in clas_log_errors(info.Game_Path):
-            errorlist.append(f"{elem}\n-----\n")
-        scan_mainfiles_report.append(errorlist)
+             scan_mainfiles_report.append(f"{elem}\n-----\n")
     else:
         scan_mainfiles_report.append("✔️ Available logs in your Game Folder do not report any additional errors.\n  -----")
 
