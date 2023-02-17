@@ -73,7 +73,7 @@ Warn_CLAS_Outdated_Scanner = """
     https://www.nexusmods.com/fallout4/mods/56255
 """
 Warn_CLAS_Python_Platform = """
-[!] WARNING : NEWEST PYTHON VERSIONS ARE NOT OFFICIALLY SUPPORTED ON WINDOWS 7
+[!] WARNING : NEWEST PYTHON VERSIONS ARE NOT OFFICIALLY SUPPORTED ON WINDOWS 7/8/8.1
     Install the newest Py version from here: https://github.com/adang1345/PythonWin7
     Click on the green Code button and Download Zip, then extract and install newest Py 3.11
 """
@@ -138,11 +138,11 @@ def clas_update_check():
     print("CHECKING YOUR PYTHON VERSION & CRASH LOG AUTO SCANNER UPDATES...")
     print("(You can disable this check in the EXE or Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {sys.version[:6]} \n")
-    if sys.version[:4] not in ["3.11", "3.10", "3.9."]:
+    if sys.version_info[:2] < (3, 9): # Better method for checking python version, IMO. - evildarkarchon
         print(Warn_CLAS_Python_Version)
         if platform.system() == "Windows":
-            os_version = platform.win32_ver()[0]
-            if os_version == "7":
+            os_version = int(platform.win32_ver()[0])
+            if os_version < 10: # there are probably still people using windows 8/8.1, so this check is better than just checking for 7. - evildarkarchon
                 print(Warn_CLAS_Python_Platform)
         os.system("pause")
     else:
