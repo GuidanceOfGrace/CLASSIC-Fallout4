@@ -562,7 +562,8 @@ def scan_logs():
             if "+0B2C44B" in buff_error or "TESObjectARMO" in logtext or "TESObjectWEAP" in logtext or "BGSMod::Attachment" in logtext or "BGSMod::Template" in logtext or "BGSMod::Template::Item" in logtext:
                 output.writelines(["# Checking for *[Item Crash]................DETECTED! #\n",
                                    f'> Priority : [5] | +0B2C44B | BGSMod::Attachment : {logtext.count("BGSMod::Attachment")} | BGSMod::Template : {logtext.count("BGSMod::Template")}\n',
-                                   f'                   BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n'])
+                                   f'                   BGSMod::Template::Item : {logtext.count("BGSMod::Template::Item")}\n',
+                                   f'                   TESObjectARMO : {logtext.count("TESObjectARMO")} | TESObjectWEAP : {logtext.count("TESObjectWEAP")}\n'])
                 Culprit_LowAcc = True
                 stats["unknown"]["item"] += 1
             # ===========================================================
