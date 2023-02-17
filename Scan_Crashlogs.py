@@ -15,11 +15,12 @@ try:
 except (ImportError, ModuleNotFoundError):
     subprocess.run(['pip', 'install', 'requests'], shell=True)
 
-''' AUTHOR NOTES (POET):
+'''AUTHOR NOTES (POET):
 - In cases where output.write is used instead of output.writelines, this is so I can more easily copy-paste specific content.
 - (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
 - Comments marked as RESERVED in all scripts are intended for future updates, do not edit / move / remove.
 '''
+
 
 # =================== CLAS INI FILE ===================
 def clas_ini_create():
@@ -137,8 +138,6 @@ Warn_BLOG_NOTE_Modules = """\
 
 
 # =================== UPDATE FUNCTION ===================
-
-
 def clas_update_check():
     global CLAS_Current
     global CLAS_Updated
@@ -178,7 +177,7 @@ def clas_update_run():
         print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
 
 
-# ======================== FLAVOUR TEXT ========================
+# ================= FLAVOUR TEXT / GLOBAL VARS =================
 Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
                "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
@@ -189,8 +188,9 @@ Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. Yo
                "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
                "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
+Culprit_Trap = False
+crash_template_stats = {}
 # =================== TERMINAL OUTPUT START ====================
-
 print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Current[-4:], "| Fallout 4")
 print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION")
 print("===============================================================================")
@@ -198,9 +198,10 @@ print("=========================================================================
 
 def scan_logs():
     print("PERFORMING SCAN... \n")
-    statL_scanned = statL_incomplete = statL_failed = 0
+    statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
-    crash_template_stats = {}
+    global crash_template_stats
+    global Culprit_Trap
     global Sneaky_Tips
 
     # =================== AUTOSCAN REPORT ===================
@@ -290,15 +291,10 @@ def scan_logs():
                 else:
                     output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
 
-            output.writelines(["====================================================\n",
-                               "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
-                               "====================================================\n"])
-            global Culprit_Trap
-            Culprit_Trap = False  # RETURN TRUE IF ANY POSSIBLE CRASH CULPRIT IS FOUND OR DETECTED
-
             # =============== CRASH / STAT CHECK TEMPLATE ===============
             def crash_template(crash_prefix, crash_main, crash_suffix, crash_stat):
                 global Culprit_Trap
+                global crash_template_stats
                 if "CULPRIT FOUND" in crash_suffix or "DETECTED" in crash_suffix:
                     Culprit_Trap = True
 
@@ -311,8 +307,11 @@ def scan_logs():
                     crash_template_stats[crash_stat] += 1
                 else:
                     crash_template_stats[crash_stat] = 0
-
                 return crash_template_stats[crash_stat]
+
+            output.writelines(["====================================================\n",
+                               "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
+                               "====================================================\n"])
 
             # ===================== HEADER CULPRITS =====================
             if ".dll" in buff_error.lower() and "tbbmalloc" not in buff_error.lower():
@@ -627,16 +626,16 @@ def scan_logs():
             # =============== MOD / PLUGIN CHECK TEMPLATES ==============
             def check_plugins(mods, mod_trap):
                 if plugins_loaded:
-                    for line in plugins_list:
+                    for LINE in plugins_list:
                         for elem in mods.keys():
-                            if "File:" not in line and "[FE" not in line and mods[elem]["mod"] in line:
+                            if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE:
                                 warn = ''.join(mods[elem]["warn"])
-                                output.writelines([f"[!] Found: {line[0:5].strip()} {warn}\n",
+                                output.writelines([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
                                                    "-----\n"])
                                 mod_trap = True
-                            elif "File:" not in line and "[FE" in line and mods[elem]["mod"] in line:
+                            elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE:
                                 warn = ''.join(mods[elem]["warn"])
-                                output.writelines([f"[!] Found: {line[0:9].strip()} {warn}\n",
+                                output.writelines([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
                                                    "-----\n"])
                                 mod_trap = True
                 return mod_trap
@@ -736,7 +735,6 @@ def scan_logs():
                 Mod_Check1 = check_plugins(Mods1, Mod_Trap1)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
-                statM_CHW = 0
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
@@ -1454,7 +1452,6 @@ def scan_logs():
         print("Make sure that your crash logs are saved with .log file format, NOT .txt!")
 
     # ====================== TERMINAL OUTPUT END ======================
-
     print("======================================================================")
     print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - start_time)[:7]), "seconds.")
     print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
@@ -1462,7 +1459,8 @@ def scan_logs():
     print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
     print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
     print("-----")
-    if CLAS_config.getboolean("MAIN", "Stat Logging") is True:
+    # Trying to generate Stat Logging for 0 valid logs will crash the script.
+    if CLAS_config.getboolean("MAIN", "Stat Logging") is True and statL_scanned > 0:
         print(crash_template("Logs with ", "Stack Overflow Crash.........", ".. ", "statC_Overflow"))
         print(crash_template("Logs with ", "Active Effects Crash.........", ".. ", "statC_ActiveEffects"))
         print(crash_template("Logs with ", "Bad Math Crash...............", ".. ", "statC_BadMath"))
@@ -1519,12 +1517,14 @@ def scan_logs():
         print(crash_template("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera"))
         print(" *Unsolved, see How To Read Crash Logs PDF")
         print("===========================================")
+    elif statL_scanned == 0:
+        print(" ❌ Auto Scanner found no logs to scan.")
+        print("    There are no statistics to show.\n")
     return
 
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     import argparse
-
     parser = argparse.ArgumentParser(prog="Buffout 4 Crash Log Auto-Scanner", description="All command-line options are saved to the INI file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
