@@ -1461,60 +1461,60 @@ def scan_logs():
     print("-----")
     # Trying to generate Stat Logging for 0 valid logs will crash the script.
     if CLAS_config.getboolean("MAIN", "Stat Logging") is True and statL_scanned > 0:
-        print(crash_template("Logs with ", "Stack Overflow Crash.........", ".. ", "statC_Overflow"))
-        print(crash_template("Logs with ", "Active Effects Crash.........", ".. ", "statC_ActiveEffects"))
-        print(crash_template("Logs with ", "Bad Math Crash...............", ".. ", "statC_BadMath"))
-        print(crash_template("Logs with ", "Null Crash...................", ".. ", "statC_Null"))
-        print(crash_template("Logs with ", "DLL Crash....................", ".. ", "statC_DLL"))
-        print(crash_template("Logs with ", "LOD Crash....................", ".. ", "statC_LOD"))
-        print(crash_template("Logs with ", "MCM Crash....................", ".. ", "statC_MCM"))
-        print(crash_template("Logs with ", "Decal Crash..................", ".. ", "statC_Decal"))
-        print(crash_template("Logs with ", "Equip Crash..................", ".. ", "statC_Equip"))
-        print(crash_template("Logs with ", "Script Crash.................", ".. ", "statC_Papyrus"))
-        print(crash_template("Logs with ", "Generic Crash................", ".. ", "statC_Generic"))
-        print(crash_template("Logs with ", "Antivirus Crash..............", ".. ", "statC_Antivirus"))
-        print(crash_template("Logs with ", "BA2 Limit Crash..............", ".. ", "statC_BA2Limit"))
-        print(crash_template("Logs with ", "Rendering Crash..............", ".. ", "statC_Rendering"))
-        print(crash_template("Logs with ", "C++ Redist Crash.............", ".. ", "statC_Redist"))
-        print(crash_template("Logs with ", "Grid Scrap Crash.............", ".. ", "statC_GridScrap"))
-        print(crash_template("Logs with ", "Map Marker Crash.............", ".. ", "statC_MapMarker"))
-        print(crash_template("Logs with ", "Mesh (NIF) Crash.............", ".. ", "statC_Mesh"))
-        print(crash_template("Logs with ", "Texture (DDS) Crash..........", ".. ", "statC_Texture"))
-        print(crash_template("Logs with ", "Material (BGSM) Crash........", ".. ", "statC_Material"))
-        print(crash_template("Logs with ", "NPC Pathing Crash............", ".. ", "statC_NPCPathing"))
-        print(crash_template("Logs with ", "Precombines Crash............", ".. ", "statC_Precomb"))
-        print(crash_template("Logs with ", "Audio Driver Crash...........", ".. ", "statC_Audio"))
-        print(crash_template("Logs with ", "Body Physics Crash...........", ".. ", "statC_BodyPhysics"))
-        print(crash_template("Logs with ", "Leveled List Crash...........", ".. ", "statC_LeveledList"))
-        print(crash_template("Logs with ", "Plugin Limit Crash...........", ".. ", "statC_PluginLimit"))
-        print(crash_template("Logs with ", "Plugin Order Crash...........", ".. ", "statC_PluginOrder"))
-        print(crash_template("Logs with ", "MO2 Extractor Crash..........", ".. ", "statC_MO2Unpack"))
-        print(crash_template("Logs with ", "Nvidia Debris Crash..........", ".. ", "statC_NVDebris"))
-        print(crash_template("Logs with ", "Nvidia Driver Crash..........", ".. ", "statC_NVDriver"))
-        print(crash_template("Logs with ", "Nvidia Reflex Crash..........", ".. ", "statC_NVReflex"))
-        print(crash_template("Logs with ", "Vulkan Memory Crash..........", ".. ", "statC_VulkanMem"))
-        print(crash_template("Logs with ", "Vulkan Settings Crash........", ".. ", "statC_VulkanSet"))
-        print(crash_template("Logs with ", "Console Command Crash........", ".. ", "statC_ConsoleCommand"))
-        print(crash_template("Logs with ", "Game Corruption Crash........", ".. ", "statC_GameCorruption"))
-        print(crash_template("Logs with ", "Water Collision Crash........", ".. ", "statC_Water"))
-        print(crash_template("Logs with ", "Particle Effects Crash.......", ".. ", "statC_Particles"))
-        print(crash_template("Logs with ", "Player Character Crash.......", ".. ", "statC_Player"))
-        print(crash_template("Logs with ", "Animation / Physics Crash....", ".. ", "statC_AnimationPhysics"))
-        print(crash_template("Logs with ", "Archive Invalidation Crash...", ".. ", "statC_Invalidation"))
+        print(crash_template("Logs with ", "Stack Overflow Crash.........", ".. ", "statC_Overflow")) # type: ignore
+        print(crash_template("Logs with ", "Active Effects Crash.........", ".. ", "statC_ActiveEffects")) # type: ignore
+        print(crash_template("Logs with ", "Bad Math Crash...............", ".. ", "statC_BadMath")) # type: ignore
+        print(crash_template("Logs with ", "Null Crash...................", ".. ", "statC_Null")) # type: ignore
+        print(crash_template("Logs with ", "DLL Crash....................", ".. ", "statC_DLL")) # type: ignore
+        print(crash_template("Logs with ", "LOD Crash....................", ".. ", "statC_LOD")) # type: ignore
+        print(crash_template("Logs with ", "MCM Crash....................", ".. ", "statC_MCM")) # type: ignore
+        print(crash_template("Logs with ", "Decal Crash..................", ".. ", "statC_Decal")) # type: ignore
+        print(crash_template("Logs with ", "Equip Crash..................", ".. ", "statC_Equip")) # type: ignore
+        print(crash_template("Logs with ", "Script Crash.................", ".. ", "statC_Papyrus")) # type: ignore
+        print(crash_template("Logs with ", "Generic Crash................", ".. ", "statC_Generic")) # type: ignore
+        print(crash_template("Logs with ", "Antivirus Crash..............", ".. ", "statC_Antivirus")) # type: ignore
+        print(crash_template("Logs with ", "BA2 Limit Crash..............", ".. ", "statC_BA2Limit")) # type: ignore
+        print(crash_template("Logs with ", "Rendering Crash..............", ".. ", "statC_Rendering")) # type: ignore
+        print(crash_template("Logs with ", "C++ Redist Crash.............", ".. ", "statC_Redist")) # type: ignore
+        print(crash_template("Logs with ", "Grid Scrap Crash.............", ".. ", "statC_GridScrap")) # type: ignore
+        print(crash_template("Logs with ", "Map Marker Crash.............", ".. ", "statC_MapMarker")) # type: ignore
+        print(crash_template("Logs with ", "Mesh (NIF) Crash.............", ".. ", "statC_Mesh")) # type: ignore
+        print(crash_template("Logs with ", "Texture (DDS) Crash..........", ".. ", "statC_Texture")) # type: ignore
+        print(crash_template("Logs with ", "Material (BGSM) Crash........", ".. ", "statC_Material")) # type: ignore
+        print(crash_template("Logs with ", "NPC Pathing Crash............", ".. ", "statC_NPCPathing")) # type: ignore
+        print(crash_template("Logs with ", "Precombines Crash............", ".. ", "statC_Precomb")) # type: ignore
+        print(crash_template("Logs with ", "Audio Driver Crash...........", ".. ", "statC_Audio")) # type: ignore
+        print(crash_template("Logs with ", "Body Physics Crash...........", ".. ", "statC_BodyPhysics")) # type: ignore
+        print(crash_template("Logs with ", "Leveled List Crash...........", ".. ", "statC_LeveledList")) # type: ignore
+        print(crash_template("Logs with ", "Plugin Limit Crash...........", ".. ", "statC_PluginLimit")) # type: ignore
+        print(crash_template("Logs with ", "Plugin Order Crash...........", ".. ", "statC_PluginOrder")) # type: ignore
+        print(crash_template("Logs with ", "MO2 Extractor Crash..........", ".. ", "statC_MO2Unpack")) # type: ignore
+        print(crash_template("Logs with ", "Nvidia Debris Crash..........", ".. ", "statC_NVDebris")) # type: ignore
+        print(crash_template("Logs with ", "Nvidia Driver Crash..........", ".. ", "statC_NVDriver")) # type: ignore
+        print(crash_template("Logs with ", "Nvidia Reflex Crash..........", ".. ", "statC_NVReflex")) # type: ignore
+        print(crash_template("Logs with ", "Vulkan Memory Crash..........", ".. ", "statC_VulkanMem")) # type: ignore
+        print(crash_template("Logs with ", "Vulkan Settings Crash........", ".. ", "statC_VulkanSet")) # type: ignore
+        print(crash_template("Logs with ", "Console Command Crash........", ".. ", "statC_ConsoleCommand")) # type: ignore
+        print(crash_template("Logs with ", "Game Corruption Crash........", ".. ", "statC_GameCorruption")) # type: ignore
+        print(crash_template("Logs with ", "Water Collision Crash........", ".. ", "statC_Water")) # type: ignore
+        print(crash_template("Logs with ", "Particle Effects Crash.......", ".. ", "statC_Particles")) # type: ignore
+        print(crash_template("Logs with ", "Player Character Crash.......", ".. ", "statC_Player")) # type: ignore
+        print(crash_template("Logs with ", "Animation / Physics Crash....", ".. ", "statC_AnimationPhysics")) # type: ignore
+        print(crash_template("Logs with ", "Archive Invalidation Crash...", ".. ", "statC_Invalidation")) # type: ignore
         print("-----")
         print("Crashes caused by Clas. Hols. Weapons....", statM_CHW)
         print("-----")
-        print(crash_template("Logs with ", "*[Item Crash]................", ".. ", "statU_Item"))
-        print(crash_template("Logs with ", "*[Save Crash]................", ".. ", "statU_Save"))
-        print(crash_template("Logs with ", "*[Input Crash]...............", ".. ", "statU_Input"))
-        print(crash_template("Logs with ", "*[SS2 / WF Crash]............", ".. ", "statU_SS2WF"))
-        print(crash_template("Logs with ", "*[Looks Menu Crash]..........", ".. ", "statU_LooksMenu"))
-        print(crash_template("Logs with ", "*[NPC Patrol Crash]..........", ".. ", "statU_Patrol"))
-        print(crash_template("Logs with ", "*[Ammo Counter Crash]........", ".. ", "statU_HUDAmmo"))
-        print(crash_template("Logs with ", "*[Creation Club Crash].......", ".. ", "statU_CClub"))
-        print(crash_template("Logs with ", "*[GPU Overclock Crash].......", ".. ", "statU_Overclock"))
-        print(crash_template("Logs with ", "*[NPC Projectile Crash]......", ".. ", "statU_Projectile"))
-        print(crash_template("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera"))
+        print(crash_template("Logs with ", "*[Item Crash]................", ".. ", "statU_Item")) # type: ignore
+        print(crash_template("Logs with ", "*[Save Crash]................", ".. ", "statU_Save")) # type: ignore
+        print(crash_template("Logs with ", "*[Input Crash]...............", ".. ", "statU_Input")) # type: ignore
+        print(crash_template("Logs with ", "*[SS2 / WF Crash]............", ".. ", "statU_SS2WF")) # type: ignore
+        print(crash_template("Logs with ", "*[Looks Menu Crash]..........", ".. ", "statU_LooksMenu")) # type: ignore
+        print(crash_template("Logs with ", "*[NPC Patrol Crash]..........", ".. ", "statU_Patrol")) # type: ignore
+        print(crash_template("Logs with ", "*[Ammo Counter Crash]........", ".. ", "statU_HUDAmmo")) # type: ignore
+        print(crash_template("Logs with ", "*[Creation Club Crash].......", ".. ", "statU_CClub")) # type: ignore
+        print(crash_template("Logs with ", "*[GPU Overclock Crash].......", ".. ", "statU_Overclock")) # type: ignore
+        print(crash_template("Logs with ", "*[NPC Projectile Crash]......", ".. ", "statU_Projectile")) # type: ignore
+        print(crash_template("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera")) # type: ignore
         print(" *Unsolved, see How To Read Crash Logs PDF")
         print("===========================================")
     elif statL_scanned == 0:
