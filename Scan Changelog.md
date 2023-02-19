@@ -1,6 +1,22 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.35
+* MAIN SCRIPT *
+- General code optimization for statistics logging, fixed minor stat tracking issues.
+- Fixed Auto-Scanner scanning the wrong folder when looking for dll log errors.
+- Fixed the FormType error / crash due to some weird output & text parsing.
+- Adjusted *Plugin Limit Crash* detection to prevent false positives.
+- Added detection for 5 new mods that conflict with other mods.
+- Added detection for the following crash types:
+> Nvidia Reflex Crash
+> *[SS2 / WF Crash]
+> *[Camera Position Crash]
+
+* OTHER FILES *
+- Upgraded the EXE interface to use PyQt6 / PySide6 thanks to [evildarkarchon] on GitHub.
+- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+
 6.25
 * MAIN SCRIPT *
 - Adjusted all warning / caution messages to show up only when their specific conditions are met.

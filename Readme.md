@@ -113,25 +113,18 @@ B must be the culprit since the game didn't crash with only Mod A enabled while 
 ===========================================================================
 # LATEST CHANGES #
 
-6.11
+6.35
 * MAIN SCRIPT *
-- Fixed an issue where Auto-Scanner would do the opposite of intended while *Move Unsolved = true*.
-- Auto-Scanner should now warn you when trying to scan *.txt* crash logs (only *.log* are allowed).
-- Expanded exception parameters when *Fallout4Custom.ini* cannot be automatically modified.
-- Fixed the timing for *Scanned all available logs in X seconds* while using the GUI.
-- Changed *Bitdefender Crash* to *Antivirus Crash*, crash info has been updated.
-- Update checks are now skipped entirely if any error occurs to prevent crashes.
-- Adjusted text and updated links for some detected mods and plugins.
-- Added detection for functions for the *List Of Detected (Named) Records*.
-- Added detection for *NPC Pathing Crash* caused by followers / companions.
-- Added detection for the *[GPU Overclock Crash]* | Expect false positives.
-
-[Crash info was already listed, but detection wasn't implemented until now.]
-
-* CLAS GUI *
-- General code optimization and cleanup to resolve / suppress various IDE warnings.
-- Now merged both scripts into the EXE, this should prevent some specific crashes.
+- General code optimization for statistics logging, fixed minor stat tracking issues.
+- Fixed Auto-Scanner scanning the wrong folder when looking for dll log errors.
+- Fixed the FormType error / crash due to some weird output & text parsing.
+- Adjusted *Plugin Limit Crash* detection to prevent false positives.
+- Added detection for 5 new mods that conflict with other mods.
+- Added detection for the following crash types:
+> Nvidia Reflex Crash
+> *[SS2 / WF Crash]
+> *[Camera Position Crash]
 
 * OTHER FILES *
-- General improvements to *CL Compare.py* thanks to [evildarkarchon] on GitHub.
+- Upgraded the EXE interface to use PyQt6 / PySide6 thanks to [evildarkarchon] on GitHub.
 - Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
