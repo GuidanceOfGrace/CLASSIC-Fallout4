@@ -287,7 +287,7 @@ class UiClasMainwin(object):
         from Scan_Gamefiles import scan_mainfiles
         from Scan_Gamefiles import scan_modfiles
         combined_result = scan_mainfiles() + scan_modfiles()
-        for item in combined_result: # prints this like a python list complete with raw line breaks (you see the \n-----\n in the output)
+        for item in combined_result:
             print(item)
 
     def SelectFolder_SCAN(self):
