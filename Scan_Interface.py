@@ -1,15 +1,14 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 
 import sys
-import Scan_Crashlogs
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QFileDialog
-from PySide6.QtGui import QDesktopServices, QColor, QPalette
 
-CLAS_Current = Scan_Crashlogs.CLAS_Current
-CLAS_config = Scan_Crashlogs.CLAS_config
-clas_ini_update = Scan_Crashlogs.clas_ini_update
+from Scan_Crashlogs import (CLAS_config, CLAS_Current, clas_ini_update,
+                            clas_update_run, scan_logs)
 
 
 # noinspection PyUnresolvedReferences
@@ -281,11 +280,10 @@ class UiClasMainwin(object):
 
     @staticmethod
     def CrashLogs_SCAN():
-        Scan_Crashlogs.scan_logs()
+        scan_logs()
 
     def Gamefiles_SCAN(self):
-        from Scan_Gamefiles import scan_mainfiles
-        from Scan_Gamefiles import scan_modfiles
+        from Scan_Gamefiles import scan_mainfiles, scan_modfiles
         combined_result = scan_mainfiles() + scan_modfiles()
         for item in combined_result:
             print(item)
@@ -316,7 +314,7 @@ class UiClasMainwin(object):
 
     @staticmethod
     def Update_Popup():
-        if Scan_Crashlogs.clas_update_run():
+        if clas_update_run():
             QtWidgets.QMessageBox.information(CLAS_MainWin, "CLAS Update", "You have the latest version of Crash Log Auto Scanner!")
         else:
             QtWidgets.QMessageBox.warning(CLAS_MainWin, "CLAS Update", "New Crash Log Auto Scanner version detected!\nPress OK to open the CLAS Nexus Page.")

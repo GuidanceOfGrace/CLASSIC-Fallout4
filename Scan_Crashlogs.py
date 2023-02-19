@@ -1,14 +1,14 @@
+import configparser
 import os
+import platform
+import random
+import shutil
+import subprocess
 import sys
 import time
-import shutil
-import random
-import platform
-import subprocess
-import configparser
+from collections import Counter
 from glob import glob
 from pathlib import Path
-from collections import Counter
 
 try:
     import requests
