@@ -1,14 +1,14 @@
-import os
-import stat
-import platform
 import configparser
 import hashlib
+import os
+import platform
+import stat
 from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
-from Scan_Crashlogs import clas_ini_create
-from Scan_Crashlogs import clas_ini_update
-from Scan_Crashlogs import CLAS_config
+
+from Scan_Crashlogs import CLAS_config, clas_ini_create, clas_ini_update
+
 if platform.system() == "Windows":
     import ctypes.wintypes
 clas_ini_create()
