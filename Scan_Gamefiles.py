@@ -427,6 +427,11 @@ def scan_mainfiles():
                                               "Auto-Scanner will decrease this value to 8192 to prevent possible crashes.",
                                               "-----"])
                 BUFF_config["Patches"]["MaxStdIO"] = 8192 # type: ignore
+            elif not isinstance(BUFF_config["Patches"]["MaxStdIO"], int): # type: ignore
+                scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.", # Another placeholder message courtesy of Github Copilot
+                                              "Auto-Scanner will change this value to 8192 to prevent possible crashes.",
+                                              "-----"])
+                BUFF_config["Patches"]["MaxStdIO"] = 8192 # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n  -----")
 
