@@ -393,19 +393,19 @@ def scan_mainfiles():
                                                       "-----"])"""
             BUFF_config: tomlkit.TOMLDocument = tomlkit.load(BUFF_Custom)
 
-            if info.BO4_Achievements.is_file() and BUFF_config["Achievements"] == True:
+            if info.BO4_Achievements.is_file() and BUFF_config["Patches"]["Achievements"] == True: # type: ignore
                 scan_mainfiles_report.extend(["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
                                               "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
                                               "-----"])
-                BUFF_config["Achievements"] = False
+                BUFF_config["Patches"]["Achievements"] = False # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
-            if info.BO4_BakaSH.is_file() and BUFF_config["MemoryManager"] == True:
+            if info.BO4_BakaSH.is_file() and BUFF_config["Patches"]["MemoryManager"] == True: # type: ignore
                 scan_mainfiles_report.extend(["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
                                               "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
                                               "-----"])
-                BUFF_config["MemoryManager"] = False
+                BUFF_config["Patches"]["MemoryManager"] = False # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
@@ -413,7 +413,7 @@ def scan_mainfiles():
                 scan_mainfiles_report.extend(["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
                                               "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.",
                                               "-----"])
-                BUFF_config["F4EE"] = True
+                BUFF_config["Compatibility"]["F4EE"] = True # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
