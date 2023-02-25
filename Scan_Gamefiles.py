@@ -422,8 +422,12 @@ def scan_mainfiles():
                                               "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
                                               "-----"])
                 BUFF_config["Patches"]["MaxStdIO"] = 2048 # type: ignore
+            elif BUFF_config["Patches"]["MaxStdIO"] > 2048: # type: ignore
+                scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.", # Placeholder message courtesy of Github Copilot
+                                              "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
+                                              "-----"])
             elif not isinstance(BUFF_config["Patches"]["MaxStdIO"], int): # type: ignore
-                scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.", # Placeholder message courtesy of Github Copilot
+                scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.", # Another placeholder message courtesy of Github Copilot
                                               "Auto-Scanner will change this value to 2048.",
                                               "-----"])
                 BUFF_config["Patches"]["MaxStdIO"] = 2048 # type: ignore
