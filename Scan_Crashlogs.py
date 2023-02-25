@@ -57,7 +57,7 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
 CLAS_Date = "250223"  # DDMMYY
-CLAS_Current = "CLAS v6.45"
+CLAS_Current = "CLAS v6.50"
 CLAS_Updated = False
 
 
@@ -111,7 +111,7 @@ Warn_TOML_F4EE = """\
 """
 Warn_TOML_STDIO = """\
 # ❌ CAUTION : MaxStdIO parameter value in *Buffout4.toml* might be too low. #
-  FIX: Open *Buffout4.toml* and change MaxStdIO value to 8192, this should prevent the BA2 Limit crashes.
+  FIX: Open *Buffout4.toml* and change MaxStdIO value to 2048, this should prevent the BA2 Limit crashes.
   -----
 """
 
