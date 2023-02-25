@@ -1,6 +1,19 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.45
+* MAIN SCRIPT *
+- Auto-Scanner now checks the MaxStdIO value in *Buffout4.toml* and will warn you if it needs adjusting.
+- Expanded *Buffout4.toml* checks to cover more valid settings and prevent false positive warnings.
+- Fixed wrong message being sometimes incorrectly displayed when no crash culprits are found.
+- Various fixes and adjustments for the detection of mods that conflict with other mods.
+- Moved all *Classic Holstered Weapons* conflict warnings to the relevant segment.
+- Implemented hash based check for *Fallout4.exe* for better accuracy.
+
+* OTHER FILES *
+- *CL TOOLS* folder renamed to *CLAS TOOLS*
+- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+
 6.35
 * MAIN SCRIPT *
 - General code optimization for statistics logging, fixed minor stat tracking issues.

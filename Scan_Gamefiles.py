@@ -315,7 +315,8 @@ def scan_mainfiles():
                          "MatSwap.pex", "MiscObject.pex", "ObjectMod.pex", "ObjectReference.pex", "Perk.pex", "ScriptObject.pex", "UI.pex", "Utility.pex", "WaterType.pex", "Weapon.pex"]
 
     if f4se_scripts_check(info.Game_Scripts, f4se_scripts_list) >= 29:
-        scan_mainfiles_report.append("✔️ All F4SE Script files are accounted for in your Fallout 4 / Data / Scripts folder.\n")
+        scan_mainfiles_report.extend(["✔️ All F4SE Script files are accounted for in your Fallout 4 / Data / Scripts folder.",
+                                      "  -----"])
     else:
         scan_mainfiles_report.extend(["# ❌ CAUTION : SOME F4SE SCRIPT FILES ARE MISSING #",
                                       "  YOU NEED TO REINSTALL FALLOUT 4 SCRIPT EXTENDER",
@@ -382,8 +383,8 @@ def scan_mainfiles():
             BUFF_config = BUFF_Custom.read()
             BUFF_lines = BUFF_config.splitlines()
             for line in BUFF_lines:
-                if "=" in line:
-                    if "true" in line or "false" in line or "-1" in line:
+                if "=" in line and "symcache" not in line.lower():
+                    if any(setting in line for setting in ["true", "false", "-1", "2048", "4096", "8192"]):
                         pass
                     else:
                         scan_mainfiles_report.extend(["# [!] CAUTION : THE FOLLOWING *Buffout4.toml* VALUE OR PARAMETER IS INVALID #",
@@ -392,7 +393,7 @@ def scan_mainfiles():
                                                       "-----"])
 
             if info.BO4_Achievements.is_file() and "Achievements = true" in BUFF_config:
-                scan_mainfiles_report.extend(["# WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
+                scan_mainfiles_report.extend(["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
                                               "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
                                               "-----"])
                 BUFF_config = BUFF_config.replace("Achievements = true", "Achievements = false")
@@ -400,7 +401,7 @@ def scan_mainfiles():
                 scan_mainfiles_report.append("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
             if info.BO4_BakaSH.is_file() and "MemoryManager = true" in BUFF_config:
-                scan_mainfiles_report.extend(["# WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
+                scan_mainfiles_report.extend(["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
                                               "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
                                               "-----"])
                 BUFF_config = BUFF_config.replace("MemoryManager = true", "MemoryManager = false")
@@ -408,12 +409,22 @@ def scan_mainfiles():
                 scan_mainfiles_report.append("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
             if info.BO4_Looksmenu.is_file() and "F4EE = false" in BUFF_config:
-                scan_mainfiles_report.extend(["# WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
+                scan_mainfiles_report.extend(["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
                                               "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.",
                                               "-----"])
                 BUFF_config = BUFF_config.replace("F4EE = false", "F4EE = true")
             else:
                 scan_mainfiles_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
+
+            if "MaxStdIO = -1" in BUFF_config or "MaxStdIO = 512" in BUFF_config:
+                scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
+                                              "Auto-Scanner will increase this value to 8192 to prevent BA2 Limit crashes.",
+                                              "-----"])
+                BUFF_config = BUFF_config.replace("MaxStdIO = -1", "MaxStdIO = 8192")
+                BUFF_config = BUFF_config.replace("MaxStdIO = 512", "MaxStdIO = 8192")
+            else:
+                scan_mainfiles_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n  -----")
+
         with open(info.Buffout_INI, "w+", encoding="utf-8", errors="ignore") as BUFF_Custom:
             BUFF_Custom.write(BUFF_config)
     else:

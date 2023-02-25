@@ -27,10 +27,10 @@ def clas_ini_create():
     if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
         INI_Settings = ["[MAIN]\n",
                         "# This file contains configuration settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
-                        "# Set to true if you want Auto-Scanner to check Python modules and if the latest version is installed. \n",
+                        "# Set to true if you want Auto-Scanner to check Python modules and if latest CLAS version is installed. \n",
                         "Update Check = true\n\n",
                         "# FCX - File Check eXtended | If Auto-Scanner fails to scan your logs, revert this setting back to false. \n",
-                        "# Set to true if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly. \n",
+                        "# Set to true if you want Auto-Scanner to check if your game files and Buffout 4 are installed correctly. \n",
                         "FCX Mode = true\n\n",
                         "# IMI - Ignore Manual Installation | Set to true if you want Auto-Scanner to hide all manual installation warnings. \n",
                         "# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. \n",
@@ -56,8 +56,8 @@ clas_ini_create()
 CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
-CLAS_Date = "170223"  # DDMMYY
-CLAS_Current = "CLAS v6.35"
+CLAS_Date = "250223"  # DDMMYY
+CLAS_Current = "CLAS v6.45"
 CLAS_Updated = False
 
 
@@ -95,18 +95,23 @@ Warn_CLAS_Update_Failed = """
 """
 
 Warn_TOML_Achievements = """\
-# [!] CAUTION : Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #
+# ❌ CAUTION : Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #
   FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.
   -----
 """
 Warn_TOML_Memory = """\
-# [!] CAUTION : Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #
+# ❌ CAUTION : Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #
   FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.
   -----
 """
 Warn_TOML_F4EE = """\
-# [!] CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #
+# ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #
   FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.
+  -----
+"""
+Warn_TOML_STDIO = """\
+# ❌ CAUTION : MaxStdIO parameter value in *Buffout4.toml* might be too low. #
+  FIX: Open *Buffout4.toml* and change MaxStdIO value to 8192, this should prevent the BA2 Limit crashes.
   -----
 """
 
@@ -188,7 +193,6 @@ Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. Yo
                "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
                "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
-Culprit_Trap = False
 crash_template_stats = {}
 # =================== TERMINAL OUTPUT START ====================
 print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Current[-4:], "| Fallout 4")
@@ -242,7 +246,8 @@ def scan_logs():
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
                                "====================================================\n"])
 
-            # DEFINE LINE INDEXES FOR EVERYTHING REQUIRED HERE
+            # DEFINE LINE INDEXES AND EVERYTHING REQUIRED HERE
+            Culprit_Trap = False
             buff_ver = loglines[1].strip()
             buff_error = loglines[3].strip()
             plugins_index = 1
@@ -504,9 +509,9 @@ def scan_logs():
                 output.write(f'> Priority : [1] | SysWindowCompileAndRun : {logtext.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {logtext.count("ConsoleLogPrinter")}\n')
 
             # ===========================================================
-            if "+1B938F0" in buff_error or "AnimTextData\\AnimationFileData" in logtext or "AnimationFileLookupSingletonHelper" in logtext:
+            if "+1B938F0" in buff_error or "+01B59A4" in buff_error or "AnimTextData\\AnimationFileData" in logtext or "AnimationFileLookupSingletonHelper" in logtext:
                 crash_template("# Checking for ", "Game Corruption Crash........", "CULPRIT FOUND! #\n", "statC_GameCorruption", output)
-                output.write(f' Priority : [5] | +1B938F0 | AnimationFileData : {logtext.count("AnimationFileData")} | AnimationFileLookup : {logtext.count("AnimationFileLookupSingletonHelper")}\n')
+                output.write(f' Priority : [5] | +1B938F0 | +01B59A4 | AnimationFileData : {logtext.count("AnimationFileData")} | AnimationFileLookup : {logtext.count("AnimationFileLookupSingletonHelper")}\n')
 
             # ===========================================================
             if "BGSWaterCollisionManager" in logtext:
@@ -643,9 +648,9 @@ def scan_logs():
             def check_conflicts(mods, mod_trap):
                 if plugins_loaded:
                     for elem in mods.keys():
-                        if mods[elem]["mod_1"] in plugins_list and mods[elem]["mod_2"] in plugins_list:
+                        if mods[elem]["mod_1"] in logtext and mods[elem]["mod_2"] in logtext:
                             warn = ''.join(mods[elem]["warn"])
-                            output.writelines([f"[!] Found: {warn}\n",
+                            output.writelines([f"[!] CAUTION : {warn}\n",
                                                "-----\n"])
                             mod_trap = True
                 return mod_trap
@@ -660,75 +665,75 @@ def scan_logs():
             Mods1 = {
                 0: {"mod": " DamageThresholdFramework.esm",
                     "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
-                             "- Can cause crashes in combat on some occasions due to how damage calculations are done."]},
+                             "[Can cause crashes in combat on some occasions due to how damage calculations are done.]"]},
 
                 1: {"mod": " Endless Warfare.esm",
                     "warn": ["ENDLESS WARFARE \n",
-                             "- Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding."]},
+                             "[Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding.]"]},
 
                 2: {"mod": " EPO.esp",
                     "warn": ["EXTREME PARTICLES OVERHAUL \n",
-                             "- Can cause particle effects related crashes, its INI file raises particle count to 500000. \n",
-                             "  Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789"]},
+                             "[Can cause particle effects related crashes, its INI file raises particle count to 500000] \n",
+                             "[Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789]"]},
 
                 3: {"mod": " SakhalinWasteland",
                     "warn": ["FALLOUT SAKHALIN \n",
-                             "- Breaks the precombine system all across Far Harbor which will randomly crash your game."]},
+                             "[Breaks the precombine system all across Far Harbor which will randomly crash your game.]"]},
 
                 4: {"mod": " 76HUD",
                     "warn": ["HUD76 HUD REPLACER \n",
-                             "- Can sometimes cause interface and pip-boy related bugs, glitches and crashes."]},
+                             "[Can sometimes cause interface and pip-boy related bugs, glitches and crashes.]"]},
 
                 5: {"mod": " Knockout Framework.esm",
                     "warn": ["KNOCKOUT FRAMEWORK \n",
-                             "- Confirm that you have installed the latest version (1.4.0+) of this mod. \n",
-                             "  Older versions cause weird behavior and crashes during prolonged game sessions. \n",
-                             "  Knockout Framework Link: https://www.nexusmods.com/fallout4/mods/27086?tab=files"]},
+                             "[Confirm that you have installed the latest version (1.4.0+) of this mod.]\n",
+                             "[Older versions cause weird behavior and crashes during prolonged game sessions.]\n",
+                             "[Knockout Framework Link: https://www.nexusmods.com/fallout4/mods/27086?tab=files]"]},
 
                 6: {"mod": " NCRenegade",
                     "warn": ["NCR RENEGADE ARMOR \n",
-                             "- Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit."]},
+                             "[Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit.]"]},
 
                 7: {"mod": " Respawnable Legendary Bosses",
                     "warn": ["RESPAWNABLE LEGENDARY BOSSES \n",
-                             "- Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons."]},
+                             "[Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons.]"]},
 
                 8: {"mod": " Scrap Everything - Core",
                     "warn": ["SCRAP EVERYTHING (CORE) \n",
-                             "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]},
+                             "[Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order.]"]},
 
                 9: {"mod": " Scrap Everything - Ultimate",
                     "warn": ["SCRAP EVERYTHING (ULTIMATE) \n",
-                             "- Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order."]},
+                             "[Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order.]"]},
 
                 10: {"mod": " Shade Girl Leather Outfits",
                      "warn": ["SHADE GIRL LEATHER OUTFITS \n",
-                              "- Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes."]},
+                              "[Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes.]"]},
 
                 11: {"mod": " SpringCleaning.esm",
                      "warn": ["SPRING CLEANING \n",
-                              "- Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file."]},
+                              "[Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file.]"]},
 
                 12: {"mod": " (STO) NO",
                      "warn": ["STALKER TEXTURE OVERHAUL \n",
-                              "- Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes."]},
+                              "[Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes.]"]},
 
                 13: {"mod": " TacticalTablet.esp",
                      "warn": ["TACTICAL TABLET \n",
-                              "- Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO."]},
+                              "[Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO.]"]},
 
                 14: {"mod": " True Nights v03.esp",
                      "warn": ["TRUE NIGHTS \n",
-                              "- Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed."]},
+                              "[Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed.]"]},
 
                 15: {"mod": " WeaponsFramework",
                      "warn": ["WEAPONS FRAMEWORK BETA \n",
-                              "- Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods. \n"
-                              "  Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769"]},
+                              "[Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods.]\n"
+                              "[Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769]"]},
 
                 16: {"mod": " WOTC.esp",
                      "warn": ["WAR OF THE COMMONWEALTH \n",
-                              "- Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks."]}
+                              "[Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks.]"]}
             }
             Mod_Check1 = False
             if plugins_loaded:
@@ -744,27 +749,12 @@ def scan_logs():
                     statM_CHW += 1
                     Mod_Trap1 = True
                     Culprit_Trap = True
-                elif logtext.count("ClassicHolsteredWeapons") >= 2 and ("UniquePlayer.esp" in logtext or "HHS.dll" in logtext or "cbp.dll" in logtext or "Body.nif" in logtext):
-                    output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
-                                       "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
-                                       "You should disable CHW to further confirm this.\n",
-                                       "Visit the main crash logs article for additional solutions.\n",
-                                       "-----\n"])
-                    statM_CHW += 1
-                    Mod_Trap1 = True
-                    Culprit_Trap = True
                 elif "ClassicHolsteredWeapons" in logtext and "d3d11" in buff_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
                                        "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
                                        "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",
                                        "This usually prevents most common crashes with Classic Holstered Weapons.\n",
                                        "-----\n"])
-                    output.write("[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n")
-                    output.write("AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n")
-                    output.write("You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n")
-                    output.write("This usually prevents most common crashes with Classic Holstered Weapons.\n")
-                    output.write("-----\n")
-                    Mod_Trap1 = True
 
             if plugins_loaded and (Mod_Check1 or Mod_Trap1) is True:
                 output.writelines(["# [!] CAUTION : ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n",
@@ -791,62 +781,77 @@ def scan_logs():
                 0: {"mod_1": " BetterPowerArmorRedux.dll",
                     "mod_2": " FloatingDamage.dll",
                     "warn": [" BETTER POWER ARMOR REDUX ❌ CONFLICTS WITH : FLOATING DAMAGE \n",
-                             "- Both mods use the same script hooks. This can crash the game or cause weird mod behavior. \n",
-                             "- If you encounter problems, Auto-Scanner suggests using one of these mods only, not both."]},
+                             "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
+                             "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
                 1: {"mod_1": " BetterPowerArmorRedux.dll",
                     "mod_2": " KnockoutFramework.dll",
                     "warn": [" BETTER POWER ARMOR REDUX ❌ CONFLICTS WITH : KNOCKOUT FRAMEWORK \n",
-                             "- Both mods use the same script hooks. This can crash the game or cause weird mod behavior. \n",
-                             "- If you encounter problems, Auto-Scanner suggests using one of these mods only, not both."]},
+                             "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
+                             "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
                 2: {"mod_1": " BostonFPSFix",
                     "mod_2": " PRP.esp",
                     "warn": ["BOSTON FPS FIX ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
-                             "- Using both mods can break precombines. Auto-Scanner suggests using Previs Repair Pack only."]},
+                             "[Using both mods can break precombines. Auto Scanner suggests using Previs Repair Pack only.]"]},
 
                 3: {"mod_1": " ExtendedWeaponSystem.esm",
                     "mod_2": " TacticalReload.esm",
                     "warn": ["EXTENDED WEAPON SYSTEMS ❌ CONFLICTS WITH : TACTICAL RELOAD \n",
-                             "- Using both mods can frequently crash the game. Auto-Scanner suggests using one of these mods only, not both."]},
+                             "[Using both mods can frequently crash the game. You should use only one of these mods, not both at the same time.]"]},
 
                 4: {"mod_1": " FROST.esp",
                     "mod_2": " PRP.esp",
                     "warn": ["FROST SURVIVAL SIMULATOR ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
-                             "- For precombine fixes, remove PRP and switch to FROST Cell Fixes (FCF). \n",
-                             "- FROST Cell Fixes: https://www.nexusmods.com/fallout4/mods/59652?tab=files"]},
+                             "[For precombine fixes, remove PRP and switch to FROST Cell Fixes (FCF).]\n",
+                             "[FROST Cell Fixes: https://www.nexusmods.com/fallout4/mods/59652?tab=files]"]},
 
                 5: {"mod_1": " DCGuard_Overhaul.esp",
                     "mod_2": " Guards.esp",
                     "warn": ["THE FENS SHERIFF'S DEPARTMENT ❌ CONFLICTS WITH : VARIED DIAMOND CITY GUARDS \n",
-                             "- Both mods heavily modify Diamond City Guards records. Auto-Scanner suggests using one of these mods only, not both."]},
+                             "[Both mods heavily modify Diamond City Guards records. You should use only one of these mods, not both at the same time.]"]},
 
                 6: {"mod_1": " Fallout4Upscaler.dll",
                     "mod_2": " NVIDIA_Reflex.dll",
                     "warn": ["FALLOUT 4 UPSCALER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
-                             "- Both mods likely use the same DLL hooks. This can crash the game or cause weird mod behavior. \n",
-                             "- If you encounter problems or crashes, Auto-Scanner suggests using one of these mods only, not both."]},
+                             "[Both mods likely use the same DLL hooks. This can crash the game or cause weird mod behavior.]\n",
+                             "[If you encounter problems or crashes, You should use only one of these mods, not both at the same time.]"]},
 
                 7: {"mod_1": " vulkan",
                     "mod_2": " NVIDIA_Reflex.dll",
                     "warn": ["VULKAN RENDERER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
-                             "- Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior. \n",
-                             "- If you encounter Nvidia Driver crashes, Auto-Scanner suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support"]},
+                             "[Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior.]\n",
+                             "[If you encounter Nvidia Driver crashes, Auto Scanner suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.]"]},
 
                 8: {"mod_1": " CustomCamera.esp",
                     "mod_2": " CameraTweaks.esp",
                     "warn": ["CUSTOM CAMERA ❌ CONFLICTS WITH : CAMERA TWEAKS \n",
-                             "- Both mods make changes to the in-game camera. Auto-Scanner suggests using Camera Tweaks only, since it's an updated alternative."]},
+                             "[Both mods make changes to the in-game camera. Auto Scanner suggests using Camera Tweaks only, since it's an updated alternative.]"]},
 
-                9: {"mod_1": " MOD_1.esm",
-                    "mod_2": " MOD_2.esm",
-                    "warn": ["MOD_1_NAME ❌ CONFLICTS WITH : MOD_2_NAME \n",
-                             "- TEMPLATE."]},
+                9: {"mod_1": " UniquePlayer.esp",
+                    "mod_2": " ClassicHolsteredWeapons",
+                    "warn": ["UNIQUE PLAYER ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
+                             "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
+                             "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
+                10: {"mod_1": " HHS.dll",
+                     "mod_2": " ClassicHolsteredWeapons",
+                     "warn": ["HIGH HEELS SYSTEM ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
+                             "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
+                             "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
+
+                11: {"mod_1": " cbp.dll",
+                     "mod_2": " ClassicHolsteredWeapons",
+                     "warn": ["CBP PHYSICS ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
+                             "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
+                             "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
+
+                12: {"mod_1": " MOD_1.esm",
+                     "mod_2": " MOD_2.esm",
+                     "warn": ["MOD_1_NAME ❌ CONFLICTS WITH : MOD_2_NAME \n",
+                              "- TEMPLATE."]},
             }
-            Mod_Check2 = False
-            if plugins_loaded:
-                Mod_Check2 = check_conflicts(Mods2, Mod_Trap2)
+            Mod_Check2 = check_conflicts(Mods2, Mod_Trap2)
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
 
