@@ -57,7 +57,7 @@ CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
 CLAS_Date = "250223"  # DDMMYY
-CLAS_Current = "CLAS v6.45"
+CLAS_Current = "CLAS v6.50"
 CLAS_Updated = False
 
 
