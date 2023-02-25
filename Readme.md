@@ -37,38 +37,7 @@ and run Scan Crashlogs.py by double clicking on it. After scanning completes, cl
 ===========================================================================
 # HOW TO READ AUTOSCAN FILES #
 
-After running *Scan Crashlogs.py*, you'll see the following in any *crash-time-and-date-AUTOSCAN.md* output file:
-==========
-The part above the Main Error shows the name of the scanned crash log and the Auto-Scanner version that was used.
-
-The Main Error segment shows the main error message type and call stack address where the crash likely originates from.
-In 95% of cases, the main error will be "EXCEPTION_ACCESS_VIOLATION", meaning the game couldn't access some required data for one reason or another.
-The next part is the program or file where the crash originates from and lastly the call stack address that was last accessed before the crash occurred.
-NOTE: The call stack address and its values have NOTHING to do with any Plugin or Game IDs. Don't bother trying to match these numbers with your load order.
-
-The part below the Main Error shows the version of Buffout 4 that was used when the crash log was generated and the latest version of Buffout 4 available.
-
-* CHECKING IF BUFFOUT4.TOML PARAMETERS ARE CORRECT * segment checks the Buffout4.toml file inside the game's Fallout 4\Data\F4SE\Plugins folder.
-Depending on which mods you have installed, you might need to manually correct the parameters in Buffout4.toml with a text editor as explained by this segment.
-
-* CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES * segment checks the database of all crash errors that are either known about or can be solved.
-If any crash messages show CULPRIT FOUND!, this requires that you OPEN the "How To Read Crash Logs" PDF included with the auto-scanner archive
-or the online version of that same document and look up all detected crash messages / errors.
-
-* CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES * segment checks the database for mods that are known to cause major problems or frequently crash the game.
-You are supposed to temporarily disable any mods detected here and recheck your game to see if the crash went away. If not, continue to the next segments. 
-
-* CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES * segment checks the database for mods that can cause various problems or crashes,
-but already have available fixes or alternatives as explained by this segment. You should visit this Important Patches & Fixes article:
-https://www.nexusmods.com/fallout4/articles/3769 which lists all important community patches and fixes for the base game and various mods.
-
-* CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER * segment checks the database for mods that are patched through my own Optimization Patches Collection mod.
-You are supposed to visit this page https://www.nexusmods.com/fallout4/mods/54872, then download and install the main file with your mod manager.
-
-* LIST DETECTED (NAMED) RECORDS * segment shows if the crash log contains any
-mentions of Plugins, FormIDs or Game Files that were possibly involved when this crash occurred.
-If you weren't able to fix the crash so far, you can search for any Game Files, look up any FormIDs in FO4Edit
-or disable any Plugins listed in this segment to further confirm if they caused this crash or not. If all else fails, perform a Binary Search.
+> READ THIS DOCUMENT: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
 ===========================================================================
 # THINGS TO DO IF NO CRASH LOGS ARE GIVEN OR IF AUTO-SCAN DOESN'T HELP #
@@ -113,18 +82,15 @@ B must be the culprit since the game didn't crash with only Mod A enabled while 
 ===========================================================================
 # LATEST CHANGES #
 
-6.35
+6.45
 * MAIN SCRIPT *
-- General code optimization for statistics logging, fixed minor stat tracking issues.
-- Fixed Auto-Scanner scanning the wrong folder when looking for dll log errors.
-- Fixed the FormType error / crash due to some weird output & text parsing.
-- Adjusted *Plugin Limit Crash* detection to prevent false positives.
-- Added detection for 5 new mods that conflict with other mods.
-- Added detection for the following crash types:
-> Nvidia Reflex Crash
-> *[SS2 / WF Crash]
-> *[Camera Position Crash]
+- Auto-Scanner now checks the MaxStdIO value in *Buffout4.toml* and will warn you if it needs adjusting.
+- Expanded *Buffout4.toml* checks to cover more valid settings and prevent false positive warnings.
+- Fixed wrong message being sometimes incorrectly displayed when no crash culprits are found.
+- Various fixes and adjustments for the detection of mods that conflict with other mods.
+- Moved all *Classic Holstered Weapons* conflict warnings to the relevant segment.
+- Implemented hash based check for *Fallout4.exe* for better accuracy.
 
 * OTHER FILES *
-- Upgraded the EXE interface to use PyQt6 / PySide6 thanks to [evildarkarchon] on GitHub.
+- *CL TOOLS* folder renamed to *CLAS TOOLS*
 - Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
