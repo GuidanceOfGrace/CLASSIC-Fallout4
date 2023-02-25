@@ -416,12 +416,13 @@ def scan_mainfiles():
             else:
                 scan_mainfiles_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
-            if "MaxStdIO = -1" in BUFF_config or "MaxStdIO = 512" in BUFF_config:
+            if "MaxStdIO = -1" in BUFF_config or "MaxStdIO = 512" in BUFF_config or "MaxStdIO = 8192" in BUFF_config:
                 scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
-                                              "Auto-Scanner will increase this value to 8192 to prevent BA2 Limit crashes.",
+                                              "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
                                               "-----"])
-                BUFF_config = BUFF_config.replace("MaxStdIO = -1", "MaxStdIO = 8192")
-                BUFF_config = BUFF_config.replace("MaxStdIO = 512", "MaxStdIO = 8192")
+                BUFF_config = BUFF_config.replace("MaxStdIO = -1", "MaxStdIO = 2048")
+                BUFF_config = BUFF_config.replace("MaxStdIO = 512", "MaxStdIO = 2048")
+                BUFF_config = BUFF_config.replace("MaxStdIO = 8192", "MaxStdIO = 2048")
             else:
                 scan_mainfiles_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n  -----")
 

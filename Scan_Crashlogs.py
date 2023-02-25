@@ -111,7 +111,7 @@ Warn_TOML_F4EE = """\
 """
 Warn_TOML_STDIO = """\
 # ❌ CAUTION : MaxStdIO parameter value in *Buffout4.toml* might be too low. #
-  FIX: Open *Buffout4.toml* and change MaxStdIO value to 8192, this should prevent the BA2 Limit crashes.
+  FIX: Open *Buffout4.toml* and change MaxStdIO value to 2048, this should prevent the BA2 Limit crashes.
   -----
 """
 
