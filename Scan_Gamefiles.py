@@ -380,17 +380,6 @@ def scan_mainfiles():
     if info.Buffout_TOML.is_file() and info.Buffout_DLL.is_file():
         scan_mainfiles_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
         with open(info.Buffout_TOML, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
-            """BUFF_config = BUFF_Custom.read()
-            BUFF_lines = BUFF_config.splitlines()
-            for line in BUFF_lines:
-                if "=" in line and "symcache" not in line.lower():
-                    if any(setting in line for setting in ["true", "false", "-1", "2048", "4096", "8192"]):
-                        pass
-                    else:
-                        scan_mainfiles_report.extend(["# [!] CAUTION : THE FOLLOWING *Buffout4.toml* VALUE OR PARAMETER IS INVALID #",
-                                                     f"{line}",
-                                                      "[ Correct all typos / formatting / capitalized letters from this line in Buffout4.toml.]",
-                                                      "-----"])"""
             BUFF_config: tomlkit.TOMLDocument = tomlkit.load(BUFF_Custom)
 
             if info.BO4_Achievements.is_file() and BUFF_config["Patches"]["Achievements"] == True: # type: ignore
