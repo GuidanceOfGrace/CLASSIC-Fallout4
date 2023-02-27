@@ -3,6 +3,14 @@ import hashlib
 import os
 import platform
 import stat
+import subprocess
+
+try:
+    import tomlkit
+except (ImportError, ModuleNotFoundError):
+    subprocess.run(["pip", "install", "tomlkit"], shell=True)
+    import tomlkit
+
 from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
@@ -86,7 +94,6 @@ class Info:
     # FO4 GAME FILES
     Address_Library: Path = field(default_factory=Path)
     Buffout_DLL: Path = field(default_factory=Path)
-    Buffout_INI: Path = field(default_factory=Path)
     Buffout_TOML: Path = field(default_factory=Path)
     F4CK_EXE: Path = field(default_factory=Path)
     F4CK_Fixes: Path = field(default_factory=Path)
@@ -294,7 +301,6 @@ def scan_mainfiles():
     info.F4SE_VRLoader = Game_Path.joinpath("f4sevr_loader.exe")
     # BUFFOUT FILES
     info.Buffout_DLL = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
-    info.Buffout_INI = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.ini")
     info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
     info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
     # FALLLOUT 4 HASHES
@@ -365,80 +371,62 @@ def scan_mainfiles():
 
     # RENAME TOML BECAUSE PYTHON CAN'T WRITE TO IT
     if info.Buffout_TOML.is_file():
-        try:
-            os.chmod(info.Buffout_TOML, stat.S_IWRITE)
-            os.rename(info.Buffout_TOML, info.Buffout_INI)
-        except (FileExistsError, OSError):
-            os.remove(info.Buffout_INI)
-            os.chmod(info.Buffout_TOML, stat.S_IWRITE)
-            os.rename(info.Buffout_TOML, info.Buffout_INI)
+        os.chmod(info.Buffout_TOML, stat.S_IWRITE)
 
     # AVOID CONFIGPARSER BECAUSE OF DUPLICATE COMMENT IN Buffout4.toml
     # To preserve original toml formatting, just stick to replace.
 
     # CHECK BUFFOUT 4 INI SETTINGS AND AUTO ADJUST
-    if info.Buffout_INI.is_file() and info.Buffout_DLL.is_file():
+    if info.Buffout_TOML.is_file() and info.Buffout_DLL.is_file():
         scan_mainfiles_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
-        with open(info.Buffout_INI, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
-            BUFF_config = BUFF_Custom.read()
-            BUFF_lines = BUFF_config.splitlines()
-            for line in BUFF_lines:
-                if "=" in line and "symcache" not in line.lower():
-                    if any(setting in line for setting in ["true", "false", "-1", "2048", "4096", "8192"]):
-                        pass
-                    else:
-                        scan_mainfiles_report.extend(["# [!] CAUTION : THE FOLLOWING *Buffout4.toml* VALUE OR PARAMETER IS INVALID #",
-                                                     f"{line}",
-                                                      "[ Correct all typos / formatting / capitalized letters from this line in Buffout4.toml.]",
-                                                      "-----"])
+        with open(info.Buffout_TOML, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
+            BUFF_config: tomlkit.TOMLDocument = tomlkit.load(BUFF_Custom)
 
-            if info.BO4_Achievements.is_file() and "Achievements = true" in BUFF_config:
+            if info.BO4_Achievements.is_file() and BUFF_config["Patches"]["Achievements"] == True: # type: ignore
                 scan_mainfiles_report.extend(["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
                                               "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
                                               "-----"])
-                BUFF_config = BUFF_config.replace("Achievements = true", "Achievements = false")
+                BUFF_config["Patches"]["Achievements"] = False # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
-            if info.BO4_BakaSH.is_file() and "MemoryManager = true" in BUFF_config:
+            if info.BO4_BakaSH.is_file() and BUFF_config["Patches"]["MemoryManager"] == True: # type: ignore
                 scan_mainfiles_report.extend(["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
                                               "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
                                               "-----"])
-                BUFF_config = BUFF_config.replace("MemoryManager = true", "MemoryManager = false")
+                BUFF_config["Patches"]["MemoryManager"] = False # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
-            if info.BO4_Looksmenu.is_file() and "F4EE = false" in BUFF_config:
+            if info.BO4_Looksmenu.is_file() and BUFF_config["Compatibility"]["F4EE"] == False: # type: ignore
                 scan_mainfiles_report.extend(["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
                                               "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.",
                                               "-----"])
-                BUFF_config = BUFF_config.replace("F4EE = false", "F4EE = true")
+                BUFF_config["Compatibility"]["F4EE"] = True # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
-            if "MaxStdIO = -1" in BUFF_config or "MaxStdIO = 512" in BUFF_config or "MaxStdIO = 8192" in BUFF_config:
-                scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
-                                              "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
-                                              "-----"])
-                BUFF_config = BUFF_config.replace("MaxStdIO = -1", "MaxStdIO = 2048")
-                BUFF_config = BUFF_config.replace("MaxStdIO = 512", "MaxStdIO = 2048")
-                BUFF_config = BUFF_config.replace("MaxStdIO = 8192", "MaxStdIO = 2048")
+            if BUFF_config["Patches"]["MaxStdIO"] != 2048: # type: ignore
+                if BUFF_config["Patches"]["MaxStdIO"] < 2048: # type: ignore
+                    scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
+                                                  "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
+                                                  "-----"])
+                elif BUFF_config["Patches"]["MaxStdIO"] > 2048: # type: ignore
+                    scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.", # Placeholder message courtesy of Github Copilot
+                                                    "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
+                                                    "-----"])
+                elif not isinstance(BUFF_config["Patches"]["MaxStdIO"], int): # type: ignore
+                    scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.", # Another placeholder message courtesy of Github Copilot
+                                                    "Auto-Scanner will change this value to 2048.",
+                                                    "-----"])
+                BUFF_config["Patches"]["MaxStdIO"] = 2048 # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n  -----")
 
-        with open(info.Buffout_INI, "w+", encoding="utf-8", errors="ignore") as BUFF_Custom:
-            BUFF_Custom.write(BUFF_config)
+        with open(info.Buffout_TOML, "w+", encoding="utf-8", errors="ignore") as BUFF_Custom:
+            tomlkit.dump(BUFF_config, BUFF_Custom)
     else:
         scan_mainfiles_report.append(Warn_SCAN_Missing_Buffout4)
-
-    if info.Buffout_INI.is_file():  # CONVERT INI BACK TO TOML
-        try:
-            os.chmod(info.Buffout_INI, stat.S_IWRITE)
-            os.rename(info.Buffout_INI, info.Buffout_TOML)
-        except (FileExistsError, OSError):
-            os.remove(info.Buffout_TOML)
-            os.chmod(info.Buffout_INI, stat.S_IWRITE)
-            os.rename(info.Buffout_INI, info.Buffout_TOML)
 
     return scan_mainfiles_report
 
