@@ -56,8 +56,8 @@ clas_ini_create()
 CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
 CLAS_config.optionxform = str  # type: ignore
 CLAS_config.read("Scan Crashlogs.ini")
-CLAS_Date = "250223"  # DDMMYY
-CLAS_Current = "CLAS v6.50"
+CLAS_Date = "280223"  # DDMMYY
+CLAS_Current = "CLAS v6.55"
 CLAS_Updated = False
 
 
@@ -272,13 +272,13 @@ def scan_logs():
 
             # BUFFOUT VERSION CHECK
             buff_latest = "Buffout 4 v1.26.2"
-            buffVR_latest = "Buffout 4 v1.29.0 Nov  5 2022 02:22:25"
+            buffNGVR_latest = "Buffout4 v1.31.1 Feb 28 2023 00:28:17"
             output.writelines([f"Main Error: {buff_error}\n",
                                "====================================================\n",
                                f"Detected Buffout Version: {buff_ver.strip()}\n",
-                               f"Latest Buffout Version: {buff_latest[10:17]} (VR: v1.29.0)\n"])
+                               f"Latest Buffout Version: {buff_latest[10:17]} (NG: v1.31.1)\n"])
 
-            if buff_ver.casefold() == buff_latest.casefold() or buff_ver.casefold() == buffVR_latest.casefold():
+            if buff_ver.casefold() == buff_latest.casefold() or buff_ver.casefold() == buffNGVR_latest.casefold():
                 output.write("✔️ You have the latest version of Buffout 4!")
             else:
                 output.write(Warn_SCAN_Outdated_Buffout4)
@@ -494,9 +494,10 @@ def scan_logs():
                 output.write(f'                   DxvkSubmissionQueue : {logtext.count("DxvkSubmissionQueue")}\n')
 
             # ===========================================================
-            if "dxvk::DXGIAdapter" in logtext or "dxvk::DXGIFactory" in logtext:
+            if "+00CD99B" in buff_error or "amdvlk64.dll" in buff_error or "dxvk::DXGIAdapter" in logtext or "dxvk::DXGIFactory" in logtext or "VirtualLinearAllocatorWithNode" in logtext:
                 crash_template("# Checking for ", "Vulkan Settings Crash........", "CULPRIT FOUND! #\n", "statC_VulkanSet", output)
                 output.write(f'> Priority : [5] | dxvk::DXGIAdapter : {logtext.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {logtext.count("dxvk::DXGIFactory")}\n')
+                output.write(f'>                  amdvlk64.dll : {logtext.count("amdvlk64.dll")} | VirtualLinearAllocatorWithNode : {logtext.count("VirtualLinearAllocatorWithNode")}\n')
 
             # ===========================================================
             if "BSXAudio2DataSrc" in logtext or "BSXAudio2GameSound" in logtext:
@@ -837,14 +838,14 @@ def scan_logs():
                 10: {"mod_1": " HHS.dll",
                      "mod_2": " ClassicHolsteredWeapons",
                      "warn": ["HIGH HEELS SYSTEM ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
-                             "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
-                             "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
+                              "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
+                              "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
                 11: {"mod_1": " cbp.dll",
                      "mod_2": " ClassicHolsteredWeapons",
                      "warn": ["CBP PHYSICS ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
-                             "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
-                             "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
+                              "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
+                              "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
                 12: {"mod_1": " MOD_1.esm",
                      "mod_2": " MOD_2.esm",
@@ -852,8 +853,8 @@ def scan_logs():
                               "- TEMPLATE."]},
             }
             Mod_Check2 = check_conflicts(Mods2, Mod_Trap2)
-                # =============== SPECIAL MOD / PLUGIN CHECKS ===============
-                # CURRENTLY NONE
+            # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+            # CURRENTLY NONE
 
             if plugins_loaded and (Mod_Check2 or Mod_Trap2) is True:
                 output.writelines(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",

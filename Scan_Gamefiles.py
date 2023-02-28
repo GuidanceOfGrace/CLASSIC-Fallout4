@@ -4,18 +4,16 @@ import os
 import platform
 import stat
 import subprocess
+from Scan_Crashlogs import CLAS_config, clas_ini_create, clas_ini_update
+from dataclasses import dataclass, field
+from glob import glob
+from pathlib import Path
 
 try:
     import tomlkit
 except (ImportError, ModuleNotFoundError):
     subprocess.run(["pip", "install", "tomlkit"], shell=True)
     import tomlkit
-
-from dataclasses import dataclass, field
-from glob import glob
-from pathlib import Path
-
-from Scan_Crashlogs import CLAS_config, clas_ini_create, clas_ini_update
 
 if platform.system() == "Windows":
     import ctypes.wintypes
@@ -62,15 +60,15 @@ Warn_SCAN_Missing_Buffout4 = """
       Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115
 """
 Warn_SCAN_Missing_ADLIB = """
-# [!] CAUTION : AUTO SCANNER CANNOT FIND ADDRESS LIBRARY FILE OR IT IS MISSING! #
+# [!] CAUTION : AUTO SCANNER CANNOT FIND REQUIRED ADDRESS LIBRARY FILE OR IT IS MISSING! #
       ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327
-      Extract the *version-1-10-163-0.bin* file manually into your Fallout 4/Data/F4SE/Plugins folder.
+      ADDRESS LIBRARY VR: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/64879
+      Extract the *version.bin* or *version.csv* file manually into your Fallout 4/Data/F4SE/Plugins folder.
 """
 Warn_SCAN_Log_Errors = """
 # [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS! #
-  [ You should open these files and check what errors are shown. ]
------
-"""
+  [ Errors do not necessarily mean that the mod is not working. ]
+  -----"""
 Warn_SCAN_NOTE_Preloader = """
 # [!] NOTICE : Plugin Preloader is (manually) installed. It may rarely prevent the game from initializing correctly. #
       If the game fails to start after installing this mod, open *xSE PluginPreloader.xml* with a text editor and CHANGE
@@ -93,6 +91,7 @@ Warn_BLOG_NOTE_Modules = """\
 class Info:
     # FO4 GAME FILES
     Address_Library: Path = field(default_factory=Path)
+    Address_LibraryVR: Path = field(default_factory=Path)
     Buffout_DLL: Path = field(default_factory=Path)
     Buffout_TOML: Path = field(default_factory=Path)
     F4CK_EXE: Path = field(default_factory=Path)
@@ -126,7 +125,8 @@ class Info:
         self.BO4_BakaSH = docs_location.joinpath("My Games", "Fallout4", "F4SE", "BakaScrapHeap.log")
         self.FO4_F4SE_Logs = str(docs_location.joinpath("My Games", "Fallout4", "F4SE"))
         self.FO4_F4SE_Path = docs_location.joinpath("My Games", "Fallout4", "F4SE", "f4se.log")
-        self.FO4_F4SEVR_Path = docs_location.joinpath("My Games", "Fallout4", "F4SE", "f4sevr.log")
+        self.FO4_F4SEVR_Logs = str(docs_location.joinpath("My Games", "Fallout4VR", "F4SE"))
+        self.FO4_F4SEVR_Path = docs_location.joinpath("My Games", "Fallout4VR", "F4SE", "f4sevr.log")
         self.FO4_Custom_Path = docs_location.joinpath("My Games", "Fallout4", "Fallout4Custom.ini")
 
 
@@ -204,7 +204,7 @@ def scan_mainfiles():
 
     # OPEN : f4se.log | f4sevr.log | CHECK : Game Path | F4SE Version | Errors | Buffout 4 DLL
     Error_List = []
-    ALIB_Loaded = F4SE_Error = F4SE_Version = F4SE_Buffout = False
+    ADLIB_Loaded = F4SE_Error = F4SE_Version = F4SE_Buffout = False
     if info.FO4_F4SE_Path.is_file():
         with open(info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
             Path_Check = LOG_Check.readlines()
@@ -251,7 +251,7 @@ def scan_mainfiles():
 
     if F4SE_Buffout == 1:
         scan_mainfiles_report.append("✔️ Script Extender reports that Buffout 4.dll was found and loaded correctly.\n  -----")
-        ALIB_Loaded = True
+        ADLIB_Loaded = True
     else:
         scan_mainfiles_report.append(Warn_SCAN_Missing_F4SE_BO4)
 
@@ -264,19 +264,24 @@ def scan_mainfiles():
                 if filepath.is_file():
                     try:
                         with filepath.open("r+", encoding="utf-8", errors="ignore") as LOG_Check:
-                            Log_Errors = LOG_Check.read()
-                            if "error" in Log_Errors.lower() or "failed" in Log_Errors.lower():
-                                logname = str(filepath)
-                                list_log_errors.append(logname)
+                            Log_Errors = LOG_Check.readlines()
+                            for line in Log_Errors:
+                                if "error" in line.lower() or "failed" in line.lower() and "keybind" not in line.lower():
+                                    logname = str(filepath)
+                                    list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {line}")
                     except OSError:
-                        list_log_errors.append(str(filepath))
+                        list_log_errors.append(f"  ❌ Auto Scanner was unable to scan this log file :\n  {logname}")
                         continue
         return list_log_errors
 
     if len(clas_log_errors(info.FO4_F4SE_Logs)) >= 1:
         scan_mainfiles_report.append(Warn_SCAN_Log_Errors)
         for elem in clas_log_errors(info.FO4_F4SE_Logs):
-             scan_mainfiles_report.append(f"{elem}\n-----\n")
+             scan_mainfiles_report.append(elem)
+    elif len(clas_log_errors(info.FO4_F4SEVR_Logs)) >= 1:
+        scan_mainfiles_report.append(Warn_SCAN_Log_Errors)
+        for elem in clas_log_errors(info.FO4_F4SEVR_Logs):
+             scan_mainfiles_report.append(elem)
     else:
         scan_mainfiles_report.append("✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
 
@@ -303,6 +308,7 @@ def scan_mainfiles():
     info.Buffout_DLL = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
     info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
     info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
+    info.Address_LibraryVR = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
     # FALLLOUT 4 HASHES
     info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
 
@@ -364,17 +370,14 @@ def scan_mainfiles():
         else:
             scan_mainfiles_report.append(Warn_SCAN_Missing_F4SE_CORE)
 
-        if info.Address_Library.is_file() or ALIB_Loaded is True:
+        if info.Address_Library.is_file() or info.Address_LibraryVR.is_file() or ADLIB_Loaded is True:
             scan_mainfiles_report.append("✔️ REQUIRED: *Address Library* is (manually) installed.\n  -----")
         else:
             scan_mainfiles_report.append(Warn_SCAN_Missing_ADLIB)
 
-    # RENAME TOML BECAUSE PYTHON CAN'T WRITE TO IT
+    # MODIFY TOML WRITE PERMISSIONS
     if info.Buffout_TOML.is_file():
         os.chmod(info.Buffout_TOML, stat.S_IWRITE)
-
-    # AVOID CONFIGPARSER BECAUSE OF DUPLICATE COMMENT IN Buffout4.toml
-    # To preserve original toml formatting, just stick to replace.
 
     # CHECK BUFFOUT 4 INI SETTINGS AND AUTO ADJUST
     if info.Buffout_TOML.is_file() and info.Buffout_DLL.is_file():
@@ -458,7 +461,7 @@ def scan_modfiles():
         elif info.F4CK_EXE.is_file() and not os.path.exists(info.F4CK_Fixes):
             scan_modfiles_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
                                          "  This is a highly recommended patch for the Fallout 4 Creation Kit.",
-                                         "  Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files\n",
+                                         "  Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
                                          "  -----"])
         else:
             scan_modfiles_report.append("❌ *Creation Kit* is NOT installed.\n  -----")

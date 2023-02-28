@@ -1,6 +1,21 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.55
+* MAIN SCRIPT *
+- Fixed incorrect Fallout 4 VR Documents file path, should also resolve all false positives.
+- Updated version check for Buffout 4 NG / VR [ Buffout4 v1.31.1 Feb 28 2023 00:28:17 ].
+- Improved detection accuracy for *Vulkan Settings Crash*, crash info has been updated.
+- Auto-Scanner will now show the full error line along with its related log file path.
+- Added detection for *VR Address Library For F4SEVR* for the VR version of the game.
+
+* CLAS GUI *
+- Added the classic *Minimize* button to the main program window.
+
+6.50
+* MAIN SCRIPT *
+- HOTFIX : MaxStdIO value will be now set to 2048 (instead of 8192), to prevent game crashes.
+
 6.45
 * MAIN SCRIPT *
 - Auto-Scanner now checks the MaxStdIO value in *Buffout4.toml* and will warn you if it needs adjusting.
