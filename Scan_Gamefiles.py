@@ -257,10 +257,10 @@ def scan_mainfiles():
 
     # CHECK DOCUMENTS F4SE FOLDER LOG ERRORS
     def clas_log_errors(log_path):
-        logname = ""
         list_log_errors = []
         for filename in glob(f"{log_path}/*.log"):
             if not any(substring in filename for substring in ["crash-", "f4se.log", "Fallout4_dxgi.log"]):
+                logname = ""
                 filepath = Path(filename).resolve()
                 if filepath.is_file():
                     try:
