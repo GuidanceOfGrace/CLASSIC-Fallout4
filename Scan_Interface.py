@@ -55,7 +55,7 @@ class UiClasMainwin(object):
         CLAS_MainWin.resize(640, 640)
         CLAS_MainWin.setMinimumSize(QtCore.QSize(640, 640))
         CLAS_MainWin.setMaximumSize(QtCore.QSize(640, 640))
-        CLAS_MainWin.setWindowFlags(CLAS_MainWin.windowFlags() | Qt.WindowMinimizeButtonHint)
+        CLAS_MainWin.setWindowFlags(CLAS_MainWin.windowFlags() | Qt.WindowMinimizeButtonHint) # type: ignore
 
         # ==================== MAIN WINDOW ITEMS =====================
         # TOP
