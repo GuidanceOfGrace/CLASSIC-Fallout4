@@ -1559,10 +1559,10 @@ if __name__ == "__main__":  # AKA only autorun / do the following when NOT impor
     if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CLAS_config.getboolean("MAIN", "Move Unsolved"):
         clas_ini_update("Move Unsolved", str(args.move_unsolved).lower())
 
-    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CLAS_config.get("MAIN", "INI Path"):
+    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CLAS_config["MAIN"]["INI Path"]:
         clas_ini_update("INI Path", str(Path(ini_path).resolve()))
 
-    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CLAS_config.get("MAIN", "Scan Path"):
+    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CLAS_config["MAIN"]["Scan Path"]:
         clas_ini_update("Scan Path", str(Path(scan_path).resolve()))
 
     clas_update_run()
