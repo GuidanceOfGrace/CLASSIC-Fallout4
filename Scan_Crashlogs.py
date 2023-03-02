@@ -63,9 +63,9 @@ CLAS_Updated = False
 
 def clas_ini_update(section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
     if isinstance(section, str) and isinstance(value, str):
-        CLAS_config.set("MAIN", section, value)
+        CLAS_config["MAIN"][section] = value
     else:
-        CLAS_config.set("MAIN", str(section), str(value))
+        CLAS_config["MAIN"][str(section)] = str(value)
 
     with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_AUTOSCAN:
         CLAS_config.write(INI_AUTOSCAN)
@@ -229,8 +229,8 @@ def scan_logs():
     # =================== AUTOSCAN REPORT ===================
 
     SCAN_folder = os.getcwd()
-    if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
-        SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
+    if len(CLAS_config["MAIN"]["Scan Path"]) > 1:
+        SCAN_folder = CLAS_config["MAIN"]["Scan Path"]
 
     for file in glob(f"{SCAN_folder}/crash-*.log"):  # + glob(f"{SCAN_folder}/crash-*.txt")
         logpath = Path(file).resolve()
@@ -1200,7 +1200,7 @@ def scan_logs():
                     gpu_amd = True
                     break
 
-            if CLAS_config.get("MAIN", "FCX Mode").lower() == "true":
+            if CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
                 output.write(Warn_SCAN_NOTE_FCX)
                 from Scan_Gamefiles import scan_modfiles
                 modfiles_result = scan_modfiles()

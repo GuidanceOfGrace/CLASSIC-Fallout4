@@ -22,9 +22,9 @@ clas_ini_create()
 
 def clas_ini_check(section: str, value: str):
     if isinstance(section, str) and isinstance(value, str):
-        return CLAS_config.get(section, value)
+        return CLAS_config[section][value]
     else:
-        return CLAS_config.get(str(section), str(value))
+        return CLAS_config[str(section)][str(value)]
 
 
 # =================== WARNING MESSAGES ==================
