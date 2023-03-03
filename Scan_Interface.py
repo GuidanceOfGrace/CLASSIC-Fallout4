@@ -7,8 +7,7 @@ from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QFileDialog
 
-from Scan_Crashlogs import (CLAS_config, CLAS_Current, clas_ini_update,
-                            clas_update_run, scan_logs)
+from Scan_Crashlogs import CLAS_Globals, clas_update_run, scan_logs
 
 
 # noinspection PyUnresolvedReferences
@@ -51,7 +50,7 @@ class UiClasMainwin(object):
 
         # MAIN WINDOW
         CLAS_MainWin.setObjectName("CLAS_MainWin")
-        CLAS_MainWin.setWindowTitle(f"Crash Log Auto Scanner {CLAS_Current[-4:]}")
+        CLAS_MainWin.setWindowTitle(f"Crash Log Auto Scanner {CLAS_Globals.CLAS_Current[-4:]}")
         CLAS_MainWin.resize(640, 640)
         CLAS_MainWin.setMinimumSize(QtCore.QSize(640, 640))
         CLAS_MainWin.setMaximumSize(QtCore.QSize(640, 640))
@@ -65,8 +64,8 @@ class UiClasMainwin(object):
         self.Line_SelectedFolder.setGeometry(QtCore.QRect(20, 30, 450, 22))
         self.Line_SelectedFolder.setObjectName("Line_SelectedFolder")
         self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
-        if len(CLAS_config.get("MAIN", "Scan Path")) > 1:
-            SCAN_folder = CLAS_config.get("MAIN", "Scan Path")
+        if len(CLAS_Globals.CLAS_Config["MAIN"]["Scan Path"].strip()) > 1:
+            SCAN_folder = CLAS_Globals.CLAS_Config["MAIN"]["Scan Path"].strip()
             self.Line_SelectedFolder.setText(SCAN_folder)
         # Change text color to gray.
         LSF_palette = self.Line_SelectedFolder.palette()
@@ -140,7 +139,7 @@ class UiClasMainwin(object):
         self.ChkBT_FCXMode.setGeometry(QtCore.QRect(100, 230, 110, 20))
         self.ChkBT_FCXMode.setText("FCX MODE")
         self.ChkBT_FCXMode.setToolTip("Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.")
-        if CLAS_config.getboolean("MAIN", "FCX Mode"):
+        if CLAS_Globals.CLAS_Config.getboolean("MAIN", "FCX Mode"):
             self.ChkBT_FCXMode.setChecked(True)
         self.ChkBT_FCXMode.setObjectName("ChkBT_FCXMode")
         self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode)  # type: ignore
@@ -150,7 +149,7 @@ class UiClasMainwin(object):
         self.ChkBT_IMIMode.setGeometry(QtCore.QRect(260, 210, 100, 100))
         self.ChkBT_IMIMode.setText("IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS")
         self.ChkBT_IMIMode.setToolTip("Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. ")
-        if CLAS_config.getboolean("MAIN", "IMI Mode"):
+        if CLAS_Globals.CLAS_Config.getboolean("MAIN", "IMI Mode"):
             self.ChkBT_IMIMode.setChecked(True)
         self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
         self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode)  # type: ignore
@@ -160,7 +159,7 @@ class UiClasMainwin(object):
         self.ChkBT_Update.setGeometry(QtCore.QRect(430, 230, 110, 20))
         self.ChkBT_Update.setText("UPDATE CHECK")
         self.ChkBT_Update.setToolTip("Enable if you want Auto-Scanner to check your Python version and if all required packages are installed. ")
-        if CLAS_config.getboolean("MAIN", "Update Check"):
+        if CLAS_Globals.CLAS_Config.getboolean("MAIN", "Update Check"):
             self.ChkBT_Update.setChecked(True)
         self.ChkBT_Update.setObjectName("ChkBT_Update")
         self.ChkBT_Update.stateChanged.connect(self.Bool_INIUpdate)  # type: ignore
@@ -170,7 +169,7 @@ class UiClasMainwin(object):
         self.ChkBT_Stats.setGeometry(QtCore.QRect(100, 270, 120, 20))
         self.ChkBT_Stats.setText("STAT LOGGING")
         self.ChkBT_Stats.setToolTip("Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window. ")
-        if CLAS_config.getboolean("MAIN", "Stat Logging"):
+        if CLAS_Globals.CLAS_Config.getboolean("MAIN", "Stat Logging"):
             self.ChkBT_Stats.setChecked(True)
         self.ChkBT_Stats.setObjectName("ChkBT_Stats")
         self.ChkBT_Stats.stateChanged.connect(self.Bool_INIStats)  # type: ignore
@@ -180,7 +179,7 @@ class UiClasMainwin(object):
         self.ChkBT_Unsolved.setGeometry(QtCore.QRect(430, 270, 130, 20))
         self.ChkBT_Unsolved.setText("MOVE UNSOLVED")
         self.ChkBT_Unsolved.setToolTip("Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
-        if CLAS_config.getboolean("MAIN", "Move Unsolved"):
+        if CLAS_Globals.CLAS_Config.getboolean("MAIN", "Move Unsolved"):
             self.ChkBT_Unsolved.setChecked(True)
         self.ChkBT_Unsolved.setObjectName("ChkBT_Unsolved")
         self.ChkBT_Unsolved.stateChanged.connect(self.Bool_INIUnsolved)  # type: ignore
@@ -293,7 +292,7 @@ class UiClasMainwin(object):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
             self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
-            clas_ini_update("Scan Path", SCAN_folder)
+            CLAS_Globals.clas_ini_update("Scan Path", SCAN_folder)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
             LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
@@ -304,7 +303,7 @@ class UiClasMainwin(object):
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
             QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)  # type: ignore
-            clas_ini_update("INI Path", INI_folder)
+            CLAS_Globals.clas_ini_update("INI Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
 
@@ -325,33 +324,33 @@ class UiClasMainwin(object):
 
     def Bool_IMIMode(self):
         if self.ChkBT_IMIMode.isChecked():  # type: ignore
-            clas_ini_update("IMI Mode", "true")
+            CLAS_Globals.clas_ini_update("IMI Mode", "true")
         else:
-            clas_ini_update("IMI Mode", "false")
+            CLAS_Globals.clas_ini_update("IMI Mode", "false")
 
     def Bool_INIStats(self):
         if self.ChkBT_Stats.isChecked():  # type: ignore
-            clas_ini_update("Stat Logging", "true")
+            CLAS_Globals.clas_ini_update("Stat Logging", "true")
         else:
-            clas_ini_update("Stat Logging", "false")
+            CLAS_Globals.clas_ini_update("Stat Logging", "false")
 
     def Bool_INIUnsolved(self):
         if self.ChkBT_Unsolved.isChecked():  # type: ignore
-            clas_ini_update("Move Unsolved", "true")
+            CLAS_Globals.clas_ini_update("Move Unsolved", "true")
         else:
-            clas_ini_update("Move Unsolved", "false")
+            CLAS_Globals.clas_ini_update("Move Unsolved", "false")
 
     def Bool_INIUpdate(self):
         if self.ChkBT_Update.isChecked():  # type: ignore
-            clas_ini_update("Update Check", "true")
+            CLAS_Globals.clas_ini_update("Update Check", "true")
         else:
-            clas_ini_update("Update Check", "false")
+            CLAS_Globals.clas_ini_update("Update Check", "false")
 
     def Bool_FCXMode(self):
         if self.ChkBT_FCXMode.isChecked():  # type: ignore
-            clas_ini_update("FCX Mode", "true")
+            CLAS_Globals.clas_ini_update("FCX Mode", "true")
         else:
-            clas_ini_update("FCX Mode", "false")
+            CLAS_Globals.clas_ini_update("FCX Mode", "false")
 
 
 if __name__ == "__main__":
