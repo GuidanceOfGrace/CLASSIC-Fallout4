@@ -122,6 +122,9 @@ def docs_path_check():
             return Manual_Docs
 
 
+CLAS_Globals.info.docs_file_check(docs_path_check())  # type: ignore
+
+
 # =================== CHECK MAIN FILES ===================
 def scan_mainfiles():
     scan_mainfiles_report = []
@@ -198,8 +201,6 @@ def scan_mainfiles():
         ADLIB_Loaded = True
     else:
         scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
-
-    
 
     # CHECK DOCUMENTS F4SE FOLDER LOG ERRORS
     def clas_log_errors(log_path):
