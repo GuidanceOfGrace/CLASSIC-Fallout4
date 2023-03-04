@@ -199,34 +199,7 @@ def scan_mainfiles():
     else:
         scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
 
-    # FILES TO LOOK FOR IN GAME FOLDER ONLY
-    Game_Path = Path(rf"{CLAS_Globals.info.Game_Path}")
-    CLAS_Globals.info.Game_Scripts = Game_Path.joinpath("Data", "Scripts")
-    # ROOT FILES
-    CLAS_Globals.info.FO4_EXE = Game_Path.joinpath("Fallout4.exe")
-    CLAS_Globals.info.F4CK_EXE = Game_Path.joinpath("CreationKit.exe")
-    CLAS_Globals.info.F4CK_Fixes = Game_Path.joinpath("Data", "F4CKFixes")
-    CLAS_Globals.info.Steam_INI = Game_Path.joinpath("steam_api.ini")
-    CLAS_Globals.info.Preloader_DLL = Game_Path.joinpath("IpHlpAPI.dll")
-    CLAS_Globals.info.Preloader_XML = Game_Path.joinpath("xSE PluginPreloader.xml")
-    # F4SE FILES
-    CLAS_Globals.info.F4SE_DLL = Game_Path.joinpath("f4se_1_10_163.dll")
-    CLAS_Globals.info.F4SE_SDLL = Game_Path.joinpath("f4se_steam_loader.dll")
-    CLAS_Globals.info.F4SE_Loader = Game_Path.joinpath("f4se_loader.exe")
-    # VR FILES
-    CLAS_Globals.info.VR_EXE = Game_Path.joinpath("Fallout4VR.exe")
-    CLAS_Globals.info.VR_Buffout = Game_Path.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
-    CLAS_Globals.info.F4SE_VRDLL = Game_Path.joinpath("f4sevr_1_2_72.dll")
-    CLAS_Globals.info.F4SE_VRLoader = Game_Path.joinpath("f4sevr_loader.exe")
-    # BUFFOUT FILES
-    CLAS_Globals.info.Buffout_DLL = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
-    CLAS_Globals.info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
-    CLAS_Globals.info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
-    CLAS_Globals.info.Address_LibraryVR = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
-    # FALLLOUT 4 HASHES
-    CLAS_Globals.info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
-
-    CLAS_Globals.info.docs_file_check(docs_path_check())  # type: ignore
+    
 
     # CHECK DOCUMENTS F4SE FOLDER LOG ERRORS
     def clas_log_errors(log_path):
@@ -258,6 +231,35 @@ def scan_mainfiles():
             scan_mainfiles_report.append(elem)
     else:
         scan_mainfiles_report.append("✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
+    
+    # FILES TO LOOK FOR IN GAME FOLDER ONLY
+    Game_Path = Path(rf"{CLAS_Globals.info.Game_Path}")
+    CLAS_Globals.info.Game_Scripts = Game_Path.joinpath("Data", "Scripts")
+    # ROOT FILES
+    CLAS_Globals.info.FO4_EXE = Game_Path.joinpath("Fallout4.exe")
+    CLAS_Globals.info.F4CK_EXE = Game_Path.joinpath("CreationKit.exe")
+    CLAS_Globals.info.F4CK_Fixes = Game_Path.joinpath("Data", "F4CKFixes")
+    CLAS_Globals.info.Steam_INI = Game_Path.joinpath("steam_api.ini")
+    CLAS_Globals.info.Preloader_DLL = Game_Path.joinpath("IpHlpAPI.dll")
+    CLAS_Globals.info.Preloader_XML = Game_Path.joinpath("xSE PluginPreloader.xml")
+    # F4SE FILES
+    CLAS_Globals.info.F4SE_DLL = Game_Path.joinpath("f4se_1_10_163.dll")
+    CLAS_Globals.info.F4SE_SDLL = Game_Path.joinpath("f4se_steam_loader.dll")
+    CLAS_Globals.info.F4SE_Loader = Game_Path.joinpath("f4se_loader.exe")
+    # VR FILES
+    CLAS_Globals.info.VR_EXE = Game_Path.joinpath("Fallout4VR.exe")
+    CLAS_Globals.info.VR_Buffout = Game_Path.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
+    CLAS_Globals.info.F4SE_VRDLL = Game_Path.joinpath("f4sevr_1_2_72.dll")
+    CLAS_Globals.info.F4SE_VRLoader = Game_Path.joinpath("f4sevr_loader.exe")
+    # BUFFOUT FILES
+    CLAS_Globals.info.Buffout_DLL = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
+    CLAS_Globals.info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
+    CLAS_Globals.info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
+    CLAS_Globals.info.Address_LibraryVR = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
+    # FALLLOUT 4 HASHES
+    CLAS_Globals.info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
+
+    CLAS_Globals.info.docs_file_check(docs_path_check())  # type: ignore
 
     # CHECK F4SE SCRIPT FILES INTEGRITY
 
