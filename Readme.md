@@ -82,15 +82,15 @@ B must be the culprit since the game didn't crash with only Mod A enabled while 
 ===========================================================================
 # LATEST CHANGES #
 
-6.45
-* MAIN SCRIPT *
-- Auto-Scanner now checks the MaxStdIO value in *Buffout4.toml* and will warn you if it needs adjusting.
-- Expanded *Buffout4.toml* checks to cover more valid settings and prevent false positive warnings.
-- Fixed wrong message being sometimes incorrectly displayed when no crash culprits are found.
-- Various fixes and adjustments for the detection of mods that conflict with other mods.
-- Moved all *Classic Holstered Weapons* conflict warnings to the relevant segment.
-- Implemented hash based check for *Fallout4.exe* for better accuracy.
+6.55
+MAIN SCRIPT *
 
-* OTHER FILES *
-- *CL TOOLS* folder renamed to *CLAS TOOLS*
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+Fixed incorrect Fallout 4 VR Documents file path, should also resolve all false positives.
+Updated version check for Buffout 4 NG / VR [ Buffout4 v1.31.1 Feb 28 2023 00:28:17 ].
+Improved detection accuracy for Vulkan Settings Crash, crash info has been updated.
+Auto-Scanner will now show the full error line along with its related log file path.
+Added detection for VR Address Library For F4SEVR for the VR version of the game.
+
+CLAS GUI *
+
+Added the classic Minimize button to the main program window.
