@@ -64,33 +64,6 @@ class CLASGlobal:
     info: Info = field(default_factory=Info)
 
     def __post_init__(self):
-        self.info = Info()
-        # FILES TO LOOK FOR IN GAME FOLDER ONLY
-        Game_Path = Path(rf"{self.info.Game_Path}")
-        self.info.Game_Scripts = Game_Path.joinpath("Data", "Scripts")
-        # ROOT FILES
-        self.info.FO4_EXE = Game_Path.joinpath("Fallout4.exe")
-        self.info.F4CK_EXE = Game_Path.joinpath("CreationKit.exe")
-        self.info.F4CK_Fixes = Game_Path.joinpath("Data", "F4CKFixes")
-        self.info.Steam_INI = Game_Path.joinpath("steam_api.ini")
-        self.info.Preloader_DLL = Game_Path.joinpath("IpHlpAPI.dll")
-        self.info.Preloader_XML = Game_Path.joinpath("xSE PluginPreloader.xml")
-        # F4SE FILES
-        self.info.F4SE_DLL = Game_Path.joinpath("f4se_1_10_163.dll")
-        self.info.F4SE_SDLL = Game_Path.joinpath("f4se_steam_loader.dll")
-        self.info.F4SE_Loader = Game_Path.joinpath("f4se_loader.exe")
-        # VR FILES
-        self.info.VR_EXE = Game_Path.joinpath("Fallout4VR.exe")
-        self.info.VR_Buffout = Game_Path.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
-        self.info.F4SE_VRDLL = Game_Path.joinpath("f4sevr_1_2_72.dll")
-        self.info.F4SE_VRLoader = Game_Path.joinpath("f4sevr_loader.exe")
-        # BUFFOUT FILES
-        self.info.Buffout_DLL = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
-        self.info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
-        self.info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
-        self.info.Address_LibraryVR = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
-        # FALLLOUT 4 HASHES
-        self.info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
 
         self.CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
         self.CLAS_config.optionxform = str  # type: ignore
@@ -112,14 +85,13 @@ class CLASGlobal:
             self.CLAS_Config.write(INI_AUTOSCAN)
 
 
-class CLAS(CLASGlobal):
+class CLAS:
     def __init__(self, text: str, lines: list, filehandle: TextIOWrapper):
         self.text = text
         self.lines = lines
         self.filehandle = filehandle
         self.buff_error = lines[3].strip()
         self.buff_ver = lines[1].strip()
-        self.globals = globals
 
     @staticmethod
     # =================== CLAS INI FILE ===================
@@ -151,7 +123,7 @@ class CLAS(CLASGlobal):
                 INI_Autoscan.writelines(INI_Settings)
 
     def write_file(self, input_text: str | Iterable):
-        if isinstance(input_text, Iterable) and not isinstance(input_text, str): # string is iterable, but we don't want to write it line by line, so we check for that.
+        if isinstance(input_text, Iterable) and not isinstance(input_text, str): # string is considered iterable by the typing module.
             self.filehandle.writelines(input_text)
         else:
             self.filehandle.write(input_text)
@@ -159,18 +131,18 @@ class CLAS(CLASGlobal):
     # =============== CRASH / STAT CHECK TEMPLATE ===============
     def crash_template_write(self, crash_prefix, crash_main, crash_suffix, crash_stat):
         if "CULPRIT FOUND" in crash_suffix or "DETECTED" in crash_suffix:
-            self.globals.Culprit_Trap = True
+            CLAS_Globals.Culprit_Trap = True
 
         self.filehandle.write(f"{crash_prefix}{crash_main}{crash_suffix}")
 
-        if crash_stat in self.globals.crash_template_stats.keys():
-            self.globals.crash_template_stats[crash_stat] += 1
+        if crash_stat in CLAS_Globals.crash_template_stats.keys():
+            CLAS_Globals.crash_template_stats[crash_stat] += 1
         else:
-            self.globals.crash_template_stats[crash_stat] = 0
-        return self.globals.crash_template_stats[crash_stat]
+            CLAS_Globals.crash_template_stats[crash_stat] = 0
+        return CLAS_Globals.crash_template_stats[crash_stat]
     
     @staticmethod
     def crash_template_read(crash_prefix, crash_main, crash_suffix, crash_stat):
-        if "Logs with" in crash_prefix:  # FOR STAT LOGGING
-            print(f"{crash_prefix}{crash_main}{crash_suffix}", end='')
+        print(f"{crash_prefix}{crash_main}{crash_suffix}", end='')
+        
         return CLAS_Globals.crash_template_stats[crash_stat]
