@@ -85,12 +85,12 @@ B must be the culprit since the game didn't crash with only Mod A enabled while 
 6.55
 MAIN SCRIPT *
 
-Fixed incorrect Fallout 4 VR Documents file path, should also resolve all false positives.
-Updated version check for Buffout 4 NG / VR [ Buffout4 v1.31.1 Feb 28 2023 00:28:17 ].
-Improved detection accuracy for Vulkan Settings Crash, crash info has been updated.
-Auto-Scanner will now show the full error line along with its related log file path.
-Added detection for VR Address Library For F4SEVR for the VR version of the game.
+- Fixed incorrect Fallout 4 VR Documents file path, should also resolve all false positives.
+- Updated version check for Buffout 4 NG / VR [ Buffout4 v1.31.1 Feb 28 2023 00:28:17 ].
+- Improved detection accuracy for Vulkan Settings Crash, crash info has been updated.
+- Auto-Scanner will now show the full error line along with its related log file path.
+- Added detection for VR Address Library For F4SEVR for the VR version of the game.
 
 CLAS GUI *
 
-Added the classic Minimize button to the main program window.
+- Added the classic Minimize button to the main program window.
