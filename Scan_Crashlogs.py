@@ -286,7 +286,7 @@ def scan_logs():
             output.writelines(["\n====================================================\n",
                                "CHECKING IF NECESSARY FILES/SETTINGS ARE CORRECT...\n",
                                "====================================================\n"])
-            if CLAS_config.get("MAIN", "FCX Mode").lower() == "true":
+            if CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
                 output.write(Warn_SCAN_NOTE_FCX)
                 from Scan_Gamefiles import scan_mainfiles
                 mainfiles_result = scan_mainfiles()
