@@ -143,14 +143,14 @@ def clas_update_run():
 
 # ================= FLAVOUR TEXT / GLOBAL VARS =================
 CLAS_Globals.Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
-                            "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
-                            "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
-                            "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
-                            "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
-                            "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
-                            "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
-                            "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
-                            "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
+                                       "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
+                                       "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
+                                       "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
+                                       "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
+                                       "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
+                                       "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
+                                       "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
+                                       "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
 # =================== TERMINAL OUTPUT START ====================
 print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Globals.CLAS_Current[-4:], "| Fallout 4")
@@ -596,6 +596,8 @@ def scan_logs():
                     scanner.write_file(f'> Priority : [5] | DLCBanner05.dds : {scanner.text.count("DLCBanner05.dds")}\n')
 
             # ===========================================================
+            scanner.write_file("\n ---------- Unsolved Crash Culprits Below ---------- \n")
+            scanner.write_file("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
             scanner.write_file("\n ---------- Unsolved Crash Culprits Below ---------- \n")
             scanner.write_file("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
             # ===========================================================
