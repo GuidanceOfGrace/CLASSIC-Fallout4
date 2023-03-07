@@ -87,11 +87,11 @@ class CLASGlobal:
 
 class CLAS:
     def __init__(self, text: str, lines: list, filehandle: TextIOWrapper):
-        self.text = text
-        self.lines = lines
-        self.filehandle = filehandle
-        self.buff_error = lines[3].strip()
-        self.buff_ver = lines[1].strip()
+        self.text: str = text
+        self.lines: list = lines
+        self.filehandle: TextIOWrapper = filehandle
+        self.buff_error: str = lines[3].strip()
+        self.buff_ver: str = lines[1].strip()
 
     @staticmethod
     # =================== CLAS INI FILE ===================

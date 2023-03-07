@@ -360,18 +360,19 @@ def scan_mainfiles():
                 scan_mainfiles_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
 
             if BUFF_config["Patches"]["MaxStdIO"] != 2048:  # type: ignore
-                if BUFF_config["Patches"]["MaxStdIO"] < 2048:  # type: ignore
-                    scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
-                                                  "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
-                                                  "-----"])
-                elif BUFF_config["Patches"]["MaxStdIO"] > 2048:  # type: ignore
-                    scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",  # Placeholder message courtesy of Github Copilot
-                                                  "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
-                                                  "-----"])
-                elif not isinstance(BUFF_config["Patches"]["MaxStdIO"], int):  # type: ignore
-                    scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.",  # Another placeholder message courtesy of Github Copilot
-                                                  "Auto-Scanner will change this value to 2048.",
-                                                  "-----"])
+                match (BUFF_config["Patches"]["MaxStdIO"]):  # type: ignore
+                    case elem if elem < 2048: # type: ignore
+                        scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
+                                                      "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
+                                                      "-----"])
+                    case elem if elem > 2048: # type: ignore
+                        scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",  # Placeholder message courtesy of Github Copilot
+                                                      "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
+                                                      "-----"])
+                    case elem if not isinstance(elem, int): # type: ignore
+                        scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.",  # Another placeholder message courtesy of Github Copilot
+                                                      "Auto-Scanner will change this value to 2048.",
+                                                      "-----"])
                 BUFF_config["Patches"]["MaxStdIO"] = 2048  # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n  -----")

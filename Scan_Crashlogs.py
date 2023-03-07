@@ -107,7 +107,7 @@ def clas_update_check():
     print("CHECKING YOUR PYTHON VERSION & CRASH LOG AUTO SCANNER UPDATES...")
     print("(You can disable this check in the EXE or Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {sys.version[:6]} \n")
-    if sys.version_info[:2] < (3, 9):
+    if sys.version_info[:2] < (3, 10):
         print(CLAS_Globals.Warnings["Warn_CLAS_Python_Version"])
         if platform.system() == "Windows":
             os_version = int(platform.win32_ver()[0])
@@ -127,29 +127,30 @@ def clas_update_check():
 
 
 def clas_update_run():
-    if CLAS_Globals.CLAS_Config.getboolean("MAIN", "Update Check") is True:
-        try:
-            import requests
-            CLAS_CheckUpdates = clas_update_check()
-            return CLAS_CheckUpdates
-        except (ImportError, ModuleNotFoundError):
-            subprocess.run(['pip', 'install', 'requests'], shell=True)
-            print(CLAS_Globals.Warnings["Warn_CLAS_Update_Failed"])
-            print("===============================================================================")
-    elif CLAS_Globals.CLAS_Config.getboolean("MAIN", "Update Check") is False:
-        print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
+    match (CLAS_Globals.CLAS_Config.getboolean("MAIN", "Update Check")):
+        case True:
+            try:
+                import requests
+                CLAS_CheckUpdates = clas_update_check()
+                return CLAS_CheckUpdates
+            except (ImportError, ModuleNotFoundError):
+                subprocess.run(['pip', 'install', 'requests'], shell=True)
+                print(CLAS_Globals.Warnings["Warn_CLAS_Update_Failed"])
+                print("===============================================================================")
+        case _:
+            print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
 
 
 # ================= FLAVOUR TEXT / GLOBAL VARS =================
 CLAS_Globals.Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
-                          "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
-                          "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
-                          "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
-                          "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
-                          "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
-                          "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
-                          "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
-                          "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
+                            "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
+                            "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
+                            "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
+                            "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
+                            "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
+                            "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
+                            "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
+                            "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
 # =================== TERMINAL OUTPUT START ====================
 print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Globals.CLAS_Current[-4:], "| Fallout 4")
@@ -158,7 +159,7 @@ print("=========================================================================
 
 
 def scan_logs():
-    
+
     print("PERFORMING SCAN... \n")
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
@@ -212,315 +213,460 @@ def scan_logs():
                                 f"Detected Buffout Version: {scanner.buff_ver.strip()}\n",
                                 f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[8:14]})\n"])
 
-            if scanner.buff_ver.casefold() == buff_latest.casefold() or scanner.buff_ver.casefold() == buffNGVR_latest.casefold():
-                scanner.write_file("✔️ You have the latest version of Buffout 4!")
-            else:
-                scanner.write_file(CLAS_Globals.Warnings["Warn_SCAN_Outdated_Buffout4"])
+            match (scanner.buff_ver.casefold() == buff_latest.casefold(),
+                   scanner.buff_ver.casefold() == buffNGVR_latest.casefold()):
+                case (True, False) | (False, True):
+                    scanner.write_file("✔️ You have the latest version of Buffout 4!")
+                case _:
+                    scanner.write_file(CLAS_Globals.Warnings["Warn_SCAN_Outdated_Buffout4"])
 
             scanner.write_file(["\n====================================================\n",
                                "CHECKING IF NECESSARY FILES/SETTINGS ARE CORRECT...\n",
                                 "====================================================\n"])
-            if CLAS_Globals.CLAS_Config["MAIN"]["FCX Mode"].lower() == "true":
-                scanner.write_file(CLAS_Globals.Warnings["Warn_SCAN_NOTE_FCX"])
-                from Scan_Gamefiles import scan_mainfiles
-                mainfiles_result = scan_mainfiles()
-                for line in mainfiles_result:
-                    if isinstance(line, str):
-                        scanner.write_file(line)
-                        scanner.write_file("\n")
-                    else:
-                        scanner.write_file(str(line))
-                        scanner.write_file("\n")
-            else:
-                # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
-                if ("Achievements: true" in scanner.text and "achievements.dll" in scanner.text) or ("Achievements: true" in scanner.text and "UnlimitedSurvivalMode.dll" in scanner.text):
-                    scanner.write_file(CLAS_Globals.Warnings["Warn_TOML_Achievements"])
-                else:
-                    scanner.write_file("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+            match (CLAS_Globals.CLAS_Config.getboolean("MAIN", "FCX Mode")):
+                case True:
+                    scanner.write_file(CLAS_Globals.Warnings["Warn_SCAN_NOTE_FCX"])
+                    from Scan_Gamefiles import scan_mainfiles
+                    mainfiles_result = scan_mainfiles()
+                    for line in mainfiles_result:
+                        if isinstance(line, str):
+                            scanner.write_file(line)
+                            scanner.write_file("\n")
+                        else:
+                            scanner.write_file(str(line))
+                            scanner.write_file("\n")
+                case False:
+                    # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
+                    match ("Achievements: true" in scanner.text,
+                           "achievements.dll" in scanner.text,
+                           "UnlimitedSurvivalMode.dll" in scanner.text):
+                        case (True, True), (True, _, True):
+                            scanner.write_file(CLAS_Globals.Warnings["Warn_TOML_Achievements"])
+                        case _:
+                            scanner.write_file("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
 
-                if "MemoryManager: true" in scanner.text and "BakaScrapHeap.dll" in scanner.text:
-                    scanner.write_file(CLAS_Globals.Warnings["Warn_TOML_Memory"])
-                else:
-                    scanner.write_file("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                    match ("MemoryManager: true" in scanner.text,
+                           "BakaScrapHeap.dll" in scanner.text):
+                        case (True, True):
+                            scanner.write_file(CLAS_Globals.Warnings["Warn_TOML_Memory"])
+                        case _:
+                            scanner.write_file("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
 
-                if "F4EE: false" in scanner.text and "f4ee.dll" in scanner.text:
-                    scanner.write_file(CLAS_Globals.Warnings["Warn_TOML_F4EE"])
-                else:
-                    scanner.write_file("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                    match ("F4EE: False" in scanner.text,
+                           "f4ee.dll" in scanner.text):
+                        case (True, True):
+                            scanner.write_file(CLAS_Globals.Warnings["Warn_TOML_F4EE"])
+                        case _:
+                            scanner.write_file("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
 
             scanner.write_file(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
                                 "====================================================\n"])
 
             # ===================== HEADER CULPRITS =====================
-            if ".dll" in scanner.buff_error.lower() and "tbbmalloc" not in scanner.buff_error.lower():
-                scanner.write_file(CLAS_Globals.Warnings["Warn_SCAN_NOTE_DLL"])
+            match (".dll" in scanner.buff_error.lower(),
+                   "tbbmalloc" in scanner.buff_error.lower()):
+                case (True, False):
+                    scanner.crash_template_write("# Checking for ", "DLL Crash.....................", "CULPRIT FOUND! #\n", "statC_DLL")
 
-            if "EXCEPTION_STACK_OVERFLOW" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Stack Overflow Crash.........", "CULPRIT FOUND! #\n", "statC_Overflow")
-                scanner.write_file("> Priority : [5]\n")
+            match ("EXCEPTION_STACK_OVERFLOW" in scanner.buff_error):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "Stack Overflow Crash.........", "CULPRIT FOUND! #\n", "statC_Overflow")
+                    scanner.write_file("> Priority : [5]\n")
 
-            if "0x000100000000" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Active Effects Crash..........", "CULPRIT FOUND! #\n", "statC_ActiveEffects")
-                scanner.write_file("> Priority : [5]\n")
+            match ("0x000100000000" in scanner.buff_error):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "Active Effects Crash..........", "CULPRIT FOUND! #\n", "statC_ActiveEffects")
+                    scanner.write_file("> Priority : [5]\n")
 
-            if "EXCEPTION_INT_DIVIDE_BY_ZERO" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Bad Math Crash................", "CULPRIT FOUND! #\n", "statC_BadMath")
-                scanner.write_file("> Priority : [5]\n")
+            match ("EXCEPTION_INT_DIVIDE_BY_ZERO" in scanner.buff_error):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "Bad Math Crash................", "CULPRIT FOUND! #\n", "statC_BadMath")
+                    scanner.write_file("> Priority : [5]\n")
 
-            if "0x000000000000" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Null Crash................", "CULPRIT FOUND! #\n", "statC_Null")
-                scanner.write_file("> Priority : [5]\n")
+            match ("0x000000000000" in scanner.buff_error):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "Null Crash................", "CULPRIT FOUND! #\n", "statC_Null")
+                    scanner.write_file("> Priority : [5]\n")
 
             # ====================== MAIN CULPRITS ======================
             # OTHER | RESERVED
             # "BSResourceNiBinaryStream" | "ObjectBindPolicy"
             # Uneducated Shooter (56789) | "std::invalid_argument"
             # ===========================================================
-            if "DLCBannerDLC01.dds" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "DLL Crash....................", "CULPRIT FOUND! #\n", "statC_DLL")
-                scanner.write_file(f'> Priority : [5] | DLCBannerDLC01.dds : {scanner.text.count("DLCBannerDLC01.dds")}\n')
+            match ("DLCBannerDLC01.dds" in scanner.text):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "DLL Crash....................", "CULPRIT FOUND! #\n", "statC_DLL")
+                    scanner.write_file(f'> Priority : [5] | DLCBannerDLC01.dds : {scanner.text.count("DLCBannerDLC01.dds")}\n')
 
             # ===========================================================
-            if "BGSLocation" in scanner.text and "BGSQueuedTerrainInitialLoad" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "LOD Crash....................", "CULPRIT FOUND! #\n", "statC_LOD")
-                scanner.write_file(f'> Priority : [5] | BGSLocation : {scanner.text.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {scanner.text.count("BGSQueuedTerrainInitialLoad")}\n')
+            match ("BGSLocation" in scanner.text,
+                   "BGSQueuedTerrainInitialLoad" in scanner.text):
+                case (True, True):
+                    scanner.crash_template_write("# Checking for ", "LOD Crash....................", "CULPRIT FOUND! #\n", "statC_LOD")
+                    scanner.write_file(f'> Priority : [5] | BGSLocation : {scanner.text.count("BGSLocation")} | BGSQueuedTerrainInitialLoad : {scanner.text.count("BGSQueuedTerrainInitialLoad")}\n')
 
             # ===========================================================
-            if "FaderData" in scanner.text or "FaderMenu" in scanner.text or "UIMessage" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "MCM Crash....................", "CULPRIT FOUND! #\n", "statC_MCM")
-                scanner.write_file(f'> Priority : [3] | FaderData : {scanner.text.count("FaderData")} | FaderMenu : {scanner.text.count("FaderMenu")} | UIMessage : {scanner.text.count("UIMessage")}\n')
+            match ("FaderData" in scanner.text,
+                   "FaderMenu" in scanner.text,
+                   "UIMessage" in scanner.text):
+                case (True), (_, True), (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "MCM Crash....................", "CULPRIT FOUND! #\n", "statC_MCM")
+                    scanner.write_file(f'> Priority : [3] | FaderData : {scanner.text.count("FaderData")} | FaderMenu : {scanner.text.count("FaderMenu")} | UIMessage : {scanner.text.count("UIMessage")}\n')
 
             # ===========================================================
-            if "BGSDecalManager" in scanner.text or "BSTempEffectGeometryDecal" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Decal Crash..................", "CULPRIT FOUND! #\n", "statC_Decal")
-                scanner.write_file(f'> Priority : [5] | BGSDecalManager : {scanner.text.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {scanner.text.count("BSTempEffectGeometryDecal")}\n')
+            match ("BGSDecalManager" in scanner.text,
+                   "BSTempEffectGeometryDecal" in scanner.text):
+                case (True), (_, True):
+                    scanner.crash_template_write("# Checking for ", "Decal Crash..................", "CULPRIT FOUND! #\n", "statC_Decal")
+                    scanner.write_file(f'> Priority : [5] | BGSDecalManager : {scanner.text.count("BGSDecalManager")} | BSTempEffectGeometryDecal : {scanner.text.count("BSTempEffectGeometryDecal")}\n')
 
             # ===========================================================
-            if scanner.text.count("PipboyMapData") >= 2:
-                scanner.crash_template_write("# Checking for ", "Equip Crash..................", "CULPRIT FOUND! #\n", "statC_Equip")
-                scanner.write_file(f'> Priority : [3] | PipboyMapData : {scanner.text.count("PipboyMapData")}\n')
+            match (scanner.text.count("PipboyMapData") >= 2):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "Equip Crash..................", "CULPRIT FOUND! #\n", "statC_Equip")
+                    scanner.write_file(f'> Priority : [3] | PipboyMapData : {scanner.text.count("PipboyMapData")}\n')
 
             # ===========================================================
-            if "Papyrus" in scanner.text or "VirtualMachine" in scanner.text or "Assertion failed" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Script Crash.................", "CULPRIT FOUND! #\n", "statC_Papyrus")
-                scanner.write_file(f'> Priority : [3] | Papyrus : {scanner.text.count("Papyrus")} | VirtualMachine : {scanner.text.count("VirtualMachine")}\n')
+            match ("Papyrus" in scanner.text,
+                   "VirtualMachine" in scanner.text, "Assertion failed" in scanner.text):
+                case (True), (_, True), (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "Script Crash.................", "CULPRIT FOUND! #\n", "statC_Papyrus")
+                    scanner.write_file(f'> Priority : [3] | Papyrus : {scanner.text.count("Papyrus")} | VirtualMachine : {scanner.text.count("VirtualMachine")}\n')
 
             # ===========================================================
-            if scanner.text.count("tbbmalloc.dll") >= 3 or "tbbmalloc" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Generic Crash................", "CULPRIT FOUND! #\n", "statC_Generic")
-                scanner.write_file(f'> Priority : [2] | tbbmalloc.dll : {scanner.text.count("tbbmalloc.dll")}\n')
+            match (scanner.text.count("tbbmalloc.dll") >= 3,
+                   "tbbmalloc" in scanner.buff_error):
+                case (True), (_, True):
+                    scanner.crash_template_write("# Checking for ", "Generic Crash................", "CULPRIT FOUND! #\n", "statC_Generic")
+                    scanner.write_file(f'> Priority : [2] | tbbmalloc.dll : {scanner.text.count("tbbmalloc.dll")}\n')
 
             # ===========================================================
-            if "LooseFileAsyncStream" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "BA2 Limit Crash..............", "CULPRIT FOUND! #\n", "statC_BA2Limit")
-                scanner.write_file(f'> Priority : [5] | LooseFileAsyncStream : {scanner.text.count("LooseFileAsyncStream")}\n')
+            match ("LooseFileAsyncStream" in scanner.text):
+                case True:
+                    scanner.crash_template_write("# Checking for ", "BA2 Limit Crash..............", "CULPRIT FOUND! #\n", "statC_BA2Limit")
+                    scanner.write_file(f'> Priority : [5] | LooseFileAsyncStream : {scanner.text.count("LooseFileAsyncStream")}\n')
 
             # ===========================================================
-            if scanner.text.count("d3d11.dll") >= 3 or "d3d11" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Rendering Crash..............", "CULPRIT FOUND! #\n", "statC_Rendering")
-                scanner.write_file(f'> Priority : [4] | d3d11.dll : {scanner.text.count("d3d11.dll")}\n')
+            match (scanner.text.count("d3d11.dll") >= 3,
+                   "d3d11" in scanner.buff_error):
+                case (True), (_, True):
+                    scanner.crash_template_write("# Checking for ", "Rendering Crash..............", "CULPRIT FOUND! #\n", "statC_Rendering")
+                    scanner.write_file(f'> Priority : [4] | d3d11.dll : {scanner.text.count("d3d11.dll")}\n')
 
             # ===========================================================
-            if scanner.text.count("MSVCR110") >= 4 or "MSVCR" in scanner.buff_error or "MSVCP" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "C++ Redist Crash.............", "CULPRIT FOUND! #\n", "statC_Redist")
-                scanner.write_file(f'> Priority : [3] | MSVCR110.dll : {scanner.text.count("MSVCR110.dll")}\n')
+            match (scanner.text.count("MSVCR110") >= 4,
+                   "MSVCR" in scanner.buff_error,
+                   "MSVCP" in scanner.buff_error):
+                case (True), (_, True), (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "C++ Redist Crash.............", "CULPRIT FOUND! #\n", "statC_Redist")
+                    scanner.write_file(f'> Priority : [3] | MSVCR110.dll : {scanner.text.count("MSVCR110.dll")}\n')
 
             # ===========================================================
-            if "GridAdjacencyMapNode" in scanner.text or "PowerUtils" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Grid Scrap Crash.............", "CULPRIT FOUND! #\n", "statC_GridScrap")
-                scanner.write_file(f'> Priority : [5] | GridAdjacencyMapNode : {scanner.text.count("GridAdjacencyMapNode")} | PowerUtils : {scanner.text.count("PowerUtils")}\n')
+            match ("GridAdjacencyMapNode" in scanner.text,
+                   "PowerUtils" in scanner.text):
+                case (True), (_, True):
+                    scanner.crash_template_write("# Checking for ", "Grid Scrap Crash.............", "CULPRIT FOUND! #\n", "statC_GridScrap")
+                    scanner.write_file(f'> Priority : [5] | GridAdjacencyMapNode : {scanner.text.count("GridAdjacencyMapNode")} | PowerUtils : {scanner.text.count("PowerUtils")}\n')
 
             # ===========================================================
-            if "HUDCompass" in scanner.text or "HUDCompassMarker" in scanner.text or "attachMovie()" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Map Marker Crash.............", "CULPRIT FOUND! #\n", "statC_MapMarker")
-                scanner.write_file(f'> Priority : [5] | HUDCompass : {scanner.text.count("HUDCompass")} | HUDCompassMarker : {scanner.text.count("HUDCompassMarker")}\n')
+            match ("HUDCompass" in scanner.text,
+                   "HUDCompassMarker" in scanner.text,
+                   "attachMovie()" in scanner.text):
+                case (True), (_, True), (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "Map Marker Crash.............", "CULPRIT FOUND! #\n", "statC_MapMarker")
+                    scanner.write_file(f'> Priority : [5] | HUDCompass : {scanner.text.count("HUDCompass")} | HUDCompassMarker : {scanner.text.count("HUDCompassMarker")}\n')
 
             # ===========================================================
-            if ("LooseFileStream" in scanner.text or "BSFadeNode" in scanner.text or "BSMultiBoundNode" in scanner.text) and scanner.text.count("LooseFileAsyncStream") == 0:
-                scanner.crash_template_write("# Checking for ", "Mesh (NIF) Crash.............", "CULPRIT FOUND! #\n", "statC_Mesh")
-                scanner.write_file(f'> Priority : [4] | LooseFileStream : {scanner.text.count("LooseFileStream")} | BSFadeNode : {scanner.text.count("BSFadeNode")}\n')
-                scanner.write_file(f'                   BSMultiBoundNode : {scanner.text.count("BSMultiBoundNode")}\n')
+            match ("LooseFileStream" in scanner.text,
+                   "BSFadeNode" in scanner.text,
+                   "BSMultiBoundNode" in scanner.text,
+                   scanner.text.count("LooseFileAsyncStream") == 0):
+                case  (True, _, _, True) | (_, True, _, True) | (_, _, True, True):
+                    scanner.crash_template_write("# Checking for ", "Mesh (NIF) Crash.............", "CULPRIT FOUND! #\n", "statC_Mesh")
+                    scanner.write_file(f'> Priority : [4] | LooseFileStream : {scanner.text.count("LooseFileStream")} | BSFadeNode : {scanner.text.count("BSFadeNode")}\n')
+                    scanner.write_file(f'                   BSMultiBoundNode : {scanner.text.count("BSMultiBoundNode")}\n')
 
             # ===========================================================
-            if "Create2DTexture" in scanner.text or "DefaultTexture" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Texture (DDS) Crash..........", "CULPRIT FOUND! #\n", "statC_Texture")
-                scanner.write_file(f'> Priority : [3] | Create2DTexture : {scanner.text.count("Create2DTexture")} | DefaultTexture : {scanner.text.count("DefaultTexture")}\n')
+            match ("Create2DTexture" in scanner.text,
+                   "DefaultTexture" in scanner.text):
+                case (True), (_, True):
+                    scanner.crash_template_write("# Checking for ", "Texture (DDS) Crash..........", "CULPRIT FOUND! #\n", "statC_Texture")
+                    scanner.write_file(f'> Priority : [3] | Create2DTexture : {scanner.text.count("Create2DTexture")} | DefaultTexture : {scanner.text.count("DefaultTexture")}\n')
 
             # ===========================================================
-            if "DefaultTexture_Black" in scanner.text or "NiAlphaProperty" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Material (BGSM) Crash........", "CULPRIT FOUND! #\n", "statC_Material")
-                scanner.write_file(f'> Priority : [3] | DefaultTexture_Black : {scanner.text.count("DefaultTexture_Black")} | NiAlphaProperty : {scanner.text.count("NiAlphaProperty")}\n')
+            match ("DefaultTexture_Black" in scanner.text,
+                   "NiAlphaProperty" in scanner.text):
+                case (True), (_, True):
+                    scanner.crash_template_write("# Checking for ", "Material (BGSM) Crash........", "CULPRIT FOUND! #\n", "statC_Material")
+                    scanner.write_file(f'> Priority : [3] | DefaultTexture_Black : {scanner.text.count("DefaultTexture_Black")} | NiAlphaProperty : {scanner.text.count("NiAlphaProperty")}\n')
 
             # ===========================================================
-            if (scanner.text.count("bdhkm64.dll") or scanner.text.count("usvfs::hook_DeleteFileW")) >= 2 or "BSTextureStreamer::Manager" in scanner.text or "BSTextureStreamer::zlibStreamDetail" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Antivirus Crash....................", "CULPRIT FOUND! #\n", "statC_Antivirus")
-                scanner.write_file(f'> Priority : [5] | bdhkm64.dll : {scanner.text.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {scanner.text.count("usvfs::hook_DeleteFileW")}\n')
-                scanner.write_file(f'                   BSTextureStreamer::Manager : {scanner.text.count("BSTextureStreamer::Manager")} | BSTextureStreamer::zlibStreamDetail : {scanner.text.count("BSTextureStreamer::zlibStreamDetail")}\n')
+            match (scanner.text.count("bdhkm64.dll") >= 2,
+                   scanner.text.count("usvfs::hook_DeleteFileW") >= 2,
+                   "BSTextureStreamer::Manager" in scanner.text,
+                   "BSTextureStreamer::zlibStreamDetail" in scanner.text):
+                case (True), (_, True), (_, _, True), (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Antivirus Crash....................", "CULPRIT FOUND! #\n", "statC_Antivirus")
+                    scanner.write_file(f'> Priority : [5] | bdhkm64.dll : {scanner.text.count("bdhkm64.dll")} | usvfs::hook_DeleteFileW : {scanner.text.count("usvfs::hook_DeleteFileW")}\n')
+                    scanner.write_file(f'                   BSTextureStreamer::Manager : {scanner.text.count("BSTextureStreamer::Manager")} | BSTextureStreamer::zlibStreamDetail : {scanner.text.count("BSTextureStreamer::zlibStreamDetail")}\n')
 
             # ===========================================================
-            if (scanner.text.count("PathingCell") or scanner.text.count("BSPathBuilder") or scanner.text.count("PathManagerServer")) >= 2:
-                scanner.crash_template_write("# Checking for ", "NPC Pathing Crash (S)........", "CULPRIT FOUND! #\n", "statC_NPCPathing")
-                scanner.write_file(f'> Priority : [3] | PathingCell : {scanner.text.count("PathingCell")} | BSPathBuilder : {scanner.text.count("BSPathBuilder")}\n')
-                scanner.write_file(f'                   PathManagerServer : {scanner.text.count("PathManagerServer")}\n')
+            match (scanner.text.count("PathingCell") >= 2,
+                   scanner.text.count("BSPathBuilder") >= 2,
+                   scanner.text.count("PathManagerServer") >= 2):
+                case (True), (_, True), (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "NPC Pathing Crash (S)........", "CULPRIT FOUND! #\n", "statC_NPCPathing")
+                    scanner.write_file(f'> Priority : [3] | PathingCell : {scanner.text.count("PathingCell")} | BSPathBuilder : {scanner.text.count("BSPathBuilder")}\n')
+                    scanner.write_file(f'                   PathManagerServer : {scanner.text.count("PathManagerServer")}\n')
+
+            # ===========================================================
+            match (scanner.text.count("NavMesh") >= 2,
+                   scanner.text.count("BSNavmeshObstacleData") >= 2,
+                   scanner.text.count("DynamicNavmesh") >= 2,
+                   scanner.text.count("PathingRequest") >= 2):
+                case (True), (_, True), (_, _, True), (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "NPC Pathing Crash (D)........", "CULPRIT FOUND! #\n", "statC_NPCPathingD")
+                    scanner.write_file(f'> Priority : [3] | NavMesh : {scanner.text.count("NavMesh")} | BSNavmeshObstacleData : {scanner.text.count("BSNavmeshObstacleData")}\n')
+                    scanner.write_file(f'                   DynamicNavmesh : {scanner.text.count("DynamicNavmesh")} PathingRequest : {scanner.text.count("PathingRequest")}\n')
 
             # ==============================
-            if (scanner.text.count("NavMesh") or scanner.text.count("BSNavmeshObstacleData") or scanner.text.count("DynamicNavmesh") or scanner.text.count("PathingRequest")) >= 2:
-                scanner.crash_template_write("# Checking for ", "NPC Pathing Crash (D)........", "CULPRIT FOUND! #\n", "statC_NPCPathingD")
-                scanner.write_file(f'> Priority : [3] | NavMesh : {scanner.text.count("NavMesh")} | BSNavmeshObstacleData : {scanner.text.count("BSNavmeshObstacleData")}\n')
-                scanner.write_file(f'                   DynamicNavmesh : {scanner.text.count("DynamicNavmesh")} PathingRequest : {scanner.text.count("PathingRequest")}\n')
-
-            # ==============================
-            if "+248B26A" in scanner.buff_error or "MovementAgentPathFollowerVirtual" in scanner.text or "PathingStreamSaveGame" in scanner.text or "BGSProcedurePatrolExecState" in scanner.text or "CustomActorPackageData" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "NPC Pathing Crash (F)........", "CULPRIT FOUND! #\n", "statC_NPCPathingF")
-                scanner.write_file(f'> Priority : [3] | +248B26A | MovementAgentPathFollowerVirtual : {scanner.text.count("MovementAgentPathFollowerVirtual")} | PathingStreamSaveGame : {scanner.text.count("PathingStreamSaveGame")}\n')
-                scanner.write_file(f'                   BGSProcedurePatrolExecState : {scanner.text.count("BGSProcedurePatrolExecState")} CustomActorPackageData : {scanner.text.count("CustomActorPackageData")}\n')
-
-            # ===========================================================
-            if scanner.text.count("X3DAudio1_7.dll") >= 3 or scanner.text.count("XAudio2_7.dll") >= 3 or ("X3DAudio1_7" or "XAudio2_7") in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Audio Driver Crash...........", "CULPRIT FOUND! #\n", "statC_Audio")
-                scanner.write_file(f'> Priority : [5] | X3DAudio1_7.dll : {scanner.text.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {scanner.text.count("XAudio2_7.dll")}\n')
+            match ("+248B26A" in scanner.buff_error,
+                   "MovementAgentPathFollowerVirtual" in scanner.text,
+                   "PathingStreamSaveGame" in scanner.text,
+                   "BGSProcedurePatrolExecState" in scanner.text,
+                   "CustomActorPackageData" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "NPC Pathing Crash (F)........", "CULPRIT FOUND! #\n", "statC_NPCPathingF")
+                    scanner.write_file(f'> Priority : [3] | +248B26A | MovementAgentPathFollowerVirtual : {scanner.text.count("MovementAgentPathFollowerVirtual")} | PathingStreamSaveGame : {scanner.text.count("PathingStreamSaveGame")}\n')
+                    scanner.write_file(f'                   BGSProcedurePatrolExecState : {scanner.text.count("BGSProcedurePatrolExecState")} CustomActorPackageData : {scanner.text.count("CustomActorPackageData")}\n')
 
             # ===========================================================
-            if scanner.text.count("cbp.dll") >= 3 or "skeleton.nif" in scanner.text or "cbp.dll" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Body Physics Crash...........", "CULPRIT FOUND! #\n", "statC_BodyPhysics")
-                scanner.write_file(f'> Priority : [4] | cbp.dll : {scanner.text.count("cbp.dll")} | skeleton.nif : {scanner.text.count("skeleton.nif")}\n')
+            match (scanner.text.count("X3DAudio1_7.dll") >= 3,
+                   scanner.text.count("XAudio2_7.dll") >= 3,
+                   "X3DAudio1_7" in scanner.buff_error,
+                   "XAudio2_7" in scanner.buff_error):
+                case (True) | (_, True) | (_, _, True), (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Audio Driver Crash...........", "CULPRIT FOUND! #\n", "statC_Audio")
+                    scanner.write_file(f'> Priority : [5] | X3DAudio1_7.dll : {scanner.text.count("X3DAudio1_7.dll")} | XAudio2_7.dll : {scanner.text.count("XAudio2_7.dll")}\n')
 
             # ===========================================================
-            if "+0D09AB7" in scanner.buff_error or "TESLevItem" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Leveled List Crash...........", "CULPRIT FOUND! #\n", "statC_LeveledList")
-                scanner.write_file(f'> Priority : [3] | +0D09AB7 : {scanner.text.count("+0D09AB7")} | TESLevItem : {scanner.text.count("TESLevItem")}\n')
+            match (scanner.text.count("cbp.dll") >= 3,
+                   "skeleton.nif" in scanner.text,
+                   "cbp.dll" in scanner.buff_error):
+                case (True) | (_, True) | (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "Body Physics Crash...........", "CULPRIT FOUND! #\n", "statC_BodyPhysics")
+                    scanner.write_file(f'> Priority : [4] | cbp.dll : {scanner.text.count("cbp.dll")} | skeleton.nif : {scanner.text.count("skeleton.nif")}\n')
 
             # ===========================================================
-            if any("[FF]" in elem for elem in plugins_list) or (scanner.text.count("BSMemStorage") and scanner.text.count("DataFileHandleReaderWriter")) >= 2:
-                scanner.crash_template_write("# Checking for ", "Plugin Limit Crash...........", "CULPRIT FOUND! #\n", "statC_PluginLimit")
-                scanner.write_file(f'> Priority : [5] | BSMemStorage : {scanner.text.count("BSMemStorage")} | DataFileHandleReaderWriter : {scanner.text.count("DataFileHandleReaderWriter")}\n')
+            match ("+0D09AB7" in scanner.buff_error,
+                   "TESLevItem" in scanner.text):
+                case (True) | (_, True):
+                    scanner.crash_template_write("# Checking for ", "Leveled List Crash...........", "CULPRIT FOUND! #\n", "statC_LeveledList")
+                    scanner.write_file(f'> Priority : [3] | +0D09AB7 : {scanner.text.count("+0D09AB7")} | TESLevItem : {scanner.text.count("TESLevItem")}\n')
 
             # ===========================================================
-            if "+0DB9300" in scanner.buff_error or "GamebryoSequenceGenerator" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Plugin Order Crash...........", "CULPRIT FOUND! #\n", "statC_PluginOrder")
-                scanner.write_file(f'> Priority : [5] | +0DB9300 | GamebryoSequenceGenerator : {scanner.text.count("GamebryoSequenceGenerator")}\n')
+            match (any("[FF]" in elem for elem in plugins_list),
+                   scanner.text.count("BSMemStorage") >= 2,
+                   scanner.text.count("DataFileHandleReaderWriter") >= 2):
+                case (True) | (_, True, True):
+                    scanner.crash_template_write("# Checking for ", "Plugin Limit Crash...........", "CULPRIT FOUND! #\n", "statC_PluginLimit")
+                    scanner.write_file(f'> Priority : [5] | BSMemStorage : {scanner.text.count("BSMemStorage")} | DataFileHandleReaderWriter : {scanner.text.count("DataFileHandleReaderWriter")}\n')
+            # ===========================================================
+            match ("+0DB9300" in scanner.buff_error,
+                   "GamebryoSequenceGenerator" in scanner.text):
+                case (True) | (_, True):
+                    scanner.crash_template_write("# Checking for ", "Plugin Order Crash...........", "CULPRIT FOUND! #\n", "statC_PluginOrder")
+                    scanner.write_file(f'> Priority : [5] | +0DB9300 | GamebryoSequenceGenerator : {scanner.text.count("GamebryoSequenceGenerator")}\n')
 
             # ===========================================================
-            if scanner.text.count("BSD3DResourceCreator") >= 3:
-                scanner.crash_template_write("# Checking for ", "MO2 Extractor Crash..........", "CULPRIT FOUND! #\n", "statC_MO2Unpack")
-                scanner.write_file(f'> Priority : [3] | BSD3DResourceCreator : {scanner.text.count("BSD3DResourceCreator")}\n')
+            match (scanner.text.count("BSD3DResourceCreator") >= 3):
+                case (True):
+                    scanner.crash_template_write("# Checking for ", "MO2 Extractor Crash..........", "CULPRIT FOUND! #\n", "statC_MO2Unpack")
+                    scanner.write_file(f'> Priority : [3] | BSD3DResourceCreator : {scanner.text.count("BSD3DResourceCreator")}\n')
 
             # ===========================================================
-            if "+03EE452" in scanner.buff_error or "flexRelease_x64" in scanner.buff_error or (scanner.text.count("flexRelease_x64.dll") or scanner.text.count("CheckRefAgainstConditionsFunc")) >= 2:
-                scanner.crash_template_write("# Checking for ", "Nvidia Debris Crash..........", "CULPRIT FOUND! #\n", "statC_NVDebris")
-                scanner.write_file(f'> Priority : [5] | +03EE452 | flexRelease_x64.dll : {scanner.text.count("flexRelease_x64.dll")} | CheckRefAgainstConditionsFunc : {scanner.text.count("CheckRefAgainstConditionsFunc")}\n')
+            match ("+03EE452" in scanner.buff_error,
+                   "flexRelease_x64" in scanner.buff_error,
+                   scanner.text.count("flexRelease_x64.dll") >= 2,
+                   scanner.text.count("CheckRefAgainstConditionsFunc") >= 2):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Nvidia Debris Crash..........", "CULPRIT FOUND! #\n", "statC_NVDebris")
+                    scanner.write_file(f'> Priority : [5] | +03EE452 | flexRelease_x64.dll : {scanner.text.count("flexRelease_x64.dll")} | CheckRefAgainstConditionsFunc : {scanner.text.count("CheckRefAgainstConditionsFunc")}\n')
 
             # ===========================================================
-            if scanner.text.count("nvwgf2umx.dll") >= 10 or "nvwgf2umx" in scanner.buff_error or "USER32.dll" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "Nvidia Driver Crash..........", "CULPRIT FOUND! #\n", "statC_NVDriver")
-                scanner.write_file(f'> Priority : [5] | nvwgf2umx.dll : {scanner.text.count("nvwgf2umx.dll")} | USER32.dll : {scanner.text.count("USER32.dll")}\n')
+            match (scanner.text.count("nvwgf2umx.dll") >= 10,
+                   "nvwgf2umx" in scanner.buff_error,
+                   "USER32.dll" in scanner.buff_error):
+                case (True) | (_, True) | (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "Nvidia Driver Crash..........", "CULPRIT FOUND! #\n", "statC_NVDriver")
+                    scanner.write_file(f'> Priority : [5] | nvwgf2umx.dll : {scanner.text.count("nvwgf2umx.dll")} | USER32.dll : {scanner.text.count("USER32.dll")}\n')
 
             # ===========================================================
-            if "NVIDIA_Reflex.dll" in scanner.text and (scanner.text.count("Buffout4.dll") >= 3 or "3A0000" in scanner.buff_error or "AD0000" in scanner.buff_error or "8E0000" in scanner.buff_error):
-                scanner.crash_template_write("# Checking for ", "Nvidia Reflex Crash..........", "CULPRIT FOUND! #\n", "statC_NVReflex")
-                scanner.write_file(f'> Priority : [4] | *Currently no clear indicators for this crash* \n')
+            match ("NVIDIA_Reflex.dll" in scanner.text,
+                   scanner.text.count("Buffout4.dll") >= 3,
+                   "3A0000" in scanner.buff_error,
+                   "AD0000" in scanner.buff_error,
+                   "8E0000" in scanner.buff_error):
+                case (True) | (True, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True):  # Not sure if this is correct, but this is my interpretation of the if statement it was based on.
+                    scanner.crash_template_write("# Checking for ", "Nvidia Reflex Crash..........", "CULPRIT FOUND! #\n", "statC_NVReflex")
+                    scanner.write_file(f'> Priority : [4] | *Currently no clear indicators for this crash* \n')
 
             # ===========================================================
-            if (scanner.text.count("KERNELBASE.dll") or scanner.text.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Vulkan Memory Crash..........", "CULPRIT FOUND! #\n", "statC_VulkanMem")
-                scanner.write_file(f'> Priority : [5] | KERNELBASE.dll : {scanner.text.count("KERNELBASE.dll")} | MSVCP140.dll : {scanner.text.count("MSVCP140.dll")}\n')
-                scanner.write_file(f'                   DxvkSubmissionQueue : {scanner.text.count("DxvkSubmissionQueue")}\n')
+            match (scanner.text.count("KERNELBASE.dll") >= 3,
+                   scanner.text.count("MSVCP140.dll") >= 3,
+                   "DxvkSubmissionQueue" in scanner.text):
+                case (True) | (_, True) | (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "Vulkan Memory Crash..........", "CULPRIT FOUND! #\n", "statC_VulkanMem")
+                    scanner.write_file(f'> Priority : [5] | KERNELBASE.dll : {scanner.text.count("KERNELBASE.dll")} | MSVCP140.dll : {scanner.text.count("MSVCP140.dll")}\n')
+                    scanner.write_file(f'                   DxvkSubmissionQueue : {scanner.text.count("DxvkSubmissionQueue")}\n')
 
             # ===========================================================
-            if "+00CD99B" in scanner.buff_error or "amdvlk64.dll" in scanner.buff_error or "dxvk::DXGIAdapter" in scanner.text or "dxvk::DXGIFactory" in scanner.text or "VirtualLinearAllocatorWithNode" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Vulkan Settings Crash........", "CULPRIT FOUND! #\n", "statC_VulkanSet")
-                scanner.write_file(f'> Priority : [5] | dxvk::DXGIAdapter : {scanner.text.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {scanner.text.count("dxvk::DXGIFactory")}\n')
-                scanner.write_file(f'>                  amdvlk64.dll : {scanner.text.count("amdvlk64.dll")} | VirtualLinearAllocatorWithNode : {scanner.text.count("VirtualLinearAllocatorWithNode")}\n')
+            match ("+00CD99B" in scanner.buff_error,
+                   "amdvlk64.dll" in scanner.buff_error,
+                   "dxvk::DXGIAdapter" in scanner.text,
+                   "dxvk::DXGIFactory" in scanner.text,
+                   "VirtualLinearAllocatorWithNode" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Vulkan Settings Crash........", "CULPRIT FOUND! #\n", "statC_VulkanSet")
+                    scanner.write_file(f'> Priority : [5] | dxvk::DXGIAdapter : {scanner.text.count("dxvk::DXGIAdapter")} | dxvk::DXGIFactory : {scanner.text.count("dxvk::DXGIFactory")}\n')
+                    scanner.write_file(f'>                  amdvlk64.dll : {scanner.text.count("amdvlk64.dll")} | VirtualLinearAllocatorWithNode : {scanner.text.count("VirtualLinearAllocatorWithNode")}\n')
 
             # ===========================================================
-            if "BSXAudio2DataSrc" in scanner.text or "BSXAudio2GameSound" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Corrupted Audio Crash........", "CULPRIT FOUND! #\n", "statC_CorruptedAudio")
-                scanner.write_file(f'> Priority : [4] | BSXAudio2DataSrc : {scanner.text.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {scanner.text.count("BSXAudio2GameSound")}\n')
+            match ("BSXAudio2DataSrc" in scanner.text,
+                   "BSXAudio2GameSound" in scanner.text):
+                case (True) | (_, True):
+                    scanner.crash_template_write("# Checking for ", "Corrupted Audio Crash........", "CULPRIT FOUND! #\n", "statC_CorruptedAudio")
+                    scanner.write_file(f'> Priority : [4] | BSXAudio2DataSrc : {scanner.text.count("BSXAudio2DataSrc")} | BSXAudio2GameSound : {scanner.text.count("BSXAudio2GameSound")}\n')
 
             # ===========================================================
-            if "SysWindowCompileAndRun" in scanner.text or "ConsoleLogPrinter" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Console Command Crash........", "CULPRIT FOUND! #\n", "statC_ConsoleCommand")
-                scanner.write_file(f'> Priority : [1] | SysWindowCompileAndRun : {scanner.text.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {scanner.text.count("ConsoleLogPrinter")}\n')
+            match ("SysWindowCompileAndRun" in scanner.text,
+                   "ConsoleLogPrinter" in scanner.text):
+                case (True) | (_, True):
+                    scanner.crash_template_write("# Checking for ", "Console Command Crash........", "CULPRIT FOUND! #\n", "statC_ConsoleCommand")
+                    scanner.write_file(f'> Priority : [1] | SysWindowCompileAndRun : {scanner.text.count("SysWindowCompileAndRun")} | ConsoleLogPrinter : {scanner.text.count("ConsoleLogPrinter")}\n')
+            # ===========================================================
+            match ("+1B938F0" in scanner.buff_error,
+                   "+01B59A4" in scanner.buff_error,
+                   "AnimTextData\\AnimationFileData" in scanner.text,
+                   "AnimationFileLookupSingletonHelper" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Game Corruption Crash........", "CULPRIT FOUND! #\n", "statC_GameCorruption")
+                    scanner.write_file(f' Priority : [5] | +1B938F0 | +01B59A4 | AnimationFileData : {scanner.text.count("AnimationFileData")} | AnimationFileLookup : {scanner.text.count("AnimationFileLookupSingletonHelper")}\n')
 
             # ===========================================================
-            if "+1B938F0" in scanner.buff_error or "+01B59A4" in scanner.buff_error or "AnimTextData\\AnimationFileData" in scanner.text or "AnimationFileLookupSingletonHelper" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Game Corruption Crash........", "CULPRIT FOUND! #\n", "statC_GameCorruption")
-                scanner.write_file(f' Priority : [5] | +1B938F0 | +01B59A4 | AnimationFileData : {scanner.text.count("AnimationFileData")} | AnimationFileLookup : {scanner.text.count("AnimationFileLookupSingletonHelper")}\n')
+            match ("BGSWaterCollisionManager" in scanner.text):
+                case (True):
+                    scanner.crash_template_write("# Checking for ", "Water Collision Crash........", "CULPRIT FOUND! #\n", "statC_Water")
+                    scanner.write_file("[!] PLEASE CONTACT ME IF YOU GOT THIS CRASH! (CONTACT INFO BELOW)\n")
+                    scanner.write_file(f'> Priority : [6] | BGSWaterCollisionManager : {scanner.text.count("BGSWaterCollisionManager")}\n')
 
             # ===========================================================
-            if "BGSWaterCollisionManager" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Water Collision Crash........", "CULPRIT FOUND! #\n", "statC_Water")
-                scanner.write_file("[!] PLEASE CONTACT ME IF YOU GOT THIS CRASH! (CONTACT INFO BELOW)\n")
-                scanner.write_file(f'> Priority : [6] | BGSWaterCollisionManager : {scanner.text.count("BGSWaterCollisionManager")}\n')
+            match ("ParticleSystem" in scanner.text):
+                case (True):
+                    scanner.crash_template_write("# Checking for ", "Particle Effects Crash.......", "CULPRIT FOUND! #\n", "statC_Particles")
+                    scanner.write_file(f'> Priority : [4] | ParticleSystem : {scanner.text.count("ParticleSystem")}\n')
 
             # ===========================================================
-            if "ParticleSystem" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Particle Effects Crash.......", "CULPRIT FOUND! #\n", "statC_Particles")
-                scanner.write_file(f'> Priority : [4] | ParticleSystem : {scanner.text.count("ParticleSystem")}\n')
+            match (scanner.text.count("PlayerCharacter") >= 1,
+                   scanner.text.count("0x00000007") >= 3,
+                   scanner.text.count("0x00000014") >= 3,
+                   scanner.text.count("0x00000008") >= 3):
+                case (True) | (True, True) | (True, _, True) | (True, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Player Character Crash.......", "CULPRIT FOUND! #\n", "statC_Player")
+                    scanner.write_file(f'> Priority : [4] | PlayerCharacter : {scanner.text.count("PlayerCharacter")} | 0x00000007 : {scanner.text.count("0x00000007")}\n')
+                    scanner.write_file(f'                   0x00000008 : {scanner.text.count("0x00000008")} | 0x000000014 : {scanner.text.count("0x00000014")}\n')
 
             # ===========================================================
-            if scanner.text.count("PlayerCharacter") >= 1 and (scanner.text.count("0x00000007") or scanner.text.count("0x00000014") or scanner.text.count("0x00000008")) >= 3:
-                scanner.crash_template_write("# Checking for ", "Player Character Crash.......", "CULPRIT FOUND! #\n", "statC_Player")
-                scanner.write_file(f'> Priority : [4] | PlayerCharacter : {scanner.text.count("PlayerCharacter")} | 0x00000007 : {scanner.text.count("0x00000007")}\n')
-                scanner.write_file(f'                   0x00000008 : {scanner.text.count("0x00000008")} | 0x000000014 : {scanner.text.count("0x00000014")}\n')
+            match ("+1FCC07E" in scanner.buff_error,
+                   "BSAnimationGraphManager" in scanner.text,
+                   "hkbVariableBindingSet" in scanner.text,
+                   "hkbHandIkControlsModifier" in scanner.text,
+                   "hkbBehaviorGraph" in scanner.text,
+                   "hkbModifierList" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True) | (_, _, _, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "Animation / Physics Crash....", "CULPRIT FOUND! #\n", "statC_AnimationPhysics")
+                    scanner.write_file(f'> Priority : [5] | +1FCC07E | hkbVariableBindingSet : {scanner.text.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {scanner.text.count("hkbHandIkControlsModifier")}\n')
+                    scanner.write_file(f'                   hkbBehaviorGraph : {scanner.text.count("hkbBehaviorGraph")} | hkbModifierList : {scanner.text.count("hkbModifierList")} | BSAnimationGraphManager : {scanner.text.count("BSAnimationGraphManager")}\n')
 
-            # ===========================================================
-            if "+1FCC07E" in scanner.buff_error or "BSAnimationGraphManager" in scanner.text or "hkbVariableBindingSet" in scanner.text or "hkbHandIkControlsModifier" in scanner.text or "hkbBehaviorGraph" in scanner.text or "hkbModifierList" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Animation / Physics Crash....", "CULPRIT FOUND! #\n", "statC_AnimationPhysics")
-                scanner.write_file(f'> Priority : [5] | +1FCC07E | hkbVariableBindingSet : {scanner.text.count("hkbVariableBindingSet")} | hkbHandIkControlsModifier : {scanner.text.count("hkbHandIkControlsModifier")}\n')
-                scanner.write_file(f'                   hkbBehaviorGraph : {scanner.text.count("hkbBehaviorGraph")} | hkbModifierList : {scanner.text.count("hkbModifierList")} | BSAnimationGraphManager : {scanner.text.count("BSAnimationGraphManager")}\n')
-
-            # ===========================================================
-            if "DLCBanner05.dds" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "Archive Invalidation Crash...", "CULPRIT FOUND! #\n", "statC_Invalidation")
-                scanner.write_file(f'> Priority : [5] | DLCBanner05.dds : {scanner.text.count("DLCBanner05.dds")}\n')
+                # ===========================================================
+            match ("DLCBanner05.dds" in scanner.text):
+                case (True):
+                    scanner.crash_template_write("# Checking for ", "Archive Invalidation Crash...", "CULPRIT FOUND! #\n", "statC_Invalidation")
+                    scanner.write_file(f'> Priority : [5] | DLCBanner05.dds : {scanner.text.count("DLCBanner05.dds")}\n')
 
             # ===========================================================
             scanner.write_file("\n ---------- Unsolved Crash Culprits Below ---------- \n")
             scanner.write_file("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
             # ===========================================================
 
-            if "+01B59A4" in scanner.buff_error:
-                scanner.crash_template_write("# Checking for ", "*[Creation Club Crash].......", "DETECTED! #\n", "statU_CClub")
-                scanner.write_file(f'> Priority : [3] | +01B59A4\n')
+            match ("+01B59A4" in scanner.buff_error):
+                case (True):
+                    scanner.crash_template_write("# Checking for ", "*[Creation Club Crash].......", "DETECTED! #\n", "statU_CClub")
+                    scanner.write_file(f'> Priority : [3] | +01B59A4\n')
 
             # ===========================================================
-            if "+0B2C44B" in scanner.buff_error or "TESObjectARMO" in scanner.text or "TESObjectWEAP" in scanner.text or "BGSMod::Attachment" in scanner.text or "BGSMod::Template" in scanner.text or "BGSMod::Template::Item" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[Item Crash]................", "DETECTED! #\n", "statU_Item")
-                scanner.write_file(f'> Priority : [5] | +0B2C44B | BGSMod::Attachment : {scanner.text.count("BGSMod::Attachment")} | BGSMod::Template : {scanner.text.count("BGSMod::Template")}\n')
-                scanner.write_file(f'                   TESObjectARMO : {scanner.text.count("TESObjectARMO")} | TESObjectWEAP : {scanner.text.count("TESObjectWEAP")}\n')
-                scanner.write_file(f'                   BGSMod::Template::Item : {scanner.text.count("BGSMod::Template::Item")}\n')
+            match ("+0B2C44B" in scanner.buff_error,
+                   "TESObjectARMO" in scanner.text,
+                   "TESObjectWEAP" in scanner.text,
+                   "BGSMod::Attachment" in scanner.text,
+                   "BGSMod::Template" in scanner.text,
+                   "BGSMod::Template::Item" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True) | (_, _, _, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[Item Crash]................", "DETECTED! #\n", "statU_Item")
+                    scanner.write_file(f'> Priority : [5] | +0B2C44B | BGSMod::Attachment : {scanner.text.count("BGSMod::Attachment")} | BGSMod::Template : {scanner.text.count("BGSMod::Template")}\n')
+                    scanner.write_file(f'                   TESObjectARMO : {scanner.text.count("TESObjectARMO")} | TESObjectWEAP : {scanner.text.count("TESObjectWEAP")}\n')
+                    scanner.write_file(f'                   BGSMod::Template::Item : {scanner.text.count("BGSMod::Template::Item")}\n')
 
             # ===========================================================
-            if "+0CDAD30" in scanner.buff_error or "BGSSaveLoadManager" in scanner.text or "BGSSaveLoadThread" in scanner.text or "BGSSaveFormBuffer" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[Save Crash]................", "DETECTED! #\n", "statU_Save")
-                scanner.write_file(f'> Priority : [4] | +0CDAD30 | BGSSaveLoadManager : {scanner.text.count("BGSSaveLoadManager")}\n')
-                scanner.write_file(f'                   BGSSaveFormBuffer : {scanner.text.count("BGSSaveFormBuffer")} | BGSSaveLoadThread : {scanner.text.count("BGSSaveLoadThread")}\n')
+            match ("+0CDAD30" in scanner.buff_error,
+                   "BGSSaveLoadManager" in scanner.text,
+                   "BGSSaveLoadThread" in scanner.text,
+                   "BGSSaveFormBuffer" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[Save Crash]................", "DETECTED! #\n", "statU_Save")
+                    scanner.write_file(f'> Priority : [4] | +0CDAD30 | BGSSaveLoadManager : {scanner.text.count("BGSSaveLoadManager")}\n')
+                    scanner.write_file(f'                   BGSSaveFormBuffer : {scanner.text.count("BGSSaveFormBuffer")} | BGSSaveLoadThread : {scanner.text.count("BGSSaveLoadThread")}\n')
 
             # ===========================================================
-            if "ButtonEvent" in scanner.text or "MenuControls" in scanner.text or "MenuOpenCloseHandler" in scanner.text or "PlayerControls" in scanner.text or "DXGISwapChain" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[Input Crash]...............", "DETECTED! #\n", "statU_Input")
-                scanner.write_file(f'> Priority : [4] | ButtonEvent : {scanner.text.count("ButtonEvent")} | MenuControls : {scanner.text.count("MenuControls")}\n')
-                scanner.write_file(f'                   MenuOpenCloseHandler : {scanner.text.count("MenuOpenCloseHandler")} | PlayerControls : {scanner.text.count("PlayerControls")}\n')
-                scanner.write_file(f'                   DXGISwapChain : {scanner.text.count("DXGISwapChain")}\n')
+            match ("ButtonEvent" in scanner.text,
+                   "MenuControls" in scanner.text,
+                   "MenuOpenCloseHandler" in scanner.text,
+                   "PlayerControls" in scanner.text,
+                   "DXGISwapChain" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[Input Crash]...............", "DETECTED! #\n", "statU_Input")
+                    scanner.write_file(f'> Priority : [4] | ButtonEvent : {scanner.text.count("ButtonEvent")} | MenuControls : {scanner.text.count("MenuControls")}\n')
+                    scanner.write_file(f'                   MenuOpenCloseHandler : {scanner.text.count("MenuOpenCloseHandler")} | PlayerControls : {scanner.text.count("PlayerControls")}\n')
 
             # ===========================================================
-            if ("SS2" in scanner.text or "StartWorkshop" in scanner.text or "IsWithinBuildableArea" in scanner.text) and ("+01F498D" in scanner.buff_error or "+03F89A3" in scanner.buff_error):
-                scanner.crash_template_write("# Checking for ", "*[SS2 / WF Crash]............", "DETECTED! #\n", "statU_SS2WF")
-                scanner.write_file(f'> Priority : [4] | +01F498D | +03F89A3 | StartWorkshop : {scanner.text.count("StartWorkshop")} | IsWithinBuildableArea : {scanner.text.count("IsWithinBuildableArea")}\n')
+            match ("SS2" in scanner.text,
+                   "StartWorkshop" in scanner.text,
+                   "IsWithinBuildableArea" in scanner.text,
+                   "+01F498D" in scanner.buff_error,
+                   "+03F89A3" in scanner.buff_error):
+                case (True, _, _, True) | (_, True, _, True) | (_, _, True, True) | (True, _, _, _, True) | (_, True, _, _, True) | (_, _, True, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[SS2 / WF Crash]............", "DETECTED! #\n", "statU_SS2WF")
+                    scanner.write_file(f'> Priority : [4] | +01F498D | +03F89A3 | StartWorkshop : {scanner.text.count("StartWorkshop")} | IsWithinBuildableArea : {scanner.text.count("IsWithinBuildableArea")}\n')
+
+                    # ===========================================================
+            match ("+1D13DA7" in scanner.buff_error,
+                   "BSShader" in scanner.text,
+                   "BSBatchRenderer" in scanner.text,
+                   "ShadowSceneNode" in scanner.text):
+                case (True, True) | (True, _, True) | (True, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[Looks Menu Crash]..........", "DETECTED! #\n", "statU_LooksMenu")
+                    scanner.write_file(f'> Priority : [5] | +1D13DA7 | BSShader : {scanner.text.count("BSShader")} | BSBatchRenderer : {scanner.text.count("BSBatchRenderer")}\n')
+                    scanner.write_file(f'                   ShadowSceneNode : {scanner.text.count("ShadowSceneNode")}\n')
 
             # ===========================================================
-            if "+1D13DA7" in scanner.buff_error and ("BSShader" in scanner.text or "BSBatchRenderer" in scanner.text or "ShadowSceneNode" in scanner.text):
-                scanner.crash_template_write("# Checking for ", "*[Looks Menu Crash]..........", "DETECTED! #\n", "statU_LooksMenu")
-                scanner.write_file(f'> Priority : [5] | +1D13DA7 | BSShader : {scanner.text.count("BSShader")} | BSBatchRenderer : {scanner.text.count("BSBatchRenderer")}\n')
-                scanner.write_file(f'                   ShadowSceneNode : {scanner.text.count("ShadowSceneNode")}\n')
-
-            # ===========================================================
-            if "BGSProcedurePatrol" in scanner.text or "BGSProcedurePatrolExecState" in scanner.text or "PatrolActorPackageData" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[NPC Patrol Crash]..........", "DETECTED! #\n", "statU_Patrol")
-                scanner.write_file(f'> Priority : [5] | BGSProcedurePatrol : {scanner.text.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {scanner.text.count("BGSProcedurePatrolExecState")}\n')
-                scanner.write_file(f'                   PatrolActorPackageData : {scanner.text.count("PatrolActorPackageData")}\n')
+            match ("BGSProcedurePatrol" in scanner.text,
+                   "BGSProcedurePatrolExecState" in scanner.text,
+                   "PatrolActorPackageData" in scanner.text):
+                case (True) | (_, True) | (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[NPC Patrol Crash]..........", "DETECTED! #\n", "statU_Patrol")
+                    scanner.write_file(f'> Priority : [5] | BGSProcedurePatrol : {scanner.text.count("BGSProcedurePatrol")} | BGSProcedurePatrolExecStatel : {scanner.text.count("BGSProcedurePatrolExecState")}\n')
+                    scanner.write_file(f'                   PatrolActorPackageData : {scanner.text.count("PatrolActorPackageData")}\n')
 
             # ===========================================================
             if "BSPackedCombinedSharedGeomDataExtra" in scanner.text or "BSPackedCombinedGeomDataExtra" in scanner.text or "BGSCombinedCellGeometryDB" in scanner.text or "BGSStaticCollection" in scanner.text or "TESObjectCELL" in scanner.text:
@@ -528,27 +674,44 @@ def scan_logs():
                 scanner.write_file(f'> Priority : [4] | BGSStaticCollection : {scanner.text.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {scanner.text.count("BGSCombinedCellGeometryDB")}\n')
                 scanner.write_file(f'                   BSPackedCombinedGeomDataExtra : {scanner.text.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {scanner.text.count("TESObjectCELL")}\n')
                 scanner.write_file(f'                   BSPackedCombinedSharedGeomDataExtra : {scanner.text.count("BSPackedCombinedSharedGeomDataExtra")}\n')
+            match ("BSPackedCombinedSharedGeomDataExtra" in scanner.text,
+                   "BSPackedCombinedGeomDataExtra" in scanner.text,
+                   "BGSCombinedCellGeometryDB" in scanner.text,
+                   "BGSStaticCollection" in scanner.text,
+                   "TESObjectCELL" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[Precombines Crash].........", "DETECTED! #\n", "statC_Precomb")
+                    scanner.write_file(f'> Priority : [4] | BGSStaticCollection : {scanner.text.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {scanner.text.count("BGSCombinedCellGeometryDB")}\n')
 
             # ===========================================================
-            if "HUDAmmoCounter" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[Ammo Counter Crash]........", "DETECTED! #\n", "statU_HUDAmmo")
-                scanner.write_file(f'> Priority : [4] | HUDAmmoCounter : {scanner.text.count("HUDAmmoCounter")}\n')
+            match ("HUDAmmoCounter" in scanner.text):
+                case (True):
+                    scanner.crash_template_write("# Checking for ", "*[Ammo Counter Crash]........", "DETECTED! #\n", "statU_HUDAmmo")
+                    scanner.write_file(f'> Priority : [4] | HUDAmmoCounter : {scanner.text.count("HUDAmmoCounter")}\n')
 
             # ===========================================================
-            if "ShadowSceneNode" in scanner.text or "myID3D11DeviceContext" in scanner.text or "BSDeferredDecal" in scanner.text or "BSDFDecal" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[GPU Overclock Crash].......", "DETECTED! #\n", "statU_Overclock")
-                scanner.write_file(f'> Priority : [2] | ShadowSceneNode : {scanner.text.count("ShadowSceneNode")} | myID3D11DeviceContext : {scanner.text.count("myID3D11DeviceContext")}\n')
-                scanner.write_file(f'                   BSDeferredDecal : {scanner.text.count("BSDeferredDecal")} | BSDFDecal : {scanner.text.count("BSDFDecal")}\n')
+            match ("ShadowSceneNode" in scanner.text,
+                   "myID3D11DeviceContext" in scanner.text,
+                   "BSDeferredDecal" in scanner.text,
+                   "BSDFDecal" in scanner.text):
+                case (True) | (_, True) | (_, _, True) | (_, _, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[GPU Overclock Crash].......", "DETECTED! #\n", "statU_Overclock")
+                    scanner.write_file(f'> Priority : [2] | ShadowSceneNode : {scanner.text.count("ShadowSceneNode")} | myID3D11DeviceContext : {scanner.text.count("myID3D11DeviceContext")}\n')
 
             # ===========================================================
-            if "BGSProjectile" in scanner.text or "CombatProjectileAimController" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[NPC Projectile Crash].....", "DETECTED! #\n", "statU_Projectile")
-                scanner.write_file(f'> Priority : [5] | BGSProjectile : {scanner.text.count("BGSProjectile")} | CombatProjectileAimController : {scanner.text.count("CombatProjectileAimController")}\n')
+            match ("BGSProjectile" in scanner.text,
+                   "CombatProjectileAimController" in scanner.text):
+                case (True) | (_, True):
+                    scanner.crash_template_write("# Checking for ", "*[NPC Projectile Crash].....", "DETECTED! #\n", "statU_Projectile")
+                    scanner.write_file(f'> Priority : [5] | BGSProjectile : {scanner.text.count("BGSProjectile")} | CombatProjectileAimController : {scanner.text.count("CombatProjectileAimController")}\n')
 
             # ===========================================================
-            if scanner.text.count("NvCamera64.dll") >= 3 or "NiCamera" in scanner.text or "WorldRoot Camera" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[Camera Position Crash]....", "DETECTED! #\n", "statU_Camera")
-                scanner.write_file(f'> Priority : [3] | NiCamera : {scanner.text.count("NiCamera")} | WorldRoot Camera : {scanner.text.count("WorldRoot Camera")}\n')
+            match (scanner.text.count("NvCamera64.dll") >= 3,
+                   "NiCamera" in scanner.text,
+                   "WorldRoot Camera" in scanner.text):
+                case (True) | (_, True) | (_, _, True):
+                    scanner.crash_template_write("# Checking for ", "*[Camera Position Crash]....", "DETECTED! #\n", "statU_Camera")
+                    scanner.write_file(f'> Priority : [3] | NiCamera : {scanner.text.count("NiCamera")} | WorldRoot Camera : {scanner.text.count("WorldRoot Camera")}\n')
 
             # ===========================================================
 
@@ -568,16 +731,20 @@ def scan_logs():
                 if plugins_loaded:
                     for LINE in plugins_list:
                         for elem in mods.keys():
-                            if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE:
-                                warn = ''.join(mods[elem]["warn"])
-                                scanner.write_file([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
-                                                   "-----\n"])
-                                mod_trap = True
-                            elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE:
-                                warn = ''.join(mods[elem]["warn"])
-                                scanner.write_file([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
-                                                   "-----\n"])
-                                mod_trap = True
+                            match ("File:" in LINE,
+                                   "[FE" in LINE,
+                                   mods[elem]["mod"] in LINE):
+                                case (False, False, True):
+                                    warn = ''.join(mods[elem]["warn"])
+                                    scanner.write_file([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
+                                                        "-----\n"])
+                                    mod_trap = True
+                                case (False, True, True):
+                                    warn = ''.join(mods[elem]["warn"])
+                                    scanner.write_file([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
+                                                        "-----\n"])
+                                    mod_trap = True
+
                 return mod_trap
 
             def check_conflicts(mods, mod_trap):
@@ -675,36 +842,40 @@ def scan_logs():
                 Mod_Check1 = check_plugins(Mods1, Mod_Trap1)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
-                if scanner.text.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in scanner.buff_error:
-                    scanner.write_file(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
-                                       "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
-                                        "You should disable CHW to further confirm this.\n",
-                                        "Visit the main crash logs article for additional solutions.\n",
-                                        "-----\n"])
-                    statM_CHW += 1
-                    Mod_Trap1 = True
-                    CLAS_Globals.Culprit_Trap = True
-                elif "ClassicHolsteredWeapons" in scanner.text and "d3d11" in scanner.buff_error:
-                    scanner.write_file(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
-                                       "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
-                                        "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",
-                                        "This usually prevents most common crashes with Classic Holstered Weapons.\n",
-                                        "-----\n"])
+                match (scanner.text.count("ClassicHosteredWeapons") >= 3,
+                       "ClassicHolsteredWeapons" in scanner.buff_error,
+                       "d3d11" in scanner.buff_error):
+                    case (True, True):
+                        scanner.write_file(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
+                                            "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
+                                            "You should disable CHW to further confirm this.\n",
+                                            "Visit the main crash logs article for additional solutions.\n",
+                                            "-----\n"])
+                        statM_CHW += 1
+                        Mod_Trap1 = True
+                        CLAS_Globals.Culprit_Trap = True
+                    case (True, _, True):
+                        scanner.write_file(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
+                                            "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
+                                            "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",
+                                            "This usually prevents most common crashes with Classic Holstered Weapons.\n",
+                                            "-----\n"])
 
-            if plugins_loaded and (Mod_Check1 or Mod_Trap1) is True:
-                scanner.write_file(["# [!] CAUTION : ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n",
-                                   "  You can disable any/all of them temporarily to confirm they caused this crash.\n",
-                                    "-----\n"])
-                statL_scanned += 1
-            elif plugins_loaded and (Mod_Check1 and Mod_Trap1) is False:
-                scanner.write_file(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n",
-                                   "THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.\n",
-                                    "Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n",
-                                    "-----\n"])
-                statL_scanned += 1
-            else:
-                scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
-                statL_incomplete += 1
+            match (Mod_Check1, Mod_Trap1):
+                case (True, True):
+                    scanner.write_file(["# [!] CAUTION : ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n",
+                                        "  You can disable any/all of them temporarily to confirm they caused this crash.\n",
+                                        "-----\n"])
+                    statL_scanned += 1
+                case (False, False):
+                    scanner.write_file(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n",
+                                        "THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.\n",
+                                        "Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n",
+                                        "-----\n"])
+                    statL_scanned += 1
+                case _:
+                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
+                    statL_incomplete += 1
 
             scanner.write_file(["====================================================\n",
                                "CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS...\n",
@@ -790,15 +961,16 @@ def scan_logs():
             # =============== SPECIAL MOD / PLUGIN CHECKS ===============
             # CURRENTLY NONE
 
-            if plugins_loaded and (Mod_Check2 or Mod_Trap2) is True:
-                scanner.write_file(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
-                                   "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
-                                    "-----\n"])
-            elif plugins_loaded and (Mod_Check2 and Mod_Trap2) is False:
-                scanner.write_file(["# AUTOSCAN FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
-                                   "-----\n"])
-            elif plugins_loaded is False:
-                scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
+            match (plugins_loaded, Mod_Check2, Mod_Trap2):
+                case(False):
+                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
+                case(True, False, False):
+                    scanner.write_file(["# AUTOSCAN FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
+                                        "-----\n"])
+                case(True, True, True):
+                    scanner.write_file(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
+                                        "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
+                                        "-----\n"])
 
             scanner.write_file(["====================================================\n",
                                "CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES\n",
@@ -1010,16 +1182,17 @@ def scan_logs():
                                         "-----\n"])
                     Mod_Trap3 = True
 
-            if plugins_loaded and (Mod_Check3 or Mod_Trap3) is True:
-                scanner.write_file([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
-                                   "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n",
-                                    "even if fixes or patches for them are already installed. You can ignore these.]\n",
-                                    "-----\n"])
-            elif plugins_loaded and (Mod_Check3 and Mod_Trap3) is False:
-                scanner.write_file([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
-                                   "-----\n"])
-            elif plugins_loaded is False:
-                scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
+            match (plugins_loaded, Mod_Check3, Mod_Trap3):
+                case (True, True, True):
+                    scanner.write_file([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                                        "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n",
+                                        "even if fixes or patches for them are already installed. You can ignore these.]\n",
+                                        "-----\n"])
+                case (True, False, False):
+                    scanner.write_file([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                                        "-----\n"])
+                case _:
+                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
 
             scanner.write_file(["FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,\n",
                                "VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769\n",
@@ -1117,6 +1290,16 @@ def scan_logs():
                                    "-----\n"])
             elif plugins_loaded is False:
                 scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
+            match (plugins_loaded, Mod_Check4, Mod_Trap4):
+                case (True, True, True):
+                    scanner.write_file(["* FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,* \n",
+                                        "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n",
+                                        "-----\n"])
+                case (True, False, False):
+                    scanner.write_file(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
+                                        "-----\n"])
+                case _:
+                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
 
             # ===========================================================
 
@@ -1147,72 +1330,82 @@ def scan_logs():
                         scanner.write_file("\n")
 
             if plugins_loaded:
-                if any("CanarySaveFileMonitor" in elem for elem in plugins_list):
-                    scanner.write_file("✔️ *Canary Save File Monitor* is installed.\n  -----\n")
-                else:
-                    scanner.write_file(["# ❌ CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can detect save file corruption.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files\n",
-                                        "  -----\n"])
+                match (any("CanarySaveFileMonitor" in elem for elem in plugins_list)):
+                    case True:
+                        scanner.write_file("✔️ *Canary Save File Monitor* is installed.\n  -----\n")
+                    case False:
+                        scanner.write_file(["# ❌ CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
+                                            "  This is a highly recommended mod that can detect save file corruption.\n",
+                                            "  Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files\n",
+                                            "  -----\n"])
 
-                if "HighFPSPhysicsFix.dll" in scanner.text or "HighFPSPhysicsFixVR.dll" in scanner.text:
-                    scanner.write_file("✔️ *High FPS Physics Fix* is installed.\n  -----\n")
-                else:
-                    scanner.write_file(["# ❌ HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a mandatory patch / fix that prevents game engine problems.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n",
-                                        "  -----\n"])
+                match ("HighFPSPhysicsFix.dll" in scanner.text,
+                       "HighFPSPhysicsFixVR.dll" in scanner.text):
+                    case (True, False) | (False, True):
+                        scanner.write_file("✔️ *High FPS Physics Fix* is installed.\n  -----\n")
+                    case _:
+                        scanner.write_file(["# ❌ HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
+                                            "  This is a mandatory patch / fix that prevents game engine problems.\n",
+                                            "  Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n",
+                                            "  -----\n"])
 
-                if any("PPF.esm" in elem for elem in plugins_list):
-                    scanner.write_file("✔️ *Previs Repair Pack* is installed.\n  -----\n")
-                else:
-                    scanner.write_file(["# ❌ PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can improve performance.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/46403?tab=files\n",
-                                        "  -----\n"])
+                match (any("PPF.esm" in elem for elem in plugins_list)):
+                    case True:
+                        scanner.write_file("✔️ *Previs Repair Pack* is installed.\n  -----\n")
+                    case False:
+                        scanner.write_file(["# ❌ PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
+                                            "  This is a highly recommended mod that can improve performance.\n",
+                                            "  Link: https://www.nexusmods.com/fallout4/mods/46403?tab=files\n",
+                                            "  -----\n"])
 
-                if any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugins_list):
-                    scanner.write_file("✔️ *Unofficial Fallout 4 Patch* is installed.\n  -----\n")
-                else:
-                    scanner.write_file(["# ❌ UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  If you own all DLCs, make sure that the Unofficial Patch is installed.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files\n",
-                                        "  -----\n"])
+                match (any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugins_list)):
+                    case True:
+                        scanner.write_file("✔️ *Unofficial Fallout 4 Patch* is installed.\n  -----\n")
+                    case False:
+                        scanner.write_file(["# ❌ UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
+                                            "  If you own all DLCs, make sure that the Unofficial Patch is installed.\n",
+                                            "  Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files\n",
+                                            "  -----\n"])
 
-                if "vulkan-1.dll" in scanner.text and gpu_amd:
-                    scanner.write_file("✔️ *Vulkan Renderer* is installed.\n  -----\n")
-                elif scanner.text.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
-                    scanner.write_file(["# ❌ VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can improve performance on AMD GPUs.\n",
-                                        "  Installation steps can be found in 'How To Read Crash Logs' PDF / Document.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files\n",
-                                        "  -----\n"])
+                match ("vulkan-1.dll" in scanner.text,
+                       gpu_amd):
+                    case (True, True):
+                        scanner.write_file("✔️ *Vulkan Renderer* is installed.\n  -----\n")
+                    case (True, False):
+                        scanner.write_file(["❌ *Vulkan Renderer* is installed, but...\n",
+                                            "# YOU DON'T HAVE AN AMD GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
+                                            "  Vulkan Renderer is only required for AMD GPUs (NOT NVIDIA / OTHER)\n",
+                                            "  -----\n"])
 
-                if "WeaponDebrisCrashFix.dll" in scanner.text and gpu_nvidia:
-                    scanner.write_file("✔️ *Weapon Debris Crash Fix* is installed.\n  -----\n")
-                elif "WeaponDebrisCrashFix.dll" in scanner.text and not gpu_nvidia and gpu_amd:
-                    scanner.write_file(["❌ *Weapon Debris Crash Fix* is installed, but...\n",
-                                       "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
-                                        "  Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)\n",
-                                        "  -----\n"])
-                if "WeaponDebrisCrashFix.dll" not in scanner.text and gpu_nvidia:
-                    scanner.write_file(["# ❌ WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a mandatory patch / fix for players with Nvidia graphics cards.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files\n",
-                                        "  -----\n"])
+                match ("WeaponDebrisCrashFix.dll" in scanner.text,
+                       gpu_nvidia):
+                    case (True, True):
+                        scanner.write_file("✔️ *Weapon Debris Crash Fix* is installed.\n  -----\n")
+                    case (True, False):
+                        scanner.write_file(["❌ *Weapon Debris Crash Fix* is installed, but...\n",
+                                            "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
+                                            "  Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)\n",
+                                            "  -----\n"])
+                    case (False, True):
+                        scanner.write_file(["# ❌ WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
+                                            "  This is a mandatory patch / fix for players with Nvidia graphics cards.\n",
+                                            "  Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files\n",
+                                            "  -----\n"])
 
-                if "NVIDIA_Reflex.dll" in scanner.text and gpu_nvidia:
-                    scanner.write_file("✔️ *Nvidia Reflex Support* is installed.\n  -----\n")
-                elif "NVIDIA_Reflex.dll" in scanner.text and not gpu_nvidia and gpu_amd:
-                    scanner.write_file(["❌ *Nvidia Reflex Support* is installed, but...\n",
-                                       "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
-                                        "  Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)\n",
-                                        "  -----\n"])
-                if "NVIDIA_Reflex.dll" not in scanner.text and gpu_nvidia:
-                    scanner.write_file(["# ❌ NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can reduce render latency.\n",
-                                        "  Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files\n",
-                                        "  -----\n"])
+                match ("NVIDIA_Reflex.dll" in scanner.text,
+                       gpu_nvidia):
+                    case (True, True):
+                        scanner.write_file("✔️ *Nvidia Reflex Support* is installed.\n  -----\n")
+                    case (True, False):
+                        scanner.write_file(["❌ *Nvidia Reflex Support* is installed, but...\n",
+                                           "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
+                                            "  Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)\n",
+                                            "  -----\n"])
+                    case (False, True):
+                        scanner.write_file(["# ❌ NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
+                                           "  This is a highly recommended mod that can reduce render latency.\n",
+                                            "  Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files\n",
+                                            "  -----\n"])
             else:
                 scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
 
@@ -1265,15 +1458,16 @@ def scan_logs():
                     PL_result.append(PL_matches)
                     scanner.write_file(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")  # type: ignore
 
-            if not PL_result:
-                scanner.write_file(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
-                                   "-----\n"])
-            else:
-                scanner.write_file(["-----\n",
-                                   "[Last number counts how many times each plugin culprit shows up in the crash log.]\n",
-                                    "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
-                                    "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
-                                    "-----\n"])
+            match (PL_result):
+                case []:
+                    scanner.write_file(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
+                                        "-----\n"])
+                case _:
+                    scanner.write_file(["-----\n",
+                                        "[Last number counts how many times each plugin culprit shows up in the crash log.]\n",
+                                        "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
+                                        "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
+                                        "-----\n"])
 
             # ===========================================================
 
@@ -1304,14 +1498,15 @@ def scan_logs():
             for elem in list_DETFORMIDS:
                 scanner.write_file(f"{elem}\n")
 
-            if not list_DETFORMIDS:
-                scanner.write_file(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
-                                   "-----\n"])
-            else:
-                scanner.write_file(["-----\n",
-                                   "These Form IDs were caught by Buffout 4 and some of them might be related to this crash.\n",
-                                    "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n",
-                                    "-----\n"])
+            match (list_DETFORMIDS):
+                case []:
+                    scanner.write_file(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
+                                        "-----\n"])
+                case _:
+                    scanner.write_file(["-----\n",
+                                        "These Form IDs were caught by Buffout 4 and some of them might be related to this crash.\n",
+                                        "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n",
+                                        "-----\n"])
 
             # ===========================================================
 
@@ -1331,15 +1526,16 @@ def scan_logs():
             for item in List_Records:
                 scanner.write_file("{} : {} \n".format(item.replace("\n", ""), List_Records[item]))
 
-            if not List_Records:
-                scanner.write_file(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
-                                   "-----\n"])
-            else:
-                scanner.write_file(["-----\n",
-                                   "[Last number counts how many times each named record shows up in the crash log.]\n",
-                                    "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
-                                    "Named records should give extra information on involved game objects and record types.\n",
-                                    "-----\n"])
+            match (List_Records):
+                case []:
+                    scanner.write_file(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
+                                        "-----\n"])
+                case _:
+                    scanner.write_file(["-----\n",
+                                        "[Last number counts how many times each named record shows up in the crash log.]\n",
+                                        "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
+                                        "Named records should give extra information on involved game objects and record types.\n",
+                                        "-----\n"])
 
             scanner.write_file(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n",
                                "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n",
