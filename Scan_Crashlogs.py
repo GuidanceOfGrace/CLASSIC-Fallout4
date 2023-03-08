@@ -43,6 +43,7 @@ CLAS_Globals.Warnings["Warn_CLAS_Python_Platform"] = """
 """
 CLAS_Globals.Warnings["Warn_CLAS_Python_Version"] = """
 [!] WARNING : YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.
+    THIS SCRIPT REUIRES PYTHON 3.10 OR HIGHER!
     FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads
     FOR WIN 7 / 8 / 8.1 : https://github.com/adang1345/PythonWin7
 """
@@ -111,7 +112,7 @@ def clas_update_check():
             os_version = int(platform.win32_ver()[0])
             if os_version < 10:
                 print(CLAS_Globals.Warnings["Warn_CLAS_Python_Platform"])
-        os.system("pause")
+        sys.exit(1)
     else:
         response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
         CLAS_Received = response.json()["name"]
