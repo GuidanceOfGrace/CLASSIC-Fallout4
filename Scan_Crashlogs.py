@@ -1177,18 +1177,18 @@ def scan_logs():
                                         "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n",
                                         "-----\n"])
                     Mod_Trap3 = True
-
-            match (plugins_loaded, Mod_Check3, Mod_Trap3):
-                case (True, True, True):
-                    scanner.write_file([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
-                                        "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n",
-                                        "even if fixes or patches for them are already installed. You can ignore these.]\n",
-                                        "-----\n"])
-                case (True, False, False):
-                    scanner.write_file([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
-                                        "-----\n"])
-                case _:
-                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
+            if plugins_loaded:
+                match (Mod_Check3, Mod_Trap3):
+                    case (True, True):
+                        scanner.write_file([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                                            "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n",
+                                            "even if fixes or patches for them are already installed. You can ignore these.]\n",
+                                            "-----\n"])
+                    case (False, False):
+                        scanner.write_file([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                                            "-----\n"])
+            else:
+                scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
 
             scanner.write_file(["FOR FULL LIST OF IMPORTANT PATCHES AND FIXES FOR THE BASE GAME AND MODS,\n",
                                "VISIT THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/3769\n",

@@ -79,6 +79,7 @@ CLAS_Globals.Warnings["Warn_BLOG_NOTE_Modules"] = """\
       Script Extender Link: https://f4se.silverlock.org \n")
 """
 
+
 def docs_path_check():
     FO4_STEAM_ID = 377160
     Loc_Found = False
@@ -123,6 +124,8 @@ def docs_path_check():
 CLAS_Globals.info.docs_file_check(docs_path_check())  # type: ignore
 
 # =================== CHECK MAIN FILES ===================
+
+
 def scan_mainfiles():
     scan_mainfiles_report = []
 

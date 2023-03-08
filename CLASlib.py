@@ -50,6 +50,7 @@ class Info:
         self.FO4_F4SEVR_Path = docs_location.joinpath("My Games", "Fallout4VR", "F4SE", "f4sevr.log")
         self.FO4_Custom_Path = docs_location.joinpath("My Games", "Fallout4", "Fallout4Custom.ini")
 
+
 @dataclass
 class CLASGlobal:
     CLAS_Updated: bool = field(default=False)
@@ -63,7 +64,6 @@ class CLASGlobal:
     info: Info = field(default_factory=Info)
     Game_Path: Path = field(default_factory=Path)
 
-
     def clas_ini_update(self, section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
         if isinstance(section, str) and isinstance(value, str):
             self.CLAS_Config["MAIN"][section] = value
@@ -73,10 +73,12 @@ class CLASGlobal:
         with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_AUTOSCAN:
             self.CLAS_Config.write(INI_AUTOSCAN)
 
+
 CLAS_Globals = CLASGlobal()
 CLAS_Globals.CLAS_Config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
 CLAS_Globals.CLAS_Config.optionxform = str  # type: ignore
 CLAS_Globals.CLAS_Config.read("Scan Crashlogs.ini")
+
 
 class CLAS:
     def __init__(self, text: str, lines: list, filehandle: TextIOWrapper):
@@ -116,11 +118,11 @@ class CLAS:
                 INI_Autoscan.writelines(INI_Settings)
 
     def write_file(self, input_text: str | Iterable):
-        if isinstance(input_text, Iterable) and not isinstance(input_text, str): # string is considered iterable by the typing module.
+        if isinstance(input_text, Iterable) and not isinstance(input_text, str):  # string is considered iterable by the typing module.
             self.filehandle.writelines(input_text)
         else:
             self.filehandle.write(input_text)
-    
+
     # =============== CRASH / STAT CHECK TEMPLATE ===============
     def crash_template_write(self, crash_prefix, crash_main, crash_suffix, crash_stat):
         if "CULPRIT FOUND" in crash_suffix or "DETECTED" in crash_suffix:
