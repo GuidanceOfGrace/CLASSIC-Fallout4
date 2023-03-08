@@ -69,12 +69,6 @@ class CLASGlobal:
         self.CLAS_config.optionxform = str  # type: ignore
         self.CLAS_config.read("Scan Crashlogs.ini")
 
-    def clas_ini_check(self, section: str, value: str):
-        if isinstance(section, str) and isinstance(value, str):
-            return self.CLAS_config[section][value]
-        else:
-            return self.CLAS_config[str(section)][str(value)]
-
     def clas_ini_update(self, section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
         if isinstance(section, str) and isinstance(value, str):
             self.CLAS_Config["MAIN"][section] = value
