@@ -109,8 +109,8 @@ def docs_path_check():
                         return Lin_Docs
 
     if Loc_Found is False:  # INI_Docs | CHECK CLAS INI IF DOCUMENTS FOLDER IS ALREADY GIVEN.
-        if "fallout4" in CLAS_Globals.clas_ini_check("MAIN", "INI Path").lower():
-            INI_Line = CLAS_Globals.clas_ini_check("MAIN", "INI Path").strip()
+        if "fallout4" in CLAS_Globals.CLAS_Config["MAIN"]["INI Path"].lower():
+            INI_Line = CLAS_Globals.CLAS_Config["MAIN"]["INI Path"].strip()
             INI_Docs = Path(INI_Line)
             return INI_Docs
         else:  # Manual_Docs | PROMPT MANUAL INPUT IF DOCUMENTS FOLDER CANNOT BE FOUND.
@@ -309,7 +309,7 @@ def scan_mainfiles():
         scan_mainfiles_report.append("✔️ Available logs in your Game Folder do not report any additional errors.\n  -----")
 
     # CHECK BUFFOUT 4 REQUIREMENTS | IMI MODE
-    if str(CLAS_Globals.clas_ini_check("MAIN", "IMI Mode")).lower() == "false":
+    if str(CLAS_Globals.CLAS_Config["MAIN"]["IMI Mode"]).lower() == "false":
         if CLAS_Globals.info.Preloader_XML.is_file() and CLAS_Globals.info.Preloader_DLL.is_file():
             scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_NOTE_Preloader"])
         else:
@@ -390,7 +390,7 @@ def scan_modfiles():
     scan_modfiles_report = []
 
     # CHECK SPECIFIC GAME MODS / EXTENSIONS | IMI MODE
-    if str(CLAS_Globals.clas_ini_check("MAIN", "IMI Mode")).lower() == "false":
+    if str(CLAS_Globals.CLAS_Config["MAIN"]["IMI Mode"]).lower() == "false":
         scan_modfiles_report.extend(["IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
                                      "remove these mods completely and switch to High FPS Physics Fix!",
                                      "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
