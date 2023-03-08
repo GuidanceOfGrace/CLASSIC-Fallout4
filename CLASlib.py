@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from io import TextIOWrapper
 from typing import Iterable
 from pathlib import Path
-from Scan_Crashlogs import CLAS_Globals
 
 # =================== DEFINE LOCAL FILES ===================
 
@@ -64,11 +63,6 @@ class CLASGlobal:
     info: Info = field(default_factory=Info)
     Game_Path: Path = field(default_factory=Path)
 
-    def __post_init__(self):
-
-        self.CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
-        self.CLAS_config.optionxform = str  # type: ignore
-        self.CLAS_config.read("Scan Crashlogs.ini")
 
     def clas_ini_update(self, section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
         if isinstance(section, str) and isinstance(value, str):
@@ -79,6 +73,10 @@ class CLASGlobal:
         with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_AUTOSCAN:
             self.CLAS_Config.write(INI_AUTOSCAN)
 
+CLAS_Globals = CLASGlobal()
+CLAS_Globals.CLAS_Config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
+CLAS_Globals.CLAS_Config.optionxform = str  # type: ignore
+CLAS_Globals.CLAS_Config.read("Scan Crashlogs.ini")
 
 class CLAS:
     def __init__(self, text: str, lines: list, filehandle: TextIOWrapper):
@@ -129,15 +127,11 @@ class CLAS:
             CLAS_Globals.Culprit_Trap = True
 
         self.filehandle.write(f"{crash_prefix}{crash_main}{crash_suffix}")
-
-        if crash_stat in CLAS_Globals.crash_template_stats.keys():
-            CLAS_Globals.crash_template_stats[crash_stat] += 1
-        else:
-            CLAS_Globals.crash_template_stats[crash_stat] = 0
-        return CLAS_Globals.crash_template_stats[crash_stat]
-    
-    @staticmethod
-    def crash_template_read(crash_prefix, crash_main, crash_suffix, crash_stat):
-        print(f"{crash_prefix}{crash_main}{crash_suffix}", end='')
-        
+        try:
+            if crash_stat in CLAS_Globals.crash_template_stats.keys():
+                CLAS_Globals.crash_template_stats[crash_stat] += 1
+            else:
+                CLAS_Globals.crash_template_stats[crash_stat] = 0
+        except KeyError:
+            CLAS_Globals.crash_template_stats = {**CLAS_Globals.crash_template_stats, crash_stat: 0}
         return CLAS_Globals.crash_template_stats[crash_stat]

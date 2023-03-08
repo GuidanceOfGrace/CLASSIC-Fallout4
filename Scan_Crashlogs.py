@@ -9,7 +9,7 @@ from collections import Counter
 from glob import glob
 from pathlib import Path
 
-from CLASlib import CLAS, CLASGlobal
+from CLASlib import CLAS, CLAS_Globals
 
 try:
     import requests
@@ -21,8 +21,6 @@ except (ImportError, ModuleNotFoundError):
 - (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
 - Comments marked as RESERVED in all scripts are intended for future updates, do not edit / move / remove.
 '''
-
-CLAS_Globals = CLASGlobal()
 
 CLAS.clas_ini_create()
 # Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments.
@@ -143,14 +141,14 @@ def clas_update_run():
 
 # ================= FLAVOUR TEXT / GLOBAL VARS =================
 CLAS_Globals.Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
-                                       "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
-                                       "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
-                                       "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
-                                       "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
-                                       "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
-                                       "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
-                                       "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
-                                       "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
+                            "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
+                            "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
+                            "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
+                            "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
+                            "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
+                            "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
+                            "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
+                            "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
 # =================== TERMINAL OUTPUT START ====================
 print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Globals.CLAS_Current[-4:], "| Fallout 4")
@@ -187,14 +185,14 @@ def scan_logs():
             CLAS_Globals.Culprit_Trap = False
             plugins_index = 1
             plugins_loaded = False
-            for line in loglines:
+            for line in scanner.lines:
                 if "F4SE" not in line and "PLUGINS:" in line:
-                    plugins_index = loglines.index(line)
+                    plugins_index = scanner.lines.index(line)
                 if "[00]" in line:
                     plugins_loaded = True
                     break
 
-            plugins_list = loglines[plugins_index:]
+            plugins_list = scanner.lines[plugins_index:]
             if os.path.exists("loadorder.txt"):
                 plugins_list = []
                 with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
@@ -211,7 +209,7 @@ def scan_logs():
             scanner.write_file([f"Main Error: {scanner.buff_error}\n",
                                "====================================================\n",
                                 f"Detected Buffout Version: {scanner.buff_ver.strip()}\n",
-                                f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[8:14]})\n"])
+                                f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[9:37]})\n"])
 
             match (scanner.buff_ver.casefold() == buff_latest.casefold(),
                    scanner.buff_ver.casefold() == buffNGVR_latest.casefold()):
@@ -598,8 +596,6 @@ def scan_logs():
             # ===========================================================
             scanner.write_file("\n ---------- Unsolved Crash Culprits Below ---------- \n")
             scanner.write_file("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
-            scanner.write_file("\n ---------- Unsolved Crash Culprits Below ---------- \n")
-            scanner.write_file("[CHECK THE BUFFOUT 4 DICTIONARY DOCUMENT FOR DETAILS]\n\n")
             # ===========================================================
 
             match ("+01B59A4" in scanner.buff_error):
@@ -962,17 +958,17 @@ def scan_logs():
             Mod_Check2 = check_conflicts(Mods2, Mod_Trap2)
             # =============== SPECIAL MOD / PLUGIN CHECKS ===============
             # CURRENTLY NONE
-
-            match (plugins_loaded, Mod_Check2, Mod_Trap2):
-                case(False):
-                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
-                case(True, False, False):
-                    scanner.write_file(["# AUTOSCAN FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
-                                        "-----\n"])
-                case(True, True, True):
-                    scanner.write_file(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
-                                        "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
-                                        "-----\n"])
+            if plugins_loaded:
+                match (Mod_Check2, Mod_Trap2):
+                    case(False, False):
+                        scanner.write_file(["# AUTOSCAN FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
+                                            "-----\n"])
+                    case(True, True):
+                        scanner.write_file(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
+                                            "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
+                                            "-----\n"])
+            else:
+                scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
 
             scanner.write_file(["====================================================\n",
                                "CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES\n",
@@ -1161,7 +1157,7 @@ def scan_logs():
             Mod_Check3 = False
             if plugins_loaded:
                 Mod_Check3 = check_plugins(Mods3, Mod_Trap3)
-                for line in loglines:
+                for line in scanner.lines:
                     # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                     if no_repeat1 is False and "File:" not in line and ("Depravity" or "FusionCityRising" or "HotC" or "OutcastsAndRemnants" or "ProjectValkyrie") in line:
                         scanner.write_file([f"[!] Found: {line[0:9].strip()} THUGGYSMURF QUEST MOD\n",
@@ -1282,26 +1278,16 @@ def scan_logs():
                 Mod_Check4 = check_plugins(Mods4, Mod_Trap4)
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
-
-            if plugins_loaded and (Mod_Check4 or Mod_Trap4) is True:
-                scanner.write_file(["* FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,* \n",
-                                   "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n",
-                                    "-----\n"])
-            elif plugins_loaded and (Mod_Check4 and Mod_Trap4) is False:
-                scanner.write_file(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
-                                   "-----\n"])
-            elif plugins_loaded is False:
+                match (Mod_Check4, Mod_Trap4):
+                    case (True, True):
+                        scanner.write_file(["* FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,* \n",
+                                            "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n",
+                                            "-----\n"])
+                    case (False, False):
+                        scanner.write_file(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
+                                            "-----\n"])
+            else:
                 scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
-            match (plugins_loaded, Mod_Check4, Mod_Trap4):
-                case (True, True, True):
-                    scanner.write_file(["* FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,* \n",
-                                        "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n",
-                                        "-----\n"])
-                case (True, False, False):
-                    scanner.write_file(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
-                                        "-----\n"])
-                case _:
-                    scanner.write_file(CLAS_Globals.Warnings["Warn_BLOG_NOTE_Plugins"])
 
             # ===========================================================
 
@@ -1311,7 +1297,7 @@ def scan_logs():
 
             gpu_amd = False
             gpu_nvidia = False
-            for line in loglines:
+            for line in scanner.lines:
                 if "GPU" in line and "Nvidia" in line:
                     gpu_nvidia = True
                     break
@@ -1419,10 +1405,10 @@ def scan_logs():
             list_DETFORMIDS = []
             list_ALLPLUGINS = []
 
-            for line in loglines:
+            for line in scanner.lines:
                 if "MODULES:" in line:  # Check if crash log lists DLL and F4SE modules.
-                    module_index = loglines.index(line)
-                    next_line = loglines[module_index + 1]
+                    module_index = scanner.lines.index(line)
+                    next_line = scanner.lines[module_index + 1]
                     if len(next_line) > 1:
                         if ("f4se_1_10_163.dll" in scanner.text or "f4sevr_1_2_72.dll" in scanner.text) and "steam_api64.dll" in scanner.text:
                             break
@@ -1431,7 +1417,7 @@ def scan_logs():
 
             scanner.write_file("LIST OF (POSSIBLE) PLUGIN CULPRITS:\n")
 
-            for line in loglines:
+            for line in scanner.lines:
                 if "[" in line and "]" in line:  # Add all lines with Plugin IDs to list.
                     start_index = line.index("[")
                     end_index = line.index("]")
@@ -1474,7 +1460,7 @@ def scan_logs():
             # ===========================================================
 
             scanner.write_file("LIST OF (POSSIBLE) FORM ID CULPRITS:\n")
-            for line in loglines:
+            for line in scanner.lines:
                 if "Form ID:" in line or "FormID:" in line and "0xFF" not in line:
                     line = line.replace("0x", "")
                     if plugins_loaded:
@@ -1517,7 +1503,7 @@ def scan_logs():
 
             scanner.write_file("LIST OF DETECTED (NAMED) RECORDS:\n")
             List_Records = []
-            for line in loglines:
+            for line in scanner.lines:
                 if "Name:" in line or "EditorID:" in line or "Function:" in line or any(elem in line.lower() for elem in List_Files):
                     if not any(elem in line for elem in List_Exclude):
                         line = line.replace('"', '')
@@ -1598,61 +1584,69 @@ def scan_logs():
     print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
     print("-----")
     # Trying to generate Stat Logging for 0 valid logs will crash the script.
+
+    def crash_template_read(crash_prefix, crash_main, crash_suffix, crash_stat):
+        try:
+            print(f"{crash_prefix}{crash_main}{crash_suffix}", end='')
+
+            return CLAS_Globals.crash_template_stats[crash_stat]
+        except KeyError:
+            return 0
     if CLAS_Globals.CLAS_Config.getboolean("MAIN", "Stat Logging") is True and statL_scanned > 0:
-        print(CLAS.crash_template_read("Logs with ", "Stack Overflow Crash.........", ".. ", "statC_Overflow"))
-        print(CLAS.crash_template_read("Logs with ", "Active Effects Crash.........", ".. ", "statC_ActiveEffects"))
-        print(CLAS.crash_template_read("Logs with ", "Bad Math Crash...............", ".. ", "statC_BadMath"))
-        print(CLAS.crash_template_read("Logs with ", "Null Crash...................", ".. ", "statC_Null"))
-        print(CLAS.crash_template_read("Logs with ", "DLL Crash....................", ".. ", "statC_DLL"))
-        print(CLAS.crash_template_read("Logs with ", "LOD Crash....................", ".. ", "statC_LOD"))
-        print(CLAS.crash_template_read("Logs with ", "MCM Crash....................", ".. ", "statC_MCM"))
-        print(CLAS.crash_template_read("Logs with ", "Decal Crash..................", ".. ", "statC_Decal"))
-        print(CLAS.crash_template_read("Logs with ", "Equip Crash..................", ".. ", "statC_Equip"))
-        print(CLAS.crash_template_read("Logs with ", "Script Crash.................", ".. ", "statC_Papyrus"))
-        print(CLAS.crash_template_read("Logs with ", "Generic Crash................", ".. ", "statC_Generic"))
-        print(CLAS.crash_template_read("Logs with ", "Antivirus Crash..............", ".. ", "statC_Antivirus"))
-        print(CLAS.crash_template_read("Logs with ", "BA2 Limit Crash..............", ".. ", "statC_BA2Limit"))
-        print(CLAS.crash_template_read("Logs with ", "Rendering Crash..............", ".. ", "statC_Rendering"))
-        print(CLAS.crash_template_read("Logs with ", "C++ Redist Crash.............", ".. ", "statC_Redist"))
-        print(CLAS.crash_template_read("Logs with ", "Grid Scrap Crash.............", ".. ", "statC_GridScrap"))
-        print(CLAS.crash_template_read("Logs with ", "Map Marker Crash.............", ".. ", "statC_MapMarker"))
-        print(CLAS.crash_template_read("Logs with ", "Mesh (NIF) Crash.............", ".. ", "statC_Mesh"))
-        print(CLAS.crash_template_read("Logs with ", "Texture (DDS) Crash..........", ".. ", "statC_Texture"))
-        print(CLAS.crash_template_read("Logs with ", "Material (BGSM) Crash........", ".. ", "statC_Material"))
-        print(CLAS.crash_template_read("Logs with ", "NPC Pathing Crash............", ".. ", "statC_NPCPathing"))
-        print(CLAS.crash_template_read("Logs with ", "Precombines Crash............", ".. ", "statC_Precomb"))
-        print(CLAS.crash_template_read("Logs with ", "Audio Driver Crash...........", ".. ", "statC_Audio"))
-        print(CLAS.crash_template_read("Logs with ", "Body Physics Crash...........", ".. ", "statC_BodyPhysics"))
-        print(CLAS.crash_template_read("Logs with ", "Leveled List Crash...........", ".. ", "statC_LeveledList"))
-        print(CLAS.crash_template_read("Logs with ", "Plugin Limit Crash...........", ".. ", "statC_PluginLimit"))
-        print(CLAS.crash_template_read("Logs with ", "Plugin Order Crash...........", ".. ", "statC_PluginOrder"))
-        print(CLAS.crash_template_read("Logs with ", "MO2 Extractor Crash..........", ".. ", "statC_MO2Unpack"))
-        print(CLAS.crash_template_read("Logs with ", "Nvidia Debris Crash..........", ".. ", "statC_NVDebris"))
-        print(CLAS.crash_template_read("Logs with ", "Nvidia Driver Crash..........", ".. ", "statC_NVDriver"))
-        print(CLAS.crash_template_read("Logs with ", "Nvidia Reflex Crash..........", ".. ", "statC_NVReflex"))
-        print(CLAS.crash_template_read("Logs with ", "Vulkan Memory Crash..........", ".. ", "statC_VulkanMem"))
-        print(CLAS.crash_template_read("Logs with ", "Vulkan Settings Crash........", ".. ", "statC_VulkanSet"))
-        print(CLAS.crash_template_read("Logs with ", "Console Command Crash........", ".. ", "statC_ConsoleCommand"))
-        print(CLAS.crash_template_read("Logs with ", "Game Corruption Crash........", ".. ", "statC_GameCorruption"))
-        print(CLAS.crash_template_read("Logs with ", "Water Collision Crash........", ".. ", "statC_Water"))
-        print(CLAS.crash_template_read("Logs with ", "Particle Effects Crash.......", ".. ", "statC_Particles"))
-        print(CLAS.crash_template_read("Logs with ", "Player Character Crash.......", ".. ", "statC_Player"))
-        print(CLAS.crash_template_read("Logs with ", "Animation / Physics Crash....", ".. ", "statC_AnimationPhysics"))
-        print(CLAS.crash_template_read("Logs with ", "Archive Invalidation Crash...", ".. ", "statC_Invalidation"))
+        print(crash_template_read("Logs with ", "Stack Overflow Crash.........", ".. ", "statC_Overflow"))
+        print(crash_template_read("Logs with ", "Active Effects Crash.........", ".. ", "statC_ActiveEffects"))
+        print(crash_template_read("Logs with ", "Bad Math Crash...............", ".. ", "statC_BadMath"))
+        print(crash_template_read("Logs with ", "Null Crash...................", ".. ", "statC_Null"))
+        print(crash_template_read("Logs with ", "DLL Crash....................", ".. ", "statC_DLL"))
+        print(crash_template_read("Logs with ", "LOD Crash....................", ".. ", "statC_LOD"))
+        print(crash_template_read("Logs with ", "MCM Crash....................", ".. ", "statC_MCM"))
+        print(crash_template_read("Logs with ", "Decal Crash..................", ".. ", "statC_Decal"))
+        print(crash_template_read("Logs with ", "Equip Crash..................", ".. ", "statC_Equip"))
+        print(crash_template_read("Logs with ", "Script Crash.................", ".. ", "statC_Papyrus"))
+        print(crash_template_read("Logs with ", "Generic Crash................", ".. ", "statC_Generic"))
+        print(crash_template_read("Logs with ", "Antivirus Crash..............", ".. ", "statC_Antivirus"))
+        print(crash_template_read("Logs with ", "BA2 Limit Crash..............", ".. ", "statC_BA2Limit"))
+        print(crash_template_read("Logs with ", "Rendering Crash..............", ".. ", "statC_Rendering"))
+        print(crash_template_read("Logs with ", "C++ Redist Crash.............", ".. ", "statC_Redist"))
+        print(crash_template_read("Logs with ", "Grid Scrap Crash.............", ".. ", "statC_GridScrap"))
+        print(crash_template_read("Logs with ", "Map Marker Crash.............", ".. ", "statC_MapMarker"))
+        print(crash_template_read("Logs with ", "Mesh (NIF) Crash.............", ".. ", "statC_Mesh"))
+        print(crash_template_read("Logs with ", "Texture (DDS) Crash..........", ".. ", "statC_Texture"))
+        print(crash_template_read("Logs with ", "Material (BGSM) Crash........", ".. ", "statC_Material"))
+        print(crash_template_read("Logs with ", "NPC Pathing Crash............", ".. ", "statC_NPCPathing"))
+        print(crash_template_read("Logs with ", "Precombines Crash............", ".. ", "statC_Precomb"))
+        print(crash_template_read("Logs with ", "Audio Driver Crash...........", ".. ", "statC_Audio"))
+        print(crash_template_read("Logs with ", "Body Physics Crash...........", ".. ", "statC_BodyPhysics"))
+        print(crash_template_read("Logs with ", "Leveled List Crash...........", ".. ", "statC_LeveledList"))
+        print(crash_template_read("Logs with ", "Plugin Limit Crash...........", ".. ", "statC_PluginLimit"))
+        print(crash_template_read("Logs with ", "Plugin Order Crash...........", ".. ", "statC_PluginOrder"))
+        print(crash_template_read("Logs with ", "MO2 Extractor Crash..........", ".. ", "statC_MO2Unpack"))
+        print(crash_template_read("Logs with ", "Nvidia Debris Crash..........", ".. ", "statC_NVDebris"))
+        print(crash_template_read("Logs with ", "Nvidia Driver Crash..........", ".. ", "statC_NVDriver"))
+        print(crash_template_read("Logs with ", "Nvidia Reflex Crash..........", ".. ", "statC_NVReflex"))
+        print(crash_template_read("Logs with ", "Vulkan Memory Crash..........", ".. ", "statC_VulkanMem"))
+        print(crash_template_read("Logs with ", "Vulkan Settings Crash........", ".. ", "statC_VulkanSet"))
+        print(crash_template_read("Logs with ", "Console Command Crash........", ".. ", "statC_ConsoleCommand"))
+        print(crash_template_read("Logs with ", "Game Corruption Crash........", ".. ", "statC_GameCorruption"))
+        print(crash_template_read("Logs with ", "Water Collision Crash........", ".. ", "statC_Water"))
+        print(crash_template_read("Logs with ", "Particle Effects Crash.......", ".. ", "statC_Particles"))
+        print(crash_template_read("Logs with ", "Player Character Crash.......", ".. ", "statC_Player"))
+        print(crash_template_read("Logs with ", "Animation / Physics Crash....", ".. ", "statC_AnimationPhysics"))
+        print(crash_template_read("Logs with ", "Archive Invalidation Crash...", ".. ", "statC_Invalidation"))
         print("-----")
         print("Crashes caused by Clas. Hols. Weapons....", statM_CHW)
         print("-----")
-        print(CLAS.crash_template_read("Logs with ", "*[Item Crash]................", ".. ", "statU_Item"))
-        print(CLAS.crash_template_read("Logs with ", "*[Save Crash]................", ".. ", "statU_Save"))
-        print(CLAS.crash_template_read("Logs with ", "*[Input Crash]...............", ".. ", "statU_Input"))
-        print(CLAS.crash_template_read("Logs with ", "*[SS2 / WF Crash]............", ".. ", "statU_SS2WF"))
-        print(CLAS.crash_template_read("Logs with ", "*[Looks Menu Crash]..........", ".. ", "statU_LooksMenu"))
-        print(CLAS.crash_template_read("Logs with ", "*[NPC Patrol Crash]..........", ".. ", "statU_Patrol"))
-        print(CLAS.crash_template_read("Logs with ", "*[Ammo Counter Crash]........", ".. ", "statU_HUDAmmo"))
-        print(CLAS.crash_template_read("Logs with ", "*[Creation Club Crash].......", ".. ", "statU_CClub"))
-        print(CLAS.crash_template_read("Logs with ", "*[GPU Overclock Crash].......", ".. ", "statU_Overclock"))
-        print(CLAS.crash_template_read("Logs with ", "*[NPC Projectile Crash]......", ".. ", "statU_Projectile"))
-        print(CLAS.crash_template_read("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera"))
+        print(crash_template_read("Logs with ", "*[Item Crash]................", ".. ", "statU_Item"))
+        print(crash_template_read("Logs with ", "*[Save Crash]................", ".. ", "statU_Save"))
+        print(crash_template_read("Logs with ", "*[Input Crash]...............", ".. ", "statU_Input"))
+        print(crash_template_read("Logs with ", "*[SS2 / WF Crash]............", ".. ", "statU_SS2WF"))
+        print(crash_template_read("Logs with ", "*[Looks Menu Crash]..........", ".. ", "statU_LooksMenu"))
+        print(crash_template_read("Logs with ", "*[NPC Patrol Crash]..........", ".. ", "statU_Patrol"))
+        print(crash_template_read("Logs with ", "*[Ammo Counter Crash]........", ".. ", "statU_HUDAmmo"))
+        print(crash_template_read("Logs with ", "*[Creation Club Crash].......", ".. ", "statU_CClub"))
+        print(crash_template_read("Logs with ", "*[GPU Overclock Crash].......", ".. ", "statU_Overclock"))
+        print(crash_template_read("Logs with ", "*[NPC Projectile Crash]......", ".. ", "statU_Projectile"))
+        print(crash_template_read("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera"))
         print(" *Unsolved, see How To Read Crash Logs PDF")
         print("===========================================")
     elif statL_scanned == 0:

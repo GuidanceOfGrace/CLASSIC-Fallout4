@@ -7,8 +7,7 @@ import subprocess
 from glob import glob
 from pathlib import Path
 
-from CLASlib import CLAS
-from Scan_Crashlogs import CLAS_Globals
+from CLASlib import CLAS, CLAS_Globals
 
 try:
     import tomlkit
@@ -80,7 +79,6 @@ CLAS_Globals.Warnings["Warn_BLOG_NOTE_Modules"] = """\
       Script Extender Link: https://f4se.silverlock.org \n")
 """
 
-
 def docs_path_check():
     FO4_STEAM_ID = 377160
     Loc_Found = False
@@ -121,6 +119,8 @@ def docs_path_check():
             CLAS_Globals.clas_ini_update("INI Path", Path_Input)
             return Manual_Docs
 
+
+CLAS_Globals.info.docs_file_check(docs_path_check())  # type: ignore
 
 # =================== CHECK MAIN FILES ===================
 def scan_mainfiles():
@@ -261,8 +261,6 @@ def scan_mainfiles():
     CLAS_Globals.info.Address_LibraryVR = CLAS_Globals.Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
     # FALLLOUT 4 HASHES
     CLAS_Globals.info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
-
-    CLAS_Globals.info.docs_file_check(docs_path_check())  # type: ignore
 
     # CHECK F4SE SCRIPT FILES INTEGRITY
 
