@@ -149,37 +149,39 @@ def scan_mainfiles():
     # OPEN : f4se.log | f4sevr.log | CHECK : Game Path | F4SE Version | Errors | Buffout 4 DLL
     Error_List = []
     ADLIB_Loaded = F4SE_Error = F4SE_Version = F4SE_Buffout = False
-    if CLAS_Globals.info.FO4_F4SE_Path.is_file():
-        with open(CLAS_Globals.info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
-            Path_Check = LOG_Check.readlines()
-            for line in Path_Check:
-                if "plugin directory" in line:
-                    line = line[19:].replace("\\Data\\F4SE\\Plugins", "")
-                    CLAS_Globals.info.Game_Path = line.replace("\n", "")
-                if "0.6.23" in line:
-                    F4SE_Version = True
-                if "error" in line.lower() or "failed" in line.lower():
-                    F4SE_Error = True
-                    Error_List.append(line)
-                if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
-                    F4SE_Buffout = True
-    elif CLAS_Globals.info.FO4_F4SEVR_Path.is_file():
-        with open(CLAS_Globals.info.FO4_F4SEVR_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
-            Path_Check = LOG_Check.readlines()
-            for line in Path_Check:
-                if "plugin directory" in line:
-                    line = line[19:].replace("\\Data\\F4SE\\Plugins", "")
-                    CLAS_Globals.info.Game_Path = line.replace("\n", "")
-                if "0.6.20" in line:
-                    F4SE_Version = True
-                if "error" in line.lower() or "failed" in line.lower():
-                    F4SE_Error = True
-                    Error_List.append(line)
-                if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
-                    F4SE_Buffout = True
-    else:
-        scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_CLAS_Missing_F4SELOG"])
-        os.system("pause")
+
+    match (CLAS_Globals.info.FO4_F4SE_Path.is_file(), CLAS_Globals.info.FO4_F4SEVR_Path.is_file()):
+        case (True, False):
+            with open(CLAS_Globals.info.FO4_F4SE_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
+                Path_Check = LOG_Check.readlines()
+                for line in Path_Check:
+                    if "plugin directory" in line:
+                        line = line[19:].replace("\\Data\\F4SE\\Plugins", "")
+                        CLAS_Globals.info.Game_Path = line.replace("\n", "")
+                    if "0.6.23" in line:
+                        F4SE_Version = True
+                    if "error" in line.lower() or "failed" in line.lower():
+                        F4SE_Error = True
+                        Error_List.append(line)
+                    if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
+                        F4SE_Buffout = True
+        case (False, True):
+            with open(CLAS_Globals.info.FO4_F4SEVR_Path, "r", encoding="utf-8", errors="ignore") as LOG_Check:
+                Path_Check = LOG_Check.readlines()
+                for line in Path_Check:
+                    if "plugin directory" in line:
+                        line = line[19:].replace("\\Data\\F4SE\\Plugins", "")
+                        CLAS_Globals.info.Game_Path = line.replace("\n", "")
+                    if "0.6.20" in line:
+                        F4SE_Version = True
+                    if "error" in line.lower() or "failed" in line.lower():
+                        F4SE_Error = True
+                        Error_List.append(line)
+                    if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
+                        F4SE_Buffout = True
+        case _:
+            scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_CLAS_Missing_F4SELOG"])
+            os.system("pause")
 
     if F4SE_Version == 1:
         scan_mainfiles_report.append("✔️ You have the latest version of Fallout 4 Script Extender (F4SE).\n  -----")
@@ -199,9 +201,8 @@ def scan_mainfiles():
     else:
         scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
 
-    
-
     # CHECK DOCUMENTS F4SE FOLDER LOG ERRORS
+
     def clas_log_errors(log_path):
         list_log_errors = []
         for filename in glob(f"{log_path}/*.log"):
@@ -221,41 +222,43 @@ def scan_mainfiles():
                         continue
         return list_log_errors
 
-    if len(clas_log_errors(CLAS_Globals.info.FO4_F4SE_Logs)) >= 1:
-        scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in clas_log_errors(CLAS_Globals.info.FO4_F4SE_Logs):
-            scan_mainfiles_report.append(elem)
-    elif len(clas_log_errors(CLAS_Globals.info.FO4_F4SEVR_Logs)) >= 1:
-        scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in clas_log_errors(CLAS_Globals.info.FO4_F4SEVR_Logs):
-            scan_mainfiles_report.append(elem)
-    else:
-        scan_mainfiles_report.append("✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
-    
+    match (len(clas_log_errors(CLAS_Globals.info.FO4_F4SE_Logs)) >= 1,
+           len(clas_log_errors(CLAS_Globals.info.FO4_F4SEVR_Logs)) >= 1):
+        case (True, False):
+            scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Log_Errors"])
+            for elem in clas_log_errors(CLAS_Globals.info.FO4_F4SE_Logs):
+                scan_mainfiles_report.append(elem)
+        case (False, True):
+            scan_mainfiles_report.append(CLAS_Globals.Warnings["Warn_SCAN_Log_Errors"])
+            for elem in clas_log_errors(CLAS_Globals.info.FO4_F4SEVR_Logs):
+                scan_mainfiles_report.append(elem)
+        case _:
+            scan_mainfiles_report.append("✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
+
     # FILES TO LOOK FOR IN GAME FOLDER ONLY
-    Game_Path = Path(rf"{CLAS_Globals.info.Game_Path}")
-    CLAS_Globals.info.Game_Scripts = Game_Path.joinpath("Data", "Scripts")
+    CLAS_Globals.Game_Path = Path(rf"{CLAS_Globals.info.Game_Path}")
+    CLAS_Globals.info.Game_Scripts = CLAS_Globals.Game_Path.joinpath("Data", "Scripts")
     # ROOT FILES
-    CLAS_Globals.info.FO4_EXE = Game_Path.joinpath("Fallout4.exe")
-    CLAS_Globals.info.F4CK_EXE = Game_Path.joinpath("CreationKit.exe")
-    CLAS_Globals.info.F4CK_Fixes = Game_Path.joinpath("Data", "F4CKFixes")
-    CLAS_Globals.info.Steam_INI = Game_Path.joinpath("steam_api.ini")
-    CLAS_Globals.info.Preloader_DLL = Game_Path.joinpath("IpHlpAPI.dll")
-    CLAS_Globals.info.Preloader_XML = Game_Path.joinpath("xSE PluginPreloader.xml")
+    CLAS_Globals.info.FO4_EXE = CLAS_Globals.Game_Path.joinpath("Fallout4.exe")
+    CLAS_Globals.info.F4CK_EXE = CLAS_Globals.Game_Path.joinpath("CreationKit.exe")
+    CLAS_Globals.info.F4CK_Fixes = CLAS_Globals.Game_Path.joinpath("Data", "F4CKFixes")
+    CLAS_Globals.info.Steam_INI = CLAS_Globals.Game_Path.joinpath("steam_api.ini")
+    CLAS_Globals.info.Preloader_DLL = CLAS_Globals.Game_Path.joinpath("IpHlpAPI.dll")
+    CLAS_Globals.info.Preloader_XML = CLAS_Globals.Game_Path.joinpath("xSE PluginPreloader.xml")
     # F4SE FILES
-    CLAS_Globals.info.F4SE_DLL = Game_Path.joinpath("f4se_1_10_163.dll")
-    CLAS_Globals.info.F4SE_SDLL = Game_Path.joinpath("f4se_steam_loader.dll")
-    CLAS_Globals.info.F4SE_Loader = Game_Path.joinpath("f4se_loader.exe")
+    CLAS_Globals.info.F4SE_DLL = CLAS_Globals.Game_Path.joinpath("f4se_1_10_163.dll")
+    CLAS_Globals.info.F4SE_SDLL = CLAS_Globals.Game_Path.joinpath("f4se_steam_loader.dll")
+    CLAS_Globals.info.F4SE_Loader = CLAS_Globals.Game_Path.joinpath("f4se_loader.exe")
     # VR FILES
-    CLAS_Globals.info.VR_EXE = Game_Path.joinpath("Fallout4VR.exe")
-    CLAS_Globals.info.VR_Buffout = Game_Path.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
-    CLAS_Globals.info.F4SE_VRDLL = Game_Path.joinpath("f4sevr_1_2_72.dll")
-    CLAS_Globals.info.F4SE_VRLoader = Game_Path.joinpath("f4sevr_loader.exe")
+    CLAS_Globals.info.VR_EXE = CLAS_Globals.Game_Path.joinpath("Fallout4VR.exe")
+    CLAS_Globals.info.VR_Buffout = CLAS_Globals.Game_Path.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
+    CLAS_Globals.info.F4SE_VRDLL = CLAS_Globals.Game_Path.joinpath("f4sevr_1_2_72.dll")
+    CLAS_Globals.info.F4SE_VRLoader = CLAS_Globals.Game_Path.joinpath("f4sevr_loader.exe")
     # BUFFOUT FILES
-    CLAS_Globals.info.Buffout_DLL = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
-    CLAS_Globals.info.Buffout_TOML = Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
-    CLAS_Globals.info.Address_Library = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
-    CLAS_Globals.info.Address_LibraryVR = Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
+    CLAS_Globals.info.Buffout_DLL = CLAS_Globals.Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
+    CLAS_Globals.info.Buffout_TOML = CLAS_Globals.Game_Path.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
+    CLAS_Globals.info.Address_Library = CLAS_Globals.Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
+    CLAS_Globals.info.Address_LibraryVR = CLAS_Globals.Game_Path.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
     # FALLLOUT 4 HASHES
     CLAS_Globals.info.FO4_Hash = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
 
@@ -287,18 +290,17 @@ def scan_mainfiles():
     # CHECK FALLOUT4.EXE INTEGRITY
     if CLAS_Globals.info.FO4_EXE.is_file():
         FO4_EXE_Size = os.path.getsize(CLAS_Globals.info.FO4_EXE)
-        if FO4_EXE_Size == 65503104 and hashlib.sha512(CLAS_Globals.info.FO4_EXE.read_bytes()).hexdigest() == CLAS_Globals.info.FO4_Hash["1.10.163"] and not CLAS_Globals.info.Steam_INI.is_file():
-            scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
-                                          "    * This is the version BEFORE the 2023 Update *",
-                                          "  -----"])
-        # elif FO4_EXE_Size == xxxxxxxx and not CLAS_Globals.info.Steam_INI.is_file(): | RESERVED
-        #    scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.xx.xxx.x]",
-        #                                  "   * This is the version AFTER the 2023 Update *",
-        #                                  "  -----"])
-        elif FO4_EXE_Size == 65503104 and not CLAS_Globals.info.Steam_INI.is_file():
-            scan_mainfiles_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
-        elif FO4_EXE_Size == 65503104 and CLAS_Globals.info.Steam_INI.is_file():  # Intentional, don't change the unicode icon.
-            scan_mainfiles_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
+        match (FO4_EXE_Size == 65503104,
+               hashlib.sha512(CLAS_Globals.info.FO4_EXE.read_bytes()).hexdigest() == CLAS_Globals.info.FO4_Hash["1.10.163"],
+               CLAS_Globals.info.Steam_INI.is_file()):
+            case (True, True, False):
+                scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
+                                              "    * This is the version BEFORE the 2023 Update *",
+                                              "  -----"])
+            case (True, _, True):
+                scan_mainfiles_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")  # Intentional, don't change the unicode icon.
+            case (True, _, False):
+                scan_mainfiles_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
 
     # CHECK FALLOUT 4 ROOT FOLDER LOG ERRORS
     if len(clas_log_errors(CLAS_Globals.info.Game_Path)) >= 1:
@@ -367,12 +369,12 @@ def scan_mainfiles():
                                                       "-----"])
                     case elem if elem > 2048:  # type: ignore
                         scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",   # Placeholder message courtesy of Github Copilot
-                                                    "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
-                                                    "-----"])
+                                                      "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
+                                                      "-----"])
                     case elem if not isinstance(elem, int):  # type: ignore
                         scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.",   # Another placeholder message courtesy of Github Copilot
-                                                    "Auto-Scanner will change this value to 2048.",
-                                                    "-----"])
+                                                      "Auto-Scanner will change this value to 2048.",
+                                                      "-----"])
                 BUFF_config["Patches"]["MaxStdIO"] = 2048   # type: ignore
             else:
                 scan_mainfiles_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n  -----")
@@ -396,25 +398,29 @@ def scan_modfiles():
                                      "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
                                      "-----"])
 
-        if CLAS_Globals.info.VR_EXE.is_file() and CLAS_Globals.info.VR_Buffout.is_file():
-            scan_modfiles_report.append("*✔️ Buffout 4 VR Version* is (manually) installed.\n  -----")
-        elif CLAS_Globals.info.VR_EXE.is_file() and not CLAS_Globals.info.VR_Buffout.is_file():
-            scan_modfiles_report.extend(["# ❌ BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                         "  This is a mandatory Buffout 4 port for the VR Version of Fallout 4.",
-                                         "  Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files",
-                                         "  -----"])
-        else:
-            scan_modfiles_report.append("❌ *Fallout 4 VR* is NOT installed.\n  -----")
+        match (CLAS_Globals.info.VR_EXE.is_file(), CLAS_Globals.info.VR_Buffout.is_file()):
+            case (True, True):
+                scan_modfiles_report.append("✔️ *Buffout 4 VR Version* is (manually) installed.\n  -----")
+            case (True, False):
+                scan_modfiles_report.extend(["# ❌ BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                                             "  This is a mandatory Buffout 4 port for the VR Version of Fallout 4.",
+                                             "  Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files",
+                                             "  -----"])
+            case _:
+                scan_modfiles_report.append("❌ *Fallout 4 VR* is NOT installed.\n  -----")
 
-        if (CLAS_Globals.info.F4CK_EXE.is_file() and os.path.exists(CLAS_Globals.info.F4CK_Fixes)) or (isinstance(CLAS_Globals.info.Game_Path, str) and Path(CLAS_Globals.info.Game_Path).joinpath("winhttp.dll").is_file()):  # type: ignore
-            scan_modfiles_report.append("✔️ *Creation Kit Fixes* is (manually) installed.\n  -----")
-        elif CLAS_Globals.info.F4CK_EXE.is_file() and not os.path.exists(CLAS_Globals.info.F4CK_Fixes):
-            scan_modfiles_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
-                                         "  This is a highly recommended patch for the Fallout 4 Creation Kit.",
-                                         "  Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
-                                         "  -----"])
-        else:
-            scan_modfiles_report.append("❌ *Creation Kit* is NOT installed.\n  -----")
+        match (CLAS_Globals.info.F4CK_EXE.is_file(),
+               CLAS_Globals.info.F4CK_Fixes.is_file(),
+               CLAS_Globals.Game_Path.joinpath("winhttp.dll").is_file()):
+            case (True, True) | (True, _, True):
+                scan_modfiles_report.append("✔️ *Creation Kit Fixes* is (manually) installed.\n  -----")
+            case (True, False) | (True, _, False):
+                scan_modfiles_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                                             "  This is a highly recommended patch for the Fallout 4 Creation Kit.",
+                                             "  Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
+                                             "  -----"])
+            case _:
+                scan_modfiles_report.append("❌ *Creation Kit* is NOT installed.\n  -----")
 
     return scan_modfiles_report
 

@@ -62,6 +62,7 @@ class CLASGlobal:
     crash_template_stats: dict[str, int] = field(default_factory=dict)
     Sneaky_Tips: list = field(default_factory=list)
     info: Info = field(default_factory=Info)
+    Game_Path: Path = field(default_factory=Path)
 
     def __post_init__(self):
 
