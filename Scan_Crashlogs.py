@@ -210,10 +210,10 @@ def scan_logs():
             scanner.write_file([f"Main Error: {scanner.buff_error}\n",
                                "====================================================\n",
                                 f"Detected Buffout Version: {scanner.buff_ver.strip()}\n",
-                                f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[9:37]})\n"])
+                                f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[9:14]})\n"])
 
             match (scanner.buff_ver.casefold() == buff_latest.casefold(),
-                   scanner.buff_ver.casefold() == buffNGVR_latest.casefold()):
+                   scanner.buff_ver.casefold() in buffNGVR_latest.casefold()):
                 case (True, False) | (False, True):
                     scanner.write_file("✔️ You have the latest version of Buffout 4!")
                 case _:
