@@ -210,7 +210,7 @@ def scan_logs():
             scanner.write_file([f"Main Error: {scanner.buff_error}\n",
                                "====================================================\n",
                                 f"Detected Buffout Version: {scanner.buff_ver.strip()}\n",
-                                f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[9:14]})\n"])
+                                f"Latest Buffout Version: {buff_latest[10:17]} (NG: {buffNGVR_latest[9:16]})\n"])
 
             match (scanner.buff_ver.casefold() == buff_latest.casefold(),
                    scanner.buff_ver.casefold() in buffNGVR_latest.casefold()):
@@ -668,11 +668,6 @@ def scan_logs():
                     scanner.write_file(f'                   PatrolActorPackageData : {scanner.text.count("PatrolActorPackageData")}\n')
 
             # ===========================================================
-            if "BSPackedCombinedSharedGeomDataExtra" in scanner.text or "BSPackedCombinedGeomDataExtra" in scanner.text or "BGSCombinedCellGeometryDB" in scanner.text or "BGSStaticCollection" in scanner.text or "TESObjectCELL" in scanner.text:
-                scanner.crash_template_write("# Checking for ", "*[Precombines Crash].........", "DETECTED! #\n", "statC_Precomb")
-                scanner.write_file(f'> Priority : [4] | BGSStaticCollection : {scanner.text.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {scanner.text.count("BGSCombinedCellGeometryDB")}\n')
-                scanner.write_file(f'                   BSPackedCombinedGeomDataExtra : {scanner.text.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {scanner.text.count("TESObjectCELL")}\n')
-                scanner.write_file(f'                   BSPackedCombinedSharedGeomDataExtra : {scanner.text.count("BSPackedCombinedSharedGeomDataExtra")}\n')
             match ("BSPackedCombinedSharedGeomDataExtra" in scanner.text,
                    "BSPackedCombinedGeomDataExtra" in scanner.text,
                    "BGSCombinedCellGeometryDB" in scanner.text,
@@ -681,6 +676,8 @@ def scan_logs():
                 case (True) | (_, True) | (_, _, True) | (_, _, _, True) | (_, _, _, _, True):
                     scanner.crash_template_write("# Checking for ", "*[Precombines Crash].........", "DETECTED! #\n", "statC_Precomb")
                     scanner.write_file(f'> Priority : [4] | BGSStaticCollection : {scanner.text.count("BGSStaticCollection")} | BGSCombinedCellGeometryDB : {scanner.text.count("BGSCombinedCellGeometryDB")}\n')
+                    scanner.write_file(f'                   BSPackedCombinedGeomDataExtra : {scanner.text.count("BSPackedCombinedGeomDataExtra")} | TESObjectCELL : {scanner.text.count("TESObjectCELL")}\n')
+                    scanner.write_file(f'                   BSPackedCombinedSharedGeomDataExtra : {scanner.text.count("BSPackedCombinedSharedGeomDataExtra")}\n')
 
             # ===========================================================
             match ("HUDAmmoCounter" in scanner.text):
