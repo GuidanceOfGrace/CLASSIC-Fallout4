@@ -272,7 +272,7 @@ def scan_logs():
 
             # BUFFOUT VERSION CHECK
             buff_latest = "Buffout 4 v1.26.2"
-            buffNGVR_latest = "Buffout4 v1.31.1 Feb 28 2023 00:28:17"
+            buffNGVR_latest = "Buffout 4 v1.31.1 Feb 28 2023 00:32:02"
             output.writelines([f"Main Error: {buff_error}\n",
                                "====================================================\n",
                                f"Detected Buffout Version: {buff_ver.strip()}\n",
