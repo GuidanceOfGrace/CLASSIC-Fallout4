@@ -1,53 +1,48 @@
+# CRASH LOG AUTO SCANNER (CLAS) | By Poet (The Sound Of Snow)
 import configparser
 import os
 import platform
 import random
+import requests
 import shutil
-import subprocess
 import sys
 import time
 from collections import Counter
 from glob import glob
 from pathlib import Path
 
-try:
-    import requests
-except (ImportError, ModuleNotFoundError):
-    subprocess.run(['pip', 'install', 'requests'], shell=True)
-
 '''AUTHOR NOTES (POET):
-- In cases where output.write is used instead of output.writelines, this is so I can more easily copy-paste specific content.
+- In cases where output.write is used instead of output.writelines, this was done to more easily copy-paste content.
+- Comments marked as RESERVED in all scripts are intended for future updates or tests, do not edit / move / remove.
 - (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
-- Comments marked as RESERVED in all scripts are intended for future updates, do not edit / move / remove.
 '''
 
 
 # =================== CLAS INI FILE ===================
 def clas_ini_create():
-    if not os.path.exists("Scan Crashlogs.ini"):  # INI FILE FOR AUTO-SCANNER
+    if not os.path.exists("CLAS Settings.ini"):  # INI FILE FORCLAS
         INI_Settings = ["[MAIN]\n",
-                        "# This file contains configuration settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
-                        "# Set to true if you want Auto-Scanner to check Python modules and if latest CLAS version is installed. \n",
+                        "# This file contains settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
+                        "# Set to true if you want CLAS to check that you have the latest version of CLAS. \n",
                         "Update Check = true\n\n",
-                        "# FCX - File Check eXtended | If Auto-Scanner fails to scan your logs, revert this setting back to false. \n",
-                        "# Set to true if you want Auto-Scanner to check if your game files and Buffout 4 are installed correctly. \n",
+                        "# FCX - File Check Xtended | Set to true if you want CLAS to check Buffout 4 and game integrity. \n",
                         "FCX Mode = true\n\n",
-                        "# IMI - Ignore Manual Installation | Set to true if you want Auto-Scanner to hide all manual installation warnings. \n",
+                        "# IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings. \n",
                         "# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. \n",
                         "IMI Mode = false\n\n",
-                        "# Set to true if you want Auto-Scanner to show extra stats about scanned logs in the command line window. \n",
+                        "# Set to true if you want CLAS to show extra stats about scanned logs in the command line window. \n",
                         "Stat Logging = false\n\n",
-                        "# Set to true if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder. \n",
-                        "# Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages. \n",
+                        "# Set to true if you want CLAS to move all unsolved logs and their autoscans to CL-UNSOLVED folder. \n",
+                        "# Unsolved logs are all crash logs where CLAS didn't detect any known crash errors or messages. \n",
                         "Move Unsolved = false\n\n",
                         "# Set or copy-paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4 \n",
                         "# Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else. \n",
                         "# I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
                         "INI Path = \n\n",
                         "# Set or copy-paste your custom scan folder path below, from which your crash logs will be scanned. \n",
-                        "# If no path is set, Auto-Scanner will search for logs in the same folder you're running it from. \n",
+                        "# If no path is set, CLAS will search for logs in the same folder from which you're running it in. \n",
                         "Scan Path = "]
-        with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
+        with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
             INI_Autoscan.writelines(INI_Settings)
 
 
@@ -55,43 +50,33 @@ clas_ini_create()
 # Use optionxform = str to preserve INI formatting. | Set comment_prefixes to unused char to keep INI comments.
 CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
 CLAS_config.optionxform = str  # type: ignore
-CLAS_config.read("Scan Crashlogs.ini")
-CLAS_Date = "280223"  # DDMMYY
-CLAS_Current = "CLAS v6.55"
+CLAS_config.read("CLAS Settings.ini")
+CLAS_Date = "110323"  # DDMMYY
+CLAS_Current = "CLAS v6.66"
 CLAS_Updated = False
 
 
-def clas_ini_update(section: str, value: str):  # Convenience function for a code snippet that's repeated many times throughout both scripts.
+def clas_ini_update(section: str, value: str):  # Convenience function for checking & writing to INI.
     if isinstance(section, str) and isinstance(value, str):
         CLAS_config["MAIN"][section] = value
     else:
         CLAS_config["MAIN"][str(section)] = str(value)
 
-    with open("Scan Crashlogs.ini", "w+", encoding="utf-8", errors="ignore") as INI_AUTOSCAN:
+    with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as INI_AUTOSCAN:
         CLAS_config.write(INI_AUTOSCAN)
 
 
 # =================== WARNING MESSAGES ==================
-# Can change first line to """\ to remove spacing.
-Warn_CLAS_Outdated_Scanner = """
-[!] WARNING : YOUR AUTO SCANNER VERSION IS OUT OF DATE!
+# Can change first line to """\ to remove the spacing.
+
+Warn_Outdated_CLAS = """
+ ❌ WARNING : YOUR CLAS VERSION IS OUT OF DATE!
     Please download the latest version from here:
     https://www.nexusmods.com/fallout4/mods/56255
 """
-Warn_CLAS_Python_Platform = """
-[!] WARNING : NEWEST PYTHON VERSIONS ARE NOT OFFICIALLY SUPPORTED ON WINDOWS 7/8/8.1
-    Install the newest Py version from here: https://github.com/adang1345/PythonWin7
-    Click on green Code button and Download Zip, then extract and install Python 3.11
-"""
-Warn_CLAS_Python_Version = """
-[!] WARNING : YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.
-    FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads
-    FOR WIN 7 / 8 / 8.1 : https://github.com/adang1345/PythonWin7
-"""
 Warn_CLAS_Update_Failed = """
-[!] WARNING : AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
-    CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
-    MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads
+ ❌ WARNING : AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
+    CHECK FOR ANY CLAS UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
 """
 
 Warn_TOML_Achievements = """\
@@ -111,14 +96,13 @@ Warn_TOML_F4EE = """\
 """
 Warn_TOML_STDIO = """\
 # ❌ CAUTION : MaxStdIO parameter value in *Buffout4.toml* might be too low. #
-  FIX: Open *Buffout4.toml* and change MaxStdIO value to 2048, this should prevent the BA2 Limit crashes.
+  FIX: Open *Buffout4.toml* and change MaxStdIO value to 2048, this might prevent some crashes or bugs.
   -----
 """
 
 Warn_SCAN_Outdated_Buffout4 = """
 # [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY AUTOSCAN #
-      UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/47359
-      BUFFOUT 4 FOR VIRTUAL REALITY: https://www.nexusmods.com/fallout4/mods/64880
+      UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/64880
 """
 Warn_SCAN_NOTE_DLL = """\
 # [!] NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! #
@@ -126,19 +110,15 @@ Warn_SCAN_NOTE_DLL = """\
 
 """
 Warn_SCAN_NOTE_FCX = """\
-[!] * NOTICE: FCX MODE IS ENABLED. AUTO-SCANNER MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
-      [ To disable game folder / mod files detection, set FCX Mode = false in Scan Crashlogs.ini ]
+* NOTICE: FCX MODE IS ENABLED. CLAS MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
+  [ To disable game & mod files detection, set FCX Mode = false in CLAS Settings.ini ]
 -----
 """
 Warn_BLOG_NOTE_Plugins = """\
 # [!] NOTICE : BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #
   Autoscan cannot continue. Try scanning a different crash log
-  OR copy-paste your *loadorder.txt* into the scanner folder.
-"""
-Warn_BLOG_NOTE_Modules = """\
-# [!] NOTICE : BUFFOUT 4 COULDN'T LIST ALL MODULES OR F4SE IS NOT INSTALLED! #
-      CHECK IF SCRIPT EXTENDER (F4SE) IS CORRECTLY INSTALLED! \n")
-      Script Extender Link: https://f4se.silverlock.org \n")
+  OR copy-paste your *loadorder.txt* into your CLAS folder.
+  -----
 """
 
 
@@ -146,36 +126,25 @@ Warn_BLOG_NOTE_Modules = """\
 def clas_update_check():
     global CLAS_Current
     global CLAS_Updated
-    print("CHECKING YOUR PYTHON VERSION & CRASH LOG AUTO SCANNER UPDATES...")
-    print("(You can disable this check in the EXE or Scan Crashlogs.ini) \n")
-    print(f"Installed Python Version: {sys.version[:6]} \n")
-    if sys.version_info[:2] < (3, 9):
-        print(Warn_CLAS_Python_Version)
-        if platform.system() == "Windows":
-            os_version = int(platform.win32_ver()[0])
-            if os_version < 10:
-                print(Warn_CLAS_Python_Platform)
-        os.system("pause")
+    print(" ❓ CHECKING FOR ANY NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
+    print("    (You can disable this check in the EXE or CLAS Settings.ini) \n")
+    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
+    CLAS_Received = response.json()["name"]
+    if CLAS_Received == CLAS_Current:
+        CLAS_Updated = True
+        print("\n ✔️ You have the latest version of CLAS!")
     else:
-        response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
-        CLAS_Received = response.json()["name"]
-        if CLAS_Received == CLAS_Current:
-            CLAS_Updated = True
-            print("✔️ You have the latest version of the Auto Scanner! \n")
-        else:
-            print(Warn_CLAS_Outdated_Scanner)
-            print("===============================================================================")
+        print(Warn_Outdated_CLAS)
+        print("===============================================================================")
     return CLAS_Updated
 
 
 def clas_update_run():
     if CLAS_config.getboolean("MAIN", "Update Check") is True:
         try:
-            import requests
             CLAS_CheckUpdates = clas_update_check()
             return CLAS_CheckUpdates
-        except (ImportError, ModuleNotFoundError):
-            subprocess.run(['pip', 'install', 'requests'], shell=True)
+        except (OSError, requests.exceptions.RequestException):
             print(Warn_CLAS_Update_Failed)
             print("===============================================================================")
     elif CLAS_config.getboolean("MAIN", "Update Check") is False:
@@ -185,17 +154,17 @@ def clas_update_run():
 # ================= FLAVOUR TEXT / GLOBAL VARS =================
 Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
-               "\nRandom Hint: You have a crash log where Auto-Scanner couldn't find anything? Feel free to send it to me.\n",
+               "\nRandom Hint: You have a crash log where CLAS couldn't find any solutions? Feel free to send it to me.\n",
                "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
                "\nRandom Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google.\n",
                "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
                "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
                "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
-               "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
+               "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and CLAS Nexus Page from time to time to check for updates.\n"]
 
 crash_template_stats = {}
 # =================== TERMINAL OUTPUT START ====================
-print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Current[-4:], "| Fallout 4")
+print("Hello World! | Crash Log Auto Scanner (CLAS) | Version", CLAS_Current[-4:], "| Fallout 4")
 print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION")
 print("===============================================================================")
 
@@ -232,7 +201,7 @@ def scan_logs():
     if len(CLAS_config["MAIN"]["Scan Path"]) > 1:
         SCAN_folder = CLAS_config["MAIN"]["Scan Path"]
 
-    for file in glob(f"{SCAN_folder}/crash-*.log"):  # + glob(f"{SCAN_folder}/crash-*.txt")
+    for file in glob(f"{SCAN_folder}/crash-*.log"):
         logpath = Path(file).resolve()
         scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
         logname = logpath.name
@@ -242,7 +211,7 @@ def scan_logs():
             while "" in loglines:
                 loglines.remove("")
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
-            output.writelines([f"{logname} | Scanned with Crash Log Auto-Scanner (CLAS) version {CLAS_Current[-4:]} \n",
+            output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {CLAS_Current[-4:]} \n",
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
                                "====================================================\n"])
 
@@ -339,7 +308,7 @@ def scan_logs():
                 output.write("> Priority : [5]\n")
 
             # ====================== MAIN CULPRITS ======================
-            # OTHER | RESERVED
+            # RESERVED
             # "BSResourceNiBinaryStream" | "ObjectBindPolicy"
             # Uneducated Shooter (56789) | "std::invalid_argument"
             # ===========================================================
@@ -483,9 +452,9 @@ def scan_logs():
                 output.write(f'> Priority : [5] | nvwgf2umx.dll : {logtext.count("nvwgf2umx.dll")} | USER32.dll : {logtext.count("USER32.dll")}\n')
 
             # ===========================================================
-            if "NVIDIA_Reflex.dll" in logtext and (logtext.count("Buffout4.dll") >= 3 or "3A0000" in buff_error or "AD0000" in buff_error or "8E0000" in buff_error):
+            if "NVIDIA_Reflex.dll" in logtext and logtext.count("Buffout4.dll") >= 3 or "3A0000" in buff_error or "AD0000" in buff_error or "8E0000" in buff_error:
                 crash_template("# Checking for ", "Nvidia Reflex Crash..........", "CULPRIT FOUND! #\n", "statC_NVReflex", output)
-                output.write(f'> Priority : [4] | *Currently no clear indicators for this crash* \n')
+                output.write(f'> Priority : [4] | +3A0000 | +AD0000 | +8E0000 | *Currently no clear indicators for this crash* \n')
 
             # ===========================================================
             if (logtext.count("KERNELBASE.dll") or logtext.count("MSVCP140.dll")) >= 3 and "DxvkSubmissionQueue" in logtext:
@@ -734,7 +703,7 @@ def scan_logs():
 
                 16: {"mod": " WOTC.esp",
                      "warn": ["WAR OF THE COMMONWEALTH \n",
-                              "[Seems responsible for consistent crashes with specific spawn points or randomly during settlement attacks.]"]}
+                              "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]}
             }
             Mod_Check1 = False
             if plugins_loaded:
@@ -743,16 +712,15 @@ def scan_logs():
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in buff_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
-                                       "AUTOSCAN IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
+                                       "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
                                        "You should disable CHW to further confirm this.\n",
-                                       "Visit the main crash logs article for additional solutions.\n",
                                        "-----\n"])
                     statM_CHW += 1
                     Mod_Trap1 = True
                     Culprit_Trap = True
                 elif "ClassicHolsteredWeapons" in logtext and "d3d11" in buff_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
-                                       "AUTOSCAN CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
+                                       "CLAS CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
                                        "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",
                                        "This usually prevents most common crashes with Classic Holstered Weapons.\n",
                                        "-----\n"])
@@ -763,7 +731,7 @@ def scan_logs():
                                    "-----\n"])
                 statL_scanned += 1
             elif plugins_loaded and (Mod_Check1 and Mod_Trap1) is False:
-                output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n",
+                output.writelines(["# CLAS FOUND NO PROBLEMATIC MODS THAT MATCH THE CURRENT DATABASE FOR THIS LOG #\n",
                                    "THAT DOESN'T MEAN THERE AREN'T ANY! YOU SHOULD RUN PLUGIN CHECKER IN WRYE BASH.\n",
                                    "Wrye Bash Link: https://www.nexusmods.com/fallout4/mods/20032?tab=files\n",
                                    "-----\n"])
@@ -794,7 +762,7 @@ def scan_logs():
                 2: {"mod_1": " BostonFPSFix",
                     "mod_2": " PRP.esp",
                     "warn": ["BOSTON FPS FIX ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
-                             "[Using both mods can break precombines. Auto Scanner suggests using Previs Repair Pack only.]"]},
+                             "[Using both mods can break precombines. CLAS suggests using Previs Repair Pack only.]"]},
 
                 3: {"mod_1": " ExtendedWeaponSystem.esm",
                     "mod_2": " TacticalReload.esm",
@@ -822,12 +790,12 @@ def scan_logs():
                     "mod_2": " NVIDIA_Reflex.dll",
                     "warn": ["VULKAN RENDERER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
                              "[Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior.]\n",
-                             "[If you encounter Nvidia Driver crashes, Auto Scanner suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.]"]},
+                             "[If you encounter Nvidia Driver crashes, CLAS suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.]"]},
 
                 8: {"mod_1": " CustomCamera.esp",
                     "mod_2": " CameraTweaks.esp",
                     "warn": ["CUSTOM CAMERA ❌ CONFLICTS WITH : CAMERA TWEAKS \n",
-                             "[Both mods make changes to the in-game camera. Auto Scanner suggests using Camera Tweaks only, since it's an updated alternative.]"]},
+                             "[Both mods make changes to the in-game camera. CLAS suggests using Camera Tweaks only, since it's an updated alternative.]"]},
 
                 9: {"mod_1": " UniquePlayer.esp",
                     "mod_2": " ClassicHolsteredWeapons",
@@ -909,7 +877,7 @@ def scan_logs():
                 6: {"mod": " EveryonesBestFriend",
                     "warn": ["EVERYONE'S BEST FRIEND \n",
                              "- This mod needs a compatibility patch to properly work with the Unofficial Patch (UFO4P). \n",
-                             "  Patch Link: https://www.nexusmods.com/fallout4/mods/43409?tab=files"]},
+                             "  Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM"]},
 
                 7: {"mod": " M8r_Item_Tags",
                     "warn": ["FALLUI ITEM SORTER (OLD) \n",
@@ -1135,7 +1103,7 @@ def scan_logs():
                      "warn": "Mutilated Dead Bodies"},
                 18: {"mod": " Vault4.esp",
                      "warn": "Fourville (Vault 4)"},
-                19: {"mod": "atlanticofficesf23",
+                19: {"mod": " atlanticofficesf23",
                      "warn": "Lost Building of Atlantic"},
                 20: {"mod": " Minutemen Supply Caches",
                      "warn": "Minutemen Supply Caches"},
@@ -1290,16 +1258,6 @@ def scan_logs():
             list_DETFORMIDS = []
             list_ALLPLUGINS = []
 
-            for line in loglines:
-                if "MODULES:" in line:  # Check if crash log lists DLL and F4SE modules.
-                    module_index = loglines.index(line)
-                    next_line = loglines[module_index + 1]
-                    if len(next_line) > 1:
-                        if ("f4se_1_10_163.dll" in logtext or "f4sevr_1_2_72.dll" in logtext) and "steam_api64.dll" in logtext:
-                            break
-                        else:
-                            output.write(Warn_BLOG_NOTE_Modules)
-
             output.write("LIST OF (POSSIBLE) PLUGIN CULPRITS:\n")
 
             for line in loglines:
@@ -1381,19 +1339,20 @@ def scan_logs():
 
             # ===========================================================
 
-            List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/"]
-            List_Exclude = ['""', "...", "[FE:"]
+            List_Files = ["editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
+                          ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/"]
+            List_Exclude = ['""', "...", "[FE:", "f4se_1_10", "KERNEL", "ntdll"]
 
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
             List_Records = []
             for line in loglines:
-                if "Name:" in line or "EditorID:" in line or "Function:" in line or any(elem in line.lower() for elem in List_Files):
+                if any(elem in line.lower() for elem in List_Files):
                     if not any(elem in line for elem in List_Exclude):
                         line = line.replace('"', '')
                         List_Records.append(f"{line.strip()}\n")
 
             List_Records = sorted(List_Records)
-            List_Records = Counter(List_Records)  # list(dict.fromkeys(List_Records))
+            List_Records = Counter(List_Records)
             for item in List_Records:
                 output.write("{} : {} \n".format(item.replace("\n", ""), List_Records[item]))
 
@@ -1404,7 +1363,7 @@ def scan_logs():
                 output.writelines(["-----\n",
                                    "[Last number counts how many times each named record shows up in the crash log.]\n",
                                    "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
-                                   "Named records should give extra information on involved game objects and record types.\n",
+                                   "Named records should give extra info on involved game objects, record types or mod files.\n",
                                    "-----\n"])
 
             output.writelines(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n",
@@ -1444,13 +1403,13 @@ def scan_logs():
         with open(file, encoding="utf-8", errors="ignore") as LOG_Check:
             Line_Check = LOG_Check.readlines()
             line_count = sum(1 for _ in Line_Check)
-            if ".txt" in scan_name or line_count < 20:  # Adjust if necessary. Failed scans are usually 16 lines.
+            if ".txt" in scan_name or line_count < 20:  # Failed scans are usually 16 lines.
                 list_SCANFAIL.append(scan_name)
                 statL_failed += 1
                 statL_scanned -= 1
 
     if len(list_SCANFAIL) >= 1:
-        print("NOTICE: Auto-Scanner WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
+        print("NOTICE : CLAS WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
         for elem in list_SCANFAIL:
             print(elem)
         print("===============================================================================")
@@ -1463,7 +1422,7 @@ def scan_logs():
     print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
     print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
     print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
-    print("(Set Stat Logging to true in Scan Crashlogs.ini for additional stats.)")
+    print("(Set Stat Logging to true in CLAS Settings.ini for additional stats.)")
     print("-----")
     # Trying to generate Stat Logging for 0 valid logs will crash the script.
     if CLAS_config.getboolean("MAIN", "Stat Logging") is True and statL_scanned > 0:
@@ -1521,17 +1480,17 @@ def scan_logs():
         print(crash_template("Logs with ", "*[GPU Overclock Crash].......", ".. ", "statU_Overclock"))
         print(crash_template("Logs with ", "*[NPC Projectile Crash]......", ".. ", "statU_Projectile"))
         print(crash_template("Logs with ", "*[Camera Position Crash].....", ".. ", "statU_Camera"))
-        print(" *Unsolved, see How To Read Crash Logs PDF")
+        print("*Unsolved, see 'How To Read Crash Logs' PDF")
         print("===========================================")
     elif statL_scanned == 0:
-        print(" ❌ Auto Scanner found no logs to scan.")
+        print(" ❌ CLAS found no crash logs to scan.")
         print("    There are no statistics to show.\n")
     return
 
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     import argparse
-    parser = argparse.ArgumentParser(prog="Buffout 4 Crash Log Auto-Scanner", description="All command-line options are saved to the INI file.")
+    parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner (CLAS)", description="All command-line options are saved to the INI file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
     parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")

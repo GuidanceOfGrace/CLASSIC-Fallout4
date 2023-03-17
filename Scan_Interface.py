@@ -1,7 +1,5 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
-
 import sys
-
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
@@ -12,7 +10,7 @@ from Scan_Crashlogs import (CLAS_config, CLAS_Current, clas_ini_update,
 
 
 # noinspection PyUnresolvedReferences
-class UiClasMainwin(object):
+class UiCLASMainWin(object):
     def __init__(self):
         self.ArtBT_Buffout4 = None
         self.ArtBT_Patches = None
@@ -315,7 +313,7 @@ class UiClasMainwin(object):
 
     @staticmethod
     def Update_Popup():
-        if clas_update_run():
+        if clas_update_check():
             QtWidgets.QMessageBox.information(CLAS_MainWin, "CLAS Update", "You have the latest version of Crash Log Auto Scanner!")
         else:
             QtWidgets.QMessageBox.warning(CLAS_MainWin, "CLAS Update", "New Crash Log Auto Scanner version detected!\nPress OK to open the CLAS Nexus Page.")
@@ -366,7 +364,7 @@ PRESS 'Scan Game Files' BUTTON TO CHECK YOUR FALLOUT 4 GAME FILES
     print(gui_prompt)
     app = QtWidgets.QApplication(sys.argv)
     CLAS_MainWin = QtWidgets.QDialog()
-    ui = UiClasMainwin()
+    ui = UiCLASMainWin()
     ui.setup_ui(CLAS_MainWin)
     CLAS_MainWin.show()
     sys.exit(app.exec())

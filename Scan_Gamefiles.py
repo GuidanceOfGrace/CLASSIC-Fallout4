@@ -3,20 +3,17 @@ import hashlib
 import os
 import platform
 import stat
-import subprocess
+import tomlkit
 from Scan_Crashlogs import CLAS_config, clas_ini_create, clas_ini_update
 from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
-
-try:
-    import tomlkit
-except (ImportError, ModuleNotFoundError):
-    subprocess.run(["pip", "install", "tomlkit"], shell=True)
-    import tomlkit
-
 if platform.system() == "Windows":
     import ctypes.wintypes
+
+# For parsing HTML / XML (Wrye Plugin Check)
+from bs4 import BeautifulSoup
+
 
 clas_ini_create()
 
@@ -26,6 +23,7 @@ Warn_CLAS_Broken_F4CINI = """
 [!] WARNING : YOUR Fallout4Custom.ini FILE MIGHT BE BROKEN
     Disable FCX Mode or delete this INI file and create a new one.
     I also strongly advise using BethINI to readjust your INI settings.
+    -----
 """
 Warn_CLAS_Missing_F4SELOG = """
 [!] WARNING : AUTO-SCANNER CANNOT FIND THE REQUIRED F4SE LOG FILE!
@@ -102,6 +100,7 @@ class Info:
     Steam_INI: Path = field(default_factory=Path)
     VR_Buffout: Path = field(default_factory=Path)
     VR_EXE: Path = field(default_factory=Path)
+    WB_Plugin_Check: Path = field(default_factory=Path)
     # FO4 DOC FILES
     BO4_Achievements: Path = field(default_factory=Path)
     BO4_Looksmenu: Path = field(default_factory=Path)
@@ -121,11 +120,12 @@ class Info:
         self.FO4_F4SEVR_Logs = str(docs_location.joinpath("My Games", "Fallout4VR", "F4SE"))
         self.FO4_F4SEVR_Path = docs_location.joinpath("My Games", "Fallout4VR", "F4SE", "f4sevr.log")
         self.FO4_Custom_Path = docs_location.joinpath("My Games", "Fallout4", "Fallout4Custom.ini")
+        self.WB_Plugin_Check = docs_location.joinpath("My Games", "Fallout4", "ModChecker.html")
 
 
 info = Info()
 
-
+# OPEN : Documents Folder | CHECK : Game Path
 def docs_path_check():
     FO4_STEAM_ID = 377160
     Loc_Found = False
@@ -161,7 +161,7 @@ def docs_path_check():
         else:  # Manual_Docs | PROMPT MANUAL INPUT IF DOCUMENTS FOLDER CANNOT BE FOUND.
             print("> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR Fallout4.ini IS LOCATED < <")
             Path_Input = input("(EXAMPLE: C:/Users/Zen/Documents/My Games/Fallout4 | Press ENTER to confirm.)\n> ")
-            print("You entered :", Path_Input, "| This path will be automatically added to Scan Crashlogs.ini")
+            print("You entered :", Path_Input, "| This path will be automatically added to CLAS Settings.ini")
             Manual_Docs = Path(Path_Input.strip())
             clas_ini_update("INI Path", Path_Input)
             return Manual_Docs
@@ -207,7 +207,7 @@ def scan_mainfiles():
                     info.Game_Path = line.replace("\n", "")
                 if "0.6.23" in line:
                     F4SE_Version = True
-                if "error" in line.lower() or "failed" in line.lower():
+                if any(err in line.lower() for err in ("error", "failed", "critical")) and "keybind" not in line.lower() and "failed to open pdb" not in line.lower():
                     F4SE_Error = True
                     Error_List.append(line)
                 if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
@@ -221,7 +221,7 @@ def scan_mainfiles():
                     info.Game_Path = line.replace("\n", "")
                 if "0.6.20" in line:
                     F4SE_Version = True
-                if "error" in line.lower() or "failed" in line.lower():
+                if any(err in line.lower() for err in ("error", "failed", "critical")) and "keybind" not in line.lower() and "failed to open pdb" not in line.lower():
                     F4SE_Error = True
                     Error_List.append(line)
                 if "buffout4.dll" in line.lower() and "loaded correctly" in line.lower():
@@ -252,17 +252,17 @@ def scan_mainfiles():
     def clas_log_errors(log_path):
         list_log_errors = []
         for filename in glob(f"{log_path}/*.log"):
-            if not any(substring in filename for substring in ["crash-", "f4se.log", "Fallout4_dxgi.log"]):
-                logname = ""
+            logname = ""
+            if not any(substring in filename for substring in ["crash-", "f4se.log", "Fallout4_dxgi.log", "CreationKit"]):
                 filepath = Path(filename).resolve()
                 if filepath.is_file():
                     try:
-                        with filepath.open("r+", encoding="utf-8", errors="ignore") as LOG_Check:
+                        with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
                             Log_Errors = LOG_Check.readlines()
                             for line in Log_Errors:
-                                if "error" in line.lower() or "failed" in line.lower() and "keybind" not in line.lower():
+                                if any(err in line.lower() for err in ("error", "failed", "critical")) and "keybind" not in line.lower():
                                     logname = str(filepath)
-                                    list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {line}")
+                                    list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {line}\n  -----")
                     except OSError:
                         list_log_errors.append(f"  ❌ Auto Scanner was unable to scan this log file :\n  {logname}")
                         continue
@@ -308,13 +308,16 @@ def scan_mainfiles():
 
     # CHECK F4SE SCRIPT FILES INTEGRITY
     def f4se_scripts_check(scripts_dir, f4se_scripts):
-        script_files = os.listdir(scripts_dir)
         matching_scripts = 0
-        for script in script_files:
-            if script in f4se_scripts:
-                matching_scripts += 1
-        scan_mainfiles_report.append(f"  * {matching_scripts} / {len(f4se_scripts)} * F4SE script files were found in your Fallout 4 / Data / Scripts folder.\n  -----")
-        return matching_scripts
+        try:
+            script_files = os.listdir(scripts_dir)
+            for script in script_files:
+                if script in f4se_scripts:
+                    matching_scripts += 1
+            scan_mainfiles_report.append(f"  * {matching_scripts} / {len(f4se_scripts)} * F4SE script files were found in your Fallout 4 / Data / Scripts folder.\n  -----")
+            return matching_scripts
+        except FileNotFoundError:
+            return 0
 
     f4se_scripts_list = ["Actor.pex", "ActorBase.pex", "Armor.pex", "ArmorAddon.pex", "Cell.pex", "Component.pex", "ConstructibleObject.pex", "DefaultObject.pex", "EncounterZone.pex",
                          "EquipSlot.pex", "F4SE.pex", "FavoritesManager.pex", "Form.pex", "Game.pex", "HeadPart.pex", "Input.pex", "InstanceData.pex", "Location.pex", "Math.pex",
@@ -355,7 +358,7 @@ def scan_mainfiles():
     # CHECK BUFFOUT 4 REQUIREMENTS | IMI MODE
     if str(CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
         if info.Preloader_XML.is_file() and info.Preloader_DLL.is_file():
-            scan_mainfiles_report.append(Warn_SCAN_NOTE_Preloader)
+            scan_mainfiles_report.append(fr"{Warn_SCAN_NOTE_Preloader}")
         else:
             scan_mainfiles_report.append('❌ OPTIONAL: *Plugin Preloader* is NOT (manually) installed.\n  -----')
 
@@ -406,7 +409,7 @@ def scan_mainfiles():
             if BUFF_config["Patches"]["MaxStdIO"] != 2048: # type: ignore
                 if BUFF_config["Patches"]["MaxStdIO"] < 2048: # type: ignore
                     scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
-                                                  "Auto-Scanner will increase this value to 2048 to prevent BA2 Limit crashes.",
+                                                  "Auto-Scanner will increase this value to 2048 to prevent possible crashes.",
                                                   "-----"])
                 elif BUFF_config["Patches"]["MaxStdIO"] > 2048: # type: ignore
                     scan_mainfiles_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.", # Placeholder message courtesy of Github Copilot
@@ -463,9 +466,24 @@ def scan_modfiles():
     return scan_modfiles_report
 
 
+def scan_wbcheck():  # Wrye Plugin Checker
+    scan_wbcheck_report = []
+    if info.WB_Plugin_Check.is_file():
+        scan_wbcheck_report.append("✔️ WRYE BASH PLUGIN CHECKER REPORT FOUND! ANALYZING CONTENTS...")
+        with open(info.WB_Plugin_Check, "r", encoding="utf-8", errors="ignore") as WB_Check:
+            soup = BeautifulSoup(WB_Check, "html.parser")
+            # Find all h1 tags and print their text
+            for h1 in soup.find_all("h1"):
+                scan_wbcheck_report.append(h1.text)
+
+    return scan_wbcheck_report
+
+
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     for line in scan_mainfiles():
         print(line)
     for line in scan_modfiles():
+        print(line)
+    for line in scan_wbcheck():
         print(line)
     os.system("pause")
