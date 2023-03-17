@@ -6,7 +6,8 @@ import shutil
 import subprocess
 import sys
 import time
-from collections import Counter
+import re
+from collections import Counter, defaultdict
 from glob import glob
 from pathlib import Path
 
@@ -73,32 +74,45 @@ def clas_ini_update(section: str, value: str):  # Convenience function for a cod
 
 # =================== WARNING MESSAGES ==================
 # Can change first line to """\ to remove spacing.
-Warn_CLAS_Outdated_Scanner = """
+# convert to dictionary
+Warnings = {
+    "Warn_CLAS_Outdated_Scanner": """\
 [!] WARNING : YOUR AUTO SCANNER VERSION IS OUT OF DATE!
     Please download the latest version from here:
     https://www.nexusmods.com/fallout4/mods/56255
-"""
-Warn_CLAS_Python_Platform = """
+""",
+    "Warn_CLAS_Python_Platform": """\
 [!] WARNING : NEWEST PYTHON VERSIONS ARE NOT OFFICIALLY SUPPORTED ON WINDOWS 7/8/8.1
-    Install the newest Py version from here: https://github.com/adang1345/PythonWin7
-    Click on green Code button and Download Zip, then extract and install Python 3.11
-"""
-Warn_CLAS_Python_Version = """
+    Install the newest Py version from here:  https://github.com/adang1345/PythonWin7,
+    then click on green Code button and Download Zip, then extract and install Python 3.11
+""",
+    "Warn_CLAS_Python_Version": """\
 [!] WARNING : YOUR PYTHON VERSION IS OUT OF DATE! PLEASE UPDATE PYTHON.
     FOR LINUX / WIN 10 / WIN 11: https://www.python.org/downloads
     FOR WIN 7 / 8 / 8.1 : https://github.com/adang1345/PythonWin7
-"""
-Warn_CLAS_Update_Failed = """
+    """,
+    "Warn_CLAS_Update_Failed": """\
 [!] WARNING : AN ERROR OCCURRED! THE SCRIPT WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
     CHECK FOR ANY AUTO-SCANNER UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
     MAKE SURE YOU HAVE THE LATEST VERSION OF PYTHON 3: https://www.python.org/downloads
-"""
-
-Warn_TOML_Achievements = """\
+""",
+    "Warn_TOML_Achievements": """\
 # ❌ CAUTION : Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #
-  FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.
-  -----
-"""
+    FIX: Open *Scan Crashlogs.ini* and set Achievements = false
+    """,
+    "Warn_TOML_Memory": """\
+# ❌ CAUTION : Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #
+    FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.
+    """,
+    "Warn_TOML_F4EE": """\
+# ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #
+    FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.
+    """,
+    "Warn_TOML_STDIO": """\
+# ❌ CAUTION : MaxStdIO parameter value in *Buffout4.toml* might be too low. #
+    FIX: Open *Buffout4.toml* and change MaxStdIO value to 2048, this should prevent the BA2 Limit crashes.
+    """
+}
 Warn_TOML_Memory = """\
 # ❌ CAUTION : Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #
   FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.
@@ -118,7 +132,7 @@ Warn_TOML_STDIO = """\
 Warn_SCAN_Outdated_Buffout4 = """
 # [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY AUTOSCAN #
       UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/47359
-      BUFFOUT 4 FOR VIRTUAL REALITY: https://www.nexusmods.com/fallout4/mods/64880
+      BUFFOUT 4 NG FORMERLY KNOWN AS BUFFOUT 4 VR: https://www.nexusmods.com/fallout4/mods/64880
 """
 Warn_SCAN_NOTE_DLL = """\
 # [!] NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! #
@@ -150,11 +164,11 @@ def clas_update_check():
     print("(You can disable this check in the EXE or Scan Crashlogs.ini) \n")
     print(f"Installed Python Version: {sys.version[:6]} \n")
     if sys.version_info[:2] < (3, 9):
-        print(Warn_CLAS_Python_Version)
+        print(Warnings["Warn_CLAS_Python_Version"])
         if platform.system() == "Windows":
             os_version = int(platform.win32_ver()[0])
             if os_version < 10:
-                print(Warn_CLAS_Python_Platform)
+                print(Warnings["Warn_CLAS_Python_Platform"])
         os.system("pause")
     else:
         response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
@@ -163,7 +177,7 @@ def clas_update_check():
             CLAS_Updated = True
             print("✔️ You have the latest version of the Auto Scanner! \n")
         else:
-            print(Warn_CLAS_Outdated_Scanner)
+            print(Warnings["Warn_CLAS_Outdated_Scanner"])
             print("===============================================================================")
     return CLAS_Updated
 
@@ -176,7 +190,7 @@ def clas_update_run():
             return CLAS_CheckUpdates
         except (ImportError, ModuleNotFoundError):
             subprocess.run(['pip', 'install', 'requests'], shell=True)
-            print(Warn_CLAS_Update_Failed)
+            print(Warnings["Warn_CLAS_Update_Failed"])
             print("===============================================================================")
     elif CLAS_config.getboolean("MAIN", "Update Check") is False:
         print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
@@ -193,7 +207,8 @@ Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. Yo
                "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
                "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and Auto-Scanner Nexus Page from time to time for updates.\n"]
 
-crash_template_stats = {}
+
+crash_template_stats = defaultdict(int)
 # =================== TERMINAL OUTPUT START ====================
 print("Hello World! | Crash Log Auto-Scanner (CLAS) | Version", CLAS_Current[-4:], "| Fallout 4")
 print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION")
@@ -202,21 +217,18 @@ print("=========================================================================
 
 def scan_logs():
     # =============== CRASH / STAT CHECK TEMPLATE ===============
+
     def crash_template(crash_prefix, crash_main, crash_suffix, crash_stat, filehandle=None):
         global Culprit_Trap
         global crash_template_stats
+
         if "CULPRIT FOUND" in crash_suffix or "DETECTED" in crash_suffix:
             Culprit_Trap = True
 
-        if "Logs with" in crash_prefix:  # FOR STAT LOGGING
-            print(f"{crash_prefix}{crash_main}{crash_suffix}", end='')
-        else:  # MODIFY OUTPUT WHEN NOT CALLED FOR LOGGING
-            filehandle.write(f"{crash_prefix}{crash_main}{crash_suffix}")  # type: ignore
+        output_str = f"{crash_prefix}{crash_main}{crash_suffix}"
+        filehandle.write(output_str) if filehandle else print(output_str, end='')
 
-        if crash_stat in crash_template_stats:
-            crash_template_stats[crash_stat] += 1
-        else:
-            crash_template_stats[crash_stat] = 0
+        crash_template_stats[crash_stat] += 1
         return crash_template_stats[crash_stat]
 
     print("PERFORMING SCAN... \n")
@@ -252,12 +264,18 @@ def scan_logs():
             buff_error = loglines[3].strip()
             plugins_index = 1
             plugins_loaded = False
-            for line in loglines:
-                if "F4SE" not in line and "PLUGINS:" in line:
-                    plugins_index = loglines.index(line)
+
+            for index, line in enumerate(loglines):
+                if "PLUGINS:" in line:
+                    plugins_index = index
                 if "[00]" in line:
                     plugins_loaded = True
                     break
+            else:
+                plugins_index = len(loglines)
+
+            if "F4SE" not in "".join(loglines[:plugins_index]):
+                Culprit_Trap = True
 
             plugins_list = loglines[plugins_index:]
             if os.path.exists("loadorder.txt"):
@@ -300,7 +318,7 @@ def scan_logs():
             else:
                 # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
                 if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
-                    output.write(Warn_TOML_Achievements)
+                    output.write(Warnings["Warn_TOML_Achievements"])
                 else:
                     output.write("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
 
@@ -1212,73 +1230,53 @@ def scan_logs():
                         output.write(line)
                         output.write("\n")
 
+            mod_info = {
+                'Canary Save File Monitor': {
+                    'installed': 'CanarySaveFileMonitor' in plugins_list,
+                    'description': 'This is a highly recommended mod that can detect save file corruption.',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
+                },
+                'High FPS Physics Fix': {
+                    'installed': 'HighFPSPhysicsFix.dll' in logtext or 'HighFPSPhysicsFixVR.dll' in logtext,
+                    'description': 'This is a mandatory patch / fix that prevents game engine problems.',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
+                },
+                'Previs Repair Pack': {
+                    'installed': 'PPF.esm' in plugins_list,
+                    'description': 'This is a highly recommended mod that can improve performance.',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
+                },
+                'Unofficial Fallout 4 Patch': {
+                    'installed': 'Unofficial Fallout 4 Patch.esp' in plugins_list,
+                    'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
+                },
+                'Vulkan Renderer': {
+                    'installed': 'vulkan-1.dll' in logtext and gpu_amd,
+                    'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files'
+                },
+                'Weapon Debris Crash Fix': {
+                    'installed': 'WeaponDebrisCrashFix.dll' in logtext and gpu_nvidia,
+                    'description': 'Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
+                },
+                'Nvidia Reflex Support': {
+                    'installed': 'NVIDIA_Reflex.dll' in logtext and gpu_nvidia,
+                    'description': 'Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)',
+                    'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files'
+                }
+            }
+
             if plugins_loaded:
-                if any("CanarySaveFileMonitor" in elem for elem in plugins_list):
-                    output.write("✔️ *Canary Save File Monitor* is installed.\n  -----\n")
-                else:
-                    output.writelines(["# ❌ CANARY SAVE FILE MONITOR ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can detect save file corruption.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files\n",
-                                       "  -----\n"])
-
-                if "HighFPSPhysicsFix.dll" in logtext or "HighFPSPhysicsFixVR.dll" in logtext:
-                    output.write("✔️ *High FPS Physics Fix* is installed.\n  -----\n")
-                else:
-                    output.writelines(["# ❌ HIGH FPS PHYSICS FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a mandatory patch / fix that prevents game engine problems.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files\n",
-                                       "  -----\n"])
-
-                if any("PPF.esm" in elem for elem in plugins_list):
-                    output.write("✔️ *Previs Repair Pack* is installed.\n  -----\n")
-                else:
-                    output.writelines(["# ❌ PREVIS REPAIR PACK ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can improve performance.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/46403?tab=files\n",
-                                       "  -----\n"])
-
-                if any("Unofficial Fallout 4 Patch.esp" in elem for elem in plugins_list):
-                    output.write("✔️ *Unofficial Fallout 4 Patch* is installed.\n  -----\n")
-                else:
-                    output.writelines(["# ❌ UNOFFICIAL FALLOUT 4 PATCH ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  If you own all DLCs, make sure that the Unofficial Patch is installed.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files\n",
-                                       "  -----\n"])
-
-                if "vulkan-1.dll" in logtext and gpu_amd:
-                    output.write("✔️ *Vulkan Renderer* is installed.\n  -----\n")
-                elif logtext.count("vulkan-1.dll") == 0 and gpu_amd and not gpu_nvidia:
-                    output.writelines(["# ❌ VULKAN RENDERER ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can improve performance on AMD GPUs.\n",
-                                       "  Installation steps can be found in 'How To Read Crash Logs' PDF / Document.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files\n",
-                                       "  -----\n"])
-
-                if "WeaponDebrisCrashFix.dll" in logtext and gpu_nvidia:
-                    output.write("✔️ *Weapon Debris Crash Fix* is installed.\n  -----\n")
-                elif "WeaponDebrisCrashFix.dll" in logtext and not gpu_nvidia and gpu_amd:
-                    output.writelines(["❌ *Weapon Debris Crash Fix* is installed, but...\n",
-                                       "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
-                                       "  Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)\n",
-                                       "  -----\n"])
-                if "WeaponDebrisCrashFix.dll" not in logtext and gpu_nvidia:
-                    output.writelines(["# ❌ WEAPON DEBRIS CRASH FIX ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a mandatory patch / fix for players with Nvidia graphics cards.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files\n",
-                                       "  -----\n"])
-
-                if "NVIDIA_Reflex.dll" in logtext and gpu_nvidia:
-                    output.write("✔️ *Nvidia Reflex Support* is installed.\n  -----\n")
-                elif "NVIDIA_Reflex.dll" in logtext and not gpu_nvidia and gpu_amd:
-                    output.writelines(["❌ *Nvidia Reflex Support* is installed, but...\n",
-                                       "# YOU DON'T HAVE AN NVIDIA GPU OR BUFFOUT 4 CANNOT DETECT YOUR GPU MODEL #\n",
-                                       "  Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)\n",
-                                       "  -----\n"])
-                if "NVIDIA_Reflex.dll" not in logtext and gpu_nvidia:
-                    output.writelines(["# ❌ NVIDIA REFLEX SUPPORT ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n",
-                                       "  This is a highly recommended mod that can reduce render latency.\n",
-                                       "  Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files\n",
-                                       "  -----\n"])
+                for mod_name, mod_data in mod_info.items():
+                    if mod_data['installed']:
+                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                    else:
+                        output.write(f"# ❌ {mod_name.upper()} ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                     f"  {mod_data['description']}\n"
+                                     f"  Link: {mod_data['link']}\n"
+                                     "  -----\n")
             else:
                 output.write(Warn_BLOG_NOTE_Plugins)
 
@@ -1321,15 +1319,13 @@ def scan_logs():
                     list_DETPLUGINS.remove(elem)
 
             list_DETPLUGINS = Counter(list_DETPLUGINS)
-            PL_result = []
+            PL_result = {}
             for elem in list_ALLPLUGINS:
-                PL_matches = []
-                for item in list_DETPLUGINS:
-                    if item in elem:
-                        PL_matches.append(item)
-                if PL_matches:
-                    PL_result.append(PL_matches)
-                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")  # type: ignore
+                matches = [plugin for plugin in list_DETPLUGINS if plugin in elem]
+                if matches:
+                    for match in matches:
+                        PL_result[match] = PL_result.get(match, 0) + 1
+                        output.write(f"- {match} : {list_DETPLUGINS[match]}\n")  # type: ignore
 
             if not PL_result:
                 output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
@@ -1344,26 +1340,25 @@ def scan_logs():
             # ===========================================================
 
             output.write("LIST OF (POSSIBLE) FORM ID CULPRITS:\n")
+
+            plugin_ids = {line.split()[0][1:-1] for line in plugins_list if "]" in line and "[FE" not in line}
+
             for line in loglines:
-                if "Form ID:" in line or "FormID:" in line and "0xFF" not in line:
-                    line = line.replace("0x", "")
+                match = re.search(r'(Form ID|FormID):\s*(?!0xFF)([0-9A-Fa-f]+)', line)
+                if match:
+                    form_id = match.group(2).upper()
                     if plugins_loaded:
-                        line = line.replace("Form ID: ", "")
-                        line = line.replace("FormID: ", "")
-                        line = line.strip()
-                        ID_Only = line
-                        for elem in plugins_list:
-                            if "]" in elem and "[FE" not in elem:
-                                if elem[2:4].strip() == ID_Only[:2]:
-                                    Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()
-                                    list_DETFORMIDS.append(Full_Line.replace("    ", ""))
-                            if "[FE" in elem:
-                                elem = elem.replace(":", "")
-                                if elem[2:7] == ID_Only[:5]:
-                                    Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()
-                                    list_DETFORMIDS.append(Full_Line.replace("    ", ""))
+                        for plugin_id in plugin_ids:
+                            if plugin_id.startswith(form_id[:2]):
+                                full_line = f'Form ID: {form_id} | {plugin_id}'
+                                list_DETFORMIDS.append(full_line)
+                            elif plugin_id.startswith(form_id[:5]):
+                                full_line = f'Form ID: {form_id} | {plugin_id}:'
+                                list_DETFORMIDS.append(full_line)
                     else:
                         list_DETFORMIDS.append(line.strip())
+
+            list_DETFORMIDS = [line for line in list_DETFORMIDS if line.strip()]
 
             list_DETFORMIDS = sorted(list_DETFORMIDS)
             list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))  # Removes duplicates as dicts cannot have them.
@@ -1381,21 +1376,18 @@ def scan_logs():
 
             # ===========================================================
 
-            List_Files = [".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/"]
-            List_Exclude = ['""', "...", "[FE:"]
-
+            List_Files = {".bgsm", ".bto", ".btr", ".dds", ".fuz", ".hkb", ".hkx", ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", r"data/"}
+            List_Exclude = {'""', "...", "[FE:"}
+            
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
-            List_Records = []
-            for line in loglines:
-                if "Name:" in line or "EditorID:" in line or "Function:" in line or any(elem in line.lower() for elem in List_Files):
-                    if not any(elem in line for elem in List_Exclude):
-                        line = line.replace('"', '')
-                        List_Records.append(f"{line.strip()}\n")
-
+            List_Records = set(line.strip().replace('"', '') for line in loglines if any(file in line.lower() for file in List_Files) and not any(excl in line for excl in List_Exclude))
+            
             List_Records = sorted(List_Records)
-            List_Records = Counter(List_Records)  # list(dict.fromkeys(List_Records))
+            List_Records = Counter(List_Records)
+            
             for item in List_Records:
-                output.write("{} : {} \n".format(item.replace("\n", ""), List_Records[item]))
+                output.write("{} : {} \n".format(item, List_Records[item]))
+            
 
             if not List_Records:
                 output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
@@ -1415,14 +1407,14 @@ def scan_logs():
                                "CLAS | https://www.nexusmods.com/fallout4/mods/56255"])
 
         # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
-        if CLAS_config.getboolean("MAIN", "Move Unsolved"):
-            if not os.path.exists("CLAS-UNSOLVED"):
-                os.mkdir("CLAS-UNSOLVED")
-            if Culprit_Trap is False:
-                uCRASH_path = "CLAS-UNSOLVED/" + logname
-                shutil.move(logname, uCRASH_path)
-                uSCAN_path = "CLAS-UNSOLVED/" + logname + "-AUTOSCAN.md"
-                shutil.move(logname + "-AUTOSCAN.md", uSCAN_path)
+        if CLAS_config.getboolean("MAIN", "Move Unsolved") and not Culprit_Trap:
+            unsolved_path = "CLAS-UNSOLVED"
+            if not os.path.exists(unsolved_path):
+                os.mkdir(unsolved_path)
+            crash_file = os.path.join(unsolved_path, logname)
+            scan_file = os.path.join(unsolved_path, logname + "-AUTOSCAN.md")
+            shutil.move(logname, crash_file)
+            shutil.move(logname + "-AUTOSCAN.md", scan_file)
 
     # ========================== LOG END ==========================
     time.sleep(0.5)
