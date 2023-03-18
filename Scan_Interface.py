@@ -62,10 +62,11 @@ class UiCLASMainWin(object):
         self.Line_SelectedFolder = QtWidgets.QLineEdit(CLAS_MainWin)
         self.Line_SelectedFolder.setGeometry(QtCore.QRect(20, 30, 450, 22))
         self.Line_SelectedFolder.setObjectName("Line_SelectedFolder")
-        self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
-        if len(CLAS_config["MAIN"]["Scan Path"].strip()) > 1:
-            SCAN_folder = CLAS_config["MAIN"]["Scan Path"].strip()
+        SCAN_folder = CLAS_config["MAIN"]["Scan Path"].strip()
+        if len(SCAN_folder) > 1:
             self.Line_SelectedFolder.setText(SCAN_folder)
+        else:
+            self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
         # Change text color to gray.
         LSF_palette = self.Line_SelectedFolder.palette()
         LSF_palette.setColor(QPalette.Text, QColor("darkgray"))  # type: ignore
@@ -141,7 +142,6 @@ class UiCLASMainWin(object):
         if CLAS_config.getboolean("MAIN", "FCX Mode"):
             self.ChkBT_FCXMode.setChecked(True)
         self.ChkBT_FCXMode.setObjectName("ChkBT_FCXMode")
-        self.ChkBT_FCXMode.stateChanged.connect(self.Bool_FCXMode)  # type: ignore
 
         # Check Box - IMI Mode
         self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -151,7 +151,6 @@ class UiCLASMainWin(object):
         if CLAS_config.getboolean("MAIN", "IMI Mode"):
             self.ChkBT_IMIMode.setChecked(True)
         self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
-        self.ChkBT_IMIMode.stateChanged.connect(self.Bool_IMIMode)  # type: ignore
 
         # Check Box - INI Update
         self.ChkBT_Update = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -161,7 +160,6 @@ class UiCLASMainWin(object):
         if CLAS_config.getboolean("MAIN", "Update Check"):
             self.ChkBT_Update.setChecked(True)
         self.ChkBT_Update.setObjectName("ChkBT_Update")
-        self.ChkBT_Update.stateChanged.connect(self.Bool_INIUpdate)  # type: ignore
 
         # Check Box - INI Stats
         self.ChkBT_Stats = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -171,7 +169,6 @@ class UiCLASMainWin(object):
         if CLAS_config.getboolean("MAIN", "Stat Logging"):
             self.ChkBT_Stats.setChecked(True)
         self.ChkBT_Stats.setObjectName("ChkBT_Stats")
-        self.ChkBT_Stats.stateChanged.connect(self.Bool_INIStats)  # type: ignore
 
         # Check Box - INI Unsolved
         self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
@@ -181,7 +178,6 @@ class UiCLASMainWin(object):
         if CLAS_config.getboolean("MAIN", "Move Unsolved"):
             self.ChkBT_Unsolved.setChecked(True)
         self.ChkBT_Unsolved.setObjectName("ChkBT_Unsolved")
-        self.ChkBT_Unsolved.stateChanged.connect(self.Bool_INIUnsolved)  # type: ignore
 
         # SEGMENT - ARTICLES / WEBSITES
 
@@ -201,42 +197,23 @@ class UiCLASMainWin(object):
         self.LBL_ArtWeb.setFont(font)
         self.LBL_ArtWeb.setObjectName("LBL_ArtWeb")
 
-        # Button - Article Buffout 4
-        self.ArtBT_Buffout4 = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Buffout4.setGeometry(QtCore.QRect(40, 370, 170, 30))
-        self.ArtBT_Buffout4.setObjectName("ArtBT_Buffout4")
-        self.ArtBT_Buffout4.setText("BUFFOUT 4 INSTALLATION")
-        self.ArtBT_Buffout4.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3115")))  # type: ignore
-        # Button - Article Advanced Troubleshooting
-        self.ArtBT_Troubleshoot = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Troubleshoot.setGeometry(QtCore.QRect(220, 370, 200, 30))
-        self.ArtBT_Troubleshoot.setObjectName("ArtBT_Troubleshoot")
-        self.ArtBT_Troubleshoot.setText("ADVANCED TROUBLESHOOTING")
-        self.ArtBT_Troubleshoot.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/4141")))  # type: ignore
-        # Button - Article Important Patches
-        self.ArtBT_Patches = QtWidgets.QPushButton(CLAS_MainWin)
-        self.ArtBT_Patches.setGeometry(QtCore.QRect(430, 370, 180, 30))
-        self.ArtBT_Patches.setObjectName("ArtBT_Patches")
-        self.ArtBT_Patches.setText("IMPORTANT PATCHES LIST")
-        self.ArtBT_Patches.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/articles/3769")))  # type: ignore
-        # Button - Website Buffout 4
-        self.WebBT_Buffout4_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_Buffout4_Nexus.setGeometry(QtCore.QRect(40, 420, 170, 30))
-        self.WebBT_Buffout4_Nexus.setObjectName("WebBT_Buffout4")
-        self.WebBT_Buffout4_Nexus.setText("BUFFOUT 4 NEXUS PAGE")
-        self.WebBT_Buffout4_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/47359")))  # type: ignore
-        # Button - Website CLAS Nexus
-        self.WebBT_CLAS_Nexus = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Nexus.setGeometry(QtCore.QRect(220, 420, 200, 30))
-        self.WebBT_CLAS_Nexus.setObjectName("WebBT_CLAS_Nexus")
-        self.WebBT_CLAS_Nexus.setText("AUTO SCANNER NEXUS PAGE")
-        self.WebBT_CLAS_Nexus.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255")))  # type: ignore
-        # Button - Website CLAS Github
-        self.WebBT_CLAS_Github = QtWidgets.QPushButton(CLAS_MainWin)
-        self.WebBT_CLAS_Github.setGeometry(QtCore.QRect(435, 420, 170, 30))
-        self.WebBT_CLAS_Github.setObjectName("WebBT_CLAS_Git")
-        self.WebBT_CLAS_Github.setText("AUTO SCANNER GITHUB")
-        self.WebBT_CLAS_Github.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases")))  # type: ignore
+        # Articles & Websites
+        button_data = [
+            {"text": "BUFFOUT 4 INSTALLATION", "url": "https://www.nexusmods.com/fallout4/articles/3115"},
+            {"text": "ADVANCED TROUBLESHOOTING", "url": "https://www.nexusmods.com/fallout4/articles/4141"},
+            {"text": "IMPORTANT PATCHES LIST", "url": "https://www.nexusmods.com/fallout4/articles/3769"},
+            {"text": "BUFFOUT 4 NEXUS PAGE", "url": "https://www.nexusmods.com/fallout4/mods/47359"},
+            {"text": "AUTO SCANNER NEXUS PAGE", "url": "https://www.nexusmods.com/fallout4/mods/56255"},
+            {"text": "AUTO SCANNER GITHUB", "url": "https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases"}
+        ]
+
+        # ARRANGE BUTTONS IN GRID
+        for i, data in enumerate(button_data):
+            button = QtWidgets.QPushButton(CLAS_MainWin)
+            button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 370 + i // 3 * 50, 180, 30))
+            button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
+            button.setText(data["text"])
+            button.clicked.connect(lambda url=data["url"]: QDesktopServices.openUrl(QUrl(url))) # type: ignore
 
         # BOTTOM
 
@@ -255,27 +232,43 @@ class UiCLASMainWin(object):
         self.RegBT_Exit.setToolTip("Exit CLAS GUI")
         self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)  # type: ignore
 
-        # TEXT Box - Window
-        self.TXT_Window = QtWidgets.QTextBrowser(CLAS_MainWin)
-        self.TXT_Window.setGeometry(QtCore.QRect(20, 510, 600, 120))
-        self.TXT_Window.setObjectName("TXT_Window")
-        # TEXT Label - About
-        self.TXT_About = QtWidgets.QLabel(CLAS_MainWin)
-        self.TXT_About.setGeometry(QtCore.QRect(30, 520, 320, 16))
-        self.TXT_About.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhHiddenText)  # type: ignore
-        self.TXT_About.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignTop)  # type: ignore
-        self.TXT_About.setObjectName("TXT_About")
-        self.TXT_About.setText("Crash Log Auto Scanner (CLAS) | Made by: Poet #9800")
-        # TEXT Label - Contributors
-        self.TXT_Contributors = QtWidgets.QLabel(CLAS_MainWin)
-        self.TXT_Contributors.setGeometry(QtCore.QRect(30, 540, 340, 16))
-        self.TXT_Contributors.setObjectName("TXT_Contributors")
-        self.TXT_Contributors.setText("Contributors: evildarkarchon | kittivelae | AtomicFallout757")
+        def create_label(parent, text, geometry):
+            label = QtWidgets.QLabel(parent)
+            label.setGeometry(geometry)
+            label.setObjectName("label")
+            label.setText(text)
+            return label
+
+        def create_text_browser(parent, geometry):
+            text_browser = QtWidgets.QTextBrowser(parent)
+            text_browser.setGeometry(geometry)
+            text_browser.setObjectName("text_browser")
+            return text_browser
+
+        # Usage
+        self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120))
+        self.TXT_About = create_label(CLAS_MainWin, "Crash Log Auto Scanner (CLAS) | Made by: Poet #9800", QtCore.QRect(30, 520, 320, 16))
+        self.TXT_Contributors = create_label(CLAS_MainWin, "Contributors: evildarkarchon | kittivelae | AtomicFallout757", QtCore.QRect(30, 540, 340, 16))
+
+
+        # ====================== CHECK BOXES ========================
+
+        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_IMIMode, "IMI Mode"))  # type: ignore
+        self.ChkBT_Stats.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Stats, "Stat Logging"))  # type: ignore
+        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Unsolved, "Move Unsolved"))  # type: ignore
+        self.ChkBT_Update.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Update, "Update Check"))  # type: ignore
+        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_FCXMode, "FCX Mode"))  # type: ignore
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
         # ================= MAIN BUTTON FUNCTIONS ===================
         # @staticmethod recommended for func that don't call "self".
+
+    def update_ini_config(self, checkbox, config_key):
+        if checkbox.isChecked():
+            clas_ini_update(config_key, "true")
+        else:
+            clas_ini_update(config_key, "false")
 
     @staticmethod
     def CrashLogs_SCAN():
@@ -318,38 +311,6 @@ class UiCLASMainWin(object):
         else:
             QtWidgets.QMessageBox.warning(CLAS_MainWin, "CLAS Update", "New Crash Log Auto Scanner version detected!\nPress OK to open the CLAS Nexus Page.")
             QDesktopServices.openUrl(QUrl("https://www.nexusmods.com/fallout4/mods/56255?tab=files"))
-
-        # ====================== CHECK BOXES ========================
-
-    def Bool_IMIMode(self):
-        if self.ChkBT_IMIMode.isChecked():  # type: ignore
-            clas_ini_update("IMI Mode", "true")
-        else:
-            clas_ini_update("IMI Mode", "false")
-
-    def Bool_INIStats(self):
-        if self.ChkBT_Stats.isChecked():  # type: ignore
-            clas_ini_update("Stat Logging", "true")
-        else:
-            clas_ini_update("Stat Logging", "false")
-
-    def Bool_INIUnsolved(self):
-        if self.ChkBT_Unsolved.isChecked():  # type: ignore
-            clas_ini_update("Move Unsolved", "true")
-        else:
-            clas_ini_update("Move Unsolved", "false")
-
-    def Bool_INIUpdate(self):
-        if self.ChkBT_Update.isChecked():  # type: ignore
-            clas_ini_update("Update Check", "true")
-        else:
-            clas_ini_update("Update Check", "false")
-
-    def Bool_FCXMode(self):
-        if self.ChkBT_FCXMode.isChecked():  # type: ignore
-            clas_ini_update("FCX Mode", "true")
-        else:
-            clas_ini_update("FCX Mode", "false")
 
 
 if __name__ == "__main__":
