@@ -334,7 +334,8 @@ def scan_mainfiles():
     # CHECK FALLOUT4.EXE INTEGRITY
     if info.FO4_EXE.is_file():
         FO4_EXE_Size = os.path.getsize(info.FO4_EXE)
-        if FO4_EXE_Size == 65503104 and hashlib.sha512(info.FO4_EXE.read_bytes()).hexdigest() == info.FO4_Hash["1.10.163"] and not info.Steam_INI.is_file():
+        FO4_HASH = hashlib.sha512(info.FO4_EXE.read_bytes()).hexdigest()
+        if FO4_EXE_Size == 65503104 and FO4_HASH == info.FO4_Hash["1.10.163"] and not info.Steam_INI.is_file():
             scan_mainfiles_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
                                           "    * This is the version BEFORE the 2023 Update *",
                                           "  -----"])
