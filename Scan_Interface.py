@@ -6,7 +6,7 @@ from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QFileDialog
 
 from Scan_Crashlogs import (CLAS_config, CLAS_Current, clas_ini_update,
-                            clas_update_run, scan_logs)
+                            clas_update_check, scan_logs)
 
 
 # noinspection PyUnresolvedReferences
