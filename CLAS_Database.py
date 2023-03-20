@@ -66,11 +66,9 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     LOG_Errors_Exclude = ("keybind", "failed to open pdb", "failed to register method", "failed to get next record")
 
     LOG_Files_Exclude = ("crash-", "CreationKit", "f4se.log", "Fallout4_dxgi.log", "HHS.log")
-
-    Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
-                     ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
-
-    Records_Exclude = ('""', "...", "[FE:", "f4se", "KERNEL", "ntdll", "Buffout4.dll+")
+    
+    Crash_Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
+                           ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
 
 
 UNIVERSE = ClasUniversalVars()
@@ -96,16 +94,18 @@ class ClasSpecificVars:
 
     scan_game_report = []
 
+    Game_Plugins_Exclude = ("", "Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
+
+    Crash_Records_Exclude = Game_Plugins_Exclude + ("", '""', "...", "[FE:", "f4se", "KERNEL", "ntdll", "Buffout4.dll+")
+
     XSE_Scripts_Count = 29
 
-    XSE_Scripts_List = ["Actor.pex", "ActorBase.pex", "Armor.pex", "ArmorAddon.pex", "Cell.pex", "Component.pex", "ConstructibleObject.pex", "DefaultObject.pex", "EncounterZone.pex",
+    XSE_Scripts_List = ("Actor.pex", "ActorBase.pex", "Armor.pex", "ArmorAddon.pex", "Cell.pex", "Component.pex", "ConstructibleObject.pex", "DefaultObject.pex", "EncounterZone.pex",
                         "EquipSlot.pex", "F4SE.pex", "FavoritesManager.pex", "Form.pex", "Game.pex", "HeadPart.pex", "Input.pex", "InstanceData.pex", "Location.pex", "Math.pex",
-                        "MatSwap.pex", "MiscObject.pex", "ObjectMod.pex", "ObjectReference.pex", "Perk.pex", "ScriptObject.pex", "UI.pex", "Utility.pex", "WaterType.pex", "Weapon.pex"]
-
-    Game_Plugins_Exclude = ["Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", ""]
+                        "MatSwap.pex", "MiscObject.pex", "ObjectMod.pex", "ObjectReference.pex", "Perk.pex", "ScriptObject.pex", "UI.pex", "Utility.pex", "WaterType.pex", "Weapon.pex")
 
     # ==================== FLAVOUR TEXT ====================
-    Sneaky_Tips = ["\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
+    Sneaky_Tips = ("\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                    "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
                    "\nRandom Hint: You have a crash log where CLAS couldn't find any solutions? Feel free to send it to me.\n",
                    "\nRandom Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.\n",
@@ -113,7 +113,7 @@ class ClasSpecificVars:
                    "\nRandom Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.\n",
                    "\nRandom Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't.\n",
                    "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
-                   "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and CLAS Nexus Page from time to time to check for updates.\n"]
+                   "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and CLAS Nexus Page from time to time to check for updates.\n")
 
     # =================== WARNING MESSAGES ==================
     # Can change first line to """\ to remove the spacing.
@@ -136,7 +136,7 @@ class ClasSpecificVars:
 # [!] NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! #
   If the dll from main error belongs to a mod, that mod is likely the culprit.
 
-    """,
+""",
         "Warn_SCAN_Log_Errors": """
 # [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS! #
   [ Errors do not necessarily mean that the mod is not working. ]

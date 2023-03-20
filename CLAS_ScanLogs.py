@@ -682,8 +682,8 @@ def scan_logs():
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
             List_Records = []
             for line in loglines:
-                if any(elem in line.lower() for elem in UNIVERSE.Records_Catch):
-                    if not any(elem in line for elem in UNIVERSE.Records_Exclude):
+                if any(elem in line.lower() for elem in UNIVERSE.Crash_Records_Catch):
+                    if not any(elem in line for elem in GALAXY.Crash_Records_Exclude):
                         line = line.replace('"', '')
                         List_Records.append(f"{line.strip()}\n")
 
