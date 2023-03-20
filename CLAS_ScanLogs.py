@@ -291,53 +291,55 @@ def scan_logs():
                     'error_conditions': "xxxxx", 'stack_conditions': "DLCBanner05.dds",
                     'description': '# Checking for Archive Invalidation Crash... CULPRIT FOUND! > Priority : [5] #\n'},
 
+                # ================== LOW ACCURACY CULPRITS ===================
+
                 '*[Creation Club Crash]': {
                     'error_conditions': "+01B59A4", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for *[Creation Club Crash]....... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Creation Club Crash]......... DETECTED! > Priority : [1] *\n'},
 
                 '*[Item Crash]': {
                     'error_conditions': "+0B2C44B", 'stack_conditions': ("TESObjectARMO", "TESObjectWEAP", "BGSMod::Attachment", "BGSMod::Template", "BGSMod::Template::Item"),
-                    'description': '# Checking for *[Item Crash]................ DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Item Crash].................. DETECTED! > Priority : [1] *\n'},
 
                 '*[Save Crash]': {
                     'error_conditions': "+0CDAD30", 'stack_conditions': ("BGSSaveLoadManager", "BGSSaveLoadThread", "BGSSaveFormBuffer"),
-                    'description': '# Checking for *[Save Crash]................ DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Save Crash].................. DETECTED! > Priority : [1] *\n'},
 
                 '*[Input Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("ButtonEvent", "MenuControls", "MenuOpenCloseHandler", "PlayerControls", "DXGISwapChain"),
-                    'description': '# Checking for *[Input Crash]............... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Input Crash]................. DETECTED! > Priority : [1] *\n'},
 
                 '*[SS2 / WF Crash]': {
                     'error_conditions': ("+01F498D", "+03F89A3"), 'stack_conditions': ("StartWorkshop", "IsWithinBuildableArea", "PlayerControls", "DXGISwapChain"),
-                    'description': '# Checking for *[SS2 / WF Crash]............ DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[SS2 / WF Crash].............. DETECTED! > Priority : [1] *\n'},
 
                 '*[Looks Menu Crash]': {
                     'error_conditions': ("+1D13DA7", "F4EE"), 'stack_conditions': ("BSShader", "BSBatchRenderer", "ShadowSceneNode"),
-                    'description': '# Checking for *[Looks Menu Crash].......... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Looks Menu Crash]............ DETECTED! > Priority : [1] *\n'},
 
                 '*[NPC Patrol Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("BGSProcedurePatrol", "BGSProcedurePatrolExecState", "PatrolActorPackageData"),
-                    'description': '# Checking for *[NPC Patrol Crash].......... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[NPC Patrol Crash]............ DETECTED! > Priority : [1] *\n'},
 
                 '*[Precombines Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("BSPackedCombined", "BGSCombinedCellGeometryDB", "BGSStaticCollection", "TESObjectCELL"),
-                    'description': '# Checking for *[Precombines Crash]......... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Precombines Crash]........... DETECTED! > Priority : [1] *\n'},
 
                 '*[GPU Overclock Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("myID3D11DeviceContext", "BSDeferredDecal", "BSDFDecal"),
-                    'description': '# Checking for *[GPU Overclock Crash]....... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[GPU Overclock Crash]......... DETECTED! > Priority : [1] *\n'},
 
                 '*[NPC Projectile Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("BGSProjectile", "CombatProjectileAimController"),
-                    'description': '# Checking for *[NPC Projectile Crash]...... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[NPC Projectile Crash]........ DETECTED! > Priority : [1] *\n'},
 
                 '*[Camera Position Crash]': {
                     'error_conditions': "NvCamera64", 'stack_conditions': ("NvCamera64.dll", "NiCamera", "WorldRoot Camera"),
-                    'description': '# Checking for *[Camera Position Crash]..... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[Camera Position Crash]....... DETECTED! > Priority : [1] *\n'},
 
                 '*[HUD / Interface Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
-                    'description': '# Checking for *[HUD / Interface Crash]..... DETECTED! > Priority : [1] #\n'},
+                    'description': 'Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
             }
 
             Culprit_Trap = False
