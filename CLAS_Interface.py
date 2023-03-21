@@ -1,6 +1,6 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
-from CLAS_Database import UNIVERSE, GALAXY, clas_ini_create
+from CLAS_Database import UNIVERSE, GALAXY, clas_ini_create, clas_ini_update, clas_update_check
 from CLAS_ScanLogs import scan_logs
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
