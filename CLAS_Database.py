@@ -55,7 +55,7 @@ clas_ini_create()
 
 class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comments.
     CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
-    CLAS_config.optionxform = str  # Preserve INI formatting.
+    CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
     CLAS_config.read("CLAS Settings.ini")
     CLAS_Date = "200323"  # DDMMYY
     CLAS_Current = "CLAS v6.66"
@@ -354,7 +354,7 @@ class ClasCheckFiles:
                 clas_ini_update("INI Path", Path_Input)
                 return Manual_Docs
 
-    SYSTEM.docs_file_check(docs_path_check())
+    SYSTEM.docs_file_check(docs_path_check()) # type: ignore
 
     # =========== CHECK DOCUMENTS -> GAME PATH & XSE LOGS ===========
     # Make sure to check both OG and VR script extender logs!
@@ -413,8 +413,8 @@ class ClasCheckFiles:
     SYSTEM.Steam_INI = Game_Folder.joinpath("steam_api.ini")
     SYSTEM.Preloader_DLL = Game_Folder.joinpath("IpHlpAPI.dll")
     SYSTEM.Preloader_XML = Game_Folder.joinpath("xSE PluginPreloader.xml")
-    SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.FO4_EXE)
-    SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.FO4_EXE.read_bytes()).hexdigest()
+    SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.FO4_EXE) # type: ignore
+    SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.FO4_EXE.read_bytes()).hexdigest() # type: ignore
     # F4SE FILES
     SYSTEM.F4SE_DLL = Game_Folder.joinpath("f4se_1_10_163.dll")
     SYSTEM.F4SE_SDLL = Game_Folder.joinpath("f4se_steam_loader.dll")
@@ -499,7 +499,7 @@ class ClasCheckFiles:
     @staticmethod
     def fo4_check_integrity(exe_filepath):
         if exe_filepath.is_file():
-            if SYSTEM.EXE_Local_Size == GALAXY.Game_Size_OLD and SYSTEM.EXE_Local_Hash == GALAXY.Game_HASH["1.10.163"] and not SYSTEM.Steam_INI.is_file():
+            if SYSTEM.EXE_Local_Size == GALAXY.Game_Size_OLD and SYSTEM.EXE_Local_Hash == GALAXY.Game_HASH["1.10.163"] and not SYSTEM.Steam_INI.is_file(): # type: ignore
                 GALAXY.scan_game_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
                                                 "    * This is the version BEFORE the 2023 Update *",
                                                 "  -----"])
