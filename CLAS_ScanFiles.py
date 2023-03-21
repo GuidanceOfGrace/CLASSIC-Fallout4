@@ -40,7 +40,7 @@ def scan_game_files():
                                    "  YOU NEED TO REINSTALL FALLOUT 4 SCRIPT EXTENDER",
                                    "  F4SE LINK: https://f4se.silverlock.org \n"])
 
-    PLANET.fo4_check_integrity(SYSTEM.FO4_EXE)
+    PLANET.fo4_check_integrity(SYSTEM.Game_EXE)
     PLANET.fo4_check_extensions()
     PLANET.bo4_check_required()
     PLANET.bo4_check_settings()

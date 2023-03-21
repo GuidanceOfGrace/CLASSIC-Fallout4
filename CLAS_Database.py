@@ -13,9 +13,7 @@ if platform.system() == "Windows":
     import ctypes.wintypes
 
 '''AUTHOR NOTES (POET):
-
   UNIVERSE -> Universal Vars | GALAXY -> Game Specific Vars | SYSTEM -> User Local Files | PLANET -> File Functions | MOON -> Mod Functions
-
 - In cases where output.write is used instead of output.writelines, this was done to more easily copy-paste content.
 - Comments marked as RESERVED in all scripts are intended for future updates or tests, do not edit / move / remove.
 - (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
@@ -26,7 +24,7 @@ if platform.system() == "Windows":
 def clas_ini_create():
     if not os.path.exists("CLAS Settings.ini"):  # INI FILE FORCLAS
         INI_Settings = ["[MAIN]\n",
-                        "# This file contains settings for both Scan_Crashlogs.py and Crash Log Auto Scanner.exe \n",
+                        "# This file contains settings for both source scripts and Crash Log Auto Scanner.exe \n",
                         "# Set to true if you want CLAS to check that you have the latest version of CLAS. \n",
                         "Update Check = true\n\n",
                         "# FCX - File Check Xtended | Set to true if you want CLAS to check Buffout 4 and game integrity. \n",
@@ -66,7 +64,7 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     LOG_Errors_Exclude = ("keybind", "failed to open pdb", "failed to register method", "failed to get next record")
 
     LOG_Files_Exclude = ("crash-", "CreationKit", "f4se.log", "Fallout4_dxgi.log", "HHS.log")
-    
+
     Crash_Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                            ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
 
@@ -94,9 +92,9 @@ class ClasSpecificVars:
 
     scan_game_report = []
 
-    Game_Plugins_Exclude = ("", "Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
+    Game_Plugins_Exclude = ("Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
 
-    Crash_Records_Exclude = Game_Plugins_Exclude + ("", '""', "...", "[FE:", "f4se", "KERNEL", "ntdll", "Buffout4.dll+")
+    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "[FE:", "f4se", "KERNEL", "MSVC", "ntdll", "Unhandled exception", "USER32", "usvfs_x64", "win32u")
 
     XSE_Scripts_Count = 29
 
@@ -122,15 +120,14 @@ class ClasSpecificVars:
  ❌ WARNING : YOUR CLAS VERSION IS OUT OF DATE!
     Please download the latest version from here:
     https://www.nexusmods.com/fallout4/mods/56255
-    """,
+""",
         "Warn_CLAS_Update_Failed": """
  ❌ WARNING : AN ERROR OCCURRED! CLAS WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
     CHECK FOR ANY CLAS UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
-    """,
+""",
         "Warn_SCAN_FCX_Mode": """\
 * NOTICE: FCX MODE IS ENABLED. CLAS MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
   [ To disable game & mod files detection, set FCX Mode = false in CLAS Settings.ini ]
------
 """,
         "Warn_SCAN_NOTE_DLL": """\
 # [!] NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! #
@@ -146,80 +143,80 @@ class ClasSpecificVars:
 # ❌ CAUTION : Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #
   FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.
   -----
-    """,
+""",
         "Warn_TOML_Memory": """\
 # ❌ CAUTION : Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #
   FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.
   -----
-    """,
+""",
         "Warn_TOML_F4EE": """\
 # ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #
   FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.
   -----
-    """,
+""",
         "Warn_TOML_STDIO": """\
 # ❌ CAUTION : MaxStdIO parameter value in *Buffout4.toml* might be too low. #
   FIX: Open *Buffout4.toml* and change MaxStdIO value to 2048, this might prevent some crashes or bugs.
   -----
-    """,
+""",
         "Warn_SCAN_Outdated_Buffout4": """
 # [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY AUTOSCAN #
       UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/64880
-    """,
+""",
         "Warn_BLOG_NOTE_Plugins": """\
 # [!] NOTICE : BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #
   Autoscan cannot continue. Try scanning a different crash log
   OR copy-paste your *loadorder.txt* into your CLAS folder.
   -----
-    """,
+""",
         "Warn_CLAS_Broken_F4CINI": """
 [!] WARNING : YOUR Fallout4Custom.ini FILE MIGHT BE BROKEN
     Disable FCX Mode or delete this INI file and create a new one.
     I also strongly advise using BethINI to readjust your INI settings.
     -----
-    """,
+""",
         "Warn_CLAS_Missing_F4SELOG": """
 [!] WARNING : AUTO-SCANNER CANNOT FIND THE REQUIRED F4SE LOG FILE!
     MAKE SURE THAT FALLOUT 4 SCRIPT EXTENDER IS CORRECTLY INSTALLED!
     F4SE Link (Regular & VR Version): https://f4se.silverlock.org
-    """,
+""",
         "Warn_SCAN_Outdated_F4SE": """
 # [!] CAUTION : REPORTED F4SE VERSION DOES NOT MATCH THE F4SE VERSION USED BY AUTOSCAN #
       UPDATE FALLOUT 4 SCRIPT EXTENDER IF NECESSARY: https://f4se.silverlock.org
       F4SE VERSION FOR VIRTUAL REALITY IS LOCATED ON THE SAME WEBSITE
-    """,
+""",
         "Warn_SCAN_Missing_F4SE_BO4": """
 # [!] CAUTION : SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #
       Buffout 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359
       Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115
-    """,
+""",
         "Warn_SCAN_Missing_F4SE_CORE": """
 # [!] CAUTION : AUTO SCANNER CANNOT FIND FALLOUT 4 SCRIPT EXTENDER FILES OR THEY ARE MISSING! #
       FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
       Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 game folder.
-    """,
+""",
         "Warn_SCAN_Missing_Buffout4": """
 # [!] CAUTION : AUTO-SCANNER CANNOT FIND BUFFOUT 4 FILES OR THEY ARE MISSING! #
       BUFFOUT 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359
       Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115
-    """,
+""",
         "Warn_SCAN_Missing_ADLIB": """
 # [!] CAUTION : AUTO SCANNER CANNOT FIND REQUIRED ADDRESS LIBRARY FILE OR IT IS MISSING! #
       ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327
       ADDRESS LIBRARY VR: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/64879
       Extract the *version.bin* or *version.csv* file manually into your Fallout 4/Data/F4SE/Plugins folder.
-    """,
+""",
         "Warn_SCAN_NOTE_Preloader": """
 # [!] NOTICE : Plugin Preloader is (manually) installed. It may rarely prevent the game from initializing correctly. #
       If the game fails to start after installing this mod, open *xSE PluginPreloader.xml* with a text editor and CHANGE
       <LoadMethod Name=\"ImportAddressHook\"> TO <LoadMethod Name=\"OnThreadAttach\"> OR <LoadMethod Name=\"OnProcessAttach\">
       IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER
-    """,
+""",
         "Warn_BLOG_NOTE_Modules": """\
 # [!] NOTICE : BUFFOUT 4 COULDN'T LIST ALL MODULES OR F4SE IS NOT INSTALLED! #
       CHECK IF SCRIPT EXTENDER (F4SE) IS CORRECTLY INSTALLED! \n")
       Script Extender Link: https://f4se.silverlock.org \n")
-    """}
+"""}
 
 
 GALAXY = ClasSpecificVars()
@@ -238,7 +235,7 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
 
 
 def clas_update_check():
-    print(" ❓ CHECKING FOR ANY NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
+    print(" ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
     print("    (You can disable this check in the EXE or CLAS Settings.ini) \n")
     response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
     CLAS_Received = response.json()["name"]
@@ -266,21 +263,22 @@ def clas_update_run():
 # =================== DEFINE LOCAL FILES ===================
 @dataclass
 class ClasLocalFiles:
+    # GENERAL GAME FILES
+    Game_EXE: Path = field(default_factory=Path)
+    Game_Path: str = field(default_factory=str)
+    Game_Scripts: Path = field(default_factory=Path)
+    CreationKit_EXE: Path = field(default_factory=Path)
+    CreationKit_Fixes: Path = field(default_factory=Path)
+    XSE_DLL: Path = field(default_factory=Path)
+    XSE_Loader: Path = field(default_factory=Path)
+    XSE_SteamDLL: Path = field(default_factory=Path)
+    XSE_VRDLL: Path = field(default_factory=Path)
+    XSE_VRLoader: Path = field(default_factory=Path)    
     # FO4 GAME FILES
     Address_Library: Path = field(default_factory=Path)
     Address_LibraryVR: Path = field(default_factory=Path)
     Buffout_DLL: Path = field(default_factory=Path)
     Buffout_TOML: Path = field(default_factory=Path)
-    F4CK_EXE: Path = field(default_factory=Path)
-    F4CK_Fixes: Path = field(default_factory=Path)
-    F4SE_DLL: Path = field(default_factory=Path)
-    F4SE_Loader: Path = field(default_factory=Path)
-    F4SE_SDLL: Path = field(default_factory=Path)
-    F4SE_VRDLL: Path = field(default_factory=Path)
-    F4SE_VRLoader: Path = field(default_factory=Path)
-    FO4_EXE: Path = field(default_factory=Path)
-    Game_Path: str = field(default_factory=str)
-    Game_Scripts: Path = field(default_factory=Path)
     Preloader_DLL: Path = field(default_factory=Path)
     Preloader_XML: Path = field(default_factory=Path)
     Steam_INI: Path = field(default_factory=Path)
@@ -407,23 +405,23 @@ class ClasCheckFiles:
     Game_Folder = Path(SYSTEM.Game_Path)
     SYSTEM.Game_Scripts = Game_Folder.joinpath("Data", "Scripts")
     # ROOT FILES
-    SYSTEM.FO4_EXE = Game_Folder.joinpath("Fallout4.exe")
-    SYSTEM.F4CK_EXE = Game_Folder.joinpath("CreationKit.exe")
-    SYSTEM.F4CK_Fixes = Game_Folder.joinpath("Data", "F4CKFixes")
+    SYSTEM.Game_EXE = Game_Folder.joinpath("Fallout4.exe")
+    SYSTEM.CreationKit_EXE = Game_Folder.joinpath("CreationKit.exe")
+    SYSTEM.CreationKit_Fixes = Game_Folder.joinpath("Data", "F4CKFixes")
     SYSTEM.Steam_INI = Game_Folder.joinpath("steam_api.ini")
     SYSTEM.Preloader_DLL = Game_Folder.joinpath("IpHlpAPI.dll")
     SYSTEM.Preloader_XML = Game_Folder.joinpath("xSE PluginPreloader.xml")
-    SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.FO4_EXE) # type: ignore
-    SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.FO4_EXE.read_bytes()).hexdigest() # type: ignore
+    SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.Game_EXE) # type: ignore
+    SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.Game_EXE.read_bytes()).hexdigest() # type: ignore
     # F4SE FILES
-    SYSTEM.F4SE_DLL = Game_Folder.joinpath("f4se_1_10_163.dll")
-    SYSTEM.F4SE_SDLL = Game_Folder.joinpath("f4se_steam_loader.dll")
-    SYSTEM.F4SE_Loader = Game_Folder.joinpath("f4se_loader.exe")
+    SYSTEM.XSE_DLL = Game_Folder.joinpath("f4se_1_10_163.dll")
+    SYSTEM.XSE_SteamDLL = Game_Folder.joinpath("f4se_steam_loader.dll")
+    SYSTEM.XSE_Loader = Game_Folder.joinpath("XSE_Loader.exe")
     # VR FILES
     SYSTEM.VR_EXE = Game_Folder.joinpath("Fallout4VR.exe")
     SYSTEM.VR_Buffout = Game_Folder.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
-    SYSTEM.F4SE_VRDLL = Game_Folder.joinpath("f4sevr_1_2_72.dll")
-    SYSTEM.F4SE_VRLoader = Game_Folder.joinpath("f4sevr_loader.exe")
+    SYSTEM.XSE_VRDLL = Game_Folder.joinpath("f4sevr_1_2_72.dll")
+    SYSTEM.XSE_VRLoader = Game_Folder.joinpath("f4sevr_loader.exe")
     # BUFFOUT FILES
     SYSTEM.Buffout_DLL = Game_Folder.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
     SYSTEM.Buffout_TOML = Game_Folder.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
@@ -533,9 +531,9 @@ class ClasCheckFiles:
             else:
                 GALAXY.scan_game_report.append("❌ *Fallout 4 VR* is NOT installed.\n  -----")
 
-            if (SYSTEM.F4CK_EXE.is_file() and os.path.exists(SYSTEM.F4CK_Fixes)) or (isinstance(SYSTEM.Game_Path, str) and Path(SYSTEM.Game_Path).joinpath("winhttp.dll").is_file()):  # type: ignore
+            if (SYSTEM.CreationKit_EXE.is_file() and os.path.exists(SYSTEM.CreationKit_Fixes)) or (isinstance(SYSTEM.Game_Path, str) and Path(SYSTEM.Game_Path).joinpath("winhttp.dll").is_file()):  # type: ignore
                 GALAXY.scan_game_report.append("✔️ *Creation Kit Fixes* is (manually) installed.\n  -----")
-            elif SYSTEM.F4CK_EXE.is_file() and not os.path.exists(SYSTEM.F4CK_Fixes):
+            elif SYSTEM.CreationKit_EXE.is_file() and not os.path.exists(SYSTEM.CreationKit_Fixes):
                 GALAXY.scan_game_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
                                                 "  This is a highly recommended patch for the Fallout 4 Creation Kit.",
                                                 "  Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
@@ -554,7 +552,7 @@ class ClasCheckFiles:
             else:
                 GALAXY.scan_game_report.append('❌ OPTIONAL: *Plugin Preloader* is NOT (manually) installed.\n  -----')
 
-            if (SYSTEM.F4SE_VRDLL.is_file() and SYSTEM.F4SE_VRLoader.is_file()) or (SYSTEM.F4SE_DLL.is_file() and SYSTEM.F4SE_Loader.is_file() and SYSTEM.F4SE_SDLL.is_file()):
+            if (SYSTEM.XSE_VRDLL.is_file() and SYSTEM.XSE_VRLoader.is_file()) or (SYSTEM.XSE_DLL.is_file() and SYSTEM.XSE_Loader.is_file() and SYSTEM.XSE_SteamDLL.is_file()):
                 GALAXY.scan_game_report.append("✔️ REQUIRED: *Fallout 4 Script Extender* is (manually) installed.\n  -----")
             else:
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_CORE"])
@@ -836,7 +834,8 @@ class ClasCheckMods:
 
         9: {"mod": " BostonFPSFixAIO.esp",
             "warn": ["BOSTON FPS FIX \n",
-                     "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
+                     "- This mod is severely outdated. Either install the PRP patch or switch to PRP entirely. \n",
+                     "  Patch Link: https://www.nexusmods.com/fallout4/mods/59021?tab=files \n",
                      "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
 
         10: {"mod": " FunctionalDisplays.esp",

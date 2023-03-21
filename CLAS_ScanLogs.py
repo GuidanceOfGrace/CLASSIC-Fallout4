@@ -16,13 +16,11 @@ print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION
 
 
 def scan_logs():
-    # =============== CRASH / STAT CHECK TEMPLATE ===============
     print("PERFORMING SCAN... \n")
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
 
     # =================== AUTOSCAN REPORT ===================
-
     SCAN_folder = os.getcwd()
     if len(UNIVERSE.CLAS_config["MAIN"]["Scan Path"]) > 1:
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
@@ -41,9 +39,9 @@ def scan_logs():
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
                                "====================================================\n"])
 
-            # DEFINE LINE INDEXES AND LOG SEGMENTS HERE
+            # DEFINE LINE INDEXES HERE
             crash_ver = loglines[1].strip()
-            crash_error = loglines[3].strip()
+            crash_error = loglines[2].strip()
             index_stack = len(loglines) - 1
             index_plugins = 1
             plugins_loaded = False
@@ -56,7 +54,13 @@ def scan_logs():
                     plugins_loaded = True
                     break
 
-            section_stack = loglines[:index_stack]
+            # DEFINE LOG SEGMENTS HERE
+            section_stack = []
+            section_stack_all = loglines[:index_stack]
+            for elem in section_stack_all:  # Exclude useless lines.
+                if "(size_t)" not in elem:
+                    section_stack.append(elem)
+
             section_plugins = loglines[index_plugins:]
             if os.path.exists("loadorder.txt"):
                 section_plugins = []
@@ -117,7 +121,7 @@ def scan_logs():
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
                                "====================================================\n"])
 
-            # ===================== HEADER CULPRITS =====================
+            # ====================== HEADER CULPRITS =====================
             if ".dll" in crash_error.lower() and "tbbmalloc" not in crash_error.lower():
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
@@ -170,7 +174,7 @@ def scan_logs():
                     'description': '# Checking for Generic Crash................ CULPRIT FOUND! > Priority : [2] #\n'},
 
                 'Antivirus Crash': {
-                    'error_conditions': "bdhkm64.dll", 'stack_conditions': ("usvfs::hook_DeleteFileW", "::Manager", "::zlibStreamDetail"),
+                    'error_conditions': ("24A48D48", "bdhkm64.dll"), 'stack_conditions': ("usvfs::hook_DeleteFileW", "::Manager", "::zlibStreamDetail"),
                     'description': '# Checking for Antivirus Crash.............. CULPRIT FOUND! > Priority : [5] #\n'},
 
                 'BA2 Limit Crash': {
@@ -270,7 +274,7 @@ def scan_logs():
                     'description': '# Checking for Console Command Crash........ CULPRIT FOUND! > Priority : [1] #\n'},
 
                 'Game Corruption Crash': {
-                    'error_conditions': ("+1B938F0", "+01B59A4"), 'stack_conditions': ("AnimTextData\\AnimationFileData", "AnimationFileLookupSingletonHelper"),
+                    'error_conditions': "+1B938F0", 'stack_conditions': ("AnimTextData\\AnimationFileData", "AnimationFileLookupSingletonHelper"),
                     'description': '# Checking for Game Corruption Crash........ CULPRIT FOUND! > Priority : [5] #\n'},
 
                 'Water Collision Crash': {
@@ -343,7 +347,8 @@ def scan_logs():
                     'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                     'description': 'Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
             }
-
+            
+            # =================== CRASH CULPRITS CHECK ==================
             Culprit_Trap = False
             for culprit_name, culprit_data in Culprits.items():
                 # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
@@ -448,8 +453,8 @@ def scan_logs():
             Mod_Trap2 = False
             if plugins_loaded:
                 Mod_Check2 = check_conflicts(MOON.Mods2, Mod_Trap2)
+
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
-                # CURRENTLY NONE
 
                 if (Mod_Check2 or Mod_Trap2) is True:
                     output.writelines(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
@@ -492,8 +497,8 @@ def scan_logs():
 
                 if Mod_Check3 or Mod_Trap3 is True:
                     output.writelines([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
-                                       "[Due to inherent limitations, Auto-Scan will continue detecting certain mods\n",
-                                       "even if fixes or patches for them are already installed. You can ignore these.]\n",
+                                       "[Due to inherent limitations, Autoscan will continue detecting certain mods\n",
+                                       "even if fixes or patches for them are already installed. You can ignore them.]\n",
                                        "-----\n"])
                 elif Mod_Check3 and Mod_Trap3 is False:
                     output.writelines([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
@@ -683,7 +688,7 @@ def scan_logs():
 
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
             List_Records = []
-            for line in loglines:
+            for line in section_stack:
                 if any(elem in line.lower() for elem in UNIVERSE.Crash_Records_Catch):
                     if not any(elem in line for elem in GALAXY.Crash_Records_Exclude):
                         line = line.replace('"', '')
@@ -713,15 +718,17 @@ def scan_logs():
 
         # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
         if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved") and not Culprit_Trap:
+            time.sleep(0.1)
             unsolved_path = "CLAS-UNSOLVED"
             if not os.path.exists(unsolved_path):
                 os.mkdir(unsolved_path)
             crash_file = os.path.join(unsolved_path, logname)
-            scan_file = os.path.join(unsolved_path, logname + "-AUTOSCAN.md")
+            scan_file = os.path.join(unsolved_path, logname.replace(".log", "-AUTOSCAN.md"))
             shutil.move(logname, crash_file)
-            shutil.move(logname + "-AUTOSCAN.md", scan_file)
+            if os.path.exists(scan_file):
+                shutil.move(logname + "-AUTOSCAN.md", scan_file)
 
-    # ========================== LOG END ==========================
+    # ================== TERMINAL SCAN COMPLETE ==================
     time.sleep(0.5)
     print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
     print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md \n")
@@ -733,7 +740,7 @@ def scan_logs():
     print("SCAN SCRIPT PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(GALAXY.Sneaky_Tips))
 
-    # ============ CHECK FOR FAULTY LOGS & AUTO-SCANS =============
+    # ============ CHECK FOR FAULTY LOGS & AUTOSCANS =============
     list_SCANFAIL = []
     for file in glob(f"{SCAN_folder}/crash-*"):
         scan_name = str(file)
@@ -754,7 +761,7 @@ def scan_logs():
         print("Make sure that your crash logs are saved with .log file format, NOT .txt!")
 
     # ====================== TERMINAL OUTPUT END ======================
-    print("======================================================================")
+    print("===============================================================================")
     print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - start_time)[:7]), "seconds.")
     print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
     print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
@@ -806,6 +813,5 @@ if __name__ == "__main__":  # AKA only autorun / do the following when NOT impor
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == UNIVERSE.CLAS_config["MAIN"]["Scan Path"]:
         clas_ini_update("Scan Path", str(Path(scan_path).resolve()))
 
-    clas_update_check()
     scan_logs()
     os.system("pause")
