@@ -2,10 +2,6 @@
 
 # LINKS #
 
-Latest Python Download : https://www.python.org/downloads/windows
-
-Python For Win 7 Download : https://github.com/NulAsh/cpython/releases
-
 How To Install Buffout 4 : https://www.nexusmods.com/fallout4/articles/3115
 
 Important Patches & Fixes : https://www.nexusmods.com/fallout4/articles/3769
