@@ -211,9 +211,12 @@ class UiCLASMainWin(object):
 
         # ARRANGE BUTTONS IN GRID
         for i, data in enumerate(button_data):
+            font = QtGui.QFont()
+            font.setPointSize(8)
             button = QtWidgets.QPushButton(CLAS_MainWin)
-            button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 370 + i // 3 * 50, 180, 30))
+            button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 370 + i // 3 * 50, 180, 25))
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
+            button.setFont(font)
             button.setText(data["text"])
             button.clicked.connect(lambda url=data["url"]: QDesktopServices.openUrl(QUrl(url)))  # type: ignore
 
