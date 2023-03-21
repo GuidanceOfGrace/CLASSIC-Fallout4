@@ -32,10 +32,10 @@ def scan_logs():
         scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
+        
         with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
-            loglines = lines.readlines()
-            while "" in loglines:
-                loglines.remove("")
+            loglines = [line for line in lines if line.strip()]
+
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
@@ -74,8 +74,10 @@ def scan_logs():
                                f"Detected Buffout Version: {crash_ver.strip()}\n",
                                f"Latest Buffout Version: {GALAXY.BO4OG_Latest[10:17]} / NG: {GALAXY.BO4NG_Latest[10:17]}\n"])
 
-            if crash_ver.casefold() == GALAXY.BO4OG_Latest.casefold() or crash_ver.casefold() == GALAXY.BO4NG_Latest.casefold():
+            if crash_ver.casefold() == GALAXY.BO4OG_Latest.casefold():
                 output.write("✔️ You have the latest version of Buffout 4!")
+            elif crash_ver.casefold() == GALAXY.BO4NG_Latest.casefold():
+                output.write("✔️ You have the latest version of Buffout 4 NG!")
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_Outdated_Buffout4"])
 
