@@ -260,6 +260,7 @@ def clas_update_run():
         print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
 
 
+# DO NOT USE @staticmethod FOR ANY, NOT CALLABLE FOR PYINSTALLER
 # =================== DEFINE LOCAL FILES ===================
 @dataclass
 class ClasLocalFiles:
@@ -273,7 +274,7 @@ class ClasLocalFiles:
     XSE_Loader: Path = field(default_factory=Path)
     XSE_SteamDLL: Path = field(default_factory=Path)
     XSE_VRDLL: Path = field(default_factory=Path)
-    XSE_VRLoader: Path = field(default_factory=Path)    
+    XSE_VRLoader: Path = field(default_factory=Path)
     # FO4 GAME FILES
     Address_Library: Path = field(default_factory=Path)
     Address_LibraryVR: Path = field(default_factory=Path)
@@ -307,14 +308,8 @@ class ClasLocalFiles:
         self.FO4_Custom_INI = docs_location.joinpath("My Games", "Fallout4", "Fallout4Custom.ini")
         self.WB_Plugin_Check = docs_location.joinpath("My Games", "Fallout4", "ModChecker.html")
 
-
-SYSTEM = ClasLocalFiles()
-
-
-class ClasCheckFiles:
     # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
-    @staticmethod
-    def docs_path_check():
+    def docs_path_check(self):
         if platform.system() == "Windows":  # Win_Docs | Find where FO4 is installed via Windows
             CSIDL_PERSONAL = 5  # (My) Documents folder from user.
             SHGFP_TYPE_CURRENT = 0  # Get current, not default value.
@@ -352,24 +347,21 @@ class ClasCheckFiles:
                 clas_ini_update("INI Path", Path_Input)
                 return Manual_Docs
 
-    SYSTEM.docs_file_check(docs_path_check()) # type: ignore
-
     # =========== CHECK DOCUMENTS -> GAME PATH & XSE LOGS ===========
     # Make sure to check both OG and VR script extender logs!
 
-    @staticmethod
-    def game_path_check(xse_logfile, xsevr_logfile):
+    def game_path_check(self):
         Error_List = []
         XSE_Error = XSE_Version = XSE_Crash_DLL = False
-        logfile = xse_logfile
-        if xsevr_logfile.is_file():
-            logfile = xse_logfile
+        logfile = self.FO4_F4SE_LOG
+        if self.FO4_F4SEVR_LOG.is_file():
+            logfile = self.FO4_F4SEVR_LOG
         with open(logfile, "r", encoding="utf-8", errors="ignore") as LOG_Check:
             Path_Check = LOG_Check.readlines()
             for logline in Path_Check:
                 if "plugin directory" in logline:
                     logline = logline[19:].replace("\\Data\\F4SE\\Plugins", "")
-                    SYSTEM.Game_Path = logline.replace("\n", "")
+                    Game_Path = logline.replace("\n", "")
                 if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
                     XSE_Version = True
                 if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and any(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
@@ -377,7 +369,7 @@ class ClasCheckFiles:
                     Error_List.append(logline)
                 if GALAXY.BO4_DLL_Name in logline.lower() and "loaded correctly" in logline.lower():
                     XSE_Crash_DLL = True
-        if not xse_logfile.is_file() and not xsevr_logfile.is_file():
+        if not self.FO4_F4SE_LOG.is_file() and not self.FO4_F4SEVR_LOG.is_file():
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Missing_F4SELOG"])
             os.system("pause")
 
@@ -398,11 +390,17 @@ class ClasCheckFiles:
             GALAXY.ADLIB_Loaded = True
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
+        return Game_Path
 
-    game_path_check(SYSTEM.FO4_F4SE_LOG, SYSTEM.FO4_F4SEVR_LOG)
+SYSTEM = ClasLocalFiles()
+SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
+
+
+class ClasCheckFiles:
 
     # CHECK LOCAL FILES IN GAME FOLDER ONLY
-    Game_Folder = Path(SYSTEM.Game_Path)
+    Game_Folder = Path(SYSTEM.game_path_check())
+    print(Game_Folder)
     SYSTEM.Game_Scripts = Game_Folder.joinpath("Data", "Scripts")
     # ROOT FILES
     SYSTEM.Game_EXE = Game_Folder.joinpath("Fallout4.exe")
@@ -411,12 +409,12 @@ class ClasCheckFiles:
     SYSTEM.Steam_INI = Game_Folder.joinpath("steam_api.ini")
     SYSTEM.Preloader_DLL = Game_Folder.joinpath("IpHlpAPI.dll")
     SYSTEM.Preloader_XML = Game_Folder.joinpath("xSE PluginPreloader.xml")
-    SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.Game_EXE) # type: ignore
-    SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.Game_EXE.read_bytes()).hexdigest() # type: ignore
+    SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.Game_EXE)  # type: ignore
+    SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.Game_EXE.read_bytes()).hexdigest()  # type: ignore
     # F4SE FILES
     SYSTEM.XSE_DLL = Game_Folder.joinpath("f4se_1_10_163.dll")
     SYSTEM.XSE_SteamDLL = Game_Folder.joinpath("f4se_steam_loader.dll")
-    SYSTEM.XSE_Loader = Game_Folder.joinpath("XSE_Loader.exe")
+    SYSTEM.XSE_Loader = Game_Folder.joinpath("f4se_loader.exe")
     # VR FILES
     SYSTEM.VR_EXE = Game_Folder.joinpath("Fallout4VR.exe")
     SYSTEM.VR_Buffout = Game_Folder.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
@@ -431,8 +429,7 @@ class ClasCheckFiles:
     # ===== CHECK DOCUMENTS -> ENABLE ARCH. INV. / LOOSE FILES =====
     # Applies to: Fallout 4, Skyrim Old, Skyrim SE, ?
 
-    @staticmethod
-    def ini_enable_modding(custom_inifile):
+    def ini_enable_modding(self, custom_inifile):
         if custom_inifile.is_file():
             try:
                 os.chmod(custom_inifile, stat.S_IWRITE)
@@ -455,8 +452,7 @@ class ClasCheckFiles:
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
     # Make sure to check both OG and VR script extender logs!
 
-    @staticmethod
-    def se_check_errors(xse_logpath):
+    def se_check_errors(self, xse_logpath):
         list_log_errors = []
         for filename in glob(f"{xse_logpath}/*.log"):
             logname = ""
@@ -478,8 +474,7 @@ class ClasCheckFiles:
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INEGRITY ==========
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    @staticmethod
-    def f4se_check_scripts(scripts_path, scripts_list):
+    def f4se_check_scripts(self, scripts_path, scripts_list):
         matching_scripts = 0
         try:
             script_files = os.listdir(scripts_path)
@@ -494,10 +489,9 @@ class ClasCheckFiles:
     # =========== CHECK GAME FOLDER -> GAME EXE INEGRITY ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    @staticmethod
-    def fo4_check_integrity(exe_filepath):
+    def fo4_check_integrity(self, exe_filepath):
         if exe_filepath.is_file():
-            if SYSTEM.EXE_Local_Size == GALAXY.Game_Size_OLD and SYSTEM.EXE_Local_Hash == GALAXY.Game_HASH["1.10.163"] and not SYSTEM.Steam_INI.is_file(): # type: ignore
+            if SYSTEM.EXE_Local_Size == GALAXY.Game_Size_OLD and SYSTEM.EXE_Local_Hash == GALAXY.Game_HASH["1.10.163"] and not SYSTEM.Steam_INI.is_file():  # type: ignore
                 GALAXY.scan_game_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
                                                 "    * This is the version BEFORE the 2023 Update *",
                                                 "  -----"])
@@ -513,8 +507,7 @@ class ClasCheckFiles:
     # ============ CHECK GAME FOLDER -> GAME EXTENSIONS ============
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    @staticmethod
-    def fo4_check_extensions():
+    def fo4_check_extensions(self):
         if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
             GALAXY.scan_game_report.extend(["IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
                                             "remove these mods completely and switch to High FPS Physics Fix!",
@@ -544,8 +537,7 @@ class ClasCheckFiles:
     # =========== CHECK GAME FOLDER -> BUFFOUT 4 REQUIREMENTS ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    @staticmethod
-    def bo4_check_required():
+    def bo4_check_required(self):
         if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
             if SYSTEM.Preloader_XML.is_file() and SYSTEM.Preloader_DLL.is_file():
                 GALAXY.scan_game_report.append(fr"{GALAXY.Warnings['Warn_SCAN_NOTE_Preloader']}")
@@ -565,8 +557,7 @@ class ClasCheckFiles:
     # ============= CHECK GAME FOLDER -> BUFFOUT 4 SETTINGS =============
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    @staticmethod
-    def bo4_check_settings():
+    def bo4_check_settings(self):
         if SYSTEM.Buffout_TOML.is_file() and SYSTEM.Buffout_DLL.is_file():
             os.chmod(SYSTEM.Buffout_TOML, stat.S_IWRITE)  # MODIFY TOML WRITE PERMISSIONS
             GALAXY.scan_game_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
@@ -622,6 +613,7 @@ class ClasCheckFiles:
 
 PLANET = ClasCheckFiles()
 
+# SYSTEM.docs_file_check(PLANET.docs_path_check())
 
 class ClasCheckMods:
     # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES
@@ -1038,8 +1030,3 @@ class ClasCheckMods:
 
 
 MOON = ClasCheckMods()
-
-if __name__ == "__main__":
-    for line in GALAXY.scan_game_report:
-        print(line)
-    os.system("pause")
