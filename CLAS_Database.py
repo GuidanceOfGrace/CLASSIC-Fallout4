@@ -102,7 +102,7 @@ class ClasSpecificVars:
                         "EquipSlot.pex", "F4SE.pex", "FavoritesManager.pex", "Form.pex", "Game.pex", "HeadPart.pex", "Input.pex", "InstanceData.pex", "Location.pex", "Math.pex",
                         "MatSwap.pex", "MiscObject.pex", "ObjectMod.pex", "ObjectReference.pex", "Perk.pex", "ScriptObject.pex", "UI.pex", "Utility.pex", "WaterType.pex", "Weapon.pex")
 
-    # ==================== FLAVOUR TEXT ====================
+    # ===================== FLAVOR TEXT =====================
     Sneaky_Tips = ("\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
                    "\nRandom Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.\n",
                    "\nRandom Hint: You have a crash log where CLAS couldn't find any solutions? Feel free to send it to me.\n",
@@ -129,14 +129,19 @@ class ClasSpecificVars:
 * NOTICE: FCX MODE IS ENABLED. CLAS MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
   [ To disable game & mod files detection, set FCX Mode = false in CLAS Settings.ini ]
 """,
-        "Warn_SCAN_NOTE_DLL": """\
-# [!] NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! #
-  If the dll from main error belongs to a mod, that mod is likely the culprit.
-
-""",
         "Warn_SCAN_Log_Errors": """
 # [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS! #
   [ Errors do not necessarily mean that the mod is not working. ]
+  -----""",
+        "Warn_SCAN_NOTE_DLL": """\
+* NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *
+  If the dll from main error belongs to a mod, that mod is likely the culprit.
+""",
+        "Warn_SCAN_NOTE_Wrye": """
+* NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
+  To check your load order and detect additional problems, install and run Wrye Bash,
+  then select the Plugin Checker option inside WB from the top bar, under View.
+  WB Link (Use MANUAL DOWNLOAD): https://www.nexusmods.com/fallout4/mods/20032
   -----""",
 
         "Warn_TOML_Achievements": """\
@@ -161,7 +166,7 @@ class ClasSpecificVars:
 """,
         "Warn_SCAN_Outdated_Buffout4": """
 # [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY AUTOSCAN #
-      UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/64880
+  UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/64880
 """,
         "Warn_BLOG_NOTE_Plugins": """\
 # [!] NOTICE : BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #
@@ -187,8 +192,8 @@ class ClasSpecificVars:
 """,
         "Warn_SCAN_Missing_F4SE_BO4": """
 # [!] CAUTION : SCRIPT EXTENDER REPORTS THAT BUFFOUT 4.DLL FAILED TO LOAD OR IS MISSING! #
-      Buffout 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359
-      Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115
+      Buffout 4: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/47359
+      Use the Buffout 4 guide here: https://www.nexusmods.com/fallout4/articles/3115
 """,
         "Warn_SCAN_Missing_F4SE_CORE": """
 # [!] CAUTION : AUTO SCANNER CANNOT FIND FALLOUT 4 SCRIPT EXTENDER FILES OR THEY ARE MISSING! #
@@ -197,25 +202,20 @@ class ClasSpecificVars:
 """,
         "Warn_SCAN_Missing_Buffout4": """
 # [!] CAUTION : AUTO-SCANNER CANNOT FIND BUFFOUT 4 FILES OR THEY ARE MISSING! #
-      BUFFOUT 4: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47359
-      Follow Buffout 4 installation steps here: https://www.nexusmods.com/fallout4/articles/3115
+      BUFFOUT 4: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/47359
+      Use the Buffout 4 guide here: https://www.nexusmods.com/fallout4/articles/3115
 """,
         "Warn_SCAN_Missing_ADLIB": """
 # [!] CAUTION : AUTO SCANNER CANNOT FIND REQUIRED ADDRESS LIBRARY FILE OR IT IS MISSING! #
-      ADDRESS LIBRARY: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/47327
-      ADDRESS LIBRARY VR: (ONLY Use Manual Download Option) https://www.nexusmods.com/fallout4/mods/64879
-      Extract the *version.bin* or *version.csv* file manually into your Fallout 4/Data/F4SE/Plugins folder.
+      ADDRESS LIBRARY: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/47327
+      ADDRESS LIBRARY VR: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/64879
+      Manually extract either *version.bin* or *version.csv* into Fallout 4/Data/F4SE/Plugins
 """,
         "Warn_SCAN_NOTE_Preloader": """
-# [!] NOTICE : Plugin Preloader is (manually) installed. It may rarely prevent the game from initializing correctly. #
-      If the game fails to start after installing this mod, open *xSE PluginPreloader.xml* with a text editor and CHANGE
-      <LoadMethod Name=\"ImportAddressHook\"> TO <LoadMethod Name=\"OnThreadAttach\"> OR <LoadMethod Name=\"OnProcessAttach\">
-      IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER
-""",
-        "Warn_BLOG_NOTE_Modules": """\
-# [!] NOTICE : BUFFOUT 4 COULDN'T LIST ALL MODULES OR F4SE IS NOT INSTALLED! #
-      CHECK IF SCRIPT EXTENDER (F4SE) IS CORRECTLY INSTALLED! \n")
-      Script Extender Link: https://f4se.silverlock.org \n")
+* NOTICE : Plugin Preloader is (manually) installed. It may rarely prevent the game from initializing correctly. *
+  If the game fails to start after installing this mod, open *xSE PluginPreloader.xml* with a text editor and CHANGE
+  <LoadMethod Name=\"ImportAddressHook\"> TO <LoadMethod Name=\"OnThreadAttach\"> OR <LoadMethod Name=\"OnProcessAttach\">
+  IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER
 """}
 
 
