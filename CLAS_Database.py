@@ -55,8 +55,8 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
     CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
     CLAS_config.read("CLAS Settings.ini")
-    CLAS_Date = "200323"  # DDMMYY
-    CLAS_Current = "CLAS v6.66"
+    CLAS_Date = "220323"  # DDMMYY
+    CLAS_Current = "CLAS v6.70"
     CLAS_Updated = False
 
     LOG_Errors_Catch = ("critical", "error", "failed")
@@ -221,9 +221,9 @@ class ClasSpecificVars:
 
 GALAXY = ClasSpecificVars()
 
-
 # ================== UPDATE FUNCTIONS ==================
 # Make sure to update API link for specific game.
+
 def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
     if isinstance(section, str) and isinstance(value, str):
         UNIVERSE.CLAS_config["MAIN"][section] = value
@@ -235,13 +235,13 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
 
 
 def clas_update_check():
-    print(" ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
-    print("    (You can disable this check in the EXE or CLAS Settings.ini) \n")
+    print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
+    print("    (You can disable this check in the EXE or CLAS Settings.ini)")
     response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
     CLAS_Received = response.json()["name"]
     if CLAS_Received == UNIVERSE.CLAS_Current:
         UNIVERSE.CLAS_Updated = True
-        print("\n ✔️ You have the latest version of CLAS!")
+        print("\n ✔️ You have the latest version of CLAS! \n")
     else:
         print(GALAXY.Warnings["Warn_CLAS_Outdated"])
         print("===============================================================================")
@@ -391,6 +391,7 @@ class ClasLocalFiles:
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
         return Game_Path
+
 
 SYSTEM = ClasLocalFiles()
 SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
@@ -616,8 +617,7 @@ PLANET = ClasCheckFiles()
 # SYSTEM.docs_file_check(PLANET.docs_path_check())
 
 class ClasCheckMods:
-    # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES
-    # Needs 1 empty space as prefix to prevent most duplicates.
+    # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES | Leave 1 empty space as prefix to prevent most duplicates.
     Mods1 = {
         0: {"mod": " DamageThresholdFramework.esm",
             "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
@@ -692,8 +692,7 @@ class ClasCheckMods:
                       "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]}
     }
 
-    # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS
-    # Needs 1 empty space as prefix to prevent most duplicates.
+    # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS | Leave 1 empty space as prefix to prevent most duplicates.
     # mod_1 should be less popular mod, mod_2 more popular mod.
     Mods2 = {
         0: {"mod_1": " BetterPowerArmorRedux.dll",
@@ -770,8 +769,7 @@ class ClasCheckMods:
                       "- TEMPLATE."]},
     }
 
-    # 3) CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES
-    # Needs 1 empty space as prefix to prevent most duplicates.
+    # 3) CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES | Leave 1 empty space as prefix to prevent most duplicates.
     Mods3 = {
         0: {"mod": " DLCUltraHighResolution.esm",
             "warn": ["HIGH RESOLUTION DLC. I STRONGLY ADVISE AGAINST USING IT! \n",
@@ -953,8 +951,7 @@ class ClasCheckMods:
                       "  Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]}
     }
 
-    # 4) CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER
-    # Needs 1 empty space as prefix to prevent most duplicates.
+    # 4) CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER | Leave 1 empty space as prefix to prevent most duplicates.
     Mods4 = {
         0: {"mod": " Beyond the Borders",
             "warn": "Beyond the Borders"},

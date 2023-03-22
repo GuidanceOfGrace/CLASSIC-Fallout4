@@ -3,12 +3,24 @@ import os
 import shutil
 import time
 import random
-from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_check
+from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_check, clas_update_run
 from collections import Counter
 from glob import glob
 from pathlib import Path
 
 clas_ini_create()
+clas_update_run()
+
+LCL_skip_list = []
+if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
+    with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
+        CLAS_Ignore.write("Write plugin names you want CLAS to ignore here. (ONE PLUGIN PER LINE)\n")
+else:
+    with open("CLAS Ignore.txt", "r", encoding="utf-8", errors="ignore") as CLAS_Ignore:
+        LCL_skip_list = [line.strip() for line in CLAS_Ignore.readlines()[1:]]
+        for i in range(len(LCL_skip_list)):
+            if not LCL_skip_list[i].startswith(' '):
+                LCL_skip_list[i] = ' ' + LCL_skip_list[i]
 
 # =================== TERMINAL OUTPUT START ====================
 print("Hello World! | Crash Log Auto Scanner (CLAS) | Version", UNIVERSE.CLAS_Current[-4:], "| Fallout 4")
@@ -363,7 +375,7 @@ def scan_logs():
                         output.write(culprit_data['description'])
                         output.write("  -----\n")
                         Culprit_Trap = True
-                if culprit_name == 'Player Character Crash':
+                elif culprit_name == 'Player Character Crash':
                     if any(section_stack.count(item) >= 3 for item in stack_conditions):
                         output.write(culprit_data['description'])
                         output.write("  -----\n")
@@ -387,12 +399,12 @@ def scan_logs():
                 if plugins_loaded:
                     for LINE in section_plugins:
                         for elem in mods.keys():
-                            if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE:
+                            if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
                                 warn = ''.join(mods[elem]["warn"])
                                 output.writelines([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
                                                    "-----\n"])
                                 mod_trap = True
-                            elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE:
+                            elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
                                 warn = ''.join(mods[elem]["warn"])
                                 output.writelines([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
                                                    "-----\n"])
@@ -501,8 +513,8 @@ def scan_logs():
 
                 if Mod_Check3 or Mod_Trap3 is True:
                     output.writelines([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
-                                       "[Due to inherent limitations, Autoscan will continue detecting certain mods\n",
-                                       "even if fixes or patches for them are already installed. You can ignore them.]\n",
+                                       "[Due to limitations, CLAS will show warnings for some mods even if fixes or patches are already installed.]\n",
+                                       "[To hide these warnings, you can add their plugin names to the CLAS Ignore.txt file. ONE PLUGIN PER LINE.]\n",
                                        "-----\n"])
                 elif Mod_Check3 and Mod_Trap3 is False:
                     output.writelines([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
