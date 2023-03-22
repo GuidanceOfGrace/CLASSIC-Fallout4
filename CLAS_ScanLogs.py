@@ -59,6 +59,7 @@ def scan_logs():
             section_stack = str(section_stack_all)
             section_plugins = loglines[index_plugins:]
             if os.path.exists("loadorder.txt"):
+                plugins_loaded = True
                 section_plugins = []
                 with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
                     plugin_format = loadorder_check.readlines()
@@ -343,10 +344,11 @@ def scan_logs():
                     'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                     'description': 'Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
             }
-            
+
             # =================== CRASH CULPRITS CHECK ==================
             Culprit_Trap = False
             for culprit_name, culprit_data in Culprits.items():
+
                 # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
                 error_conditions = culprit_data['error_conditions']
                 if isinstance(error_conditions, str):
@@ -354,7 +356,13 @@ def scan_logs():
                 stack_conditions = culprit_data['stack_conditions']
                 if isinstance(stack_conditions, str):
                     stack_conditions = [stack_conditions]
+
                 # CHECK CULPRIT KEYS IN CRASH LOG
+                if culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
+                    if "vulkan" in logtext.lower() and any(item in section_stack for item in stack_conditions):
+                        output.write(culprit_data['description'])
+                        output.write("  -----\n")
+                        Culprit_Trap = True
                 if culprit_name == 'Player Character Crash':
                     if any(section_stack.count(item) >= 3 for item in stack_conditions):
                         output.write(culprit_data['description'])
