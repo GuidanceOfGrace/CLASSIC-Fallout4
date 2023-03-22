@@ -76,21 +76,11 @@ B must be the culprit since the game didn't crash with only Mod A enabled while 
 ===========================================================================
 # LATEST CHANGES #
 
-6.66 | "No Step On Snek" Update
-* MAIN SCRIPT *
-- Various parity updates between *Crash Log Auto Scanner* and *Plugin Auto Cleaning Tool*
-- Reformatted and standardized most of the code for easier additions and porting functionality.
-- Buffout 4 NG/VR will now be the recommended Buffout version by default until further notice.
-- Fixed missing Scripts folder crash that occured if F4SE wasn't already manually installed.
-- Keybind errors from *xSE PluginPreloader.log* are now excluded to prevent false positives.
-- Creation Kit logs are now excluded from error detection to prevent false positives.
-- Removed F4SE check for crash logs as this became redundant with game files check.
-- Improved detection for some crash culprits and adjusted report formatting style.
-- Added detection for *.dll* files for the *List Of Detected (Named) Records*.
-- [Log and culprit stats are currently disabled until a better method is found.]
+6.70
+- Fixed detection for most error messages in *KNOWN CRASH CULPRITS*.
+- Fixed CLAS update messages not showing up under certain conditions.
+- Adjusted detection for *Vulkan Memory Crash* to prevent false positives.
 
-* OTHER FILES *
-- Renamed INI file for adjusting *Crash Log Auto Scanner* settings to *CLAS Settings.ini*
-- Removed python requirements and other related python warnings from the CLAS executable.
-- Raw scripts are no longer included with CLAS files on Nexus, they are now exlusive to GitHub.
-- [You can still find the raw scripts on CLAS Github page, they're not required to run the EXE.]
+- You can now ignore mods by adding their plugin names to *CLAS Ignore.txt*
+- [Ignored mods will not show any warnings in CLAS. ONE PLUGIN PER LINE]
+- [Ignored mods will still show up if there are serious mod conflicts.]
