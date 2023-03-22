@@ -31,8 +31,8 @@ def scan_logs():
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
         
-        with logpath.open("r+", encoding="utf-8", errors="ignore") as lines:
-            loglines = [line for line in lines if line.strip()]
+        with logpath.open("r+", encoding="utf-8", errors="ignore") as crash_log:
+            loglines = [line for line in crash_log if line.strip() and "(size_t)" not in line and "(void*)" not in line]
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
@@ -55,12 +55,8 @@ def scan_logs():
                     break
 
             # DEFINE LOG SEGMENTS HERE
-            section_stack = []
             section_stack_all = loglines[:index_stack]
-            for elem in section_stack_all:  # Exclude useless lines.
-                if "(size_t)" not in elem:
-                    section_stack.append(elem)
-
+            section_stack = str(section_stack_all)
             section_plugins = loglines[index_plugins:]
             if os.path.exists("loadorder.txt"):
                 section_plugins = []
