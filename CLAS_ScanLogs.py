@@ -67,8 +67,8 @@ def scan_logs():
                     break
 
             # DEFINE LOG SEGMENTS HERE
-            section_stack_all = loglines[:index_stack]
-            section_stack = str(section_stack_all)
+            section_stack_list = loglines[:index_stack]
+            section_stack_text = str(section_stack_list)
             section_plugins = loglines[index_plugins:]
             if os.path.exists("loadorder.txt"):
                 plugins_loaded = True
@@ -310,51 +310,51 @@ def scan_logs():
 
                 '*[Creation Club Crash]': {
                     'error_conditions': "+01B59A4", 'stack_conditions': "xxxxx",
-                    'description': 'Checking for *[Creation Club Crash]......... DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Creation Club Crash]......... DETECTED! > Priority : [1] *\n'},
 
                 '*[Item Crash]': {
                     'error_conditions': "+0B2C44B", 'stack_conditions': ("TESObjectARMO", "TESObjectWEAP", "BGSMod::Attachment", "BGSMod::Template", "BGSMod::Template::Item"),
-                    'description': 'Checking for *[Item Crash].................. DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Item Crash].................. DETECTED! > Priority : [1] *\n'},
 
                 '*[Save Crash]': {
                     'error_conditions': "+0CDAD30", 'stack_conditions': ("BGSSaveLoadManager", "BGSSaveLoadThread", "BGSSaveFormBuffer"),
-                    'description': 'Checking for *[Save Crash].................. DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Save Crash].................. DETECTED! > Priority : [1] *\n'},
 
                 '*[Input Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("ButtonEvent", "MenuControls", "MenuOpenCloseHandler", "PlayerControls", "DXGISwapChain"),
-                    'description': 'Checking for *[Input Crash]................. DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Input Crash]................. DETECTED! > Priority : [1] *\n'},
 
                 '*[SS2 / WF Crash]': {
                     'error_conditions': ("+01F498D", "+03F89A3"), 'stack_conditions': ("StartWorkshop", "IsWithinBuildableArea", "PlayerControls", "DXGISwapChain"),
-                    'description': 'Checking for *[SS2 / WF Crash].............. DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[SS2 / WF Crash].............. DETECTED! > Priority : [1] *\n'},
 
                 '*[Looks Menu Crash]': {
                     'error_conditions': ("+1D13DA7", "F4EE"), 'stack_conditions': ("BSShader", "BSBatchRenderer", "ShadowSceneNode"),
-                    'description': 'Checking for *[Looks Menu Crash]............ DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Looks Menu Crash]............ DETECTED! > Priority : [1] *\n'},
 
                 '*[NPC Patrol Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("BGSProcedurePatrol", "BGSProcedurePatrolExecState", "PatrolActorPackageData"),
-                    'description': 'Checking for *[NPC Patrol Crash]............ DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[NPC Patrol Crash]............ DETECTED! > Priority : [1] *\n'},
 
                 '*[Precombines Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("BSPackedCombined", "BGSCombinedCellGeometryDB", "BGSStaticCollection", "TESObjectCELL"),
-                    'description': 'Checking for *[Precombines Crash]........... DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Precombines Crash]........... DETECTED! > Priority : [1] *\n'},
 
                 '*[GPU Overclock Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("myID3D11DeviceContext", "BSDeferredDecal", "BSDFDecal"),
-                    'description': 'Checking for *[GPU Overclock Crash]......... DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[GPU Overclock Crash]......... DETECTED! > Priority : [1] *\n'},
 
                 '*[NPC Projectile Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': ("BGSProjectile", "CombatProjectileAimController"),
-                    'description': 'Checking for *[NPC Projectile Crash]........ DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[NPC Projectile Crash]........ DETECTED! > Priority : [1] *\n'},
 
                 '*[Camera Position Crash]': {
                     'error_conditions': "NvCamera64", 'stack_conditions': ("NvCamera64.dll", "NiCamera", "WorldRoot Camera"),
-                    'description': 'Checking for *[Camera Position Crash]....... DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[Camera Position Crash]....... DETECTED! > Priority : [1] *\n'},
 
                 '*[HUD / Interface Crash]': {
                     'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
-                    'description': 'Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
+                    'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
             }
 
             # =================== CRASH CULPRITS CHECK ==================
@@ -370,19 +370,20 @@ def scan_logs():
                     stack_conditions = [stack_conditions]
 
                 # CHECK CULPRIT KEYS IN CRASH LOG
-                if culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
-                    if "vulkan" in logtext.lower() and any(item in section_stack for item in stack_conditions):
-                        output.write(culprit_data['description'])
-                        output.write("  -----\n")
+                if culprit_name == 'Nvidia Debris Crash' or culprit_name == 'Nvidia Driver Crash' or culprit_name == 'Nvidia Reflex Crash':
+                    if "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
+                        output.write(f"{culprit_data['description']}  -----\n")
+                        Culprit_Trap = True
+                elif culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
+                    if "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
+                        output.write(f"{culprit_data['description']}  -----\n")
                         Culprit_Trap = True
                 elif culprit_name == 'Player Character Crash':
-                    if any(section_stack.count(item) >= 3 for item in stack_conditions):
-                        output.write(culprit_data['description'])
-                        output.write("  -----\n")
+                    if any(section_stack_text.count(item) >= 3 for item in stack_conditions):
+                        output.write(f"{culprit_data['description']}  -----\n")
                         Culprit_Trap = True
-                elif any(item in crash_error for item in error_conditions) or any(item in section_stack for item in stack_conditions):
-                    output.write(culprit_data['description'])
-                    output.write("  -----\n")
+                elif any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
                     Culprit_Trap = True
 
             if Culprit_Trap is False:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
@@ -704,7 +705,7 @@ def scan_logs():
 
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
             List_Records = []
-            for line in section_stack:
+            for line in section_stack_list:
                 if any(elem in line.lower() for elem in UNIVERSE.Crash_Records_Catch):
                     if not any(elem in line for elem in GALAXY.Crash_Records_Exclude):
                         line = line.replace('"', '')
