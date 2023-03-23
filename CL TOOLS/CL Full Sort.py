@@ -2,44 +2,60 @@ import os
 import shutil
 from glob import glob
 
-list_SORTFAIL = []
-# READ 4TH LINE FROM EACH .log AND GRAB LAST 7 CHARS
-print("Hello World! | Crash Logs Sort | Fallout 4")
-for file in glob("crash-*.log"):
-    with open(file, "r+", encoding="utf-8", errors="ignore") as Error_Check:
-        All_Lines = Error_Check.readlines()
-    Error_Line = All_Lines[3]
-    Error_Num = Error_Line[-8:].strip()
 
-    # SKIP INVALID LOGS & FIND PLUGIN INDEX
-    Plugin_IDX = 0
-    Check_Valid = 0
-    for line in All_Lines:
-        if not "F4SE" in line and "PLUGINS:" in line:
-            Plugin_IDX = All_Lines.index(line)
-        if "[00]" in line:
-            Check_Valid = 1
-    if not "exception" in Error_Line.lower():
-        Check_Valid = 0
+def main():
+    sort_fail_list = []
+    print("Hello World! | Crash Logs Sort | Fallout 4")
 
-    match Check_Valid:
-        case 1 if Plugin_IDX and not os.path.exists(Error_Num): # Using if Plugin_IDX instead of if not Plugin_IDX == 0 because 0 evaluates to false anyway.
-            os.mkdir(Error_Num)
-            shutil.copy(file, Error_Num)
-            os.remove(file)
-        case 1 if Plugin_IDX:
-            shutil.copy(file, Error_Num)
-            os.remove(file)
-        case 0:
-            list_SORTFAIL.append(str(file))
+    for file in glob("crash-*.log"):
+        error_num, plugin_idx, check_valid = process_log(file)
 
-if len(list_SORTFAIL) >= 1:
-    print("NOTICE: SCRIPT WAS UNABLE TO PROPERLY SORT THE FOLLOWING LOG(S): ")
-    for elem in list_SORTFAIL:
-        print(elem)
-    print("-----")
-    print("(These logs most likely have wrong formatting or don't have a plugin list.)")
+        if check_valid == 1 and plugin_idx and not os.path.exists(error_num):
+            os.mkdir(error_num)
+            shutil.move(file, error_num)
+        elif check_valid == 1 and plugin_idx:
+            shutil.move(file, error_num)
+        else:
+            sort_fail_list.append(file)
+
+    display_failed_logs(sort_fail_list)
+    print("SORTING COMPLETE! Check the newly created folders!")
     os.system("pause")
 
-print("SORTING COMPLETE! Check the newly created folders!")
-os.system("pause")
+
+def process_log(file):
+    with open(file, "r+", encoding="utf-8", errors="ignore") as error_check:
+        all_lines = error_check.readlines()
+
+    error_line = all_lines[3]
+    error_num = error_line[-8:].strip()
+
+    plugin_idx, check_valid = find_plugin_index_and_validate(all_lines, error_line)
+
+    return error_num, plugin_idx, check_valid
+
+
+def find_plugin_index_and_validate(all_lines, error_line):
+    plugin_idx = 0
+    check_valid = 0
+    for line in all_lines:
+        if "F4SE" not in line and "PLUGINS:" in line:
+            plugin_idx = all_lines.index(line)
+        if "[00]" in line:
+            check_valid = 1
+    if "exception" not in error_line.lower():
+        check_valid = 0
+
+    return plugin_idx, check_valid
+
+
+def display_failed_logs(sort_fail_list):
+    if len(sort_fail_list) >= 1:
+        print("NOTICE: SCRIPT WAS UNABLE TO PROPERLY SORT THE FOLLOWING LOG(S): ")
+        for elem in sort_fail_list:
+            print(elem)
+        print("-----")
+        print("(These logs most likely have wrong formatting or don't have a plugin list.)")
+
+if __name__ == "__main__":
+    main()
