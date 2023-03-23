@@ -10,10 +10,10 @@ def main():
     for file in glob("crash-*.log"):
         error_num, plugin_idx, check_valid = process_log(file)
 
-        if check_valid == 1 and plugin_idx and not os.path.exists(error_num):
+        if check_valid == True and plugin_idx and not os.path.exists(error_num):
             os.mkdir(error_num)
             shutil.move(file, error_num)
-        elif check_valid == 1 and plugin_idx:
+        elif check_valid == True and plugin_idx:
             shutil.move(file, error_num)
         else:
             sort_fail_list.append(file)
@@ -37,14 +37,14 @@ def process_log(file):
 
 def find_plugin_index_and_validate(all_lines, error_line):
     plugin_idx = 0
-    check_valid = 0
+    check_valid = False
     for line in all_lines:
         if "F4SE" not in line and "PLUGINS:" in line:
             plugin_idx = all_lines.index(line)
         if "[00]" in line:
-            check_valid = 1
+            check_valid = True
     if "exception" not in error_line.lower():
-        check_valid = 0
+        check_valid = False
 
     return plugin_idx, check_valid
 
