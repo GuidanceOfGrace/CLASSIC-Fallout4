@@ -24,7 +24,7 @@ def main():
         if elem in master_list_m:
             master_list_m.remove(elem)
 
-    write_results(scanpath, folder_name, master_list_p, master_list_m, args.error_code)
+    write_results(scanpath, folder_name, master_list_p, master_list_m)
 
 
 def process_files(scanpath, master_list_p, master_list_m):
@@ -71,8 +71,8 @@ def process_subsequent_files(master_list_p, master_list_m, plugins_unstripped, f
     master_list_m = set(master_list_m).intersection(f4sep_list)
     return master_list_p, master_list_m
 
-def write_results(scanpath, folder_name, master_list_p, master_list_m, error_code):
-    with open(f"{scanpath}/{error_code}-RESULTS.md", "w+", encoding="utf-8", errors="ignore") as results:
+def write_results(scanpath, folder_name, master_list_p, master_list_m):
+    with open(f"{scanpath}/{folder_name}-RESULTS.md", "w+", encoding="utf-8", errors="ignore") as results:
         results.write(f"# Results for {folder_name}\n\n")
         results.write("## Plugins\n\n")
         for elem in master_list_p:
