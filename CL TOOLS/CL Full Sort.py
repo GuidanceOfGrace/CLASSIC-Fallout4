@@ -56,6 +56,3 @@ def display_failed_logs(sort_fail_list):
             print(elem)
         print("-----")
         print("(These logs most likely have wrong formatting or don't have a plugin list.)")
-
-if __name__ == "__main__":
-    main()
