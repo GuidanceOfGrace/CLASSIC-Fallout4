@@ -3,7 +3,7 @@ import os
 import shutil
 import time
 import random
-from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_check, clas_update_run
+from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_run
 from collections import Counter
 from glob import glob
 from pathlib import Path
@@ -42,7 +42,7 @@ def scan_logs():
         scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
-        
+
         with logpath.open("r+", encoding="utf-8", errors="ignore") as crash_log:
             loglines = [line for line in crash_log if line.strip() and "(size_t)" not in line and "(void*)" not in line]
 
@@ -69,17 +69,18 @@ def scan_logs():
             # DEFINE LOG SEGMENTS HERE
             section_stack_list = loglines[:index_stack]
             section_stack_text = str(section_stack_list)
-            section_plugins = loglines[index_plugins:]
+            section_plugins_list = loglines[index_plugins:]
+            # section_plugins_text = str(section_plugins_list)
             if os.path.exists("loadorder.txt"):
                 plugins_loaded = True
-                section_plugins = []
+                section_plugins_list = []
                 with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
                     plugin_format = loadorder_check.readlines()
-                    if len(plugin_format) >= 1 and not any("[00]" in elem for elem in section_plugins):
-                        section_plugins.append("[00]")
+                    if len(plugin_format) >= 1 and not any("[00]" in elem for elem in section_plugins_list):
+                        section_plugins_list.append("[00]")
                     for line in plugin_format:
                         line = "[LO] " + line.strip()
-                        section_plugins.append(line)
+                        section_plugins_list.append(line)
 
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
@@ -100,15 +101,12 @@ def scan_logs():
 
             if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Mode"])
-                from CLAS_ScanFiles import scan_game_files
-                scan_game_report = scan_game_files()
-                for item in scan_game_report:
-                    try:
-                        output.writelines(str(item))
-                        output.write("\n")
-                    except TypeError:
-                        output.write(item)
-                        output.write("\n")
+                from CLAS_ScanFiles import scan_game_files, scan_wryecheck
+                GALAXY.scan_game_report = []
+                scan_game_files()
+                scan_wryecheck()
+                for item in GALAXY.scan_game_report:
+                    output.write(f"{item}\n")
             else:
                 # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
                 if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
@@ -398,7 +396,7 @@ def scan_logs():
             # =============== MOD / PLUGIN CHECK TEMPLATES ==============
             def check_plugins(mods, mod_trap):
                 if plugins_loaded:
-                    for LINE in section_plugins:
+                    for LINE in section_plugins_list:
                         for elem in mods.keys():
                             if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
                                 warn = ''.join(mods[elem]["warn"])
@@ -566,7 +564,7 @@ def scan_logs():
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
             Core_Mods = {
                 'Canary Save File Monitor': {
-                    'condition': 'CanarySaveFileMonitor' in section_plugins,
+                    'condition': 'CanarySaveFileMonitor' in logtext,
                     'description': 'This is a highly recommended mod that can detect save file corruption.',
                     'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
                 },
@@ -576,12 +574,12 @@ def scan_logs():
                     'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
                 },
                 'Previs Repair Pack': {
-                    'condition': 'PPF.esm' in section_plugins,
+                    'condition': 'PPF.esm' in logtext,
                     'description': 'This is a highly recommended mod that can improve performance.',
                     'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
                 },
                 'Unofficial Fallout 4 Patch': {
-                    'condition': 'Unofficial Fallout 4 Patch.esp' in section_plugins,
+                    'condition': 'Unofficial Fallout 4 Patch.esp' in logtext,
                     'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                     'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
                 },
@@ -674,7 +672,7 @@ def scan_logs():
                         line = line.replace("FormID: ", "")
                         line = line.strip()
                         ID_Only = line
-                        for elem in section_plugins:
+                        for elem in section_plugins_list:
                             if "]" in elem and "[FE" not in elem:
                                 if elem[2:4].strip() == ID_Only[:2]:
                                     Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()

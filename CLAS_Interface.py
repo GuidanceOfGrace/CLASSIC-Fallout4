@@ -214,7 +214,7 @@ class UiCLASMainWin(object):
             font = QtGui.QFont()
             font.setPointSize(8)
             button = QtWidgets.QPushButton(CLAS_MainWin)
-            button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 370 + i // 3 * 50, 180, 25))
+            button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 370 + i // 3 * 50, 180, 32))
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
             button.setFont(font)
             button.setText(data["text"])
@@ -281,9 +281,11 @@ class UiCLASMainWin(object):
 
     @staticmethod
     def Gamefiles_SCAN():
-        from CLAS_ScanFiles import scan_game_files
-        scan_game_report = scan_game_files()
-        for item in scan_game_report:
+        from CLAS_ScanFiles import scan_game_files, scan_wryecheck
+        GALAXY.scan_game_report = []
+        scan_game_files()
+        scan_wryecheck()
+        for item in GALAXY.scan_game_report:
             print(item)
 
     def SelectFolder_SCAN(self):

@@ -113,21 +113,90 @@ class ClasSpecificVars:
                    "\nRandom Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened.\n",
                    "\nRandom Hint: Be sure to revisit both Buffout 4 Crash Article and CLAS Nexus Page from time to time to check for updates.\n")
 
+    # ================== WB PLUGIN CHECKER ==================
+    # Can change first line to """\ to remove the spacing.
+
+    WB_Problems = {
+        "Corrupted": """\
+    ❓ Wrye Bash could not read these plugins, as they might be corrupted.
+       Try to resave them in Creation Kit and see if problems persist.
+""",
+        "Incorrect ESL Flag": """\
+    ❓ These plugins have an incorrectly assigned ESL flag or extension.
+       Remove the ESL flag with FO4Edit or rename the extension to .esp.
+""",
+        "Missing Masters": """\
+    ❓ These plugins have missing requirements (required mods cannot be found).
+       Either install missing requirements or completely disable these plugins.
+""",
+        "Delinquent Masters": """\
+    ❓ These plugins are not in the correct load order. You can also run Wrye Bash
+       to order plugins with orange checkboxes until they appear green or yellow.
+""",
+        "Old Header Form Versions": """\
+    ❓ These plugins have a header that is older than the minimum CK version.
+       They need to be resaved in Creation Kit to fix the incorrect header.
+""",
+        "Deleted Navmeshes": """\
+    ❓ These plugins have deleted navmeshes. They can often cause a crash
+       in specific areas. Try to find a patch that fixes their navmeshes
+       or disable these plugins first if you ever get a navmesh crash.
+""",
+        "Deleted Base Records": """\
+    ❓ These plugins have deleted base records. They might cause a crash
+       and deleted records can only be restored manually with FO4Edit.
+""",
+        "HITMEs": """\
+    ❓ These plugins contain Higher Index Than Masterlist Entries, which are mainly
+       caused by improper FO4Edit or CK edits. Resave these plugins in Creation Kit.
+       If HITMEs persist, such plugins may not work correctly and could cause a crash.
+""",
+        "Duplicate FormIDs": """\
+    ❓ These Form IDs occur at least twice in the listed plugins. This is undefined behavior
+       that may result in crashes or unpredictable issues and this can only be fixed in FO4Edit.
+       Contact the mod author and consider uninstalling these plugins if you encounter problems.
+""",
+        "Record Type Collisions": """\
+    ❓ These Records are overriding each other, but have different record types. This behavior
+       can often lead to crashes or cause various issues and this can only be fixed in FO4Edit.
+       Contact the mod author and consider uninstalling these plugins if you encounter problems.
+""",
+        "Probable Injected Collisions": """\
+    ❓ These Injected Records are overriding each other, but have different Editor IDs.
+       This can cause some problems and their Editor IDs should be renamed to match each other.
+       Contact the mod author and consider uninstalling these plugins if you encounter problems.
+""",
+        # =================== SEARCH IN TITLE ===================
+        "Invalid": """\
+    ❓ These plugins have a CK version that isn't recognized as a standard version.
+       Try to resave these plugins in Creation Kit and see if problems persist.
+""",
+        "Cleaning With": """\
+    ❓ These plugins have ITMs or UDRs which can be cleaned manually with
+       Quick Auto Clean or automatically with Plugin Auto Cleaning Tool.
+"""}
+
     # =================== WARNING MESSAGES ==================
     # Can change first line to """\ to remove the spacing.
+
     Warnings = {
         "Warn_CLAS_Outdated": """
- ❌ WARNING : YOUR CLAS VERSION IS OUT OF DATE!
-    Please download the latest version from here:
-    https://www.nexusmods.com/fallout4/mods/56255
+❌ WARNING : YOUR CLAS VERSION IS OUT OF DATE!
+   Please download the latest version from here:
+   https://www.nexusmods.com/fallout4/mods/56255
 """,
         "Warn_CLAS_Update_Failed": """
- ❌ WARNING : AN ERROR OCCURRED! CLAS WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
-    CHECK FOR ANY CLAS UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
+❌ WARNING : AN ERROR OCCURRED! CLAS WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
+   CHECK FOR ANY CLAS UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
+""",
+        "Warn_SCAN_Arch_Inv": """
+❌ Archive Invalidation / Loose Files setting is not enabled.
+   CLAS will now enable this setting automatically in the INI.
 """,
         "Warn_SCAN_FCX_Mode": """\
 * NOTICE: FCX MODE IS ENABLED. CLAS MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
   [ To disable game & mod files detection, set FCX Mode = false in CLAS Settings.ini ]
+
 """,
         "Warn_SCAN_Log_Errors": """
 # [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS! #
@@ -137,10 +206,10 @@ class ClasSpecificVars:
 * NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *
   If the dll from main error belongs to a mod, that mod is likely the culprit.
 """,
-        "Warn_SCAN_NOTE_Wrye": """
+        "Warn_SCAN_NOTE_WryeCheck": """
 * NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
-  To check your load order and detect additional problems, install and run Wrye Bash,
-  then select the Plugin Checker option inside WB from the top bar, under View.
+  To check your load order and detect additional problems; install and run Wrye Bash,
+  then select View > Plugin Checker from the top bar in the main Wrye Bash window.
   WB Link (Use MANUAL DOWNLOAD): https://www.nexusmods.com/fallout4/mods/20032
   -----""",
 
@@ -220,6 +289,7 @@ class ClasSpecificVars:
 
 
 GALAXY = ClasSpecificVars()
+
 
 # ================== UPDATE FUNCTIONS ==================
 # Make sure to update API link for specific game.
@@ -398,7 +468,6 @@ SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
 
 
 class ClasCheckFiles:
-
     # CHECK LOCAL FILES IN GAME FOLDER ONLY
     Game_Folder = Path(SYSTEM.game_path_check())
     print(Game_Folder)
@@ -438,7 +507,10 @@ class ClasCheckFiles:
                 INI_config.optionxform = str  # type: ignore
                 INI_config.read(custom_inifile)
                 if "Archive" not in INI_config.sections():
+                    GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                     INI_config.add_section("Archive")
+                else:
+                    GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
                 INI_config.set("Archive", "bInvalidateOlderFiles", "1")
                 INI_config.set("Archive", "sResourceDataDirsFinal", "")
                 with open(custom_inifile, "w+", encoding="utf-8", errors="ignore") as INI_custom:
@@ -447,6 +519,7 @@ class ClasCheckFiles:
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Broken_F4CINI"])
         else:
             with open(custom_inifile, "a", encoding="utf-8", errors="ignore") as INI_custom:
+                GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                 INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
                 INI_custom.write(INI_config)
 
@@ -494,16 +567,14 @@ class ClasCheckFiles:
         if exe_filepath.is_file():
             if SYSTEM.EXE_Local_Size == GALAXY.Game_Size_OLD and SYSTEM.EXE_Local_Hash == GALAXY.Game_HASH["1.10.163"] and not SYSTEM.Steam_INI.is_file():  # type: ignore
                 GALAXY.scan_game_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
-                                                "    * This is the version BEFORE the 2023 Update *",
-                                                "  -----"])
+                                                "    * This is the version BEFORE the 2023 Update * \n"])
             # elif EXE_Local_Size == Game_Size_NEW and EXE_Local_Hash == Game_HASH["1.xx.xxx.x"] and not SYSTEM.Steam_INI.is_file(): | RESERVED
             #    GALAXY.scan_game_report.extend(["✔️ Your Fallout 4 is updated to version [1.xx.xxx.x]",
-            #                                  "   * This is the version AFTER the 2023 Update *",
-            #                                  "  -----"])
+            #                                  "   * This is the version AFTER the 2023 Update * \n"])
             elif not SYSTEM.Steam_INI.is_file():
-                GALAXY.scan_game_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
+                GALAXY.scan_game_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n")
             elif SYSTEM.Steam_INI.is_file():  # Intentional, don't change the unicode icon.
-                GALAXY.scan_game_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n  -----")
+                GALAXY.scan_game_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n")
 
     # ============ CHECK GAME FOLDER -> GAME EXTENSIONS ============
     # RESERVED | ADJUST FOR OTHER GAMES
@@ -512,8 +583,7 @@ class ClasCheckFiles:
         if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
             GALAXY.scan_game_report.extend(["IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
                                             "remove these mods completely and switch to High FPS Physics Fix!",
-                                            "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files",
-                                            "-----"])
+                                            "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files \n"])
 
             if SYSTEM.VR_EXE.is_file() and SYSTEM.VR_Buffout.is_file():
                 GALAXY.scan_game_report.append("*✔️ Buffout 4 VR Version* is (manually) installed.\n  -----")
@@ -613,6 +683,7 @@ class ClasCheckFiles:
 
 
 PLANET = ClasCheckFiles()
+
 
 # SYSTEM.docs_file_check(PLANET.docs_path_check())
 
