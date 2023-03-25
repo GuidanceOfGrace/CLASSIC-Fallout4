@@ -1,6 +1,23 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.77
+- CLAS will now analyze the Plugin Checker report from Wrye Bash while *FCX Mode = true*.
+- Game Files scan will now show whether Archive Invalidation is already enabled or not.
+- Fixed detection for *DETECTED (NAMED) RECORDS* which broke in the previous update.
+- Fixed detection for *IMPORTANT PATCHES & FIXES* which also broke for some mods.
+- Adjusted Nvidia specific error messages so they never appear for AMD cards.
+- Articles / Websites buttons are now visually a bit larger in the GUI.
+
+6.70
+- Fixed detection for most error messages in *KNOWN CRASH CULPRITS*.
+- Fixed CLAS update messages not showing up under certain conditions.
+- Adjusted detection for *Vulkan Memory Crash* to prevent false positives.
+
+- You can now ignore mods by adding their plugin names to *CLAS Ignore.txt*
+- [Ignored mods will not show any warnings in CLAS. ONE PLUGIN PER LINE]
+- [Ignored mods will still show up if there are serious mod conflicts.]
+
 6.66 | "No Step On Snek" Update
 * MAIN SCRIPT *
 - Various parity updates between *Crash Log Auto Scanner* and *Plugin Auto Cleaning Tool*
