@@ -763,8 +763,8 @@ def scan_logs():
     print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115 \n")
     print("================================ CONTACT INFO =================================")
     print("DISCORD | Poet#9800 (https://discord.gg/DfFYJtt8p4)")
-    print("NEXUS MODS | https://www.nexusmods.com/users/64682231")
-    print("SCAN SCRIPT PAGE | https://www.nexusmods.com/fallout4/mods/56255")
+    print("NEXUS PROFILE | https://www.nexusmods.com/users/64682231")
+    print("CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(GALAXY.Sneaky_Tips))
 
     # ============ CHECK FOR FAULTY LOGS & AUTOSCANS =============

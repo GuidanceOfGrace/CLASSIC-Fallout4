@@ -25,7 +25,7 @@ def clas_ini_create():
                         "# This file contains settings for both source scripts and Crash Log Auto Scanner.exe \n",
                         "# Set to true if you want CLAS to check that you have the latest version of CLAS. \n",
                         "Update Check = true\n\n",
-                        "# FCX - File Check Xtended | Set to true if you want CLAS to check Buffout 4 and game integrity. \n",
+                        "# FCX - File Check Xtended | Set to true if you want CLAS to check the itegrity of your game files and core mods. \n",
                         "FCX Mode = true\n\n",
                         "# IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings. \n",
                         "# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. \n",
@@ -40,7 +40,7 @@ def clas_ini_create():
                         "# I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
                         "INI Path = \n\n",
                         "# Set or copy-paste your custom scan folder path below, from which your crash logs will be scanned. \n",
-                        "# If no path is set, CLAS will search for logs in the same folder from which you're running it in. \n",
+                        "# If no path is set, CLAS will search for logs in the same folder from which you are running the exe. \n",
                         "Scan Path = "]
         with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
             INI_Autoscan.writelines(INI_Settings)
@@ -92,7 +92,8 @@ class ClasSpecificVars:
 
     Game_Plugins_Exclude = ("Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
 
-    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "[FE:", "f4se", "KERNEL", "MSVC", "ntdll", "Unhandled exception", "USER32", "usvfs_x64", "win32u")
+    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11", "[FE:", "f4se", "KERNEL", "MSVC",
+                                                    "ntdll", "Unhandled exception", "USER32", "usvfs_x64", "win32u")
 
     XSE_Scripts_Count = 29
 
@@ -152,21 +153,21 @@ class ClasSpecificVars:
         "Duplicate FormIDs": """\
     ❓ These Form IDs occur at least twice in the listed plugins. This is undefined behavior
        that may result in crashes or unpredictable issues and this can only be fixed in FO4Edit.
-       Contact the mod author and consider uninstalling these plugins if you encounter problems.
+       Contact the mod authors and consider uninstalling these plugins if you encounter problems.
 """,
         "Record Type Collisions": """\
     ❓ These Records are overriding each other, but have different record types. This behavior
        can often lead to crashes or cause various issues and this can only be fixed in FO4Edit.
-       Contact the mod author and consider uninstalling these plugins if you encounter problems.
+       Contact the mod authors and consider uninstalling these plugins if you encounter problems.
 """,
         "Probable Injected Collisions": """\
     ❓ These Injected Records are overriding each other, but have different Editor IDs.
        This can cause some problems and their Editor IDs should be renamed to match each other.
-       Contact the mod author and consider uninstalling these plugins if you encounter problems.
+       Contact the mod authors and consider uninstalling these plugins if you encounter problems.
 """,
         # =================== SEARCH IN TITLE ===================
         "Invalid": """\
-    ❓ These plugins have a CK version that isn't recognized as a standard version.
+    ❓ These plugins were made with a non-standard or invalid Creation Kit version.
        Try to resave these plugins in Creation Kit and see if problems persist.
 """,
         "Cleaning With": """\
@@ -199,7 +200,8 @@ class ClasSpecificVars:
         "Warn_SCAN_Log_Errors": """
 # [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS! #
   [ Errors do not necessarily mean that the mod is not working. ]
-  -----""",
+  -----
+""",
         "Warn_SCAN_NOTE_DLL": """\
 * NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *
   If the dll from main error belongs to a mod, that mod is likely the culprit.
@@ -291,7 +293,7 @@ GALAXY = ClasSpecificVars()
 
 
 # ================== UPDATE FUNCTIONS ==================
-# Make sure to update API link for specific game.
+# Don't forget to update the API link for specific games.
 
 def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
     if isinstance(section, str) and isinstance(value, str):
@@ -417,7 +419,7 @@ class ClasLocalFiles:
                 return Manual_Docs
 
     # =========== CHECK DOCUMENTS -> GAME PATH & XSE LOGS ===========
-    # Make sure to check both OG and VR script extender logs!
+    # Don't forget to check both OG and VR script extender logs!
 
     def game_path_check(self):
         Error_List = []
@@ -448,7 +450,7 @@ class ClasLocalFiles:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Outdated_F4SE"])
 
         if XSE_Error is True:
-            GALAXY.scan_game_report.append("#[!] SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #\n")
+            GALAXY.scan_game_report.append("# ❌ SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #\n")
             for elem in Error_List:
                 GALAXY.scan_game_report.append(f"{elem}\n-----")
         else:
@@ -496,7 +498,6 @@ class ClasCheckFiles:
     SYSTEM.Address_LibraryVR = Game_Folder.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
 
     # ===== CHECK DOCUMENTS -> ENABLE ARCH. INV. / LOOSE FILES =====
-    # Applies to: Fallout 4, Skyrim Old, Skyrim SE, ?
 
     def ini_enable_modding(self, custom_inifile):
         if custom_inifile.is_file():
@@ -523,9 +524,9 @@ class ClasCheckFiles:
                 INI_custom.write(INI_config)
 
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
-    # Make sure to check both OG and VR script extender logs!
+    # Don't forget to check both OG and VR script extender logs!
 
-    def se_check_errors(self, xse_logpath):
+    def xse_check_errors(self, xse_logpath):
         list_log_errors = []
         for filename in glob(f"{xse_logpath}/*.log"):
             logname = ""
@@ -547,13 +548,11 @@ class ClasCheckFiles:
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INEGRITY ==========
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    def f4se_check_scripts(self, scripts_path, scripts_list):
+    def xse_check_scripts(self, scripts_path, scripts_list):
         matching_scripts = 0
         try:
             script_files = os.listdir(scripts_path)
-            for script in script_files:
-                if script in scripts_list:
-                    matching_scripts += 1
+            matching_scripts = sum(script_files.count(script) for script in scripts_list)
             GALAXY.scan_game_report.append(f"  * {matching_scripts} / {len(scripts_list)} * F4SE script files were found in your Fallout 4 / Data / Scripts folder.\n  -----")
             return matching_scripts
         except FileNotFoundError:
@@ -562,7 +561,7 @@ class ClasCheckFiles:
     # =========== CHECK GAME FOLDER -> GAME EXE INEGRITY ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    def fo4_check_integrity(self, exe_filepath):
+    def game_check_integrity(self, exe_filepath):
         if exe_filepath.is_file():
             if SYSTEM.EXE_Local_Size == GALAXY.Game_Size_OLD and SYSTEM.EXE_Local_Hash == GALAXY.Game_HASH["1.10.163"] and not SYSTEM.Steam_INI.is_file():  # type: ignore
                 GALAXY.scan_game_report.extend(["✔️ Your Fallout 4 is updated to version [1.10.163.0]",
@@ -578,7 +577,7 @@ class ClasCheckFiles:
     # ============ CHECK GAME FOLDER -> GAME EXTENSIONS ============
     # RESERVED | ADJUST FOR OTHER GAMES
 
-    def fo4_check_extensions(self):
+    def game_check_extensions(self):
         if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
             GALAXY.scan_game_report.extend(["IF YOU ARE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
                                             "remove these mods completely and switch to High FPS Physics Fix!",

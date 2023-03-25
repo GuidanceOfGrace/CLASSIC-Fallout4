@@ -11,38 +11,39 @@ def scan_game_files():
 
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
 
-    if len(PLANET.se_check_errors(SYSTEM.FO4_F4SE_Path)) >= 1:
+    if len(PLANET.xse_check_errors(SYSTEM.FO4_F4SE_Path)) >= 1:
         GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in PLANET.se_check_errors(SYSTEM.FO4_F4SE_Path):
+        for elem in PLANET.xse_check_errors(SYSTEM.FO4_F4SE_Path):
             GALAXY.scan_game_report.append(elem)
-    elif len(PLANET.se_check_errors(SYSTEM.FO4_F4SEVR_Path)) >= 1:
+
+    elif len(PLANET.xse_check_errors(SYSTEM.FO4_F4SEVR_Path)) >= 1:
         GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in PLANET.se_check_errors(SYSTEM.FO4_F4SEVR_Path):
+        for elem in PLANET.xse_check_errors(SYSTEM.FO4_F4SEVR_Path):
             GALAXY.scan_game_report.append(elem)
+
     else:
         GALAXY.scan_game_report.append("  -----\n✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
 
     # =========== CHECK GAME FOLDER -> ERRORS IN ALL LOGS ===========
 
-    if len(PLANET.se_check_errors(SYSTEM.Game_Path)) >= 1:
+    if len(PLANET.xse_check_errors(SYSTEM.Game_Path)) >= 1:
         GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in PLANET.se_check_errors(SYSTEM.Game_Path):
+        for elem in PLANET.xse_check_errors(SYSTEM.Game_Path):
             GALAXY.scan_game_report.append(f"{elem}\n-----\n")
     else:
         GALAXY.scan_game_report.append("✔️ Available logs in your Game Folder do not report any additional errors.\n  -----")
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INEGRITY ==========
 
-    if PLANET.f4se_check_scripts(SYSTEM.Game_Scripts, GALAXY.XSE_Scripts_List) >= GALAXY.XSE_Scripts_Count:
-        GALAXY.scan_game_report.extend(["✔️ All F4SE script files are accounted for in your Fallout 4 / Data / Scripts folder.",
-                                        "  -----"])
+    if PLANET.xse_check_scripts(SYSTEM.Game_Scripts, GALAXY.XSE_Scripts_List) >= GALAXY.XSE_Scripts_Count:
+        GALAXY.scan_game_report.append("✔️ All F4SE script files are accounted for in your Fallout 4 / Data / Scripts folder.\n  -----")
     else:
         GALAXY.scan_game_report.extend(["# ❌ CAUTION : SOME F4SE SCRIPT FILES ARE MISSING #",
                                         "  YOU NEED TO REINSTALL FALLOUT 4 SCRIPT EXTENDER",
                                         "  F4SE LINK: https://f4se.silverlock.org \n"])
 
-    PLANET.fo4_check_integrity(SYSTEM.Game_EXE)
-    PLANET.fo4_check_extensions()
+    PLANET.game_check_integrity(SYSTEM.Game_EXE)
+    PLANET.game_check_extensions()
     PLANET.bo4_check_required()
     PLANET.bo4_check_settings()
 
@@ -96,7 +97,7 @@ def scan_wryecheck():  # Wrye Plugin Checker
         GALAXY.scan_game_report.extend(["\n  ❔ For more info about the above detected problems, read the WB Advanced Readme",
                                         "     For more details about solutions, read the Advanced Troubleshooting Article",
                                         "     Advanced Troubleshooting: https://www.nexusmods.com/fallout4/articles/4141",
-                                        "     WB Advanced Readme: https://wrye-bash.github.io/docs/ \n"])
+                                        "     Wrye Bash Advanced Readme Documentation: https://wrye-bash.github.io/docs/ \n"])
     else:
         GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_NOTE_WryeCheck"])
 
