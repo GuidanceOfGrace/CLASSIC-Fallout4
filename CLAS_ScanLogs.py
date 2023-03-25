@@ -261,7 +261,7 @@ def scan_logs():
                     'description': '# Checking for Nvidia Driver Crash.......... CULPRIT FOUND! > Priority : [5] #\n'},
 
                 'Nvidia Reflex Crash': {
-                    'error_conditions': ("3A0000", "AD0000", "8E0000", "NVIDIA_Reflex", "Buffout4"), 'stack_conditions': ("NVIDIA_Reflex.dll", "Buffout4.dll"),
+                    'error_conditions': ("3A0000", "AD0000", "8E0000", "NVIDIA_Reflex", "Buffout4"), 'stack_conditions': "NVIDIA_Reflex.dll",
                     'description': '# Checking for Nvidia Reflex Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
 
                 'Vulkan Memory Crash': {
@@ -431,6 +431,7 @@ def scan_logs():
                 Mod_Check1 = check_plugins(MOON.Mods1, Mod_Trap1)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
@@ -470,6 +471,7 @@ def scan_logs():
                 Mod_Check2 = check_conflicts(MOON.Mods2, Mod_Trap2)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+                # CURRENTLY NONE
 
                 if (Mod_Check2 or Mod_Trap2) is True:
                     output.writelines(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
@@ -488,7 +490,9 @@ def scan_logs():
             Mod_Trap3 = False
             if plugins_loaded:
                 Mod_Check3 = check_plugins(MOON.Mods3, Mod_Trap3)
+                
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+
                 if any(item in logtext for item in ("Depravity", "FusionCityRising", "HotC", "OutcastsAndRemnants", "ProjectValkyrie")):
                     output.writelines([f"[!] Found: [XX] THUGGYSMURF QUEST MOD(S)\n",
                                        "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
@@ -532,6 +536,7 @@ def scan_logs():
             Mod_Trap4 = False
             if plugins_loaded:
                 Mod_Check4 = check_plugins(MOON.Mods4, Mod_Trap4)
+
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
 
@@ -544,8 +549,6 @@ def scan_logs():
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
-
-            # ===========================================================
 
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
@@ -588,7 +591,7 @@ def scan_logs():
                     'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                     'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files'
                 },
-                'Weapon Debris Crash Fix': {
+                'Nvidia Weapon Debris Fix': {
                     'condition': 'WeaponDebrisCrashFix.dll' in logtext and gpu_nvidia,
                     'description': 'Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)',
                     'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
@@ -602,13 +605,22 @@ def scan_logs():
 
             if plugins_loaded:
                 for mod_name, mod_data in Core_Mods.items():
-                    if mod_data['condition']:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    else:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
+                    if gpu_amd and "Nvidia" not in mod_name:
+                        if mod_data['condition']:
+                            output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                        else:
+                            output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                         f"  {mod_data['description']}\n"
+                                         f"  Link: {mod_data['link']}\n"
+                                          "  -----\n")
+                    elif gpu_nvidia and "Vulkan" not in mod_name:
+                        if mod_data['condition']:
+                            output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                        else:
+                            output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                         f"  {mod_data['description']}\n"
+                                         f"  Link: {mod_data['link']}\n"
+                                          "  -----\n")
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 

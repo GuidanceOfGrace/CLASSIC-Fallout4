@@ -49,7 +49,9 @@ def scan_game_files():
 
 def scan_wryecheck():  # Wrye Plugin Checker
     if SYSTEM.WB_Plugin_Check.is_file():
-        GALAXY.scan_game_report.append("✔️ FOUND WRYE BASH PLUGIN CHECKER REPORT! ANALYZING CONTENTS...")
+        GALAXY.scan_game_report.extend(["✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS...",
+                                        "  [This report is located in your Documents/My Games/Fallout4 folder.]",
+                                        "  [To hide this report, remove *ModChecker.html* from the same folder.]"])
         with open(SYSTEM.WB_Plugin_Check, "r", encoding="utf-8", errors="ignore") as WB_Check:
             WB_HTML = WB_Check.read()
 
@@ -78,7 +80,7 @@ def scan_wryecheck():  # Wrye Plugin Checker
 
             if title == "ESL Capable":
                 esl_count = sum(1 for _ in plugin_list)
-                GALAXY.scan_game_report.extend([f"    ❓ There are {esl_count} plugins that can be given the ESL flag. This can be done automatically",
+                GALAXY.scan_game_report.extend([f"    ❓ There are {esl_count} plugins that can be given the ESL flag. This can be done",
                                                 "        with SimpleESLify script to avoid reaching the plugin limit (254 esm/esp)."])
 
             for problem_name, problem_desc in GALAXY.WB_Problems.items():

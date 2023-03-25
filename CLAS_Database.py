@@ -8,12 +8,10 @@ import tomlkit
 from glob import glob
 from pathlib import Path
 from dataclasses import dataclass, field
-
 if platform.system() == "Windows":
     import ctypes.wintypes
 
 '''AUTHOR NOTES (POET):
-  UNIVERSE -> Universal Vars | GALAXY -> Game Specific Vars | SYSTEM -> User Local Files | PLANET -> File Functions | MOON -> Mod Functions
 - In cases where output.write is used instead of output.writelines, this was done to more easily copy-paste content.
 - Comments marked as RESERVED in all scripts are intended for future updates or tests, do not edit / move / remove.
 - (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
@@ -55,8 +53,8 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
     CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
     CLAS_config.read("CLAS Settings.ini")
-    CLAS_Date = "220323"  # DDMMYY
-    CLAS_Current = "CLAS v6.70"
+    CLAS_Date = "250323"  # DDMMYY
+    CLAS_Current = "CLAS v6.77"
     CLAS_Updated = False
 
     LOG_Errors_Catch = ("critical", "error", "failed")
@@ -205,13 +203,14 @@ class ClasSpecificVars:
         "Warn_SCAN_NOTE_DLL": """\
 * NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *
   If the dll from main error belongs to a mod, that mod is likely the culprit.
+
 """,
-        "Warn_SCAN_NOTE_WryeCheck": """
+        "Warn_SCAN_NOTE_WryeCheck": """\
 * NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
   To check your load order and detect additional problems; install and run Wrye Bash,
   then select View > Plugin Checker from the top bar in the main Wrye Bash window.
   WB Link (Use MANUAL DOWNLOAD): https://www.nexusmods.com/fallout4/mods/20032
-  -----""",
+""",
 
         "Warn_TOML_Achievements": """\
 # ❌ CAUTION : Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #
@@ -581,7 +580,7 @@ class ClasCheckFiles:
 
     def fo4_check_extensions(self):
         if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
-            GALAXY.scan_game_report.extend(["IF YOU'RE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
+            GALAXY.scan_game_report.extend(["IF YOU ARE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
                                             "remove these mods completely and switch to High FPS Physics Fix!",
                                             "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files \n"])
 
@@ -674,7 +673,7 @@ class ClasCheckFiles:
                                                         "-----"])
                     BUFF_config["Patches"]["MaxStdIO"] = 2048  # type: ignore
                 else:
-                    GALAXY.scan_game_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n-----")
+                    GALAXY.scan_game_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n")
 
             with open(SYSTEM.Buffout_TOML, "w+", encoding="utf-8", errors="ignore") as BUFF_Custom:
                 tomlkit.dump(BUFF_config, BUFF_Custom)
