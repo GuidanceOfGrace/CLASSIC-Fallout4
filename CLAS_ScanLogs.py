@@ -554,15 +554,8 @@ def scan_logs():
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
 
-            gpu_amd = False
-            gpu_nvidia = False
-            for line in loglines:
-                if "GPU" in line and "Nvidia" in line:
-                    gpu_nvidia = True
-                    break
-                if "GPU" in line and "AMD" in line:
-                    gpu_amd = True
-                    break
+            gpu_amd = any("GPU" in line and "AMD" in line for line in loglines)
+            gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
             Core_Mods = {
@@ -638,7 +631,7 @@ def scan_logs():
                 if "[" in line and "]" in line:  # Add all lines with Plugin IDs to list.
                     start_index = line.index("[")
                     end_index = line.index("]")
-                    if end_index - start_index == 3 or end_index - start_index == 7:
+                    if end_index - start_index == 3 or end_index - start_index == 7 and "Modified by:" not in line:
                         list_ALLPLUGINS.append(line.strip())
 
                 if "File:" in line and "Fallout4.esm" not in line:  # Add detected Plugins to list.
