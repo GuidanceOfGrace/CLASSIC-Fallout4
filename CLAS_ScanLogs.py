@@ -78,7 +78,8 @@ def scan_logs():
         for line in loglines:
             if "File:" in line and "Fallout4.esm" not in line:
                 line = line.replace("File: ", "").replace('"', '').strip()
-                detected_plugins.add(line)
+                if line.strip():
+                    detected_plugins.add(line.strip())
         return sorted(detected_plugins)
 
     def filter_excluded_plugins(detected_plugins, excluded_plugins):
