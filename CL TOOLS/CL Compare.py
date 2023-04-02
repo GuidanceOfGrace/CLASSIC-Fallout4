@@ -1,82 +1,71 @@
 import argparse
-import os
-from glob import glob
 from pathlib import Path
 
-parser = argparse.ArgumentParser()
-parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.", nargs="?", default=str(Path.cwd()))
-args = parser.parse_args()
+def extract_plugin_lists(file_path):
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        all_lines = f.readlines()
 
-folder_name = Path(args.error_code).resolve().name
-scanpath = str(Path(args.error_code).resolve())
-# READ 4TH LINE FROM EACH .log AND GRAB LAST 7 CHARS
-print("Hello World! | Crash Logs Compare | Fallout 4")
-
-File_Index = 0
-# Declaring the Master Lists here to appease VSCode's type checker/linter
-Master_ListP = []
-Master_ListM = []
-for file in glob(f"{scanpath}/crash-*.log"):
-    File_Index += 1
-    Plugin_IDX: int = int()
-    F4SE_IDX: int = int()
-    with open(file, "r+", encoding="utf-8", errors="ignore") as Plugin_Check:
-        All_Lines = Plugin_Check.readlines()
-    for line in All_Lines:
-        if not "F4SE" in line and "PLUGINS" in line:
-            Plugin_IDX = All_Lines.index(line) + 1
+    plugin_idx = f4se_idx = int()
+    for i, line in enumerate(all_lines):
         if "F4SE PLUGINS" in line:
-            F4SE_IDX = All_Lines.index(line) + 1
+            f4se_idx = i + 1
+        elif "PLUGINS" in line:
+            plugin_idx = i + 1
 
-    if File_Index == 1:
-        Plugins_Unstripped = All_Lines[Plugin_IDX:]
-        F4SEP_Unstripped = All_Lines[F4SE_IDX:Plugin_IDX - 1]
+    plugins_unstripped = all_lines[plugin_idx:]
+    f4sep_unstripped = all_lines[f4se_idx:plugin_idx - 1]
 
-        for elem in Plugins_Unstripped:
-            if "[FE" in elem:
-                Master_ListP.append(elem[9:].strip())  # type: ignore
-            else:
-                Master_ListP.append(elem[5:].strip())  # type: ignore
-        for elem in F4SEP_Unstripped:
-            if not "Buffout4.dll" in elem:
-                Master_ListM.append(elem.strip())  # type: ignore
-    # WHEN NOT 1st file, CREATE SEPARATE LIST
-    if File_Index > 1:
-        Plugins_Unstripped = All_Lines[Plugin_IDX:]
-        F4SEP_Unstripped = All_Lines[F4SE_IDX:Plugin_IDX - 1]
-        Plugin_List = []
-        F4SEP_List = []
-        for elem in Plugins_Unstripped:
-            if "[FE" in elem:
-                Plugin_List.append(elem[9:].strip())
-            else:
-                Plugin_List.append(elem[5:].strip())
-        for elem in F4SEP_Unstripped:
-            if not "Buffout4.dll" in elem:
-                F4SEP_List.append(elem.strip())
-                print(elem.strip())
-        # INTERSECT ELEMS IN BOTH LISTS, SET RESULT AS MASTER LIST
-        Master_ListP = set(Master_ListP).intersection(Plugin_List)
-        Master_ListM = set(Master_ListM).intersection(F4SEP_List)
+    plugin_list = set()
+    f4sep_list = set()
 
-list_remove = ["Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", ""]
-for elem in list_remove:
-    if elem in Master_ListP:
-        Master_ListP.remove(elem)
-    if elem in Master_ListM:
-        Master_ListM.remove(elem)
+    for elem in plugins_unstripped:
+        plugin_list.add(elem[9:].strip() if "[FE" in elem else elem[5:].strip())
 
-with open(f"{scanpath}/{folder_name}-RESULT.md", "w") as Master_Output:
-    Master_Output.write(f"LIST OF PLUGINS SEEN IN ALL AVAILABLE CRASH LOGS WITH THIS STACK CALL : {folder_name}\n")
-    for item in sorted(Master_ListP):
-        Master_Output.write(f"{item}\n")
-    if not Master_ListP:
-        Master_Output.write("- SCRIPT FOUND 0 MATCHING PLUGINS")
-    Master_Output.write(f"\nLIST OF F4SE DLLs SEEN IN ALL AVAILABLE CRASH LOGS WITH THIS STACK CALL : {folder_name}\n")
-    for item in sorted(Master_ListM):
-        Master_Output.write(f"{item}\n")
-    if not Master_ListM:
-        Master_Output.write("- SCRIPT FOUND 0 MATCHING F4SE DLLs")
+    for elem in f4sep_unstripped:
+        if "Buffout4.dll" not in elem:
+            f4sep_list.add(elem.strip())
 
-print("COMPARISON COMPLETE! Check the -RESULTS.md output!")
-os.system("pause")
+    return plugin_list, f4sep_list
+
+def main(args):
+    folder_name = Path(args.error_code).resolve().name
+    scanpath = Path(args.error_code).resolve()
+
+    print("Hello World! | Crash Logs Compare | Fallout 4")
+
+    master_list_p = set()
+    master_list_m = set()
+    list_remove = {"Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", ""}
+
+    for file_index, file_path in enumerate(scanpath.glob("crash-*.log"), start=1):
+        plugin_list, f4sep_list = extract_plugin_lists(file_path)
+        if file_index == 1:
+            master_list_p = plugin_list
+            master_list_m = f4sep_list
+        else:
+            master_list_p &= plugin_list
+            master_list_m &= f4sep_list
+
+        master_list_p -= list_remove
+        master_list_m -= list_remove
+
+    with open(scanpath / f"{folder_name}-RESULT.md", "w") as f:
+        f.write(f"LIST OF PLUGINS SEEN IN ALL AVAILABLE CRASH LOGS WITH THIS STACK CALL : {folder_name}\n")
+        for item in sorted(master_list_p):
+            f.write(f"{item}\n")
+        if not master_list_p:
+            f.write("- SCRIPT FOUND 0 MATCHING PLUGINS\n")
+        f.write(f"\nLIST OF F4SE DLLs SEEN IN ALL AVAILABLE CRASH LOGS WITH THIS STACK CALL : {folder_name}\n")
+        for item in sorted(master_list_m):
+            f.write(f"{item}\n")
+        if not master_list_m:
+            f.write("- SCRIPT FOUND 0 MATCHING F4SE DLLs\n")
+
+    print("COMPARISON COMPLETE! Check the -RESULTS.md output!")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("error_code", type=str, help="Specify the error code you want to run log comparisons for.", nargs="?", default=str(Path.cwd()))
+    args = parser.parse_args()
+    main(args)
+

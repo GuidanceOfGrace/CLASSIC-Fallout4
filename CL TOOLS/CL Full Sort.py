@@ -1,45 +1,67 @@
-import os
+import argparse
 import shutil
-from glob import glob
+from pathlib import Path
 
-list_SORTFAIL = []
-# READ 4TH LINE FROM EACH .log AND GRAB LAST 7 CHARS
-print("Hello World! | Crash Logs Sort | Fallout 4")
-for file in glob("crash-*.log"):
-    with open(file, "r+", encoding="utf-8", errors="ignore") as Error_Check:
-        All_Lines = Error_Check.readlines()
-    Error_Line = All_Lines[3]
-    Error_Num = Error_Line[-8:].strip()
 
-    # SKIP INVALID LOGS & FIND PLUGIN INDEX
-    Plugin_IDX = 0
-    Check_Valid = 0
-    for line in All_Lines:
-        if not "F4SE" in line and "PLUGINS:" in line:
-            Plugin_IDX = All_Lines.index(line)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("scan_dir", type=str, nargs="?", default=Path.cwd(),
+                        help="Specify the directory to scan for crash logs (default: current directory)")
+    args = parser.parse_args()
+
+    # Initialize variables and print a welcome message
+    sort_fail_list = []
+    print("Hello World! | Crash Logs Sort | Fallout 4")
+
+    # Process each log file and move it to the appropriate directory
+    for file_path in Path(args.scan_dir).glob("crash-*.log"):
+        error_num, plugin_idx, check_valid = process_log(file_path)
+
+        if check_valid and plugin_idx:
+            target_dir = Path(args.scan_dir) / error_num
+            target_dir.mkdir(exist_ok=True)
+            shutil.move(file_path, target_dir)
+        else:
+            sort_fail_list.append(str(file_path))
+
+    # Display the list of failed logs and print a completion message
+    display_failed_logs(sort_fail_list)
+    print("SORTING COMPLETE! Check the newly created folders!")
+    input("Press Enter to continue...")
+
+
+def process_log(file_path):
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        all_lines = f.readlines()
+
+    error_line = all_lines[3]
+    error_num = error_line[-8:].strip()
+
+    plugin_idx, check_valid = find_plugin_index_and_validate(all_lines, error_line)
+
+    return error_num, plugin_idx, check_valid
+
+
+def find_plugin_index_and_validate(all_lines, error_line):
+    plugin_idx = 0
+    check_valid = False
+    for i, line in enumerate(all_lines):
+        if "PLUGINS:" in line:
+            plugin_idx = i
         if "[00]" in line:
-            Check_Valid = 1
-    if not "exception" in Error_Line.lower():
-        Check_Valid = 0
+            check_valid = True
+    if "exception" not in error_line.lower():
+        check_valid = False
 
-    match Check_Valid:
-        case 1 if Plugin_IDX and not os.path.exists(Error_Num): # Using if Plugin_IDX instead of if not Plugin_IDX == 0 because 0 evaluates to false anyway.
-            os.mkdir(Error_Num)
-            shutil.copy(file, Error_Num)
-            os.remove(file)
-        case 1 if Plugin_IDX:
-            shutil.copy(file, Error_Num)
-            os.remove(file)
-        case 0:
-            list_SORTFAIL.append(str(file))
+    return plugin_idx, check_valid
 
-if len(list_SORTFAIL) >= 1:
-    print("NOTICE: SCRIPT WAS UNABLE TO PROPERLY SORT THE FOLLOWING LOG(S): ")
-    for elem in list_SORTFAIL:
-        print(elem)
-    print("-----")
-    print("(These logs most likely have wrong formatting or don't have a plugin list.)")
-    os.system("pause")
 
-print("SORTING COMPLETE! Check the newly created folders!")
-os.system("pause")
+def display_failed_logs(sort_fail_list):
+    if sort_fail_list:
+        print("NOTICE: SCRIPT WAS UNABLE TO PROPERLY SORT THE FOLLOWING LOG(S):")
+        print("\n".join(sort_fail_list))
+        print("-----")
+        print("(These logs most likely have wrong formatting or don't have a plugin list.)")
+
+if __name__ == "__main__":
+    main()
