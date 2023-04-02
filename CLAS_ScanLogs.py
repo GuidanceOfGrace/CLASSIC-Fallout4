@@ -224,12 +224,12 @@ def scan_logs():
                         output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
                                      f"  {mod_data['description']}\n"
                                      f"  Link: {mod_data['link']}\n"
-                                      "  -----\n")
+                                     "  -----\n")
                     elif mod_data['condition'] and "Nvidia" in mod_name:
                         output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
-                                      "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
+                                     "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
                                      f"   You should uninstall {mod_name} to avoid any problems.\n"
-                                      "  -----\n")
+                                     "  -----\n")
 
                 elif gpu_nvidia and "Vulkan" not in mod_name:
                     if mod_data['condition']:
@@ -238,7 +238,7 @@ def scan_logs():
                         output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
                                      f"  {mod_data['description']}\n"
                                      f"  Link: {mod_data['link']}\n"
-                                      "  -----\n")
+                                     "  -----\n")
         else:
             output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 
@@ -493,12 +493,12 @@ def scan_logs():
                 output.write(f"{culprit_data['description']}  -----\n")
                 Culprit_Trap = True
         return Culprit_Trap
-    # =========================================================
+
+    # ==================== AUTOSCAN REPORT ====================
     print("PERFORMING SCAN... \n")
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
 
-    # =================== AUTOSCAN REPORT ===================
     SCAN_folder = os.getcwd()
     if len(UNIVERSE.CLAS_config["MAIN"]["Scan Path"]) > 1:
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
@@ -564,14 +564,15 @@ def scan_logs():
                     output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
                 else:
                     output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
-
+            '''
             output.writelines(["\n====================================================\n",
                                "CHECKING IF INI SETTINGS FROM MODS ARE CORRECT...\n",
                                "====================================================\n"])
 
             if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Mode"])
-
+            '''
+            
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
                                "====================================================\n"])
@@ -845,7 +846,6 @@ def scan_logs():
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     import argparse
-
     parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner (CLAS)", description="All command-line options are saved to the INI file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon

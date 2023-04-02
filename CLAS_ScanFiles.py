@@ -1,5 +1,4 @@
 import os
-import configparser
 from CLAS_Database import GALAXY, SYSTEM, PLANET, clas_ini_create, mods_ini_config
 from bs4 import BeautifulSoup  # For parsing HTML / XML (Wrye Plugin Check)
 
@@ -111,21 +110,24 @@ def scan_wryecheck():  # Wrye Plugin Checker
         GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_NOTE_WryeCheck"])
 
 
-# mods_ini_update(file_path, section, key, new_value=None)
-def scan_mod_inis():
+def scan_mod_inis():  # Mod INI files check.
     for root, dirs, files in os.walk(SYSTEM.Game_Data):
         for file in files:
             ini_path = os.path.join(root, file)
-            
-            if file == "ESPExplorer.ini":
+            if file == "ESPExplorer.ini":  # ESP Explorer Maintenance | 42520
                 if "; F10" in mods_ini_config(ini_path, "General", "HotKey"):
                     mods_ini_config(ini_path, "General", "HotKey", "0x79")
-                    GALAXY.scan_game_report.append("Errors Corrected In : ESPExplorer.ini")
-            
-            if file == "HighFPSPhysicsFix.ini":
-                if mods_ini_config(ini_path, "Limiter", "LoadingScreenFPS") != "600.0":
+                    GALAXY.scan_game_report.append(f"Values Corrected In : {file}")
+
+            if file == "EPO.ini":
+                if int(mods_ini_config(ini_path, "Particles", "iMaxDesired")) > 5000:
+                    mods_ini_config(ini_path, "Particles", "iMaxDesired", "5000")
+                    GALAXY.scan_game_report.append(f"Values Corrected In : {file}")
+
+            if file == "HighFPSPhysicsFix.ini":  # High FPS Physics Fix | 44798
+                if float(mods_ini_config(ini_path, "Limiter", "LoadingScreenFPS")) < 600.0:
                     mods_ini_config(ini_path, "Limiter", "LoadingScreenFPS", "600.0")
-                    GALAXY.scan_game_report.append("Settings Adjusted In : HighFPSPhysicsFix.ini")
+                    GALAXY.scan_game_report.append(f"Values Corrected In : {file}")
 
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.

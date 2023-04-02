@@ -1,6 +1,18 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.85
+- Some mod warnings for *MODS THAT CAN CAUSE FREQUENT CRASHES* have been adjusted and/or removed.
+- CLAS will now warn you if Nvidia specific mods are installed, but AMD video card was detected.
+- Game Files scan will now warn you if the game is installed inside of *Program Files* folder.
+- Game Files scan will now analyze F4SE script file hashes and warn you if any are corrupted.
+- Game Files scan will now analyze INI files from mods and make adjustments when necessary.
+- [If using MO2, make sure to run CLAS within MO2 (create shortcut) for this to work.]
+
+* OTHER FILES *
+- General minor changes and additions to *CLAS Readme*.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
+
 6.77
 - CLAS will now analyze the Plugin Checker report from Wrye Bash while *FCX Mode = true*.
 - Game Files scan will now show whether Archive Invalidation is already enabled or not.
@@ -63,7 +75,7 @@
 
 * OTHER FILES *
 - *CL TOOLS* folder renamed to *CLAS TOOLS*
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 
 6.35
 * MAIN SCRIPT *
@@ -79,7 +91,7 @@
 
 * OTHER FILES *
 - Upgraded the EXE interface to use PyQt6 / PySide6 thanks to [evildarkarchon] on GitHub.
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 
 6.25
 * MAIN SCRIPT *
@@ -117,7 +129,7 @@
 
 * OTHER FILES *
 - General improvements to *CL Compare.py* thanks to [evildarkarchon] on GitHub.
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 
 6.06
 * MAIN SCRIPT *
@@ -157,7 +169,7 @@
 
 * OTHER FILES *
 - Crash Log Auto Scanner.exe has an interface from which you can adjust settings and visit important articles in a few clicks.
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 
 5.99-A | Hotfix
 * MAIN SCRIPT *
@@ -177,7 +189,7 @@
 
 * OTHER FILES *
 - Several improvements and fixes for *CL Full Scan* and *CL Compare* thanks to [evildarkarchon] on GitHub.
-- Updated "HOW TO READ CRASH LOGS" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 
 5.95
 * MAIN SCRIPT *
@@ -221,7 +233,7 @@
 - Fixed code for reading / writing Fallout4Custom.ini while *FCX Mode = true*
 - Fixed code that forgot to update most INI config files while *FCX Mode = true*
 - Fixed Permission Error if Fallout4Custom.ini or Buffout4.toml were set to Read Only.
-- Updated "How To Read Crash Logs" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 - Merged "multiple small fixes and changes" commit created by [evildarkarchon] on GitHub.
 
 5.55
@@ -299,7 +311,7 @@
   [f4se.log is located in Documents\My Games\Fallout4\F4SE folder and auto-generates after each game run.]
 
 * OTHER FILES *
-- Updated "How To Read Crash Logs" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 - Removed text about Scan Crashlogs FCX.py from *Scan Readme.md*, since that's now a setting in *Scan Crashlogs.ini*
 
 - *Scan Crashlogs.ini* (generates after running the main script) has a new setting called *Move Unsolved = false*
@@ -330,7 +342,7 @@
 4.04
 - Hotfix: Changed how Fallout4Custom.ini is created/accessed so it hopefully doesn't fail.
 - Forgot to include the PDF in version 4.00. You can always use the online version:
-- [Updated "How To Read Crash Logs" PDF so it matches the latest online Google Docs version.]
+- [Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.]
 
 4.00
 > Major Change: Auto-Scanner now checks if all Buffout 4 files are correctly installed/configured.
@@ -348,7 +360,7 @@
 - Fixed code logic for Plugin Limit Crash to reduce false positives.
 - Added detection for around 5 new mods with community patches and solutions.
 - Added short descriptions about issues and possible solutions for most detected mods.
-- Updated "How To Read Crash Logs" PDF so it matches the latest online Google Docs version.
+- Updated *HOW TO READ CRASH LOGS* PDF so it matches the latest online Google Docs version.
 - Auto-Scanner now checks for all known game file extensions when looking for FILE CULPRITS.
 - Auto-Scanner should no longer make duplicate plugin / mod reports, let me know if it still does.
 - Expanded "NPC Pathing Crash" to also cover dynamic pathing / pathfinding error messages.
@@ -379,7 +391,7 @@
 > Corrupted Audio Crash
 
 3.00
-> Major Change: Auto-Scanner archive now contains a PDF file named "How To Read Crash Logs"
+> Major Change: Auto-Scanner archive now contains a PDF file named *HOW TO READ CRASH LOGS*
 (It's a dictionary of all known crash messages / errors and their solutions, alternatives and fixes.)
 (I've removed the same info from crash log article because Nexus formatting is absolutely awful.)
 

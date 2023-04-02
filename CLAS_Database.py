@@ -8,6 +8,7 @@ import tomlkit
 from glob import glob
 from pathlib import Path
 from dataclasses import dataclass, field
+
 if platform.system() == "Windows":
     import ctypes.wintypes
 
@@ -25,7 +26,7 @@ def clas_ini_create():
                         "# This file contains settings for both source scripts and Crash Log Auto Scanner.exe \n",
                         "# Set to true if you want CLAS to check that you have the latest version of CLAS. \n",
                         "Update Check = true\n\n",
-                        "# FCX - File Check Xtended | Set to true if you want CLAS to check the itegrity of your game files and core mods. \n",
+                        "# FCX - File Check Xtended | Set to true if you want CLAS to check the integrity of your game files and core mods. \n",
                         "FCX Mode = true\n\n",
                         "# IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings. \n",
                         "# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. \n",
@@ -59,27 +60,26 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
     with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as CLAS_INI:
         UNIVERSE.CLAS_config.write(CLAS_INI)
 
-import configparser
-
 
 def mods_ini_config(file_path, section, key, new_value=None):
-    ini_config = configparser.ConfigParser()
-    ini_config.read(file_path)
+    mod_config = configparser.ConfigParser()
+    mod_config.optionxform = str
+    mod_config.read(file_path)
 
-    if section not in ini_config:
+    if section not in mod_config:
         raise configparser.Error(f"Section '{section}' does not exist in '{file_path}'")
-    if key not in ini_config[section]:
+    if key not in mod_config[section]:
         raise configparser.Error(f"Key '{key}' does not exist in section '{section}'")
 
     # If new_value is specified, update the value in INI.
     if new_value is not None:
-        ini_config[section][key] = new_value
+        mod_config[section][key] = new_value
         with open(file_path, 'w') as config_file:
-            ini_config.write(config_file)
+            mod_config.write(config_file)
         return new_value
 
     # Return current value of the key.
-    return ini_config[section][key]
+    return mod_config[section][key]
 
 
 # ================= CLAS UPDATE FUNCTIONS ================
@@ -452,7 +452,6 @@ class ClasLocalFiles:
             GALAXY.Game_Docs_Found = True
             return Win_Docs
 
-
         def get_linux_docs_path():
             libraryfolders_path = Path.home().joinpath(".local", "share", "Steam", "steamapps", "common", "libraryfolders.vdf")
             if libraryfolders_path.is_file():
@@ -470,14 +469,12 @@ class ClasLocalFiles:
                             return Lin_Docs
             return None
 
-
         def get_ini_docs_path():
             if str(GALAXY.Game_Docs).lower() in UNIVERSE.CLAS_config["MAIN"]["INI Path"].lower():
                 INI_Line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
                 INI_Docs = Path(INI_Line)
                 return INI_Docs
             return None
-
 
         def get_manual_docs_path():
             print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {GALAXY.Game_Docs}.ini IS LOCATED < <")
@@ -486,7 +483,7 @@ class ClasLocalFiles:
             Manual_Docs = Path(Path_Input.strip())
             clas_ini_update("INI Path", Path_Input)
             return Manual_Docs
-        
+
         if platform.system() == "Windows":
             docs_path = get_windows_docs_path()
         else:
@@ -525,7 +522,6 @@ class ClasLocalFiles:
                         XSE_Crash_DLL = True
 
             return Game_Path, XSE_Error, XSE_Version, XSE_Crash_DLL, Error_List
-
 
         def handle_missing_f4se_log():
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Missing_F4SELOG"])
@@ -595,14 +591,14 @@ class ClasCheckFiles:
     SYSTEM.Address_LibraryVR = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
 
     # ============== CHECK GAME PATH -> PROGRAM FILES ==============
-    
+
     def game_check_folderpath(self):
         game_folderpath = SYSTEM.game_path_check()
         if "Program Files" in game_folderpath or "Program Files (x86)" in game_folderpath:
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
-                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
-                                             "   To ensure that everyting works, move your Game or entire Steam folder outside of Program Files.",
-                                             "  -----"])
+                                            "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
+                                            "   To ensure that everyting works, move your Game or entire Steam folder outside of Program Files.",
+                                            "  -----"])
         else:
             GALAXY.scan_game_report.append(f"✔️ Your {GALAXY.Game_Name} game files are installed outside of Program Files folder. \n  -----")
 
@@ -678,7 +674,7 @@ class ClasCheckFiles:
                         file_contents = f.read()
                     # Algo should match the one used for dictionary.
                     file_hash = hashlib.sha256(file_contents).hexdigest()
-                    
+
                     # Compare local hash value to the dictionary value.
                     if file_hash != hash_list[filename]:
                         matching_hashes = False
@@ -825,8 +821,8 @@ class ClasCheckMods:
 
         2: {"mod": " EPO.esp",
             "warn": ["EXTREME PARTICLES OVERHAUL \n",
-                     "[Can cause particle effects related crashes, its INI file raises particle count to 500000] \n",
-                     "[Consider switching to Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789]"]},
+                     "[Can cause particle effects related crashes, consider switching to Burst Impact Blast FX.] \n",
+                     "[Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789?tab=files]"]},
 
         3: {"mod": " SakhalinWasteland",
             "warn": ["FALLOUT SAKHALIN \n",
@@ -835,12 +831,6 @@ class ClasCheckMods:
         4: {"mod": " 76HUD",
             "warn": ["HUD76 HUD REPLACER \n",
                      "[Can sometimes cause interface and pip-boy related bugs, glitches and crashes.]"]},
-
-        5: {"mod": " Knockout Framework.esm",
-            "warn": ["KNOCKOUT FRAMEWORK \n",
-                     "[Confirm that you have installed the latest version (1.4.0+) of this mod.]\n",
-                     "[Older versions cause weird behavior and crashes during prolonged game sessions.]\n",
-                     "[Knockout Framework Link: https://www.nexusmods.com/fallout4/mods/27086?tab=files]"]},
 
         6: {"mod": " NCRenegade",
             "warn": ["NCR RENEGADE ARMOR \n",
@@ -959,7 +949,13 @@ class ClasCheckMods:
                       "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                       "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
-        12: {"mod_1": " MOD_1.esm",
+        12: {"mod_1": " ArmorKeywords.esm",
+             "mod_2": " SKKCraftableWeaponsAmmo.esp",
+             "warn": ["ARMOR AND WEAPON KEYWORDS ❌ CONFLICTS WITH : SKK CRAFT WEAPONS AND SCRAP AMMO \n",
+                      "[SKK Craft Weapons & Ammo Version 008 is incompatible with AWKCR and will cause crashes while saving the game.]\n",
+                      "[If you encounter problems or crashes, remove AWKCR and / or switch to Equipment and Crafting Overhaul instead.]"]},
+
+        13: {"mod_1": " MOD_1.esm",
              "mod_2": " MOD_2.esm",
              "warn": ["MOD_1_NAME ❌ CONFLICTS WITH : MOD_2_NAME \n",
                       "- TEMPLATE."]},
@@ -1108,11 +1104,6 @@ class ClasCheckMods:
                       "  Original Rusty Face Fix: https://www.nexusmods.com/fallout4/mods/31028?tab=files \n",
                       "  Alternative REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]},
 
-        26: {"mod": " SKKCraftableWeaponsAmmo",
-             "warn": ["SKK CRAFT WEAPONS AND SCRAP AMMO \n",
-                      "- Version 008 is incompatible with AWKCR and will cause crashes while saving the game. \n",
-                      "  Advised Fix: Use Version 007 or remove AWKCR and switch to Equipment and Crafting Overhaul instead."]},
-
         27: {"mod": " SOTS.esp",
              "warn": ["SOUTH OF THE SEA \n",
                       "- Very unstable mod that consistently and frequently causes strange problems and crashes. \n",
@@ -1138,10 +1129,6 @@ class ClasCheckMods:
                       "- Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent. \n",
                       "  Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files"]},
 
-        32: {"mod": " ZombieWalkers",
-             "warn": ["ZOMBIE WALKERS \n",
-                      "- Version 2.6.3 contains a resurrection script that will regularly crash the game. \n",
-                      "  Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]}
     }
 
     # 4) CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER | Leave 1 empty space as prefix to prevent most duplicates.
