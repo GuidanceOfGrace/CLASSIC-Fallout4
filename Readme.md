@@ -1,4 +1,4 @@
-=====================================================================================================
+============================================================================================
 # LINKS #
 
 How To Install Buffout 4 : https://www.nexusmods.com/fallout4/articles/3115
@@ -13,7 +13,7 @@ Plugin Auto Cleaning Tool - https://www.nexusmods.com/fallout4/mods/69413
 
 HOW TO READ CRASH LOGS Online Doc: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
-=====================================================================================================
+============================================================================================
 # CONTENTS & FILES #
 
 *Scan Readme.md* - The file that you're reading right now.
@@ -29,7 +29,7 @@ and press SCAN LOGS button to scan them. After scanning completes, close the exe
 
 *HOW TO READ CRASH LOGS.pdf* - Document that lists most common Buffout 4 crash log messages and errors, and ways to prevent or fix them.
 
-=====================================================================================================
+============================================================================================
 # HOW TO READ AUTOSCAN FILES #
 
 After running the EXE, you'll see the following in any generated *crash-time-and-date-AUTOSCAN.md* output file:
@@ -68,12 +68,12 @@ mentions of Plugins, FormIDs or Game Files that were possibly involved when this
 If you weren't able to fix the crash so far, you can search for any Game Files in the FO4 install folder, look up any FormIDs in FO4Edit
 or disable any Plugins listed in this segment to further confirm if they caused this crash or not. If all else fails, perform a Binary Search.
 
-=====================================================================================================
+============================================================================================
 # THINGS TO DO IF NO CRASH LOGS ARE GIVEN OR IF AUTO-SCAN DOESN'T HELP #
 
 > READ THIS ARTICLE: https://www.nexusmods.com/fallout4/articles/4141
 
-=====================================================================================================
+============================================================================================
 # BINARY SEARCH 101 #
 
 This is an algorithm (method) for tracking down the exact crash culprit as fast as possible when crash logs aren't helpful. Here's a clear example on how to do it.
@@ -95,7 +95,7 @@ After that, enable all other mods and continue from the save before you stared t
 
 For more details, see: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
-=====================================================================================================
+============================================================================================
 # LATEST CHANGES #
 
 6.85
