@@ -49,19 +49,81 @@ def clas_ini_create():
 clas_ini_create()
 
 
+# ================= INI UPDATE FUNCTIONS =================
+def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
+    if isinstance(section, str) and isinstance(value, str):
+        UNIVERSE.CLAS_config["MAIN"][section] = value
+    else:
+        UNIVERSE.CLAS_config["MAIN"][str(section)] = str(value)
+
+    with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as CLAS_INI:
+        UNIVERSE.CLAS_config.write(CLAS_INI)
+
+import configparser
+
+
+def mods_ini_config(file_path, section, key, new_value=None):
+    ini_config = configparser.ConfigParser()
+    ini_config.read(file_path)
+
+    if section not in ini_config:
+        raise configparser.Error(f"Section '{section}' does not exist in '{file_path}'")
+    if key not in ini_config[section]:
+        raise configparser.Error(f"Key '{key}' does not exist in section '{section}'")
+
+    # If new_value is specified, update the value in INI.
+    if new_value is not None:
+        ini_config[section][key] = new_value
+        with open(file_path, 'w') as config_file:
+            ini_config.write(config_file)
+        return new_value
+
+    # Return current value of the key.
+    return ini_config[section][key]
+
+
+# ================= CLAS UPDATE FUNCTIONS ================
+# Don't forget to update the API link for specific games.
+def clas_update_check():
+    print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
+    print("    (You can disable this check in the EXE or CLAS Settings.ini)")
+    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
+    CLAS_Received = response.json()["name"]
+    if CLAS_Received == UNIVERSE.CLAS_Current:
+        UNIVERSE.CLAS_Updated = True
+        print("\n ✔️ You have the latest version of CLAS! \n")
+    else:
+        print(GALAXY.Warnings["Warn_CLAS_Outdated"])
+        print("===============================================================================")
+    return UNIVERSE.CLAS_Updated
+
+
+def clas_update_run():
+    if UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is True:
+        try:
+            CLAS_CheckUpdates = clas_update_check()
+            return CLAS_CheckUpdates
+        except (OSError, requests.exceptions.RequestException):
+            print(GALAXY.Warnings["Warn_CLAS_Update_Failed"])
+            print("===============================================================================")
+    elif UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is False:
+        print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
+
+
 class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comments.
     CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
     CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
     CLAS_config.read("CLAS Settings.ini")
-    CLAS_Date = "250323"  # DDMMYY
-    CLAS_Current = "CLAS v6.77"
+    CLAS_Date = "020423"  # DDMMYY
+    CLAS_Current = "CLAS v6.85"
     CLAS_Updated = False
 
     LOG_Errors_Catch = ("critical", "error", "failed")
 
-    LOG_Errors_Exclude = ("keybind", "failed to open pdb", "failed to register method", "failed to get next record")
+    LOG_Errors_Exclude = ("keybind", "failed to open pdb", "failed to register method", "failed to get next record",
+                          "no errors with this power grid", "no errors with this workshop", "unable to locate pdb")
 
-    LOG_Files_Exclude = ("crash-", "CreationKit", "f4se.log", "Fallout4_dxgi.log", "HHS.log")
+    LOG_Files_Exclude = ("crash-", "cbpfo4.log", "CreationKit", "f4se.log", "Fallout4_dxgi.log", "HHS.log")
 
     Crash_Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                            ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
@@ -77,23 +139,60 @@ class ClasSpecificVars:
     Game_SID = 377160  # Steam ID Number
     Game_Size_OLD = 65503104  # Old Valid EXE Size
     Game_Size_NEW = 00000000  # New Valid EXE Size
-    Game_HASH = {"1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60"}
+    Game_HASH = {
+        "1.10.163": "77fd1be89a959aba78cf41c27f80e8c76e0e42271ccf7784efd9aa6c108c082d83c0b54b89805ec483500212db8dd18538dafcbf75e55fe259abf20d49f10e60",
+        "Actor.pex": "9333aa9b33d6009933afc3a1234a89ca93b5522ea186b44bc6c78846ed5a82c4",
+        "ActorBase.pex": "cb5d29fead7df77eca8674101abdc57349a8cf345f18c3ddd6ef8d94ad254da7",
+        "Armor.pex": "2bc34ab0d58f701e8684fc911742257e0768bd3e63b1eb8bdb2e043e7b67346b",
+        "ArmorAddon.pex": "5d9ff578b6e401526dbddedf93bdbccb4e202dba2b8b2e77809140b48fc8c1af",
+        "Cell.pex": "25d742d4fbe274fe5b8b3adc3775964ab9e22c1f32c47d5d3102b735c5b4e190",
+        "Component.pex": "80eef0f21bb7b1b9882c4a953a24aff3df8095f8464c006a96fafc0858f9b889",
+        "ConstructibleObject.pex": "51bdb39c81465bfbbbe509dc0a1ed40baebf4791cb35c978108e4334bcabc017",
+        "DefaultObject.pex": "715dff0394599587c4596488d66aab4d91311361a3ebec24a91d0ce1ddf39d77",
+        "EncounterZone.pex": "be0efccf70adc3a6a28f2465044d4df44cf7abe409c8624f6695d9a193eb96b6",
+        "EquipSlot.pex": "0e00da824263e60041086cc721896aeb304c7ec6d38fba1f548df96fda0c9ff3",
+        "F4SE.pex": "7d3b1be07259c9078c7f3f60cdf12041401024485750a303b0faec686a25047a",
+        "FavoritesManager.pex": "aed53963a5e725cea561f67525c1d50297c7a8410e6a5738b00356908d5daca7",
+        "Form.pex": "3ac9cd7ecb22d377800ca316413eb1d8f4def3ff3721a14b4c6fa61500f9f568",
+        "Game.pex": "19c858908f1a2054755b602121e5944dbbfb1ee0be38a24a532e6ab2f9390f4d",
+        "HeadPart.pex": "d25869fbf81b7d351e71cd17b6913cae01dd1b58ba76419050df6af1ed6525af",
+        "Input.pex": "9509a73024680963b8446b57247fdf160513a540531e87a0e2faedb610b1ffcd",
+        "InstanceData.pex": "57e68c4b355a94b709950ccec297b3d466f1d25e5029fed9e1423e8a12dd179f",
+        "Location.pex": "3538c0aaa4fe450828aee3848fe317c1654c8ed39bd811be9cff22a1e7618b49",
+        "Math.pex": "9bb0019795b85076837ac6845d0c79d65c9826739e59c43b97cfb949f611e822",
+        "MatSwap.pex": "b49d34fe1b6387d19df5140ddfbd9c340d3b10fc396e003142cdc755dc6815fc",
+        "MiscObject.pex": "7615656ab2867c5502507d1189cf7f938919dc585608698d2f31f782d858d23c",
+        "ObjectMod.pex": "d02235b5013375bf0c7785408380b3a567697879a966818df883256031b8a2b8",
+        "ObjectReference.pex": "97cfd2749b70545c9378955b09a898631fa03a0e235623b76f2c5631f2801be5",
+        "Perk.pex": "04a9d0309198cbeb3a419265490be03e051d35b17b7f8ce749ffc4ea0673e16c",
+        "ScriptObject.pex": "a395b7fc15b193b6d8ef0184dff6293100e79ec4dd431d85e10515da46e0502c",
+        "UI.pex": "6b7a65b8be433bcb99dbe07d4ca9e9de2fa94140d402247b877351c2b34a36d5",
+        "Utility.pex": "e10d65904d0a1e9ee568bdaba02636f0183bfa9565b4056758b1461540f9be75",
+        "WaterType.pex": "c4f8589ed33f72265e95a6bec2c9cab58667795e972bcf5f7d17c40deed43207",
+        "Weapon.pex": "f39cf899d90d47d694873ccaa2a72308c6717f5e36a302d6f95243e53672d77d"}
+
+    Mods_HASH = {
+        "ActorVelocityFramework.pex": "7903dd803ce986cb653a56300b100053cefe3b3124aaa03e437620e26da1d006",
+        "M8rSimpleWaitAnywhere.pex": "2ddcda5fcd8ba4a4e70981dce591e6e236237d8096e89d82511163989fa6298f",
+        "MCM.pex": "7fd3cf2e42f14e962ac98cc0952d848c2a2044a9a4d03b9109eef3c480ae115f",
+        "SUP_F4SE.pex": "fe40e556e67b6947c0396a9de28e771b4bed76eff9b1235ed737c65fafb46675"}
 
     XSE_Symbol = "F4SE"
     XSE_Handle = "Fallout 4 Script Extender (F4SE)"
     XSEOG_Latest = "0.6.23"
     XSEVR_Latest = "0.6.20"
-    BO4_DLL_Name = "buffout4.dll"
-    BO4OG_Latest = "Buffout 4 v1.26.2"
-    BO4NG_Latest = "Buffout 4 v1.31.1 Feb 28 2023 00:32:02"
+    CRASHGEN_Handle = "Buffout 4"
+    CRASHGEN_DLL = "buffout4.dll"
+    CRASHGEN_OLD = "Buffout 4 v1.26.2"
+    CRASHGEN_NEW = "Buffout 4 v1.31.1 Feb 28 2023 00:32:02"
     ADLIB_Loaded = False
 
     scan_game_report = []
 
     Game_Plugins_Exclude = ("Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
 
-    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11", "[FE:", "f4se", "KERNEL", "MSVC",
-                                                    "ntdll", "Unhandled exception", "USER32", "usvfs_x64", "win32u")
+    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11.dll+", "dxgi.dll+", "[FE:", "f4se", "KERNEL", "kernel32.dll+", "MSVC", "ntdll",
+                                                    "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled exception", "USER32", "usvfs_x64", "win32u")
 
     XSE_Scripts_Count = 29
 
@@ -129,8 +228,8 @@ class ClasSpecificVars:
        Either install missing requirements or completely disable these plugins.
 """,
         "Delinquent Masters": """\
-    ❓ These plugins are not in the correct load order. You can also run Wrye Bash
-       to order plugins with orange checkboxes until they appear green or yellow.
+    ❓ These plugins are not in the correct load order. You should run Wrye Bash
+       and order plugins with orange checkboxes until they turn green or yellow.
 """,
         "Old Header Form Versions": """\
     ❓ These plugins have a header that is older than the minimum CK version.
@@ -208,7 +307,7 @@ class ClasSpecificVars:
 
 """,
         "Warn_SCAN_NOTE_WryeCheck": """\
-* NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
+* ❌ NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
   To check your load order and detect additional problems; install and run Wrye Bash,
   then select View > Plugin Checker from the top bar in the main Wrye Bash window.
   WB Link (Use MANUAL DOWNLOAD): https://www.nexusmods.com/fallout4/mods/20032
@@ -292,45 +391,6 @@ class ClasSpecificVars:
 GALAXY = ClasSpecificVars()
 
 
-# ================== UPDATE FUNCTIONS ==================
-# Don't forget to update the API link for specific games.
-
-def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
-    if isinstance(section, str) and isinstance(value, str):
-        UNIVERSE.CLAS_config["MAIN"][section] = value
-    else:
-        UNIVERSE.CLAS_config["MAIN"][str(section)] = str(value)
-
-    with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as CLAS_INI:
-        UNIVERSE.CLAS_config.write(CLAS_INI)
-
-
-def clas_update_check():
-    print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
-    print("    (You can disable this check in the EXE or CLAS Settings.ini)")
-    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
-    CLAS_Received = response.json()["name"]
-    if CLAS_Received == UNIVERSE.CLAS_Current:
-        UNIVERSE.CLAS_Updated = True
-        print("\n ✔️ You have the latest version of CLAS! \n")
-    else:
-        print(GALAXY.Warnings["Warn_CLAS_Outdated"])
-        print("===============================================================================")
-    return UNIVERSE.CLAS_Updated
-
-
-def clas_update_run():
-    if UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is True:
-        try:
-            CLAS_CheckUpdates = clas_update_check()
-            return CLAS_CheckUpdates
-        except (OSError, requests.exceptions.RequestException):
-            print(GALAXY.Warnings["Warn_CLAS_Update_Failed"])
-            print("===============================================================================")
-    elif UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is False:
-        print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
-
-# ==========================================================
 # DO NOT USE @staticmethod FOR ANY, NOT CALLABLE FOR PYINSTALLER
 # =================== DEFINE LOCAL FILES ===================
 @dataclass
@@ -338,6 +398,8 @@ class ClasLocalFiles:
     # GENERAL GAME FILES
     Game_EXE: Path = field(default_factory=Path)
     Game_Path: str = field(default_factory=str)
+    Game_Root: Path = field(default_factory=Path)
+    Game_Data: Path = field(default_factory=Path)
     Game_Scripts: Path = field(default_factory=Path)
     CreationKit_EXE: Path = field(default_factory=Path)
     CreationKit_Fixes: Path = field(default_factory=Path)
@@ -437,7 +499,7 @@ class ClasLocalFiles:
             docs_path = get_manual_docs_path()
 
         return docs_path
-        
+
     # =========== CHECK DOCUMENTS -> GAME PATH & XSE LOGS ===========
     # Don't forget to check both OG and VR script extender logs!
 
@@ -459,7 +521,7 @@ class ClasLocalFiles:
                     if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and any(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
                         XSE_Error = True
                         Error_List.append(logline)
-                    if GALAXY.BO4_DLL_Name in logline.lower() and "loaded correctly" in logline.lower():
+                    if GALAXY.CRASHGEN_DLL in logline.lower() and "loaded correctly" in logline.lower():
                         XSE_Crash_DLL = True
 
             return Game_Path, XSE_Error, XSE_Version, XSE_Crash_DLL, Error_List
@@ -491,7 +553,7 @@ class ClasLocalFiles:
             GALAXY.scan_game_report.append("✔️ Script Extender reports that all DLL mod plugins have loaded correctly.\n  -----")
 
         if XSE_Crash_DLL:
-            GALAXY.scan_game_report.append(f"✔️ Script Extender reports that {GALAXY.BO4_DLL_Name} was found and loaded correctly.\n  -----")
+            GALAXY.scan_game_report.append(f"✔️ Script Extender reports that {GALAXY.CRASHGEN_Handle} was found and loaded correctly.\n  -----")
             GALAXY.ADLIB_Loaded = True
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
@@ -504,43 +566,55 @@ SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
 
 
 class ClasCheckFiles:
-    # CHECK LOCAL FILES IN GAME FOLDER ONLY
-    Game_Folder = Path(str(SYSTEM.game_path_check()))
-    print(Game_Folder)
-    SYSTEM.Game_Scripts = Game_Folder.joinpath("Data", "Scripts")
+    # ROOT FOLDERS
+    SYSTEM.Game_Root = Path(SYSTEM.game_path_check())
+    SYSTEM.Game_Data = SYSTEM.Game_Root.joinpath("Data")
+    SYSTEM.Game_Scripts = SYSTEM.Game_Root.joinpath("Data", "Scripts")
     # ROOT FILES
-    SYSTEM.Game_EXE = Game_Folder.joinpath("Fallout4.exe")
-    SYSTEM.CreationKit_EXE = Game_Folder.joinpath("CreationKit.exe")
-    SYSTEM.CreationKit_Fixes = Game_Folder.joinpath("Data", "F4CKFixes")
-    SYSTEM.Steam_INI = Game_Folder.joinpath("steam_api.ini")
-    SYSTEM.Preloader_DLL = Game_Folder.joinpath("IpHlpAPI.dll")
-    SYSTEM.Preloader_XML = Game_Folder.joinpath("xSE PluginPreloader.xml")
+    SYSTEM.Game_EXE = SYSTEM.Game_Root.joinpath("Fallout4.exe")
+    SYSTEM.CreationKit_EXE = SYSTEM.Game_Root.joinpath("CreationKit.exe")
+    SYSTEM.CreationKit_Fixes = SYSTEM.Game_Root.joinpath("Data", "F4CKFixes")
+    SYSTEM.Steam_INI = SYSTEM.Game_Root.joinpath("steam_api.ini")
+    SYSTEM.Preloader_DLL = SYSTEM.Game_Root.joinpath("IpHlpAPI.dll")
+    SYSTEM.Preloader_XML = SYSTEM.Game_Root.joinpath("xSE PluginPreloader.xml")
     SYSTEM.EXE_Local_Size = os.path.getsize(SYSTEM.Game_EXE)  # type: ignore
     SYSTEM.EXE_Local_Hash = hashlib.sha512(SYSTEM.Game_EXE.read_bytes()).hexdigest()  # type: ignore
     # F4SE FILES
-    SYSTEM.XSE_DLL = Game_Folder.joinpath("f4se_1_10_163.dll")
-    SYSTEM.XSE_SteamDLL = Game_Folder.joinpath("f4se_steam_loader.dll")
-    SYSTEM.XSE_Loader = Game_Folder.joinpath("f4se_loader.exe")
+    SYSTEM.XSE_DLL = SYSTEM.Game_Root.joinpath("f4se_1_10_163.dll")
+    SYSTEM.XSE_SteamDLL = SYSTEM.Game_Root.joinpath("f4se_steam_loader.dll")
+    SYSTEM.XSE_Loader = SYSTEM.Game_Root.joinpath("f4se_loader.exe")
     # VR FILES
-    SYSTEM.VR_EXE = Game_Folder.joinpath("Fallout4VR.exe")
-    SYSTEM.VR_Buffout = Game_Folder.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
-    SYSTEM.XSE_VRDLL = Game_Folder.joinpath("f4sevr_1_2_72.dll")
-    SYSTEM.XSE_VRLoader = Game_Folder.joinpath("f4sevr_loader.exe")
+    SYSTEM.VR_EXE = SYSTEM.Game_Root.joinpath("Fallout4VR.exe")
+    SYSTEM.VR_Buffout = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "msdia140.dll")
+    SYSTEM.XSE_VRDLL = SYSTEM.Game_Root.joinpath("f4sevr_1_2_72.dll")
+    SYSTEM.XSE_VRLoader = SYSTEM.Game_Root.joinpath("f4sevr_loader.exe")
     # BUFFOUT FILES
-    SYSTEM.Buffout_DLL = Game_Folder.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
-    SYSTEM.Buffout_TOML = Game_Folder.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
-    SYSTEM.Address_Library = Game_Folder.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
-    SYSTEM.Address_LibraryVR = Game_Folder.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
+    SYSTEM.Buffout_DLL = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
+    SYSTEM.Buffout_TOML = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
+    SYSTEM.Address_Library = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
+    SYSTEM.Address_LibraryVR = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
+
+    # ============== CHECK GAME PATH -> PROGRAM FILES ==============
+    
+    def game_check_folderpath(self):
+        game_folderpath = SYSTEM.game_path_check()
+        if "Program Files" in game_folderpath or "Program Files (x86)" in game_folderpath:
+            GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
+                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
+                                             "   To ensure that everyting works, move your Game or entire Steam folder outside of Program Files.",
+                                             "  -----"])
+        else:
+            GALAXY.scan_game_report.append(f"✔️ Your {GALAXY.Game_Name} game files are installed outside of Program Files folder. \n  -----")
 
     # ===== CHECK DOCUMENTS -> ENABLE ARCH. INV. / LOOSE FILES =====
 
-    def ini_enable_modding(self, custom_inifile):
-        if custom_inifile.is_file():
+    def ini_enable_modding(self):
+        if SYSTEM.FO4_Custom_INI.is_file():
             try:
-                os.chmod(custom_inifile, stat.S_IWRITE)
+                os.chmod(SYSTEM.FO4_Custom_INI, stat.S_IWRITE)
                 INI_config = configparser.ConfigParser()
                 INI_config.optionxform = str  # type: ignore
-                INI_config.read(custom_inifile)
+                INI_config.read(SYSTEM.FO4_Custom_INI)
                 if "Archive" not in INI_config.sections():
                     GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                     INI_config.add_section("Archive")
@@ -548,12 +622,12 @@ class ClasCheckFiles:
                     GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
                 INI_config.set("Archive", "bInvalidateOlderFiles", "1")
                 INI_config.set("Archive", "sResourceDataDirsFinal", "")
-                with open(custom_inifile, "w+", encoding="utf-8", errors="ignore") as INI_custom:
+                with open(SYSTEM.FO4_Custom_INI, "w+", encoding="utf-8", errors="ignore") as INI_custom:
                     INI_config.write(INI_custom, space_around_delimiters=False)
             except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Broken_F4CINI"])
         else:
-            with open(custom_inifile, "a", encoding="utf-8", errors="ignore") as INI_custom:
+            with open(SYSTEM.FO4_Custom_INI, "a", encoding="utf-8", errors="ignore") as INI_custom:
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                 INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
                 INI_custom.write(INI_config)
@@ -575,12 +649,12 @@ class ClasCheckFiles:
                                 if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and any(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
                                     logname = str(filepath)
                                     list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
-                    except OSError:
+                    except (PermissionError, OSError):
                         list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {logname}")
                         continue
         return list_log_errors
 
-    # ========== CHECK GAME FOLDER -> XSE SCRIPTS INEGRITY ==========
+    # ========== CHECK GAME FOLDER -> XSE SCRIPTS INTEGRITY =========
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def xse_check_scripts(self, scripts_path, scripts_list):
@@ -588,12 +662,32 @@ class ClasCheckFiles:
         try:
             script_files = os.listdir(scripts_path)
             matching_scripts = sum(script_files.count(script) for script in scripts_list)
-            GALAXY.scan_game_report.append(f"  * {matching_scripts} / {len(scripts_list)} * F4SE script files were found in your Fallout 4 / Data / Scripts folder.\n  -----")
-            return matching_scripts
-        except FileNotFoundError:
-            return 0
+            GALAXY.scan_game_report.append(f"  * {matching_scripts} / {len(scripts_list)} * F4SE script files were found in your Fallout 4 / Data / Scripts folder. \n  -----")
+        except (PermissionError, FileNotFoundError):
+            GALAXY.scan_game_report.append("  ❌ CLAS was unable to detect F4SE script files. Check if F4SE is correctly installed! \n  -----")
+        return matching_scripts
 
-    # =========== CHECK GAME FOLDER -> GAME EXE INEGRITY ===========
+    def xse_check_hashes(self, scripts_path, hash_list):
+        matching_hashes = True
+        try:
+            for filename in os.listdir(scripts_path):
+                if filename in hash_list:
+                    # If file is in the dictionary, calculate hash value.
+                    file_path = os.path.join(scripts_path, filename)
+                    with open(file_path, "rb") as f:
+                        file_contents = f.read()
+                    # Algo should match the one used for dictionary.
+                    file_hash = hashlib.sha256(file_contents).hexdigest()
+                    
+                    # Compare local hash value to the dictionary value.
+                    if file_hash != hash_list[filename]:
+                        matching_hashes = False
+                        GALAXY.scan_game_report.append(f"❌  {filename} does not match its original hash!")
+        except (PermissionError, FileNotFoundError):
+            GALAXY.scan_game_report.append("  ❌ CLAS was unable to detect F4SE script hashes. Check if F4SE is correctly installed! \n  -----")
+        return matching_hashes
+
+    # =========== CHECK GAME FOLDER -> GAME EXE INTEGRITY ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def game_check_integrity(self, exe_filepath):
@@ -606,10 +700,10 @@ class ClasCheckFiles:
             #                                  "   * This is the version AFTER the 2023 Update * \n"])
             elif not SYSTEM.Steam_INI.is_file():
                 GALAXY.scan_game_report.append("# ❌ CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n")
-            elif SYSTEM.Steam_INI.is_file():  # Intentional, don't change the unicode icon.
+            elif SYSTEM.Steam_INI.is_file():  # INTENTIONAL, DO NOT CHANGE THE UNICODE ICON.
                 GALAXY.scan_game_report.append("# \U0001F480 CAUTION : YOUR FALLOUT 4 VERSION IS OUT OF DATE #\n")
 
-    # ============ CHECK GAME FOLDER -> GAME EXTENSIONS ============
+    # ============ CHECK GAME FOLDER -> GAME EXTENSIONS =============
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def game_check_extensions(self):
@@ -638,7 +732,7 @@ class ClasCheckFiles:
             else:
                 GALAXY.scan_game_report.append("❌ *Creation Kit* is NOT installed.\n  -----")
 
-    # =========== CHECK GAME FOLDER -> BUFFOUT 4 REQUIREMENTS ===========
+    # ========= CHECK GAME FOLDER -> BUFFOUT 4 REQUIREMENTS =========
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def bo4_check_required(self):
@@ -658,11 +752,11 @@ class ClasCheckFiles:
             else:
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_ADLIB"])
 
-    # ============= CHECK GAME FOLDER -> BUFFOUT 4 SETTINGS =============
+    # =========== CHECK GAME FOLDER -> BUFFOUT 4 SETTINGS ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def bo4_check_settings(self):
-        if SYSTEM.Buffout_TOML.is_file() and SYSTEM.Buffout_DLL.is_file():
+        if (SYSTEM.Buffout_TOML.is_file() and SYSTEM.Buffout_DLL.is_file()) or GALAXY.ADLIB_Loaded is True:
             os.chmod(SYSTEM.Buffout_TOML, stat.S_IWRITE)  # MODIFY TOML WRITE PERMISSIONS
             GALAXY.scan_game_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
             with open(SYSTEM.Buffout_TOML, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
@@ -717,8 +811,6 @@ class ClasCheckFiles:
 
 PLANET = ClasCheckFiles()
 
-
-# SYSTEM.docs_file_check(PLANET.docs_path_check())
 
 class ClasCheckMods:
     # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES | Leave 1 empty space as prefix to prevent most duplicates.
@@ -969,87 +1061,84 @@ class ClasCheckMods:
                       "  Patch Link 1: https://www.nexusmods.com/fallout4/mods/65911?tab=files \n",
                       "  Patch Link 2: https://www.nexusmods.com/fallout4/mods/61998?tab=files"]},
 
-        17: {"mod": " ESPExplorerFO4.esp",
-             "warn": ["IN GAME ESP EXPLORER \n",
-                      "- Can cause a crash when pressing F10 due to a typo in the INI settings. \n",
-                      "  Better Alternative: https://www.nexusmods.com/fallout4/mods/56922?tab=files"]},
-
-        18: {"mod": " LegendaryModification.esp",
+        17: {"mod": " LegendaryModification.esp",
              "warn": ["LEGENDARY MODIFICATION \n",
                       "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
                       "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files"]},
 
-        19: {"mod": " LooksMenu Customization Compendium.esp",
+        18: {"mod": " LooksMenu Customization Compendium.esp",
              "warn": ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",
                       "- Apparently breaks the original Looks Menu mod by turning off some important values. \n",
-                      "  Fix Link: https://www.nexusmods.com/fallout4/mods/56465?tab=files"]},
+                      "  Fix For 1K Face Textures: https://www.nexusmods.com/fallout4/mods/56465?tab=files \n",
+                      "  Fix For 2K Face Textures: https://www.nexusmods.com/fallout4/mods/56049?tab=files"]},
 
-        20: {"mod": " MilitarizedMinutemen.esp",
+        19: {"mod": " MilitarizedMinutemen.esp",
              "warn": ["MILITARIZED MINUTEMEN \n"
                       "- Can occasionally crash the game due to a broken mesh on some minutemen outfits. \n"
                       "  Patch Link: https://www.nexusmods.com/fallout4/mods/32369?tab=files"]},
 
-        21: {"mod": " MoreUniques",
+        20: {"mod": " MoreUniques",
              "warn": ["MORE UNIQUE WEAPONS EXPANSION \n",
                       "- Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n",
                       "  Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files"]},
 
-        22: {"mod": " NAC.es",
+        21: {"mod": " NAC.es",
              "warn": ["NATURAL AND ATMOSPHERIC COMMONWEALTH \n",
                       "- If you notice weird looking skin tones with either NAC or NACX, install this patch. \n",
                       "  Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files"]},
 
-        23: {"mod": " Northland Diggers New.esp",
+        22: {"mod": " Northland Diggers New.esp",
              "warn": ["NORTHLAND DIGGERS RESOURCES \n",
                       "- Contains various bugs and issues that can cause crashes or negatively affect other mods. \n",
                       "  Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files"]},
 
-        24: {"mod": " Project Zeta.esp",
+        23: {"mod": " Project Zeta.esp",
              "warn": ["PROJECT ZETA \n",
                       "- Invasion quests seem overly buggy or trigger too frequently, minor sound issues. \n",
                       "  Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files"]},
 
-        25: {"mod": " RaiderOverhaul.esp",
+        24: {"mod": " RaiderOverhaul.esp",
              "warn": ["RAIDER OVERHAUL \n",
                       "- Old mod that requires several patches to function as intended. Use ONE Version instead. \n",
                       "  Updated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files"]},
 
-        26: {"mod": " Rusty Face Fix",
+        25: {"mod": " Rusty Face Fix",
              "warn": ["RUSTY FACE FIX \n",
-                      "- Can cause script lag or even crash the game in very rare cases. Switch to REDUX Version instead. \n",
-                      "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]},
+                      "- Make sure you have the latest 2.0 version installed or try the REDUX Version instead. \n",
+                      "  Original Rusty Face Fix: https://www.nexusmods.com/fallout4/mods/31028?tab=files \n",
+                      "  Alternative REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]},
 
-        27: {"mod": " SKKCraftableWeaponsAmmo",
+        26: {"mod": " SKKCraftableWeaponsAmmo",
              "warn": ["SKK CRAFT WEAPONS AND SCRAP AMMO \n",
                       "- Version 008 is incompatible with AWKCR and will cause crashes while saving the game. \n",
                       "  Advised Fix: Use Version 007 or remove AWKCR and switch to Equipment and Crafting Overhaul instead."]},
 
-        28: {"mod": " SOTS.esp",
+        27: {"mod": " SOTS.esp",
              "warn": ["SOUTH OF THE SEA \n",
                       "- Very unstable mod that consistently and frequently causes strange problems and crashes. \n",
                       "  Updated Version: https://www.nexusmods.com/fallout4/mods/63152?tab=files"]},
 
-        29: {"mod": " StartMeUp.esp",
+        28: {"mod": " StartMeUp.esp",
              "warn": ["START ME UP \n",
                       "- Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n",
                       "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files"]},
 
-        30: {"mod": " SuperMutantRedux.esp",
+        29: {"mod": " SuperMutantRedux.esp",
              "warn": ["SUPER MUTANT REDUX \n",
                       "- Causes crashes at specific locations or with certain Super Mutant enemies and items. \n",
                       "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]},
 
-        31: {"mod": " TacticalReload.esm",
+        30: {"mod": " TacticalReload.esm",
              "warn": ["TACTICAL RELOAD \n",
                       "- Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended. \n",
                       "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/67716?tab=files"]},
 
-        32: {"mod": " Creatures and Monsters.esp",
+        31: {"mod": " Creatures and Monsters.esp",
              "warn": ["UNIQUE NPCs CREATURES AND MONSTERS \n",
                       "- Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent. \n",
                       "  Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files"]},
 
-        33: {"mod": " ZombieWalkers",
+        32: {"mod": " ZombieWalkers",
              "warn": ["ZOMBIE WALKERS \n",
                       "- Version 2.6.3 contains a resurrection script that will regularly crash the game. \n",
                       "  Advised Fix: Make sure you're using the 3.0 Beta version of this mod or newer."]}

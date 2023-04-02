@@ -217,14 +217,20 @@ def scan_logs():
 
         if plugins_loaded:
             for mod_name, mod_data in Core_Mods.items():
-                if gpu_amd and "Nvidia" not in mod_name:
-                    if mod_data['condition']:
+                if gpu_amd:
+                    if mod_data['condition'] and "Nvidia" not in mod_name:
                         output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    else:
+                    elif not mod_data['condition'] and "Nvidia" not in mod_name:
                         output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
                                      f"  {mod_data['description']}\n"
                                      f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
+                                      "  -----\n")
+                    elif mod_data['condition'] and "Nvidia" in mod_name:
+                        output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
+                                      "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
+                                     f"   You should uninstall {mod_name} to avoid any problems.\n"
+                                      "  -----\n")
+
                 elif gpu_nvidia and "Vulkan" not in mod_name:
                     if mod_data['condition']:
                         output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
@@ -232,7 +238,7 @@ def scan_logs():
                         output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
                                      f"  {mod_data['description']}\n"
                                      f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
+                                      "  -----\n")
         else:
             output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 
@@ -521,11 +527,11 @@ def scan_logs():
             output.writelines([f"Main Error: {crash_error}\n",
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver.strip()}\n",
-                               f"Latest Buffout Version: {GALAXY.BO4OG_Latest[10:17]} / NG: {GALAXY.BO4NG_Latest[10:17]}\n"])
+                               f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
 
-            if crash_ver.casefold() == GALAXY.BO4OG_Latest.casefold():
+            if crash_ver.casefold() == GALAXY.CRASHGEN_OLD.casefold():
                 output.write("✔️ You have the latest version of Buffout 4!")
-            elif crash_ver.casefold() == GALAXY.BO4NG_Latest.casefold():
+            elif crash_ver.casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_Outdated_Buffout4"])
@@ -558,6 +564,13 @@ def scan_logs():
                     output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
                 else:
                     output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+
+            output.writelines(["\n====================================================\n",
+                               "CHECKING IF INI SETTINGS FROM MODS ARE CORRECT...\n",
+                               "====================================================\n"])
+
+            if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
+                output.write(GALAXY.Warnings["Warn_SCAN_FCX_Mode"])
 
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
