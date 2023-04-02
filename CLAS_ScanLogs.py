@@ -74,12 +74,12 @@ def scan_logs():
         return plugin_ids
 
     def extract_detected_plugins(loglines):
-        detected_plugins = []
+        detected_plugins = set()
         for line in loglines:
             if "File:" in line and "Fallout4.esm" not in line:
                 line = line.replace("File: ", "").replace('"', '').strip()
-                detected_plugins.append(line)
-        return list(filter(None, detected_plugins))
+                detected_plugins.add(line)
+        return sorted(detected_plugins)
 
     def filter_excluded_plugins(detected_plugins, excluded_plugins):
         return [plugin for plugin in detected_plugins if plugin not in excluded_plugins]
@@ -146,8 +146,9 @@ def scan_logs():
             if any(elem in line.lower() for elem in crash_records_catch):
                 if not any(elem in line for elem in crash_records_exclude):
                     line = line.replace('"', '')
-                    named_records.append(f"{line.strip()}\n")
-        return sorted(Counter(named_records))
+                    named_records.append(line.strip())
+        named_records = sorted(named_records)
+        return dict(Counter(named_records))
 
     def write_named_records(output, named_records):
         if not named_records:
@@ -155,7 +156,7 @@ def scan_logs():
                                "-----\n"])
         else:
             for item in named_records:
-                output.write("{} : {} \n".format(item.replace("\n", ""), named_records[item]))
+                output.write("{} : {} \n".format(item, named_records[item]))
             output.writelines(["-----\n",
                                "[Last number counts how many times each named record shows up in the crash log.]\n",
                                "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
@@ -463,7 +464,7 @@ def scan_logs():
             '*[HUD / Interface Crash]': {
                 'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                 'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
-            }
+        }
         Culprit_Trap = False
         for culprit_name, culprit_data in Culprits.items():
 
@@ -492,7 +493,6 @@ def scan_logs():
                 output.write(f"{culprit_data['description']}  -----\n")
                 Culprit_Trap = True
         return Culprit_Trap
-
     # =========================================================
     print("PERFORMING SCAN... \n")
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
@@ -750,7 +750,7 @@ def scan_logs():
             # gpu_other = True if not gpu_nvidia and not gpu_amd else False # This might come in handy later (who knows what Skyrim will bring) - evildarkarchon
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
-            check_core_mods(output, plugins_loaded, section_plugins_list, gpu_amd, gpu_nvidia)
+            check_core_mods(logtext, plugins_loaded, output, gpu_amd, gpu_nvidia)
 
             output.writelines(["====================================================\n",
                                "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CULPRITS...\n",
@@ -761,7 +761,6 @@ def scan_logs():
             list_DETPLUGINS = extract_detected_plugins(loglines)
             list_DETPLUGINS = filter_excluded_plugins(list_DETPLUGINS, GALAXY.Game_Plugins_Exclude)
 
-            output.write("LIST OF (POSSIBLE) PLUGIN CULPRITS:\n")
             culprits, culprits_counter = find_plugin_culprits(list_ALLPLUGINS, list_DETPLUGINS)
             write_plugin_culprits(output, culprits, culprits_counter)
 
