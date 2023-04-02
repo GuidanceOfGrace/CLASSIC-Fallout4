@@ -32,8 +32,8 @@ and press SCAN LOGS button to scan them. After scanning completes, close the exe
 ===========================================================================
 # HOW TO READ AUTOSCAN FILES #
 
-After running the EXE, you'll see the following in any generated *crash-time-and-date-AUTOSCAN.md* output file:
-==========
+After running the EXE, you'll see this in any generated *crash-time-and-date-AUTOSCAN.md* output file:
+
 The part above the Main Error shows the name of the scanned crash log and the Auto-Scanner version that was used.
 
 * Main Error * segment shows the main error message type and call stack address where the crash likely originates from.
@@ -42,27 +42,27 @@ The next part is the program or file where the crash originates from and lastly 
 NOTE: The call stack address and its values have NOTHING to do with any Plugin or Game IDs. Don't bother trying to match these numbers with your load order.
 
 The part below the Main Error shows Buffout 4 version that was used when the crash log was generated and the latest version of Buffout 4 available.
-==========
+
 * CHECKING IF BUFFOUT4.TOML PARAMETERS ARE CORRECT * segment checks the Buffout4.toml file inside the game's Fallout 4\Data\F4SE\Plugins folder.
 Depending on which mods you have installed, you might need to manually correct the parameters in Buffout4.toml with a text editor as explained by this segment.
-==========
-*CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES * segment checks the database of all crash errors that are either known about or can be solved.
+
+* CHECKING IF LOG MATCHES ANY KNOWN CRASH MESSAGES * segment checks the database of all crash errors that are either known about or can be solved.
 If any crash messages show CULPRIT FOUND!, this requires that you OPEN the "How To Read Crash Logs" PDF included with the auto-scanner archive
 or the online version of that same document and look up all detected crash messages / errors.
-==========
-*CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES * segment checks the database for mods that are known to cause major problems or frequently crash the game.
+
+* CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES * segment checks the database for mods that are known to cause major problems or frequently crash the game.
 You are supposed to temporarily disable any mods detected here and recheck your game to see if the crash went away. If not, continue to the next segments.
-==========
-*CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS * segment checks the database for mods that are incompatible or known to conflict with your other installed mods.
+
+* CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS * segment checks the database for mods that are incompatible or known to conflict with your other installed mods.
 If any two mods are reported as conflicting, you are supposed to choose which one you want to keep and then disable or uninstall the other mod, to prevent conflicts.
-==========
+
 * CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES * segment checks the database for mods that can cause various problems or crashes,
 but already have available fixes or alternatives as explained by this segment. You should visit this Important Patches & Fixes article:
 https://www.nexusmods.com/fallout4/articles/3769 which lists all important community patches and fixes for the base game and various mods.
-==========
+
 * CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER * segment checks the database for mods that are patched through my own Optimization Patches Collection mod.
 You are supposed to visit this page https://www.nexusmods.com/fallout4/mods/54872, then download and install the main file with your mod manager.
-==========
+
 * SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CUPLRITS * segment checks the crash log for any
 mentions of Plugins, FormIDs or Game Files that were possibly involved when this crash occurred.
 If you weren't able to fix the crash so far, you can search for any Game Files in the FO4 install folder, look up any FormIDs in FO4Edit
