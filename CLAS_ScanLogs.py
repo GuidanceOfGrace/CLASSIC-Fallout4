@@ -164,13 +164,6 @@ def scan_logs():
                                "-----\n"])
 
     def move_unsolved_files(logname, culprit_trap):
-        """
-        Move unsolved crash log and autoscan files to the 'CLAS-UNSOLVED' directory.
-
-        Args:
-            logname: The name of the crash log file.
-            culprit_trap: A boolean flag indicating if a culprit was found.
-        """
         if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved") and not culprit_trap:
             time.sleep(0.1)
             unsolved_path = "CLAS-UNSOLVED"
