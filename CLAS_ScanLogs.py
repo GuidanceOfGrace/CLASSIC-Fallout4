@@ -28,6 +28,472 @@ print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION
 
 
 def scan_logs():
+    # =================== HELPER FUNCTIONS ===================
+    def process_log_sections(loglines):
+        index_stack = len(loglines) - 1
+        index_plugins = 1
+        plugins_loaded = False
+
+        for line in loglines:
+            if "MODULES:" in line:
+                index_stack = loglines.index(line)
+            if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
+                index_plugins = loglines.index(line)
+            if "[00]" in line:
+                plugins_loaded = True
+                break
+
+        section_stack_list = loglines[:index_stack]
+        section_stack_text = str(section_stack_list)
+        section_plugins_list = loglines[index_plugins:]
+
+        if os.path.exists("loadorder.txt"):
+            plugins_loaded = True
+            section_plugins_list = []
+
+            with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
+                plugin_format = loadorder_check.readlines()
+
+                if len(plugin_format) >= 1 and not any("[00]" in elem for elem in section_plugins_list):
+                    section_plugins_list.append("[00]")
+
+                for line in plugin_format:
+                    line = "[LO] " + line.strip()
+                    section_plugins_list.append(line)
+
+        return section_stack_list, section_stack_text, section_plugins_list, plugins_loaded
+
+    def extract_plugin_ids(loglines):
+        plugin_ids = []
+        for line in loglines:
+            if "[" in line and "]" in line and "Modified by:" not in line:
+                start_index = line.index("[")
+                end_index = line.index("]")
+                if end_index - start_index == 3 or end_index - start_index == 7:
+                    plugin_ids.append(line.strip())
+        return plugin_ids
+
+    def extract_detected_plugins(loglines):
+        detected_plugins = []
+        for line in loglines:
+            if "File:" in line and "Fallout4.esm" not in line:
+                line = line.replace("File: ", "").replace('"', '').strip()
+                detected_plugins.append(line)
+        return list(filter(None, detected_plugins))
+
+    def filter_excluded_plugins(detected_plugins, excluded_plugins):
+        return [plugin for plugin in detected_plugins if plugin not in excluded_plugins]
+
+    def find_plugin_culprits(all_plugins, detected_plugins):
+        culprits = []
+        counter = Counter(detected_plugins)
+        for elem in all_plugins:
+            matches = [item for item in detected_plugins if item in elem]
+            if matches:
+                culprits.append(matches)
+        return culprits, counter
+
+    def write_plugin_culprits(output, culprits, detected_plugins_counter):
+        if not culprits:
+            output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
+                               "-----\n"])
+        else:
+            for matches in culprits:
+                output.write(f"- {' '.join(matches)} : {detected_plugins_counter[matches[-1]]}\n")
+            output.writelines(["-----\n",
+                               "[Last number counts how many times each plugin culprit shows up in the crash log.]\n",
+                               "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
+                               "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
+                               "-----\n"])
+
+    def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
+        form_ids = []
+        for line in loglines:
+            if ("Form ID:" in line or "FormID:" in line) and "0xFF" not in line:
+                line = line.replace("0x", "")
+                if plugins_loaded:
+                    line = line.replace("Form ID: ", "").replace("FormID: ", "").strip()
+                    id_only = line
+                    for elem in section_plugins_list:
+                        if "]" in elem and "[FE" not in elem:
+                            if elem[2:4].strip() == id_only[:2]:
+                                full_line = f"Form ID: {id_only} | {elem.strip()}"
+                                form_ids.append(full_line.replace("    ", ""))
+                        if "[FE" in elem:
+                            elem = elem.replace(":", "")
+                            if elem[2:7] == id_only[:5]:
+                                full_line = f"Form ID: {id_only} | {elem.strip()}"
+                                form_ids.append(full_line.replace("    ", ""))
+                else:
+                    form_ids.append(line.strip())
+        return sorted(set(form_ids))
+
+    def write_form_id_culprits(output, form_ids):
+        if not form_ids:
+            output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
+                               "-----\n"])
+        else:
+            for elem in form_ids:
+                output.write(f"{elem}\n")
+            output.writelines(["-----\n",
+                               "These Form IDs were caught by Buffout 4 and some of them might be related to this crash.\n",
+                               "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n",
+                               "-----\n"])
+
+    def extract_named_records(section_stack_list, crash_records_catch, crash_records_exclude):
+        named_records = []
+        for line in section_stack_list:
+            if any(elem in line.lower() for elem in crash_records_catch):
+                if not any(elem in line for elem in crash_records_exclude):
+                    line = line.replace('"', '')
+                    named_records.append(f"{line.strip()}\n")
+        return sorted(Counter(named_records))
+
+    def write_named_records(output, named_records):
+        if not named_records:
+            output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
+                               "-----\n"])
+        else:
+            for item in named_records:
+                output.write("{} : {} \n".format(item.replace("\n", ""), named_records[item]))
+            output.writelines(["-----\n",
+                               "[Last number counts how many times each named record shows up in the crash log.]\n",
+                               "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
+                               "Named records should give extra info on involved game objects, record types or mod files.\n",
+                               "-----\n"])
+
+    def move_unsolved_files(logname, culprit_trap):
+        """
+        Move unsolved crash log and autoscan files to the 'CLAS-UNSOLVED' directory.
+
+        Args:
+            logname: The name of the crash log file.
+            culprit_trap: A boolean flag indicating if a culprit was found.
+        """
+        if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved") and not culprit_trap:
+            time.sleep(0.1)
+            unsolved_path = "CLAS-UNSOLVED"
+            if not os.path.exists(unsolved_path):
+                os.mkdir(unsolved_path)
+            crash_file = os.path.join(unsolved_path, logname)
+            scan_file = os.path.join(unsolved_path, logname.replace(".log", "-AUTOSCAN.md"))
+            shutil.move(logname, crash_file)
+            if os.path.exists(scan_file):
+                shutil.move(logname + "-AUTOSCAN.md", scan_file)
+
+    def check_core_mods(logtext, plugins_loaded, output, gpu_nvidia, gpu_amd):
+        Core_Mods = {
+            'Canary Save File Monitor': {
+                'condition': 'CanarySaveFileMonitor' in logtext,
+                'description': 'This is a highly recommended mod that can detect save file corruption.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
+            },
+            'High FPS Physics Fix': {
+                'condition': 'HighFPSPhysicsFix.dll' in logtext or 'HighFPSPhysicsFixVR.dll' in logtext,
+                'description': 'This is a mandatory patch / fix that prevents game engine problems.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
+            },
+            'Previs Repair Pack': {
+                'condition': 'PPF.esm' in logtext,
+                'description': 'This is a highly recommended mod that can improve performance.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
+            },
+            'Unofficial Fallout 4 Patch': {
+                'condition': 'Unofficial Fallout 4 Patch.esp' in logtext,
+                'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
+            },
+            'Vulkan Renderer': {
+                'condition': 'vulkan-1.dll' in logtext and gpu_amd,
+                'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files'
+            },
+            'Nvidia Weapon Debris Fix': {
+                'condition': 'WeaponDebrisCrashFix.dll' in logtext and gpu_nvidia,
+                'description': 'Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)',
+                'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
+            },
+            'Nvidia Reflex Support': {
+                'condition': 'NVIDIA_Reflex.dll' in logtext and gpu_nvidia,
+                'description': 'Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)',
+                'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files'
+            }
+        }
+
+        if plugins_loaded:
+            for mod_name, mod_data in Core_Mods.items():
+                if gpu_amd and "Nvidia" not in mod_name:
+                    if mod_data['condition']:
+                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                    else:
+                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                     f"  {mod_data['description']}\n"
+                                     f"  Link: {mod_data['link']}\n"
+                                     "  -----\n")
+                elif gpu_nvidia and "Vulkan" not in mod_name:
+                    if mod_data['condition']:
+                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                    else:
+                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                     f"  {mod_data['description']}\n"
+                                     f"  Link: {mod_data['link']}\n"
+                                     "  -----\n")
+        else:
+            output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
+
+    def culprit_check(output, logtext, section_stack_text):
+        # "xxxxx" are placeholders since None values are non iterable.
+        Culprits = {
+            'Stack Overflow Crash': {
+                'error_conditions': "EXCEPTION_STACK_OVERFLOW", 'stack_conditions': "xxxxx",
+                'description': '# Checking for Stack Overflow Crash......... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Active Effects Crash': {
+                'error_conditions': "0x000100000000", 'stack_conditions': "xxxxx",
+                'description': '# Checking for Active Effects Crash......... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Bad Math Crash': {
+                'error_conditions': "EXCEPTION_INT_DIVIDE_BY_ZERO", 'stack_conditions': "xxxxx",
+                'description': '# Checking for Bad Math Crash............... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Null Crash': {
+                'error_conditions': "0x000000000000", 'stack_conditions': "xxxxx",
+                'description': '# Checking for Null Crash................... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            # ====================== STACK CULPRITS ======================
+
+            'DLL Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "DLCBannerDLC01.dds",
+                'description': '# Checking for DLL Crash.................... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'LOD Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BGSLocation", "BGSQueuedTerrainInitialLoad"),
+                'description': '# Checking for LOD Crash.................... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'MCM Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("FaderData", "FaderMenu", "UIMessage"),
+                'description': '# Checking for MCM Crash.................... CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Decal Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BGSDecalManager", "BSTempEffectGeometryDecal"),
+                'description': '# Checking for Decal Crash.................. CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Equip Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "PipboyMapData",
+                'description': '# Checking for Equip Crash.................. CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Script Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("Papyrus", "VirtualMachine", "Assertion failed"),
+                'description': '# Checking for Script Crash................. CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Generic Crash': {
+                'error_conditions': "tbbmalloc", 'stack_conditions': "xxxxx",
+                'description': '# Checking for Generic Crash................ CULPRIT FOUND! > Priority : [2] #\n'},
+
+            'Antivirus Crash': {
+                'error_conditions': ("24A48D48", "bdhkm64.dll"), 'stack_conditions': ("usvfs::hook_DeleteFileW", "::Manager", "::zlibStreamDetail"),
+                'description': '# Checking for Antivirus Crash.............. CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'BA2 Limit Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "LooseFileAsyncStream",
+                'description': '# Checking for BA2 Limit Crash.............. CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Rendering Crash': {
+                'error_conditions': "d3d11", 'stack_conditions': "xxxxx",
+                'description': '# Checking for Rendering Crash.............. CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'C++ Redist Crash': {
+                'error_conditions': ("MSVCR", "MSVCP"), 'stack_conditions': "xxxxx",
+                'description': '# Checking for C++ Redist Crash............. CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Grid Scrap Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("GridAdjacencyMapNode", "PowerUtils"),
+                'description': '# Checking for Grid Scrap Crash............. CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Map Marker Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("HUDCompass", "HUDCompassMarker", "attachMovie()"),
+                'description': '# Checking for Map Marker Crash............. CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Mesh (NIF) Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("LooseFileStream", "BSFadeNode", "BSMultiBoundNode"),
+                'description': '# Checking for Mesh (NIF) Crash............. CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Texture (DDS) Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("Create2DTexture", "DefaultTexture"),
+                'description': '# Checking for Texture (DDS) Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Material (BGSM) Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("DefaultTexture_Black", "NiAlphaProperty"),
+                'description': '# Checking for Material (BGSM) Crash........ CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'NPC Pathing Crash (S)': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("NavMesh", "PathingCell", "BSPathBuilder", "PathManagerServer"),
+                'description': '# Checking for NPC Pathing Crash (S)........ CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'NPC Pathing Crash (D)': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BSNavmeshObstacleData", "DynamicNavmesh", "PathingRequest"),
+                'description': '# Checking for NPC Pathing Crash (D)........ CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'NPC Pathing Crash (F)': {
+                'error_conditions': "+248B26A", 'stack_conditions': ("MovementAgentPathFollowerVirtual", "PathingStreamSaveGame", "BGSProcedurePatrolExecState", "CustomActorPackageData"),
+                'description': '# Checking for NPC Pathing Crash (F)........ CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Audio Driver Crash': {
+                'error_conditions': ("X3DAudio1_7", "XAudio2_7"), 'stack_conditions': ("X3DAudio1_7.dll", "XAudio2_7.dll"),
+                'description': '# Checking for Audio Driver Crash........... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Body Physics Crash': {
+                'error_conditions': "cbp.dll", 'stack_conditions': ("skeleton.nif", "cbp.dll"),
+                'description': '# Checking for Body Physics Crash........... CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Leveled List Crash': {
+                'error_conditions': "+0D09AB7", 'stack_conditions': "TESLevItem",
+                'description': '# Checking for Leveled List Crash........... CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Plugin Limit Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("[FF]", "BSMemStorage", "DataFileHandleReaderWriter"),
+                'description': '# Checking for Plugin Limit Crash........... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Plugin Order Crash': {
+                'error_conditions': "+0DB9300", 'stack_conditions': "GamebryoSequenceGenerator",
+                'description': '# Checking for Plugin Order Crash........... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'MO2 Extractor Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "BSD3DResourceCreator",
+                'description': '# Checking for MO2 Extractor Crash.......... CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Nvidia Debris Crash': {
+                'error_conditions': ("+03EE452", "flexRelease_x64"), 'stack_conditions': ("flexRelease_x64.dll", "CheckRefAgainstConditionsFunc"),
+                'description': '# Checking for Nvidia Debris Crash.......... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Nvidia Driver Crash': {
+                'error_conditions': ("nvwgf2umx", "USER32"), 'stack_conditions': ("nvwgf2umx.dll", "USER32.dll"),
+                'description': '# Checking for Nvidia Driver Crash.......... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Nvidia Reflex Crash': {
+                'error_conditions': ("3A0000", "AD0000", "8E0000", "NVIDIA_Reflex", "Buffout4"), 'stack_conditions': "NVIDIA_Reflex.dll",
+                'description': '# Checking for Nvidia Reflex Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Vulkan Memory Crash': {
+                'error_conditions': ("KERNELBASE", "MSVCP140"), 'stack_conditions': ("KERNELBASE.dll", "MSVCP140.dll", "DxvkSubmissionQueue"),
+                'description': '# Checking for Vulkan Memory Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Vulkan Settings Crash': {
+                'error_conditions': ("+00CD99B", "amdvlk64"), 'stack_conditions': ("amdvlk64.dll", "dxvk::DXGIAdapter", "dxvk::DXGIFactory", "VirtualLinearAllocatorWithNode"),
+                'description': '# Checking for Vulkan Settings Crash........ CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Corrupted Audio Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BSXAudio2DataSrc", "BSXAudio2GameSound"),
+                'description': '# Checking for Corrupted Audio Crash........ CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Console Command Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("SysWindowCompileAndRun", "ConsoleLogPrinter"),
+                'description': '# Checking for Console Command Crash........ CULPRIT FOUND! > Priority : [1] #\n'},
+
+            'Game Corruption Crash': {
+                'error_conditions': "+1B938F0", 'stack_conditions': ("AnimTextData\\AnimationFileData", "AnimationFileLookupSingletonHelper"),
+                'description': '# Checking for Game Corruption Crash........ CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Water Collision Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "BGSWaterCollisionManager",
+                'description': '# Checking for Water Collision Crash........ CULPRIT FOUND! > Priority : [6] #\n [!] PLEASE CONTACT ME IF YOU GOT THIS CRASH! (CONTACT INFO BELOW)\n'},
+
+            'Particle Effects Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "ParticleSystem",
+                'description': '# Checking for Particle Effects Crash....... CULPRIT FOUND! > Priority : [4] #\n'},
+
+            'Player Character Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("PlayerCharacter", "0x00000007", "0x00000008", "0x00000014"),
+                'description': '# Checking for Player Character Crash....... CULPRIT FOUND! > Priority : [3] #\n'},
+
+            'Animation / Physics Crash': {
+                'error_conditions': "+1FCC07E", 'stack_conditions': ("BSAnimationGraphManager", "hkbVariableBindingSet", "hkbHandIkControlsModifier", "hkbBehaviorGraph", "hkbModifierList"),
+                'description': '# Checking for Animation / Physics Crash.... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            'Archive Invalidation Crash': {
+                'error_conditions': "xxxxx", 'stack_conditions': "DLCBanner05.dds",
+                'description': '# Checking for Archive Invalidation Crash... CULPRIT FOUND! > Priority : [5] #\n'},
+
+            # ================== LOW ACCURACY CULPRITS ===================
+
+            '*[Creation Club Crash]': {
+                'error_conditions': "+01B59A4", 'stack_conditions': "xxxxx",
+                'description': '  Checking for *[Creation Club Crash]......... DETECTED! > Priority : [1] *\n'},
+
+            '*[Item Crash]': {
+                'error_conditions': "+0B2C44B", 'stack_conditions': ("TESObjectARMO", "TESObjectWEAP", "BGSMod::Attachment", "BGSMod::Template", "BGSMod::Template::Item"),
+                'description': '  Checking for *[Item Crash].................. DETECTED! > Priority : [1] *\n'},
+
+            '*[Save Crash]': {
+                'error_conditions': "+0CDAD30", 'stack_conditions': ("BGSSaveLoadManager", "BGSSaveLoadThread", "BGSSaveFormBuffer"),
+                'description': '  Checking for *[Save Crash].................. DETECTED! > Priority : [1] *\n'},
+
+            '*[Input Crash]': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("ButtonEvent", "MenuControls", "MenuOpenCloseHandler", "PlayerControls", "DXGISwapChain"),
+                'description': '  Checking for *[Input Crash]................. DETECTED! > Priority : [1] *\n'},
+
+            '*[SS2 / WF Crash]': {
+                'error_conditions': ("+01F498D", "+03F89A3"), 'stack_conditions': ("StartWorkshop", "IsWithinBuildableArea", "PlayerControls", "DXGISwapChain"),
+                'description': '  Checking for *[SS2 / WF Crash].............. DETECTED! > Priority : [1] *\n'},
+
+            '*[Looks Menu Crash]': {
+                'error_conditions': ("+1D13DA7", "F4EE"), 'stack_conditions': ("BSShader", "BSBatchRenderer", "ShadowSceneNode"),
+                'description': '  Checking for *[Looks Menu Crash]............ DETECTED! > Priority : [1] *\n'},
+
+            '*[NPC Patrol Crash]': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BGSProcedurePatrol", "BGSProcedurePatrolExecState", "PatrolActorPackageData"),
+                'description': '  Checking for *[NPC Patrol Crash]............ DETECTED! > Priority : [1] *\n'},
+
+            '*[Precombines Crash]': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BSPackedCombined", "BGSCombinedCellGeometryDB", "BGSStaticCollection", "TESObjectCELL"),
+                'description': '  Checking for *[Precombines Crash]........... DETECTED! > Priority : [1] *\n'},
+
+            '*[GPU Overclock Crash]': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("myID3D11DeviceContext", "BSDeferredDecal", "BSDFDecal"),
+                'description': '  Checking for *[GPU Overclock Crash]......... DETECTED! > Priority : [1] *\n'},
+
+            '*[NPC Projectile Crash]': {
+                'error_conditions': "xxxxx", 'stack_conditions': ("BGSProjectile", "CombatProjectileAimController"),
+                'description': '  Checking for *[NPC Projectile Crash]........ DETECTED! > Priority : [1] *\n'},
+
+            '*[Camera Position Crash]': {
+                'error_conditions': "NvCamera64", 'stack_conditions': ("NvCamera64.dll", "NiCamera", "WorldRoot Camera"),
+                'description': '  Checking for *[Camera Position Crash]....... DETECTED! > Priority : [1] *\n'},
+
+            '*[HUD / Interface Crash]': {
+                'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
+                'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
+            }
+        Culprit_Trap = False
+        for culprit_name, culprit_data in Culprits.items():
+
+            # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
+            error_conditions = culprit_data['error_conditions']
+            if isinstance(error_conditions, str):
+                error_conditions = [error_conditions]
+            stack_conditions = culprit_data['stack_conditions']
+            if isinstance(stack_conditions, str):
+                stack_conditions = [stack_conditions]
+
+            # CHECK CULPRIT KEYS IN CRASH LOG
+            if culprit_name == 'Nvidia Debris Crash' or culprit_name == 'Nvidia Driver Crash' or culprit_name == 'Nvidia Reflex Crash':
+                if "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
+                    Culprit_Trap = True
+            elif culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
+                if "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
+                    Culprit_Trap = True
+            elif culprit_name == 'Player Character Crash':
+                if any(section_stack_text.count(item) >= 3 for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
+                    Culprit_Trap = True
+            elif any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
+                output.write(f"{culprit_data['description']}  -----\n")
+                Culprit_Trap = True
+        return Culprit_Trap
+
+    # =========================================================
     print("PERFORMING SCAN... \n")
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
@@ -54,33 +520,8 @@ def scan_logs():
             # DEFINE LINE INDEXES HERE
             crash_ver = loglines[1].strip()
             crash_error = loglines[2].strip()
-            index_stack = len(loglines) - 1
-            index_plugins = 1
-            plugins_loaded = False
-            for line in loglines:
-                if "MODULES:" in line:
-                    index_stack = loglines.index(line)
-                if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
-                    index_plugins = loglines.index(line)
-                if "[00]" in line:
-                    plugins_loaded = True
-                    break
 
-            # DEFINE LOG SEGMENTS HERE
-            section_stack_list = loglines[:index_stack]
-            section_stack_text = str(section_stack_list)
-            section_plugins_list = loglines[index_plugins:]
-            # section_plugins_text = str(section_plugins_list)
-            if os.path.exists("loadorder.txt"):
-                plugins_loaded = True
-                section_plugins_list = []
-                with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
-                    plugin_format = loadorder_check.readlines()
-                    if len(plugin_format) >= 1 and not any("[00]" in elem for elem in section_plugins_list):
-                        section_plugins_list.append("[00]")
-                    for line in plugin_format:
-                        line = "[LO] " + line.strip()
-                        section_plugins_list.append(line)
+            section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
@@ -132,257 +573,8 @@ def scan_logs():
             if ".dll" in crash_error.lower() and "tbbmalloc" not in crash_error.lower():
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
-            # "xxxxx" are placeholders since None values are non iterable.
-            Culprits = {
-                'Stack Overflow Crash': {
-                    'error_conditions': "EXCEPTION_STACK_OVERFLOW", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for Stack Overflow Crash......... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Active Effects Crash': {
-                    'error_conditions': "0x000100000000", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for Active Effects Crash......... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Bad Math Crash': {
-                    'error_conditions': "EXCEPTION_INT_DIVIDE_BY_ZERO", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for Bad Math Crash............... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Null Crash': {
-                    'error_conditions': "0x000000000000", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for Null Crash................... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                # ====================== STACK CULPRITS ======================
-
-                'DLL Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "DLCBannerDLC01.dds",
-                    'description': '# Checking for DLL Crash.................... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'LOD Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BGSLocation", "BGSQueuedTerrainInitialLoad"),
-                    'description': '# Checking for LOD Crash.................... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'MCM Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("FaderData", "FaderMenu", "UIMessage"),
-                    'description': '# Checking for MCM Crash.................... CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Decal Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BGSDecalManager", "BSTempEffectGeometryDecal"),
-                    'description': '# Checking for Decal Crash.................. CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Equip Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "PipboyMapData",
-                    'description': '# Checking for Equip Crash.................. CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Script Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("Papyrus", "VirtualMachine", "Assertion failed"),
-                    'description': '# Checking for Script Crash................. CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Generic Crash': {
-                    'error_conditions': "tbbmalloc", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for Generic Crash................ CULPRIT FOUND! > Priority : [2] #\n'},
-
-                'Antivirus Crash': {
-                    'error_conditions': ("24A48D48", "bdhkm64.dll"), 'stack_conditions': ("usvfs::hook_DeleteFileW", "::Manager", "::zlibStreamDetail"),
-                    'description': '# Checking for Antivirus Crash.............. CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'BA2 Limit Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "LooseFileAsyncStream",
-                    'description': '# Checking for BA2 Limit Crash.............. CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Rendering Crash': {
-                    'error_conditions': "d3d11", 'stack_conditions': "xxxxx",
-                    'description': '# Checking for Rendering Crash.............. CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'C++ Redist Crash': {
-                    'error_conditions': ("MSVCR", "MSVCP"), 'stack_conditions': "xxxxx",
-                    'description': '# Checking for C++ Redist Crash............. CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Grid Scrap Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("GridAdjacencyMapNode", "PowerUtils"),
-                    'description': '# Checking for Grid Scrap Crash............. CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Map Marker Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("HUDCompass", "HUDCompassMarker", "attachMovie()"),
-                    'description': '# Checking for Map Marker Crash............. CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Mesh (NIF) Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("LooseFileStream", "BSFadeNode", "BSMultiBoundNode"),
-                    'description': '# Checking for Mesh (NIF) Crash............. CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Texture (DDS) Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("Create2DTexture", "DefaultTexture"),
-                    'description': '# Checking for Texture (DDS) Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Material (BGSM) Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("DefaultTexture_Black", "NiAlphaProperty"),
-                    'description': '# Checking for Material (BGSM) Crash........ CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'NPC Pathing Crash (S)': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("NavMesh", "PathingCell", "BSPathBuilder", "PathManagerServer"),
-                    'description': '# Checking for NPC Pathing Crash (S)........ CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'NPC Pathing Crash (D)': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BSNavmeshObstacleData", "DynamicNavmesh", "PathingRequest"),
-                    'description': '# Checking for NPC Pathing Crash (D)........ CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'NPC Pathing Crash (F)': {
-                    'error_conditions': "+248B26A", 'stack_conditions': ("MovementAgentPathFollowerVirtual", "PathingStreamSaveGame", "BGSProcedurePatrolExecState", "CustomActorPackageData"),
-                    'description': '# Checking for NPC Pathing Crash (F)........ CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Audio Driver Crash': {
-                    'error_conditions': ("X3DAudio1_7", "XAudio2_7"), 'stack_conditions': ("X3DAudio1_7.dll", "XAudio2_7.dll"),
-                    'description': '# Checking for Audio Driver Crash........... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Body Physics Crash': {
-                    'error_conditions': "cbp.dll", 'stack_conditions': ("skeleton.nif", "cbp.dll"),
-                    'description': '# Checking for Body Physics Crash........... CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Leveled List Crash': {
-                    'error_conditions': "+0D09AB7", 'stack_conditions': "TESLevItem",
-                    'description': '# Checking for Leveled List Crash........... CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Plugin Limit Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("[FF]", "BSMemStorage", "DataFileHandleReaderWriter"),
-                    'description': '# Checking for Plugin Limit Crash........... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Plugin Order Crash': {
-                    'error_conditions': "+0DB9300", 'stack_conditions': "GamebryoSequenceGenerator",
-                    'description': '# Checking for Plugin Order Crash........... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'MO2 Extractor Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "BSD3DResourceCreator",
-                    'description': '# Checking for MO2 Extractor Crash.......... CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Nvidia Debris Crash': {
-                    'error_conditions': ("+03EE452", "flexRelease_x64"), 'stack_conditions': ("flexRelease_x64.dll", "CheckRefAgainstConditionsFunc"),
-                    'description': '# Checking for Nvidia Debris Crash.......... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Nvidia Driver Crash': {
-                    'error_conditions': ("nvwgf2umx", "USER32"), 'stack_conditions': ("nvwgf2umx.dll", "USER32.dll"),
-                    'description': '# Checking for Nvidia Driver Crash.......... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Nvidia Reflex Crash': {
-                    'error_conditions': ("3A0000", "AD0000", "8E0000", "NVIDIA_Reflex", "Buffout4"), 'stack_conditions': "NVIDIA_Reflex.dll",
-                    'description': '# Checking for Nvidia Reflex Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Vulkan Memory Crash': {
-                    'error_conditions': ("KERNELBASE", "MSVCP140"), 'stack_conditions': ("KERNELBASE.dll", "MSVCP140.dll", "DxvkSubmissionQueue"),
-                    'description': '# Checking for Vulkan Memory Crash.......... CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Vulkan Settings Crash': {
-                    'error_conditions': ("+00CD99B", "amdvlk64"), 'stack_conditions': ("amdvlk64.dll", "dxvk::DXGIAdapter", "dxvk::DXGIFactory", "VirtualLinearAllocatorWithNode"),
-                    'description': '# Checking for Vulkan Settings Crash........ CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Corrupted Audio Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BSXAudio2DataSrc", "BSXAudio2GameSound"),
-                    'description': '# Checking for Corrupted Audio Crash........ CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Console Command Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("SysWindowCompileAndRun", "ConsoleLogPrinter"),
-                    'description': '# Checking for Console Command Crash........ CULPRIT FOUND! > Priority : [1] #\n'},
-
-                'Game Corruption Crash': {
-                    'error_conditions': "+1B938F0", 'stack_conditions': ("AnimTextData\\AnimationFileData", "AnimationFileLookupSingletonHelper"),
-                    'description': '# Checking for Game Corruption Crash........ CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Water Collision Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "BGSWaterCollisionManager",
-                    'description': '# Checking for Water Collision Crash........ CULPRIT FOUND! > Priority : [6] #\n [!] PLEASE CONTACT ME IF YOU GOT THIS CRASH! (CONTACT INFO BELOW)\n'},
-
-                'Particle Effects Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "ParticleSystem",
-                    'description': '# Checking for Particle Effects Crash....... CULPRIT FOUND! > Priority : [4] #\n'},
-
-                'Player Character Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("PlayerCharacter", "0x00000007", "0x00000008", "0x00000014"),
-                    'description': '# Checking for Player Character Crash....... CULPRIT FOUND! > Priority : [3] #\n'},
-
-                'Animation / Physics Crash': {
-                    'error_conditions': "+1FCC07E", 'stack_conditions': ("BSAnimationGraphManager", "hkbVariableBindingSet", "hkbHandIkControlsModifier", "hkbBehaviorGraph", "hkbModifierList"),
-                    'description': '# Checking for Animation / Physics Crash.... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                'Archive Invalidation Crash': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "DLCBanner05.dds",
-                    'description': '# Checking for Archive Invalidation Crash... CULPRIT FOUND! > Priority : [5] #\n'},
-
-                # ================== LOW ACCURACY CULPRITS ===================
-
-                '*[Creation Club Crash]': {
-                    'error_conditions': "+01B59A4", 'stack_conditions': "xxxxx",
-                    'description': '  Checking for *[Creation Club Crash]......... DETECTED! > Priority : [1] *\n'},
-
-                '*[Item Crash]': {
-                    'error_conditions': "+0B2C44B", 'stack_conditions': ("TESObjectARMO", "TESObjectWEAP", "BGSMod::Attachment", "BGSMod::Template", "BGSMod::Template::Item"),
-                    'description': '  Checking for *[Item Crash].................. DETECTED! > Priority : [1] *\n'},
-
-                '*[Save Crash]': {
-                    'error_conditions': "+0CDAD30", 'stack_conditions': ("BGSSaveLoadManager", "BGSSaveLoadThread", "BGSSaveFormBuffer"),
-                    'description': '  Checking for *[Save Crash].................. DETECTED! > Priority : [1] *\n'},
-
-                '*[Input Crash]': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("ButtonEvent", "MenuControls", "MenuOpenCloseHandler", "PlayerControls", "DXGISwapChain"),
-                    'description': '  Checking for *[Input Crash]................. DETECTED! > Priority : [1] *\n'},
-
-                '*[SS2 / WF Crash]': {
-                    'error_conditions': ("+01F498D", "+03F89A3"), 'stack_conditions': ("StartWorkshop", "IsWithinBuildableArea", "PlayerControls", "DXGISwapChain"),
-                    'description': '  Checking for *[SS2 / WF Crash].............. DETECTED! > Priority : [1] *\n'},
-
-                '*[Looks Menu Crash]': {
-                    'error_conditions': ("+1D13DA7", "F4EE"), 'stack_conditions': ("BSShader", "BSBatchRenderer", "ShadowSceneNode"),
-                    'description': '  Checking for *[Looks Menu Crash]............ DETECTED! > Priority : [1] *\n'},
-
-                '*[NPC Patrol Crash]': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BGSProcedurePatrol", "BGSProcedurePatrolExecState", "PatrolActorPackageData"),
-                    'description': '  Checking for *[NPC Patrol Crash]............ DETECTED! > Priority : [1] *\n'},
-
-                '*[Precombines Crash]': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BSPackedCombined", "BGSCombinedCellGeometryDB", "BGSStaticCollection", "TESObjectCELL"),
-                    'description': '  Checking for *[Precombines Crash]........... DETECTED! > Priority : [1] *\n'},
-
-                '*[GPU Overclock Crash]': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("myID3D11DeviceContext", "BSDeferredDecal", "BSDFDecal"),
-                    'description': '  Checking for *[GPU Overclock Crash]......... DETECTED! > Priority : [1] *\n'},
-
-                '*[NPC Projectile Crash]': {
-                    'error_conditions': "xxxxx", 'stack_conditions': ("BGSProjectile", "CombatProjectileAimController"),
-                    'description': '  Checking for *[NPC Projectile Crash]........ DETECTED! > Priority : [1] *\n'},
-
-                '*[Camera Position Crash]': {
-                    'error_conditions': "NvCamera64", 'stack_conditions': ("NvCamera64.dll", "NiCamera", "WorldRoot Camera"),
-                    'description': '  Checking for *[Camera Position Crash]....... DETECTED! > Priority : [1] *\n'},
-
-                '*[HUD / Interface Crash]': {
-                    'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
-                    'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
-            }
-
             # =================== CRASH CULPRITS CHECK ==================
-            Culprit_Trap = False
-            for culprit_name, culprit_data in Culprits.items():
-
-                # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
-                error_conditions = culprit_data['error_conditions']
-                if isinstance(error_conditions, str):
-                    error_conditions = [error_conditions]
-                stack_conditions = culprit_data['stack_conditions']
-                if isinstance(stack_conditions, str):
-                    stack_conditions = [stack_conditions]
-
-                # CHECK CULPRIT KEYS IN CRASH LOG
-                if culprit_name == 'Nvidia Debris Crash' or culprit_name == 'Nvidia Driver Crash' or culprit_name == 'Nvidia Reflex Crash':
-                    if "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                        output.write(f"{culprit_data['description']}  -----\n")
-                        Culprit_Trap = True
-                elif culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
-                    if "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                        output.write(f"{culprit_data['description']}  -----\n")
-                        Culprit_Trap = True
-                elif culprit_name == 'Player Character Crash':
-                    if any(section_stack_text.count(item) >= 3 for item in stack_conditions):
-                        output.write(f"{culprit_data['description']}  -----\n")
-                        Culprit_Trap = True
-                elif any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
+            Culprit_Trap = culprit_check(output, logtext, section_stack_text)
 
             if Culprit_Trap is False:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
                 output.writelines(["# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
@@ -490,7 +682,7 @@ def scan_logs():
             Mod_Trap3 = False
             if plugins_loaded:
                 Mod_Check3 = check_plugins(MOON.Mods3, Mod_Trap3)
-                
+
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
 
                 if any(item in logtext for item in ("Depravity", "FusionCityRising", "HotC", "OutcastsAndRemnants", "ProjectValkyrie")):
@@ -553,181 +745,39 @@ def scan_logs():
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
-
             gpu_amd = any("GPU" in line and "AMD" in line for line in loglines)
             gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
+            # gpu_other = True if not gpu_nvidia and not gpu_amd else False # This might come in handy later (who knows what Skyrim will bring) - evildarkarchon
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
-            Core_Mods = {
-                'Canary Save File Monitor': {
-                    'condition': 'CanarySaveFileMonitor' in logtext,
-                    'description': 'This is a highly recommended mod that can detect save file corruption.',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
-                },
-                'High FPS Physics Fix': {
-                    'condition': 'HighFPSPhysicsFix.dll' in logtext or 'HighFPSPhysicsFixVR.dll' in logtext,
-                    'description': 'This is a mandatory patch / fix that prevents game engine problems.',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
-                },
-                'Previs Repair Pack': {
-                    'condition': 'PPF.esm' in logtext,
-                    'description': 'This is a highly recommended mod that can improve performance.',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
-                },
-                'Unofficial Fallout 4 Patch': {
-                    'condition': 'Unofficial Fallout 4 Patch.esp' in logtext,
-                    'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
-                },
-                'Vulkan Renderer': {
-                    'condition': 'vulkan-1.dll' in logtext and gpu_amd,
-                    'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files'
-                },
-                'Nvidia Weapon Debris Fix': {
-                    'condition': 'WeaponDebrisCrashFix.dll' in logtext and gpu_nvidia,
-                    'description': 'Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
-                },
-                'Nvidia Reflex Support': {
-                    'condition': 'NVIDIA_Reflex.dll' in logtext and gpu_nvidia,
-                    'description': 'Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)',
-                    'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files'
-                }
-            }
-
-            if plugins_loaded:
-                for mod_name, mod_data in Core_Mods.items():
-                    if gpu_amd and "Nvidia" not in mod_name:
-                        if mod_data['condition']:
-                            output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                        else:
-                            output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                         f"  {mod_data['description']}\n"
-                                         f"  Link: {mod_data['link']}\n"
-                                          "  -----\n")
-                    elif gpu_nvidia and "Vulkan" not in mod_name:
-                        if mod_data['condition']:
-                            output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                        else:
-                            output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                         f"  {mod_data['description']}\n"
-                                         f"  Link: {mod_data['link']}\n"
-                                          "  -----\n")
-            else:
-                output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
+            check_core_mods(output, plugins_loaded, section_plugins_list, gpu_amd, gpu_nvidia)
 
             output.writelines(["====================================================\n",
                                "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CULPRITS...\n",
                                "====================================================\n"])
-
-            list_DETPLUGINS = []
-            list_DETFORMIDS = []
-            list_ALLPLUGINS = []
-
             output.write("LIST OF (POSSIBLE) PLUGIN CULPRITS:\n")
 
-            for line in loglines:
-                if "[" in line and "]" in line:  # Add all lines with Plugin IDs to list.
-                    start_index = line.index("[")
-                    end_index = line.index("]")
-                    if end_index - start_index == 3 or end_index - start_index == 7 and "Modified by:" not in line:
-                        list_ALLPLUGINS.append(line.strip())
+            list_ALLPLUGINS = extract_plugin_ids(loglines)
+            list_DETPLUGINS = extract_detected_plugins(loglines)
+            list_DETPLUGINS = filter_excluded_plugins(list_DETPLUGINS, GALAXY.Game_Plugins_Exclude)
 
-                if "File:" in line and "Fallout4.esm" not in line:  # Add detected Plugins to list.
-                    line = line.replace("File: ", "")
-                    line = line.replace('"', '')
-                    list_DETPLUGINS.append(line.strip())
-
-            list_DETPLUGINS = list(filter(None, list_DETPLUGINS))  # Remove empty & invalid elements from list.
-
-            for elem in GALAXY.Game_Plugins_Exclude:
-                if elem in list_DETPLUGINS:
-                    list_DETPLUGINS.remove(elem)
-
-            list_DETPLUGINS = Counter(list_DETPLUGINS)
-            PL_result = []
-            for elem in list_ALLPLUGINS:
-                PL_matches = []
-                for item in list_DETPLUGINS:
-                    if item in elem:
-                        PL_matches.append(item)
-                if PL_matches:
-                    PL_result.append(PL_matches)
-                    output.write(f"- {' '.join(PL_matches)} : {list_DETPLUGINS[item]}\n")  # type: ignore
-
-            if not PL_result:
-                output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
-                                   "-----\n"])
-            else:
-                output.writelines(["-----\n",
-                                   "[Last number counts how many times each plugin culprit shows up in the crash log.]\n",
-                                   "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
-                                   "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
-                                   "-----\n"])
+            output.write("LIST OF (POSSIBLE) PLUGIN CULPRITS:\n")
+            culprits, culprits_counter = find_plugin_culprits(list_ALLPLUGINS, list_DETPLUGINS)
+            write_plugin_culprits(output, culprits, culprits_counter)
 
             # ===========================================================
+
+            list_DETFORMIDS = extract_form_ids(loglines, plugins_loaded, section_plugins_list)
 
             output.write("LIST OF (POSSIBLE) FORM ID CULPRITS:\n")
-            for line in loglines:
-                if "Form ID:" in line or "FormID:" in line and "0xFF" not in line:
-                    line = line.replace("0x", "")
-                    if plugins_loaded:
-                        line = line.replace("Form ID: ", "")
-                        line = line.replace("FormID: ", "")
-                        line = line.strip()
-                        ID_Only = line
-                        for elem in section_plugins_list:
-                            if "]" in elem and "[FE" not in elem:
-                                if elem[2:4].strip() == ID_Only[:2]:
-                                    Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()
-                                    list_DETFORMIDS.append(Full_Line.replace("    ", ""))
-                            if "[FE" in elem:
-                                elem = elem.replace(":", "")
-                                if elem[2:7] == ID_Only[:5]:
-                                    Full_Line = "Form ID: " + ID_Only + " | " + elem.strip()
-                                    list_DETFORMIDS.append(Full_Line.replace("    ", ""))
-                    else:
-                        list_DETFORMIDS.append(line.strip())
-
-            list_DETFORMIDS = sorted(list_DETFORMIDS)
-            list_DETFORMIDS = list(dict.fromkeys(list_DETFORMIDS))  # Removes duplicates as dicts cannot have them.
-            for elem in list_DETFORMIDS:
-                output.write(f"{elem}\n")
-
-            if not list_DETFORMIDS:
-                output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
-                                   "-----\n"])
-            else:
-                output.writelines(["-----\n",
-                                   "These Form IDs were caught by Buffout 4 and some of them might be related to this crash.\n",
-                                   "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n",
-                                   "-----\n"])
+            write_form_id_culprits(output, list_DETFORMIDS)
 
             # ===========================================================
 
+            list_records = extract_named_records(section_stack_list, UNIVERSE.Crash_Records_Catch, GALAXY.Crash_Records_Exclude)
+
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
-            List_Records = []
-            for line in section_stack_list:
-                if any(elem in line.lower() for elem in UNIVERSE.Crash_Records_Catch):
-                    if not any(elem in line for elem in GALAXY.Crash_Records_Exclude):
-                        line = line.replace('"', '')
-                        List_Records.append(f"{line.strip()}\n")
-
-            List_Records = sorted(List_Records)
-            List_Records = Counter(List_Records)
-            for item in List_Records:
-                output.write("{} : {} \n".format(item.replace("\n", ""), List_Records[item]))
-
-            if not List_Records:
-                output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
-                                   "-----\n"])
-            else:
-                output.writelines(["-----\n",
-                                   "[Last number counts how many times each named record shows up in the crash log.]\n",
-                                   "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
-                                   "Named records should give extra info on involved game objects, record types or mod files.\n",
-                                   "-----\n"])
+            write_named_records(output, list_records)
 
             output.writelines(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n",
                                "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n",
@@ -737,16 +787,7 @@ def scan_logs():
                                "CLAS | https://www.nexusmods.com/fallout4/mods/56255"])
 
         # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved") and not Culprit_Trap:
-            time.sleep(0.1)
-            unsolved_path = "CLAS-UNSOLVED"
-            if not os.path.exists(unsolved_path):
-                os.mkdir(unsolved_path)
-            crash_file = os.path.join(unsolved_path, logname)
-            scan_file = os.path.join(unsolved_path, logname.replace(".log", "-AUTOSCAN.md"))
-            shutil.move(logname, crash_file)
-            if os.path.exists(scan_file):
-                shutil.move(logname + "-AUTOSCAN.md", scan_file)
+        move_unsolved_files(logname, Culprit_Trap)
 
     # ================== TERMINAL SCAN COMPLETE ==================
     time.sleep(0.5)

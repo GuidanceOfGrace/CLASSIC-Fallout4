@@ -330,7 +330,7 @@ def clas_update_run():
     elif UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is False:
         print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
 
-
+# ==========================================================
 # DO NOT USE @staticmethod FOR ANY, NOT CALLABLE FOR PYINSTALLER
 # =================== DEFINE LOCAL FILES ===================
 @dataclass
@@ -381,7 +381,7 @@ class ClasLocalFiles:
 
     # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
     def docs_path_check(self):
-        if platform.system() == "Windows":  # Win_Docs | Find where FO4 is installed via Windows
+        def get_windows_docs_path():
             CSIDL_PERSONAL = 5  # (My) Documents folder from user.
             SHGFP_TYPE_CURRENT = 0  # Get current, not default value.
             User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)  # type: ignore
@@ -389,7 +389,9 @@ class ClasLocalFiles:
             Win_Docs = Path(User_Documents.value)
             GALAXY.Game_Docs_Found = True
             return Win_Docs
-        else:  # Lin_Docs | Find where FO4 is installed via Steam if Linux
+
+
+        def get_linux_docs_path():
             libraryfolders_path = Path.home().joinpath(".local", "share", "Steam", "steamapps", "common", "libraryfolders.vdf")
             if libraryfolders_path.is_file():
                 library_path = None
@@ -404,63 +406,96 @@ class ClasLocalFiles:
                         if library_path.joinpath("common", GALAXY.Game_Name).exists() and Lin_Docs.exists():
                             GALAXY.Game_Docs_Found = True
                             return Lin_Docs
+            return None
 
-        if GALAXY.Game_Docs_Found is False:  # INI_Docs | CHECK CLAS INI IF DOCUMENTS FOLDER IS ALREADY GIVEN.
+
+        def get_ini_docs_path():
             if str(GALAXY.Game_Docs).lower() in UNIVERSE.CLAS_config["MAIN"]["INI Path"].lower():
                 INI_Line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
                 INI_Docs = Path(INI_Line)
                 return INI_Docs
-            else:  # Manual_Docs | PROMPT MANUAL INPUT IF DOCUMENTS FOLDER CANNOT BE FOUND.
-                print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {GALAXY.Game_Docs}.ini IS LOCATED < <")
-                Path_Input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
-                print("You entered :", Path_Input, "| This path will be automatically added to CLAS Settings.ini")
-                Manual_Docs = Path(Path_Input.strip())
-                clas_ini_update("INI Path", Path_Input)
-                return Manual_Docs
+            return None
 
+
+        def get_manual_docs_path():
+            print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {GALAXY.Game_Docs}.ini IS LOCATED < <")
+            Path_Input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
+            print("You entered :", Path_Input, "| This path will be automatically added to CLAS Settings.ini")
+            Manual_Docs = Path(Path_Input.strip())
+            clas_ini_update("INI Path", Path_Input)
+            return Manual_Docs
+        
+        if platform.system() == "Windows":
+            docs_path = get_windows_docs_path()
+        else:
+            docs_path = get_linux_docs_path()
+
+        if not docs_path:
+            docs_path = get_ini_docs_path()
+
+        if not docs_path:
+            docs_path = get_manual_docs_path()
+
+        return docs_path
+        
     # =========== CHECK DOCUMENTS -> GAME PATH & XSE LOGS ===========
     # Don't forget to check both OG and VR script extender logs!
 
     def game_path_check(self):
-        Error_List = []
-        XSE_Error = XSE_Version = XSE_Crash_DLL = False
-        logfile = self.FO4_F4SE_LOG
-        if self.FO4_F4SEVR_LOG.is_file():
-            logfile = self.FO4_F4SEVR_LOG
-        with open(logfile, "r", encoding="utf-8", errors="ignore") as LOG_Check:
-            Path_Check = LOG_Check.readlines()
-            for logline in Path_Check:
-                if "plugin directory" in logline:
-                    logline = logline[19:].replace("\\Data\\F4SE\\Plugins", "")
-                    Game_Path = logline.replace("\n", "")
-                if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
-                    XSE_Version = True
-                if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and any(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
-                    XSE_Error = True
-                    Error_List.append(logline)
-                if GALAXY.BO4_DLL_Name in logline.lower() and "loaded correctly" in logline.lower():
-                    XSE_Crash_DLL = True
-        if not self.FO4_F4SE_LOG.is_file() and not self.FO4_F4SEVR_LOG.is_file():
+        def get_game_path_and_flags(logfile):
+            XSE_Error = XSE_Version = XSE_Crash_DLL = False
+            Game_Path = None
+            Error_List = []
+
+            with open(logfile, "r", encoding="utf-8", errors="ignore") as LOG_Check:
+                Path_Check = LOG_Check.readlines()
+
+                for logline in Path_Check:
+                    if "plugin directory" in logline:
+                        logline = logline[19:].replace("\\Data\\F4SE\\Plugins", "")
+                        Game_Path = logline.replace("\n", "")
+                    if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
+                        XSE_Version = True
+                    if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and any(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
+                        XSE_Error = True
+                        Error_List.append(logline)
+                    if GALAXY.BO4_DLL_Name in logline.lower() and "loaded correctly" in logline.lower():
+                        XSE_Crash_DLL = True
+
+            return Game_Path, XSE_Error, XSE_Version, XSE_Crash_DLL, Error_List
+
+
+        def handle_missing_f4se_log():
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Missing_F4SELOG"])
             os.system("pause")
 
-        if XSE_Version is True:
+        logfile = self.FO4_F4SE_LOG
+        if self.FO4_F4SEVR_LOG.is_file():
+            logfile = self.FO4_F4SEVR_LOG
+
+        if not self.FO4_F4SE_LOG.is_file() and not self.FO4_F4SEVR_LOG.is_file():
+            handle_missing_f4se_log()
+
+        Game_Path, XSE_Error, XSE_Version, XSE_Crash_DLL, Error_List = get_game_path_and_flags(logfile)
+
+        if XSE_Version:
             GALAXY.scan_game_report.append(f"✔️ You have the latest version of {GALAXY.XSE_Handle}\n  -----")
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Outdated_F4SE"])
 
-        if XSE_Error is True:
+        if XSE_Error:
             GALAXY.scan_game_report.append("# ❌ SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #\n")
             for elem in Error_List:
                 GALAXY.scan_game_report.append(f"{elem}\n-----")
         else:
             GALAXY.scan_game_report.append("✔️ Script Extender reports that all DLL mod plugins have loaded correctly.\n  -----")
 
-        if XSE_Crash_DLL is True:
+        if XSE_Crash_DLL:
             GALAXY.scan_game_report.append(f"✔️ Script Extender reports that {GALAXY.BO4_DLL_Name} was found and loaded correctly.\n  -----")
             GALAXY.ADLIB_Loaded = True
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
+
         return Game_Path
 
 
@@ -470,7 +505,7 @@ SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
 
 class ClasCheckFiles:
     # CHECK LOCAL FILES IN GAME FOLDER ONLY
-    Game_Folder = Path(SYSTEM.game_path_check())
+    Game_Folder = Path(str(SYSTEM.game_path_check()))
     print(Game_Folder)
     SYSTEM.Game_Scripts = Game_Folder.joinpath("Data", "Scripts")
     # ROOT FILES
