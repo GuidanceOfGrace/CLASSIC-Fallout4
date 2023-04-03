@@ -63,7 +63,7 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
 
 def mods_ini_config(file_path, section, key, new_value=None):
     mod_config = configparser.ConfigParser()
-    mod_config.optionxform = str
+    mod_config.optionxform = str # type: ignore
     mod_config.read(file_path)
 
     if section not in mod_config:
@@ -563,7 +563,7 @@ SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
 
 class ClasCheckFiles:
     # ROOT FOLDERS
-    SYSTEM.Game_Root = Path(SYSTEM.game_path_check())
+    SYSTEM.Game_Root = Path(SYSTEM.game_path_check()) # type: ignore
     SYSTEM.Game_Data = SYSTEM.Game_Root.joinpath("Data")
     SYSTEM.Game_Scripts = SYSTEM.Game_Root.joinpath("Data", "Scripts")
     # ROOT FILES
@@ -594,7 +594,7 @@ class ClasCheckFiles:
 
     def game_check_folderpath(self):
         game_folderpath = SYSTEM.game_path_check()
-        if "Program Files" in game_folderpath or "Program Files (x86)" in game_folderpath:
+        if "Program Files" in game_folderpath or "Program Files (x86)" in game_folderpath: # type: ignore
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
                                             "   To ensure that everyting works, move your Game or entire Steam folder outside of Program Files.",

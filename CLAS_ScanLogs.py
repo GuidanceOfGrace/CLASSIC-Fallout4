@@ -242,7 +242,7 @@ def scan_logs():
         else:
             output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 
-    def culprit_check(output, logtext, section_stack_text):
+    def culprit_check(logtext, output, section_stack_text):
         # "xxxxx" are placeholders since None values are non iterable.
         Culprits = {
             'Stack Overflow Crash': {
@@ -582,7 +582,7 @@ def scan_logs():
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
             # =================== CRASH CULPRITS CHECK ==================
-            Culprit_Trap = culprit_check(output, logtext, section_stack_text)
+            Culprit_Trap = culprit_check(logtext, output, section_stack_text)
 
             if Culprit_Trap is False:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
                 output.writelines(["# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
