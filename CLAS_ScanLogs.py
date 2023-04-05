@@ -498,7 +498,7 @@ def scan_logs():
     
     def prepare_log_data(file):
         logpath = Path(file).resolve()
-        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
+        scanpath = logpath.absolute().with_name(f"{logpath.stem}-AUTOSCAN.md").resolve()
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
 
