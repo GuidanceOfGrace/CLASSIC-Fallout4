@@ -12,7 +12,7 @@ clas_ini_create()
 
 # noinspection PyUnresolvedReferences
 class UiCLASMainWin(object):
-    def __init__(self):
+    """def __init__(self):
         self.ArtBT_Buffout4 = None
         self.ArtBT_Patches = None
         self.ArtBT_Troubleshoot = None
@@ -44,7 +44,7 @@ class UiCLASMainWin(object):
 
         self.WebBT_Buffout4_Nexus = None
         self.WebBT_CLAS_Github = None
-        self.WebBT_CLAS_Nexus = None
+        self.WebBT_CLAS_Nexus = None"""
 
     def setup_ui(self, CLAS_MainWin):
 
