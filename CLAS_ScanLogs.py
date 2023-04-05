@@ -166,16 +166,17 @@ def scan_logs():
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
 
-    def move_unsolved_files(logname, culprit_trap):
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved") and not culprit_trap:
+    def move_unsolved_files(logname: str, culprit_trap: bool, move_unsolved: bool):
+        if move_unsolved and not culprit_trap:
             time.sleep(0.1)
-            unsolved_path = "CLAS-UNSOLVED"
-            if not os.path.exists(unsolved_path):
-                os.mkdir(unsolved_path)
-            crash_file = os.path.join(unsolved_path, logname)
-            scan_file = os.path.join(unsolved_path, logname.replace(".log", "-AUTOSCAN.md"))
+            unsolved_path = Path("CLAS-UNSOLVED")
+            unsolved_path.mkdir(exist_ok=True)
+        
+            crash_file = unsolved_path / logname
+            scan_file = unsolved_path / logname.replace(".log", "-AUTOSCAN.md")
+
             shutil.move(logname, crash_file)
-            if os.path.exists(scan_file):
+            if scan_file.exists():
                 shutil.move(logname + "-AUTOSCAN.md", scan_file)
 
     def check_core_mods(logtext, plugins_loaded, output, gpu_nvidia, gpu_amd):
@@ -496,15 +497,19 @@ def scan_logs():
                 Culprit_Trap = True
         return Culprit_Trap
     
-    def prepare_log_data(file):
+    def prepare_log_data(file: str):
         logpath = Path(file).resolve()
-        scanpath = logpath.absolute().with_name(f"{logpath.stem}-AUTOSCAN.md").resolve()
+        scanpath = logpath.with_name(f"{logpath.stem}-AUTOSCAN.md").resolve()
         logname = logpath.name
+    
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
 
         with logpath.open("r+", encoding="utf-8", errors="ignore") as crash_log:
-            loglines = [line for line in crash_log if line.strip() and "(size_t)" not in line and "(void*)" not in line]
-        
+            loglines = [
+                line for line in crash_log
+                if line.strip() and "(size_t)" not in line and "(void*)" not in line
+            ]
+
         return scanpath, logname, logtext, loglines
 
     # ==================== AUTOSCAN REPORT ====================
@@ -801,7 +806,7 @@ def scan_logs():
                                "CLAS | https://www.nexusmods.com/fallout4/mods/56255"])
 
         # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
-        move_unsolved_files(logname, Culprit_Trap)
+        move_unsolved_files(logname, Culprit_Trap, UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"))
 
     # ================== TERMINAL SCAN COMPLETE ==================
     time.sleep(0.5)
