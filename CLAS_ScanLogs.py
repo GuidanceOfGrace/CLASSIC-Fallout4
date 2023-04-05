@@ -505,7 +505,7 @@ def scan_logs():
 
     for file in glob(f"{SCAN_folder}/crash-*.log"):
         logpath = Path(file).resolve()
-        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
+        scanpath = logpath.absolute().with_name(f"{logpath.stem}-AUTOSCAN.md").resolve()
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
 
