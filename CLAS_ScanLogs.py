@@ -1,12 +1,14 @@
 # CRASH LOG AUTO SCANNER (CLAS) | By Poet (The Sound Of Snow)
 import os
+import random
 import shutil
 import time
-import random
-from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_run
 from collections import Counter
 from glob import glob
 from pathlib import Path
+
+from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_ini_create,
+                           clas_ini_update, clas_update_run)
 
 clas_ini_create()
 clas_update_run()
@@ -493,6 +495,17 @@ def scan_logs():
                 output.write(f"{culprit_data['description']}  -----\n")
                 Culprit_Trap = True
         return Culprit_Trap
+    
+    def prepare_log_data(file):
+        logpath = Path(file).resolve()
+        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
+        logname = logpath.name
+        logtext = logpath.read_text(encoding="utf-8", errors="ignore")
+
+        with logpath.open("r+", encoding="utf-8", errors="ignore") as crash_log:
+            loglines = [line for line in crash_log if line.strip() and "(size_t)" not in line and "(void*)" not in line]
+        
+        return scanpath, logname, logtext, loglines
 
     # ==================== AUTOSCAN REPORT ====================
     print("PERFORMING SCAN... \n")
@@ -504,13 +517,7 @@ def scan_logs():
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
 
     for file in glob(f"{SCAN_folder}/crash-*.log"):
-        logpath = Path(file).resolve()
-        scanpath = logpath.absolute().with_name(f"{logpath.stem}-AUTOSCAN.md").resolve()
-        logname = logpath.name
-        logtext = logpath.read_text(encoding="utf-8", errors="ignore")
-
-        with logpath.open("r+", encoding="utf-8", errors="ignore") as crash_log:
-            loglines = [line for line in crash_log if line.strip() and "(size_t)" not in line and "(void*)" not in line]
+        scanpath, logname, logtext, loglines = prepare_log_data(file)
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
@@ -572,7 +579,7 @@ def scan_logs():
             if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Mode"])
             '''
-            
+
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
                                "====================================================\n"])

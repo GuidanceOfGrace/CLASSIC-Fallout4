@@ -1,6 +1,10 @@
 import os
-from CLAS_Database import GALAXY, SYSTEM, PLANET, clas_ini_create, mods_ini_config
+from typing import List
+
 from bs4 import BeautifulSoup  # For parsing HTML / XML (Wrye Plugin Check)
+
+from CLAS_Database import (GALAXY, PLANET, SYSTEM, clas_ini_create,
+                           mods_ini_config)
 
 clas_ini_create()
 GALAXY.scan_game_report = []
@@ -56,51 +60,69 @@ def scan_game_files():
     PLANET.bo4_check_settings()
 
 
-def scan_wryecheck():  # Wrye Plugin Checker
+def parse_wb_html(wb_html: str) -> List[str]:
+    soup = BeautifulSoup(wb_html, 'html.parser')
+    report = []
+
+    for h3 in soup.find_all('h3'):
+        title = h3.get_text()
+        plugin_list = []
+
+        for p in h3.find_next_siblings('p'):
+            if p.find_previous_sibling('h3') == h3:
+                text = p.get_text().strip().replace("•\xa0 ", "")
+                if '.esp' in text or ".esl" in text or ".esm" in text:
+                    plugin_list.append(text)
+            else:
+                break
+
+        report.append((title, plugin_list))
+
+    return report
+
+
+def format_report(parsed_report: List[str]) -> List[str]:
+    formatted_report = []
+
+    for title, plugin_list in parsed_report:
+        if len(title) < 32:
+            diff = 32 - len(title)
+            left = diff // 2
+            right = diff - left
+            formatted_report.append("\n   " + "=" * left + f" {title} " + "=" * right + "\n")
+        else:
+            formatted_report.append(title)
+
+        if title == "ESL Capable":
+            esl_count = sum(1 for _ in plugin_list)
+            formatted_report.extend([f"    ❓ There are {esl_count} plugins that can be given the ESL flag. This can be done",
+                                     "        with SimpleESLify script to avoid reaching the plugin limit (254 esm/esp)."])
+
+        for problem_name, problem_desc in GALAXY.WB_Problems.items():
+            if problem_name == title:
+                formatted_report.append(problem_desc)
+            elif problem_name in title:
+                formatted_report.append(problem_desc)
+
+        if title != "ESL Capable":
+            for elem in plugin_list:
+                formatted_report.append(f"   > {elem}")
+
+    return formatted_report
+
+
+def scan_wryecheck():
     if SYSTEM.WB_Plugin_Check.is_file():
         GALAXY.scan_game_report.extend(["✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS...",
                                         "  [This report is located in your Documents/My Games/Fallout4 folder.]",
                                         "  [To hide this report, remove *ModChecker.html* from the same folder.]"])
+
         with open(SYSTEM.WB_Plugin_Check, "r", encoding="utf-8", errors="ignore") as WB_Check:
             WB_HTML = WB_Check.read()
 
-        # Parse the HTML code using BeautifulSoup.
-        soup = BeautifulSoup(WB_HTML, 'html.parser')
-
-        for h3 in soup.find_all('h3'):  # Find all <h3> elems and loop through them.
-            title = h3.get_text()  # Get title of current <h3> and create plugin list.
-            plugin_list = []
-
-            for p in h3.find_next_siblings('p'):  # Find all <p> elements that come after current <h3> element.
-                if p.find_previous_sibling('h3') == h3:  # Check if current <p> elem is under same <h3> elem as previous <p>.
-                    text = p.get_text().strip().replace("•\xa0 ", "")
-                    if '.esp' in text or ".esl" in text or ".esm" in text:  # Get text of <p> elem and check plugin extensions.
-                        plugin_list.append(text)
-                else:  # If current <p> elem is under a different <h3> elem, break loop.
-                    break
-            # Format title and list of plugins.
-            if len(title) < 32:
-                diff = 32 - len(title)
-                left = diff // 2
-                right = diff - left
-                GALAXY.scan_game_report.append("\n   " + "=" * left + f" {title} " + "=" * right + "\n")
-            else:
-                GALAXY.scan_game_report.append(title)
-
-            if title == "ESL Capable":
-                esl_count = sum(1 for _ in plugin_list)
-                GALAXY.scan_game_report.extend([f"    ❓ There are {esl_count} plugins that can be given the ESL flag. This can be done",
-                                                "        with SimpleESLify script to avoid reaching the plugin limit (254 esm/esp)."])
-
-            for problem_name, problem_desc in GALAXY.WB_Problems.items():
-                if problem_name == title:
-                    GALAXY.scan_game_report.append(problem_desc)
-                elif problem_name in title:
-                    GALAXY.scan_game_report.append(problem_desc)
-
-            if title != "ESL Capable":
-                for elem in plugin_list:
-                    GALAXY.scan_game_report.append(f"   > {elem}")
+        parsed_report = parse_wb_html(WB_HTML)
+        formatted_report = format_report(parsed_report)
+        GALAXY.scan_game_report.extend(formatted_report)
 
         GALAXY.scan_game_report.extend(["\n  ❔ For more info about the above detected problems, read the WB Advanced Readme",
                                         "     For more details about solutions, read the Advanced Troubleshooting Article",
@@ -111,7 +133,7 @@ def scan_wryecheck():  # Wrye Plugin Checker
 
 
 def scan_mod_inis():  # Mod INI files check.
-    for root, dirs, files in os.walk(SYSTEM.Game_Data):
+    for root, _, files in os.walk(SYSTEM.Game_Data):
         for file in files:
             ini_path = os.path.join(root, file)
             if file == "ESPExplorer.ini":  # ESP Explorer Maintenance | 42520

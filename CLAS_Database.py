@@ -1,13 +1,15 @@
-import os
-import stat
 import configparser
-import platform
-import requests
 import hashlib
-import tomlkit
+import os
+import platform
+import stat
+from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
-from dataclasses import dataclass, field
+from typing import List
+
+import requests
+import tomlkit
 
 if platform.system() == "Windows":
     import ctypes.wintypes
@@ -63,7 +65,7 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
 
 def mods_ini_config(file_path, section, key, new_value=None):
     mod_config = configparser.ConfigParser()
-    mod_config.optionxform = str # type: ignore
+    mod_config.optionxform = str # type: ignore # type: ignore
     mod_config.read(file_path)
 
     if section not in mod_config:
@@ -563,7 +565,7 @@ SYSTEM.docs_file_check(SYSTEM.docs_path_check())  # type: ignore
 
 class ClasCheckFiles:
     # ROOT FOLDERS
-    SYSTEM.Game_Root = Path(SYSTEM.game_path_check()) # type: ignore
+    SYSTEM.Game_Root = Path(str(SYSTEM.game_path_check()))
     SYSTEM.Game_Data = SYSTEM.Game_Root.joinpath("Data")
     SYSTEM.Game_Scripts = SYSTEM.Game_Root.joinpath("Data", "Scripts")
     # ROOT FILES
@@ -594,7 +596,7 @@ class ClasCheckFiles:
 
     def game_check_folderpath(self):
         game_folderpath = SYSTEM.game_path_check()
-        if "Program Files" in game_folderpath or "Program Files (x86)" in game_folderpath: # type: ignore
+        if "Program Files" in str(game_folderpath) or "Program Files (x86)" in str(game_folderpath):
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
                                             "   To ensure that everyting works, move your Game or entire Steam folder outside of Program Files.",
@@ -603,25 +605,35 @@ class ClasCheckFiles:
             GALAXY.scan_game_report.append(f"✔️ Your {GALAXY.Game_Name} game files are installed outside of Program Files folder. \n  -----")
 
     # ===== CHECK DOCUMENTS -> ENABLE ARCH. INV. / LOOSE FILES =====
+    def configure_ini(self, ini_path: Path) -> List[str]:
+        scan_game_report = []
+    
+        try:
+            os.chmod(ini_path, stat.S_IWRITE)
+            ini_config = configparser.ConfigParser()
+            ini_config.optionxform = str # type: ignore
+            ini_config.read(ini_path)
+        
+            if "Archive" not in ini_config.sections():
+                scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
+                ini_config.add_section("Archive")
+            else:
+                scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
+        
+            ini_config.set("Archive", "bInvalidateOlderFiles", "1")
+            ini_config.set("Archive", "sResourceDataDirsFinal", "")
+        
+            with open(ini_path, "w+", encoding="utf-8", errors="ignore") as ini_custom:
+                ini_config.write(ini_custom, space_around_delimiters=False)
+    
+        except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
+            scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Broken_F4CINI"])
+
+        return scan_game_report
 
     def ini_enable_modding(self):
         if SYSTEM.FO4_Custom_INI.is_file():
-            try:
-                os.chmod(SYSTEM.FO4_Custom_INI, stat.S_IWRITE)
-                INI_config = configparser.ConfigParser()
-                INI_config.optionxform = str  # type: ignore
-                INI_config.read(SYSTEM.FO4_Custom_INI)
-                if "Archive" not in INI_config.sections():
-                    GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
-                    INI_config.add_section("Archive")
-                else:
-                    GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
-                INI_config.set("Archive", "bInvalidateOlderFiles", "1")
-                INI_config.set("Archive", "sResourceDataDirsFinal", "")
-                with open(SYSTEM.FO4_Custom_INI, "w+", encoding="utf-8", errors="ignore") as INI_custom:
-                    INI_config.write(INI_custom, space_around_delimiters=False)
-            except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
-                GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Broken_F4CINI"])
+            GALAXY.scan_game_report.extend(self.configure_ini(SYSTEM.FO4_Custom_INI))
         else:
             with open(SYSTEM.FO4_Custom_INI, "a", encoding="utf-8", errors="ignore") as INI_custom:
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
