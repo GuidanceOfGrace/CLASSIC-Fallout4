@@ -44,8 +44,7 @@ class UiCLASMainWin(object):
 
         self.WebBT_Buffout4_Nexus = None
         self.WebBT_CLAS_Github = None
-        self.WebBT_CLAS_Nexus = None""" # These are not needed since they are defined in the setup_ui function and are not referenced beforehand
-                                        # Most of my type-checker alarms in this script are about methods/functions/properties not being members of None. - evildarkarchon"""
+        self.WebBT_CLAS_Nexus = None"""
 
     def setup_ui(self, CLAS_MainWin):
 
