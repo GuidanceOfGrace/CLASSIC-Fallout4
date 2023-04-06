@@ -23,30 +23,37 @@ if platform.system() == "Windows":
 
 # =================== CLAS INI FILE ===================
 def clas_ini_create():
-    if not os.path.exists("CLAS Settings.ini"):  # INI FILE FORCLAS
-        INI_Settings = ["[MAIN]\n",
-                        "# This file contains settings for both source scripts and Crash Log Auto Scanner.exe \n",
-                        "# Set to true if you want CLAS to check that you have the latest version of CLAS. \n",
-                        "Update Check = true\n\n",
-                        "# FCX - File Check Xtended | Set to true if you want CLAS to check the integrity of your game files and core mods. \n",
-                        "FCX Mode = true\n\n",
-                        "# IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings. \n",
-                        "# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. \n",
-                        "IMI Mode = false\n\n",
-                        "# Set to true if you want CLAS to show extra stats about scanned logs in the command line window. \n",
-                        "Stat Logging = false\n\n",
-                        "# Set to true if you want CLAS to move all unsolved logs and their autoscans to CL-UNSOLVED folder. \n",
-                        "# Unsolved logs are all crash logs where CLAS didn't detect any known crash errors or messages. \n",
-                        "Move Unsolved = false\n\n",
-                        "# Set or copy-paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4 \n",
-                        "# Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else. \n",
-                        "# I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles... \n",
-                        "INI Path = \n\n",
-                        "# Set or copy-paste your custom scan folder path below, from which your crash logs will be scanned. \n",
-                        "# If no path is set, CLAS will search for logs in the same folder from which you are running the exe. \n",
-                        "Scan Path = "]
-        with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-            INI_Autoscan.writelines(INI_Settings)
+    if not os.path.exists("CLAS Settings.ini"):
+        ini_settings = """[MAIN]
+# This file contains settings for both source scripts and Crash Log Auto Scanner.exe
+# Set to true if you want CLAS to check that you have the latest version of CLAS.
+Update Check = true
+
+# FCX - File Check Xtended | Set to true if you want CLAS to check the integrity of your game files and core mods.
+FCX Mode = true
+
+# IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings.
+# I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.
+IMI Mode = false
+
+# Set to true if you want CLAS to show extra stats about scanned logs in the command line window.
+Stat Logging = false
+
+# Set to true if you want CLAS to move all unsolved logs and their autoscans to CL-UNSOLVED folder.
+# Unsolved logs are all crash logs where CLAS didn't detect any known crash errors or messages.
+Move Unsolved = false
+
+# Set or copy-paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4
+# Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else.
+# I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles...
+INI Path =
+
+# Set or copy-paste your custom scan folder path below, from which your crash logs will be scanned.
+# If no path is set, CLAS will search for logs in the same folder from which you are running the exe.
+Scan Path = """
+
+        with open("CLAS Settings.ini", "w", encoding="utf-8", errors="ignore") as ini_autoscan:
+            ini_autoscan.write(ini_settings)
 
 
 clas_ini_create()
@@ -54,18 +61,15 @@ clas_ini_create()
 
 # ================= INI UPDATE FUNCTIONS =================
 def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
-    if isinstance(section, str) and isinstance(value, str):
-        UNIVERSE.CLAS_config["MAIN"][section] = value
-    else:
-        UNIVERSE.CLAS_config["MAIN"][str(section)] = str(value)
+    UNIVERSE.CLAS_config["MAIN"][section] = value
 
-    with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as CLAS_INI:
-        UNIVERSE.CLAS_config.write(CLAS_INI)
+    with open("CLAS Settings.ini", "w", encoding="utf-8", errors="ignore") as clas_ini:
+        UNIVERSE.CLAS_config.write(clas_ini)
 
 
 def mods_ini_config(file_path, section, key, new_value=None):
     mod_config = configparser.ConfigParser()
-    mod_config.optionxform = str # type: ignore # type: ignore
+    mod_config.optionxform = str  # type: ignore # type: ignore
     mod_config.read(file_path)
 
     if section not in mod_config:
@@ -86,30 +90,29 @@ def mods_ini_config(file_path, section, key, new_value=None):
 
 # ================= CLAS UPDATE FUNCTIONS ================
 # Don't forget to update the API link for specific games.
-def clas_update_check():
-    print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
-    print("    (You can disable this check in the EXE or CLAS Settings.ini)")
-    response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
-    CLAS_Received = response.json()["name"]
-    if CLAS_Received == UNIVERSE.CLAS_Current:
-        UNIVERSE.CLAS_Updated = True
-        print("\n ✔️ You have the latest version of CLAS! \n")
-    else:
-        print(GALAXY.Warnings["Warn_CLAS_Outdated"])
-        print("===============================================================================")
-    return UNIVERSE.CLAS_Updated
-
-
-def clas_update_run():
-    if UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is True:
+def clas_update_check(current_version: str, update_check: bool) -> bool:
+    if update_check:
         try:
-            CLAS_CheckUpdates = clas_update_check()
-            return CLAS_CheckUpdates
+            print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
+            print("    (You can disable this check in the EXE or CLAS Settings.ini)")
+            response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")
+            received_version = response.json()["name"]
+
+            if received_version == current_version:
+                print("\n ✔️ You have the latest version of CLAS! \n")
+                return True
+            else:
+                print(GALAXY.Warnings["Warn_CLAS_Outdated"])
+                print("===============================================================================")
+                return False
+
         except (OSError, requests.exceptions.RequestException):
             print(GALAXY.Warnings["Warn_CLAS_Update_Failed"])
             print("===============================================================================")
-    elif UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is False:
+            return False
+    else:
         print("\n ❌ NOTICE: UPDATE CHECK IS DISABLED IN CLAS INI SETTINGS \n")
+        return False
 
 
 class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comments.
@@ -129,6 +132,7 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
     Crash_Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                            ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
+    IS_Experimental = False
 
 
 UNIVERSE = ClasUniversalVars()
@@ -607,25 +611,25 @@ class ClasCheckFiles:
     # ===== CHECK DOCUMENTS -> ENABLE ARCH. INV. / LOOSE FILES =====
     def configure_ini(self, ini_path: Path) -> List[str]:
         scan_game_report = []
-    
+
         try:
             os.chmod(ini_path, stat.S_IWRITE)
             ini_config = configparser.ConfigParser()
-            ini_config.optionxform = str # type: ignore
+            ini_config.optionxform = str  # type: ignore
             ini_config.read(ini_path)
-        
+
             if "Archive" not in ini_config.sections():
                 scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                 ini_config.add_section("Archive")
             else:
                 scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
-        
+
             ini_config.set("Archive", "bInvalidateOlderFiles", "1")
             ini_config.set("Archive", "sResourceDataDirsFinal", "")
-        
+
             with open(ini_path, "w+", encoding="utf-8", errors="ignore") as ini_custom:
                 ini_config.write(ini_custom, space_around_delimiters=False)
-    
+
         except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
             scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Broken_F4CINI"])
 

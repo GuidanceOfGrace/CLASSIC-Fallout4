@@ -315,7 +315,7 @@ class UiCLASMainWin(object):
 
     @staticmethod
     def Update_Popup():
-        if clas_update_check():
+        if clas_update_check(UNIVERSE.CLAS_Current, UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check")):
             QtWidgets.QMessageBox.information(CLAS_MainWin, "CLAS Update", "You have the latest version of Crash Log Auto Scanner!")
         else:
             QtWidgets.QMessageBox.warning(CLAS_MainWin, "CLAS Update", "New Crash Log Auto Scanner version detected!\nPress OK to open the CLAS Nexus Page.")
