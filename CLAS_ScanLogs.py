@@ -833,7 +833,7 @@ CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255
         with open(file, encoding="utf-8", errors="ignore") as log_check:
             line_check = log_check.readlines()
             line_count = sum(1 for _ in line_check)
-            if ".txt" in scan_name or line_count < 20:
+            if ".txt" in scan_name or line_count < 20:  # Failed scans are usually 16 lines.
                 list_SCANFAIL.append(scan_name)
                 statL_failed += 1
                 statL_scanned -= 1
