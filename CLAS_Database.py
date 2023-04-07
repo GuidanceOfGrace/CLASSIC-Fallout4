@@ -132,7 +132,6 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
     Crash_Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                            ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
-    IS_Experimental = False
 
 
 UNIVERSE = ClasUniversalVars()
