@@ -507,6 +507,32 @@ class LogProcessor:
                 Culprit_Trap = True
         return Culprit_Trap
 
+    def check_plugins(self, mods, mod_trap, output):
+        if self.plugins_loaded:
+            for LINE in self.section_plugins_list:
+                for elem in mods.keys():
+                    if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
+                        warn = ''.join(mods[elem]["warn"])
+                        output.writelines([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
+                                           "-----\n"])
+                        mod_trap = True
+                    elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
+                        warn = ''.join(mods[elem]["warn"])
+                        output.writelines([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
+                                           "-----\n"])
+                        mod_trap = True
+                    return mod_trap
+
+    def check_conflicts(self, mods, mod_trap, output):
+        if self.plugins_loaded:
+            for elem in mods.keys():
+                if mods[elem]["mod_1"] in self.logtext and mods[elem]["mod_2"] in self.logtext:
+                    warn = ''.join(mods[elem]["warn"])
+                    output.writelines([f"[!] CAUTION : {warn}\n",
+                                       "-----\n"])
+                    mod_trap = True
+            return mod_trap
+
     @staticmethod
     def prepare_log_data(file: str):
         logpath = Path(file).resolve()
@@ -612,33 +638,6 @@ def scan_logs():
                                    "* SEE: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c *\n",
                                    "-----\n"])
 
-            # =============== MOD / PLUGIN CHECK TEMPLATES ==============
-            def check_plugins(mods, mod_trap):
-                if FACTORY.plugins_loaded:
-                    for LINE in FACTORY.section_plugins_list:
-                        for elem in mods.keys():
-                            if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
-                                warn = ''.join(mods[elem]["warn"])
-                                output.writelines([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
-                                                   "-----\n"])
-                                mod_trap = True
-                            elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
-                                warn = ''.join(mods[elem]["warn"])
-                                output.writelines([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
-                                                   "-----\n"])
-                                mod_trap = True
-                return mod_trap
-
-            def check_conflicts(mods, mod_trap):
-                if FACTORY.plugins_loaded:
-                    for elem in mods.keys():
-                        if mods[elem]["mod_1"] in FACTORY.logtext and mods[elem]["mod_2"] in FACTORY.logtext:
-                            warn = ''.join(mods[elem]["warn"])
-                            output.writelines([f"[!] CAUTION : {warn}\n",
-                                               "-----\n"])
-                            mod_trap = True
-                return mod_trap
-
             # ================= ALL MOD / PLUGIN CHECKS =================
 
             output.writelines(["====================================================\n",
@@ -647,7 +646,7 @@ def scan_logs():
 
             Mod_Trap1 = False
             if FACTORY.plugins_loaded:
-                Mod_Check1 = check_plugins(MOON.Mods1, Mod_Trap1)
+                Mod_Check1 = FACTORY.check_plugins(MOON.Mods1, Mod_Trap1, output)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
 
@@ -687,7 +686,7 @@ def scan_logs():
 
             Mod_Trap2 = False
             if FACTORY.plugins_loaded:
-                Mod_Check2 = check_conflicts(MOON.Mods2, Mod_Trap2)
+                Mod_Check2 = FACTORY.check_conflicts(MOON.Mods2, Mod_Trap2, output)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
@@ -708,7 +707,7 @@ def scan_logs():
 
             Mod_Trap3 = False
             if FACTORY.plugins_loaded:
-                Mod_Check3 = check_plugins(MOON.Mods3, Mod_Trap3)
+                Mod_Check3 = FACTORY.check_plugins(MOON.Mods3, Mod_Trap3, output)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
 
@@ -754,7 +753,7 @@ def scan_logs():
 
             Mod_Trap4 = False
             if FACTORY.plugins_loaded:
-                Mod_Check4 = check_plugins(MOON.Mods4, Mod_Trap4)
+                Mod_Check4 = FACTORY.check_plugins(MOON.Mods4, Mod_Trap4, output)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
