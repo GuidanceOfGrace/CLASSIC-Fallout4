@@ -753,8 +753,11 @@ def scan_logs():
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
-            gpu_amd = any("GPU" in line and "AMD" in line for line in loglines)
+            gpu_amd = False
+            gpu_nvidia = False
             gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
+            if not gpu_nvidia:
+                gpu_amd = any("GPU" in line and "AMD" in line for line in loglines)
             # gpu_other = True if not gpu_nvidia and not gpu_amd else False # This might come in handy later (who knows what Skyrim will bring) - evildarkarchon
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
