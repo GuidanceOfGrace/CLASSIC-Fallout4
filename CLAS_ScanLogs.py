@@ -758,6 +758,7 @@ def scan_logs():
             gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
             if not gpu_nvidia:
                 gpu_amd = any("GPU" in line and "AMD" in line for line in loglines)
+            assert gpu_nvidia or gpu_amd, "No GPU detected in log file"
             # gpu_other = True if not gpu_nvidia and not gpu_amd else False # This might come in handy later (who knows what Skyrim will bring) - evildarkarchon
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
