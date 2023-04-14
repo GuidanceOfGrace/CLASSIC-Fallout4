@@ -1,6 +1,16 @@
 =====================================================================================================
 # CHANGELOG #
 
+6.90 | "Nice" Update
+- Game Files Scan is now only performed once and given to each autoscan report while *FCX Mode = true*.
+- Fixed an issue where CLAS couldn't find *Buffout4.toml* in some cases which would cause a crash.
+- Fixed an issue where CLAS would try to get hash value from the wrong exe if the game was VR.
+- CLAS will now hide the user name from crash logs and autoscan reports for privacy reasons.
+- *Dumpstack.log* and few other files are now ignored by CLAS to prevent errors / crashes.
+- AUTOSCAN report will no longer show *Active Plugins* from the *Plugin Checker* report.
+- Fixed an issue which caused CLAS to detect irrelevant error messages from log files.
+- Changed info and patch link for *LooksMenu Customization Compendium*.
+
 6.85
 - Some mod warnings for *MODS THAT CAN CAUSE FREQUENT CRASHES* have been adjusted and/or removed.
 - CLAS will now warn you if Nvidia specific mods are installed, but AMD video card was detected.

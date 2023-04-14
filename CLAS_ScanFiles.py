@@ -79,12 +79,12 @@ def scan_wryecheck():  # Wrye Plugin Checker
                 else:  # If current <p> elem is under a different <h3> elem, break loop.
                     break
             # Format title and list of plugins.
-            if len(title) < 32:
+            if title != "Active Plugins:" and len(title) < 32:
                 diff = 32 - len(title)
                 left = diff // 2
                 right = diff - left
                 GALAXY.scan_game_report.append("\n   " + "=" * left + f" {title} " + "=" * right + "\n")
-            else:
+            elif title != "Active Plugins:":
                 GALAXY.scan_game_report.append(title)
 
             if title == "ESL Capable":
@@ -98,7 +98,7 @@ def scan_wryecheck():  # Wrye Plugin Checker
                 elif problem_name in title:
                     GALAXY.scan_game_report.append(problem_desc)
 
-            if title != "ESL Capable":
+            if title != "ESL Capable" and title != "Active Plugins:":
                 for elem in plugin_list:
                     GALAXY.scan_game_report.append(f"   > {elem}")
 
@@ -114,20 +114,27 @@ def scan_mod_inis():  # Mod INI files check.
     for root, dirs, files in os.walk(SYSTEM.Game_Data):
         for file in files:
             ini_path = os.path.join(root, file)
-            if file == "ESPExplorer.ini":  # ESP Explorer Maintenance | 42520
+            if file.lower() == "espexplorer.ini":  # ESP Explorer Maintenance | 42520
                 if "; F10" in mods_ini_config(ini_path, "General", "HotKey"):
                     mods_ini_config(ini_path, "General", "HotKey", "0x79")
-                    GALAXY.scan_game_report.append(f"Values Corrected In : {file}")
+                    GALAXY.scan_game_report.append(f"> Values Corrected In : {file}")
 
-            if file == "EPO.ini":
+            if file.lower() == "epo.ini":
                 if int(mods_ini_config(ini_path, "Particles", "iMaxDesired")) > 5000:
                     mods_ini_config(ini_path, "Particles", "iMaxDesired", "5000")
-                    GALAXY.scan_game_report.append(f"Values Corrected In : {file}")
+                    GALAXY.scan_game_report.append(f"> Values Corrected In : {file}")
 
-            if file == "HighFPSPhysicsFix.ini":  # High FPS Physics Fix | 44798
+            if file.lower() == "f4ee.ini":  # Looks Menu & LMCC | 12631
+                if mods_ini_config(ini_path, "CharGen", "bUnlockHeadParts") == 0:
+                    mods_ini_config(ini_path, "CharGen", "bUnlockHeadParts", "1")
+                if mods_ini_config(ini_path, "CharGen", "bUnlockTints") == 0:
+                    mods_ini_config(ini_path, "CharGen", "bUnlockTints", "1")
+                    GALAXY.scan_game_report.append(f"> Values Corrected In : {file}")
+
+            if file.lower() == "highfpsphysicsfix.ini":  # High FPS Physics Fix | 44798
                 if float(mods_ini_config(ini_path, "Limiter", "LoadingScreenFPS")) < 600.0:
                     mods_ini_config(ini_path, "Limiter", "LoadingScreenFPS", "600.0")
-                    GALAXY.scan_game_report.append(f"Values Corrected In : {file}")
+                    GALAXY.scan_game_report.append(f"> Values Corrected In : {file}")
 
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.

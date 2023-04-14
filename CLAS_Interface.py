@@ -5,10 +5,16 @@ from CLAS_ScanLogs import scan_logs
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
-from PySide6.QtWidgets import QFileDialog
-
+from PySide6.QtWidgets import QApplication, QFileDialog
+'''import platform  # RESERVED FOR FUTURE UPDATE
+current_platform = platform.system()
+if current_platform == 'Windows':
+    version = platform.release()
+    if version.startswith('10') or version.startswith('11'):
+        QApplication.setStyle("Fusion")
+        sys.argv += ['-platform', 'windows:darkmode=2']
+'''
 clas_ini_create()
-
 
 # noinspection PyUnresolvedReferences
 class UiCLASMainWin(object):
@@ -324,12 +330,13 @@ class UiCLASMainWin(object):
 
 if __name__ == "__main__":
     gui_prompt = """\
------
 PRESS 'SCAN LOGS' BUTTON TO SCAN ALL AVAILABLE BUFFOUT 4 CRASH LOGS
-OR
+
 PRESS 'Scan Game Files' BUTTON TO CHECK YOUR FALLOUT 4 GAME FILES
------
-    """
+
+IF YOU'RE USING MOD ORGANIZER 2, YOU SHOULD RUN CLAS THROUGH THE MO2 SHORTCUT
+DON'T FORGET TO CHECK THE CLAS README FILE FOR MORE DETAILS AND INSTRUCTIONS
+"""
     print(gui_prompt)
     app = QtWidgets.QApplication(sys.argv)
     CLAS_MainWin = QtWidgets.QDialog()

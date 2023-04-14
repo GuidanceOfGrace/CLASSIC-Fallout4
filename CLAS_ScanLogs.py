@@ -3,13 +3,13 @@ import os
 import shutil
 import time
 import random
-from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_run
+from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_check
 from collections import Counter
 from glob import glob
 from pathlib import Path
 
 clas_ini_create()
-clas_update_run()
+clas_update_check()
 
 LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
@@ -164,18 +164,6 @@ def scan_logs():
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
 
-    def move_unsolved_files(logname, culprit_trap):
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved") and not culprit_trap:
-            time.sleep(0.1)
-            unsolved_path = "CLAS-UNSOLVED"
-            if not os.path.exists(unsolved_path):
-                os.mkdir(unsolved_path)
-            crash_file = os.path.join(unsolved_path, logname)
-            scan_file = os.path.join(unsolved_path, logname.replace(".log", "-AUTOSCAN.md"))
-            shutil.move(logname, crash_file)
-            if os.path.exists(scan_file):
-                shutil.move(logname + "-AUTOSCAN.md", scan_file)
-
     def check_core_mods(logtext, plugins_loaded, output, gpu_nvidia, gpu_amd):
         Core_Mods = {
             'Canary Save File Monitor': {
@@ -205,12 +193,12 @@ def scan_logs():
             },
             'Nvidia Weapon Debris Fix': {
                 'condition': 'WeaponDebrisCrashFix.dll' in logtext and gpu_nvidia,
-                'description': 'Weapon Debris Crash Fix is only required for Nvidia GPUs (NOT AMD / OTHER)',
+                'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
             },
             'Nvidia Reflex Support': {
                 'condition': 'NVIDIA_Reflex.dll' in logtext and gpu_nvidia,
-                'description': 'Nvidia Reflex Support is only available for Nvidia GPUs (NOT AMD / OTHER)',
+                'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files'
             }
         }
@@ -503,6 +491,13 @@ def scan_logs():
     if len(UNIVERSE.CLAS_config["MAIN"]["Scan Path"]) > 1:
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
 
+    if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
+        from CLAS_ScanFiles import scan_game_files, scan_wryecheck, scan_mod_inis
+        GALAXY.scan_game_report = []
+        scan_game_files()
+        scan_wryecheck()
+        scan_mod_inis()
+
     for file in glob(f"{SCAN_folder}/crash-*.log"):
         logpath = Path(file).resolve()
         scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
@@ -541,14 +536,11 @@ def scan_logs():
                                "====================================================\n"])
 
             if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
-                output.write(GALAXY.Warnings["Warn_SCAN_FCX_Mode"])
-                from CLAS_ScanFiles import scan_game_files, scan_wryecheck
-                GALAXY.scan_game_report = []
-                scan_game_files()
-                scan_wryecheck()
+                output.write(GALAXY.Warnings["Warn_SCAN_FCX_Enabled"])
                 for item in GALAXY.scan_game_report:
                     output.write(f"{item}\n")
             else:
+                output.write(GALAXY.Warnings["Warn_SCAN_FCX_Disabled"])
                 # CHECK BUFFOUT 4 TOML SETTINGS IN CRASH LOG ONLY
                 if ("Achievements: true" in logtext and "achievements.dll" in logtext) or ("Achievements: true" in logtext and "UnlimitedSurvivalMode.dll" in logtext):
                     output.write(GALAXY.Warnings["Warn_TOML_Achievements"])
@@ -564,15 +556,7 @@ def scan_logs():
                     output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
                 else:
                     output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
-            '''
-            output.writelines(["\n====================================================\n",
-                               "CHECKING IF INI SETTINGS FROM MODS ARE CORRECT...\n",
-                               "====================================================\n"])
 
-            if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
-                output.write(GALAXY.Warnings["Warn_SCAN_FCX_Mode"])
-            '''
-            
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
                                "====================================================\n"])
@@ -639,7 +623,6 @@ def scan_logs():
                                        "-----\n"])
                     statM_CHW += 1
                     Mod_Trap1 = True
-                    Culprit_Trap = True
                 elif "ClassicHolsteredWeapons" in logtext and "d3d11" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
                                        "CLAS CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
@@ -753,10 +736,9 @@ def scan_logs():
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
-            
             gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
             gpu_amd = any("GPU" in line and "AMD" in line for line in loglines) if not gpu_nvidia else False
-            assert not (gpu_nvidia == True and gpu_amd == True), "❌ Both GPU types detected in log file"
+            assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
             # gpu_other = True if not gpu_nvidia and not gpu_amd else False # This might come in handy later (who knows what Skyrim will bring) - evildarkarchon
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
@@ -795,9 +777,6 @@ def scan_logs():
                                "CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757\n",
                                "CLAS | https://www.nexusmods.com/fallout4/mods/56255"])
 
-        # MOVE UNSOLVED LOGS TO SPECIAL FOLDER
-        move_unsolved_files(logname, Culprit_Trap)
-
     # ================== TERMINAL SCAN COMPLETE ==================
     time.sleep(0.5)
     print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
@@ -810,17 +789,45 @@ def scan_logs():
     print("CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(GALAXY.Sneaky_Tips))
 
-    # ============ CHECK FOR FAULTY LOGS & AUTOSCANS =============
+    # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
     list_SCANFAIL = []
+    user_name = os.getlogin()
+    unsolved_path = "CLAS UNSOLVED"
+    if not os.path.exists(unsolved_path):
+        os.mkdir(unsolved_path)
+
     for file in glob(f"{SCAN_folder}/crash-*"):
-        scan_name = str(file)
-        with open(file, encoding="utf-8", errors="ignore") as LOG_Check:
+        file_move = False
+        crash_name = str(file)
+        scan_name = str(file).replace(".log", "-AUTOSCAN.md")
+        crash_move = os.path.join(unsolved_path, crash_name)
+        scan_move = os.path.join(unsolved_path, scan_name)
+
+        with open(file, "r", encoding="utf-8", errors="ignore") as LOG_Check:
+            File_Check = LOG_Check.read()
+            LOG_Check.seek(0)  # Return line pointer to first line.
             Line_Check = LOG_Check.readlines()
             line_count = sum(1 for _ in Line_Check)
-            if ".txt" in scan_name or line_count < 20:  # Failed scans are usually 16 lines.
-                list_SCANFAIL.append(scan_name)
-                statL_failed += 1
-                statL_scanned -= 1
+
+        if user_name in File_Check:
+            File_Check = File_Check.replace(user_name, "******")
+            with open(file, "w", encoding="utf-8", errors="ignore") as LOG_Text:
+                LOG_Text.write(File_Check)
+
+        if "FOUND NO CRASH ERRORS" in File_Check:
+            file_move = True
+
+        if ".txt" in crash_name or line_count < 20:  # Failed scans are usually 16 lines.
+            list_SCANFAIL.append(crash_name)
+            statL_failed += 1
+            statL_scanned -= 1
+            file_move = True
+
+        if file_move and UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"):
+            if os.path.exists(crash_name):
+                shutil.move(crash_name, crash_move)
+            if os.path.exists(scan_name):
+                shutil.move(scan_name, scan_move)
 
     if len(list_SCANFAIL) >= 1:
         print("NOTICE : CLAS WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
@@ -848,6 +855,7 @@ def scan_logs():
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     import argparse
+
     parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner (CLAS)", description="All command-line options are saved to the INI file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
