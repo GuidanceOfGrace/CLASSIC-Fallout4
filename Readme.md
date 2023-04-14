@@ -30,6 +30,16 @@ and press SCAN LOGS button to scan them. After scanning completes, close the exe
 *HOW TO READ CRASH LOGS.pdf* - Document that lists most common Buffout 4 crash log messages and errors, and ways to prevent or fix them.
 
 ===========================================================================
+# HOW TO RUN CLAS FROM MO2 SHORTCUT #
+
+If you are using Mod Organizer 2, you should create a shortcut for *Crash Log Auto Scanner.exe* in MO2.
+To do this, run MO2 and select *<Edit...>* from the dropdown menu located next to the Run button.
+
+This will allow you to add / remove specific Executables to MO2 so they can correctly locate game and mod files.
+Simply press the Plus Icon > Add From File... and select your *Crash Log Auto Scanner.exe* from the new window.
+Press OK to save this Executable and make sure it's selected in the MO2 dropdown menu, then press Run.
+
+===========================================================================
 # HOW TO READ AUTOSCAN FILES #
 
 After running the EXE, you'll see this in any generated *crash-time-and-date-AUTOSCAN.md* output file:
