@@ -34,11 +34,11 @@ def scan_logs():
         index_plugins = 1
         plugins_loaded = False
 
-        for line in loglines:
+        for i, line in enumerate(loglines):
             if "MODULES:" in line:
-                index_stack = loglines.index(line)
+                index_stack = i
             if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
-                index_plugins = loglines.index(line)
+                index_plugins = i
             if "[00]" in line:
                 plugins_loaded = True
                 break
@@ -165,6 +165,9 @@ def scan_logs():
                                "-----\n"])
 
     def check_core_mods(logtext, plugins_loaded, output, gpu_nvidia, gpu_amd):
+        if not plugins_loaded:
+            output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
+            return
         Core_Mods = {
             'Canary Save File Monitor': {
                 'condition': 'CanarySaveFileMonitor' in logtext,
@@ -203,32 +206,21 @@ def scan_logs():
             }
         }
 
-        if plugins_loaded:
-            for mod_name, mod_data in Core_Mods.items():
-                if gpu_amd:
-                    if mod_data['condition'] and "Nvidia" not in mod_name:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    elif not mod_data['condition'] and "Nvidia" not in mod_name:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
-                    elif mod_data['condition'] and "Nvidia" in mod_name:
-                        output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
-                                     "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
-                                     f"   You should uninstall {mod_name} to avoid any problems.\n"
-                                     "  -----\n")
-
-                elif gpu_nvidia and "Vulkan" not in mod_name:
-                    if mod_data['condition']:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    else:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
-        else:
-            output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
+        for mod_name, mod_data in Core_Mods.items():
+            if not mod_data['condition']:
+                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                             f"  {mod_data['description']}\n"
+                             f"  Link: {mod_data['link']}\n"
+                             "  -----\n")
+            elif "Nvidia" in mod_name and not gpu_nvidia:
+                output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
+                             "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
+                             f"   You should uninstall {mod_name} to avoid any problems.\n"
+                             "  -----\n")
+            elif "Vulkan" in mod_name and gpu_nvidia:
+                continue
+            else:
+                output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
     def culprit_check(output, logtext, section_stack_text):
         # "xxxxx" are placeholders since None values are non iterable.
@@ -598,7 +590,6 @@ def scan_logs():
                             mod_trap = True
 
                 return mod_trap
-
 
             def check_conflicts(mods, mod_trap):
                 if plugins_loaded:
