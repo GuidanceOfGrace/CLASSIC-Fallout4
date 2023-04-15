@@ -795,17 +795,17 @@ def scan_logs():
 
     # ================== TERMINAL SCAN COMPLETE ==================
     time.sleep(0.5)
-    print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
-    print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md \n")
-    print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
-    print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115 \n")
-    print("================================ CONTACT INFO =================================")
-    print("DISCORD | Poet#9800 (https://discord.gg/DfFYJtt8p4)")
-    print("NEXUS PROFILE | https://www.nexusmods.com/users/64682231")
-    print("CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255")
-    print(random.choice(GALAXY.Sneaky_Tips))
-
+    print(f"""SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)
+SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md
+FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,
+VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115
+================================ CONTACT INFO =================================
+DISCORD | Poet#9800 (https://discord.gg/DfFYJtt8p4)
+NEXUS PROFILE | https://www.nexusmods.com/users/64682231
+CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255
+{random.choice(GALAXY.Sneaky_Tips)}""")
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
+
     def move_unsolved_files(crash_name, scan_name, unsolved_path):
         crash_move = os.path.join(unsolved_path, crash_name)
         scan_move = os.path.join(unsolved_path, scan_name)
