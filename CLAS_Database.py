@@ -70,7 +70,7 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
 
 def mods_ini_config(file_path, section, key, new_value=None):
     mod_config = configparser.ConfigParser()
-    mod_config.optionxform = str
+    mod_config.optionxform = str  # type: ignore
     mod_config.read(file_path)
 
     if section not in mod_config:
@@ -501,29 +501,29 @@ class ClasLocalFiles:
     # =========== CHECK DOCUMENTS -> GAME PATH & XSE LOGS ===========
     # Don't forget to check both OG and VR script extender logs!
 
+    def _get_game_path_and_flags(self, logfile):
+        xse_error = xse_version = xse_crash_dll = False
+        game_path = None
+        error_list = []
+
+        with open(logfile, "r", encoding="utf-8", errors="ignore") as log_check:
+            path_check = log_check.readlines()
+
+            for logline in path_check:
+                if "plugin directory" in logline:
+                    logline = logline[19:].replace("\\Data\\F4SE\\Plugins", "")
+                    game_path = logline.replace("\n", "")
+                if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
+                    xse_version = True
+                if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
+                    xse_error = True
+                    error_list.append(logline)
+                if GALAXY.CRASHGEN_DLL in logline.lower() and "loaded correctly" in logline.lower():
+                    xse_crash_dll = True
+
+        return game_path, xse_error, xse_version, xse_crash_dll, error_list
+
     def game_path_check(self):
-        def get_game_path_and_flags(logfile):
-            XSE_Error = XSE_Version = XSE_Crash_DLL = False
-            Game_Path = None
-            Error_List = []
-
-            with open(logfile, "r", encoding="utf-8", errors="ignore") as LOG_Check:
-                Path_Check = LOG_Check.readlines()
-
-                for logline in Path_Check:
-                    if "plugin directory" in logline:
-                        logline = logline[19:].replace("\\Data\\F4SE\\Plugins", "")
-                        Game_Path = logline.replace("\n", "")
-                    if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
-                        XSE_Version = True
-                    if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
-                        XSE_Error = True
-                        Error_List.append(logline)
-                    if GALAXY.CRASHGEN_DLL in logline.lower() and "loaded correctly" in logline.lower():
-                        XSE_Crash_DLL = True
-
-            return Game_Path, XSE_Error, XSE_Version, XSE_Crash_DLL, Error_List
-
         logfile = self.FO4_F4SE_LOG
         if self.FO4_F4SEVR_LOG.is_file():
             logfile = self.FO4_F4SEVR_LOG
@@ -532,27 +532,29 @@ class ClasLocalFiles:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Missing_F4SELOG"])
             os.system("pause")
 
-        Game_Path, XSE_Error, XSE_Version, XSE_Crash_DLL, Error_List = get_game_path_and_flags(logfile)
+        game_path, xse_error, xse_version, xse_crash_dll, error_list = self._get_game_path_and_flags(logfile)
 
-        if XSE_Version:
+        if xse_version:
             GALAXY.scan_game_report.append(f"✔️ You have the latest version of {GALAXY.XSE_Handle}\n  -----")
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Outdated_F4SE"])
 
-        if XSE_Error:
+        if xse_error:
             GALAXY.scan_game_report.append("# ❌ SCRIPT EXTENDER REPORTS THAT THE FOLLOWING PLUGINS FAILED TO LOAD! #\n")
-            for elem in Error_List:
+            for elem in error_list:
                 GALAXY.scan_game_report.append(f"{elem}\n-----")
         else:
             GALAXY.scan_game_report.append("✔️ Script Extender reports that all DLL mod plugins have loaded correctly.\n  -----")
 
-        if XSE_Crash_DLL:
+        if xse_crash_dll:
             GALAXY.scan_game_report.append(f"✔️ Script Extender reports that {GALAXY.CRASHGEN_Handle} was found and loaded correctly.\n  -----")
             GALAXY.ADLIB_Loaded = True
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
 
-        return Game_Path
+        if not game_path:
+            raise FileNotFoundError("❌ Could not find game path in F4SE log file.")  # Placeholder error
+        return game_path
 
 
 SYSTEM = ClasLocalFiles()
@@ -605,50 +607,64 @@ class ClasCheckFiles:
 
     # ===== CHECK DOCUMENTS -> ENABLE ARCH. INV. / LOOSE FILES =====
 
+    def _write_custom_ini(self, ini_config):
+        with open(SYSTEM.FO4_Custom_INI, "w+", encoding="utf-8", errors="ignore") as ini_custom:
+            ini_config.write(ini_custom, space_around_delimiters=False)
+
+    def _enable_modding(self, ini_config):
+        if "Archive" not in ini_config.sections():
+            GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
+            ini_config.add_section("Archive")
+        else:
+            GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
+        ini_config.set("Archive", "bInvalidateOlderFiles", "1")
+        ini_config.set("Archive", "sResourceDataDirsFinal", "")
+
     def ini_enable_modding(self):
         if SYSTEM.FO4_Custom_INI.is_file():
             try:
                 os.chmod(SYSTEM.FO4_Custom_INI, stat.S_IWRITE)
-                INI_config = configparser.ConfigParser()
-                INI_config.optionxform = str  # type: ignore
-                INI_config.read(SYSTEM.FO4_Custom_INI)
-                if "Archive" not in INI_config.sections():
-                    GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
-                    INI_config.add_section("Archive")
-                else:
-                    GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
-                INI_config.set("Archive", "bInvalidateOlderFiles", "1")
-                INI_config.set("Archive", "sResourceDataDirsFinal", "")
-                with open(SYSTEM.FO4_Custom_INI, "w+", encoding="utf-8", errors="ignore") as INI_custom:
-                    INI_config.write(INI_custom, space_around_delimiters=False)
+                ini_config = configparser.ConfigParser()
+                ini_config.optionxform = str  # type: ignore
+                ini_config.read(SYSTEM.FO4_Custom_INI)
+                self._enable_modding(ini_config)
+                self._write_custom_ini(ini_config)
             except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_CLAS_Broken_F4CINI"])
         else:
-            with open(SYSTEM.FO4_Custom_INI, "a", encoding="utf-8", errors="ignore") as INI_custom:
+            with open(SYSTEM.FO4_Custom_INI, "a", encoding="utf-8", errors="ignore") as ini_custom:
                 GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
-                INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
-                INI_custom.write(INI_config)
+                ini_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
+                ini_custom.write(ini_config)
 
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
     # Don't forget to check both OG and VR script extender logs!
 
     def xse_check_errors(self, xse_logpath):
         list_log_errors = []
+
         for filename in glob(f"{xse_logpath}/*.log"):
-            logname = ""
-            if not all(exc in filename for exc in UNIVERSE.LOG_Files_Exclude):
+            if all(exc not in filename for exc in UNIVERSE.LOG_Files_Exclude):
                 filepath = Path(filename).resolve()
+
                 if filepath.is_file():
                     try:
-                        with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
-                            Log_Errors = LOG_Check.readlines()
-                            for logline in Log_Errors:
-                                if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
-                                    logname = str(filepath)
-                                    list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
+                        with filepath.open("r", encoding="utf-8", errors="ignore") as log_check:
+                            log_errors = log_check.readlines()
+
+                            errors_to_append = [
+                                f"  LOG PATH > {filepath}\n  ERROR > {logline}\n  -----"
+                                for logline in log_errors
+                                if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and
+                                all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude)
+                            ]
+
+                            list_log_errors.extend(errors_to_append)
+
                     except (PermissionError, OSError):
-                        list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {logname}")
+                        list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {filepath}")
                         continue
+
         return list_log_errors
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INTEGRITY =========
@@ -673,8 +689,8 @@ class ClasCheckFiles:
                     file_path = os.path.join(scripts_path, filename)
                     with open(file_path, "rb") as f:
                         file_contents = f.read()
-                    # Algo should match the one used for dictionary.
-                    file_hash = hashlib.sha256(file_contents).hexdigest()
+                    # Also should match the one used for dictionary.
+                        file_hash = hashlib.sha256(file_contents).hexdigest()
 
                     # Compare local hash with dictionary value.
                     if file_hash != hash_list[filename]:
@@ -684,8 +700,8 @@ class ClasCheckFiles:
             GALAXY.scan_game_report.append("  ❌ CLAS was unable to detect F4SE script hashes. Check if F4SE is correctly installed! \n  -----")
         return matching_hashes
 
-    # =========== CHECK GAME FOLDER -> GAME EXE INTEGRITY ===========
-    # RESERVED | ADJUST FOR OTHER GAMES
+# =========== CHECK GAME FOLDER -> GAME EXE INTEGRITY ===========
+# RESERVED | ADJUST FOR OTHER GAMES
 
     def game_check_integrity(self, exe_filepath):
         if exe_filepath.is_file():
