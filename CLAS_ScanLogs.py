@@ -34,11 +34,11 @@ def scan_logs():
         index_plugins = 1
         plugins_loaded = False
 
-        for line in loglines:
+        for i, line in enumerate(loglines):
             if "MODULES:" in line:
-                index_stack = loglines.index(line)
+                index_stack = i
             if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
-                index_plugins = loglines.index(line)
+                index_plugins = i
             if "[00]" in line:
                 plugins_loaded = True
                 break
@@ -164,7 +164,10 @@ def scan_logs():
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
 
-    def check_core_mods():
+    def check_core_mods(logtext, plugins_loaded, output, gpu_nvidia, gpu_amd):
+        if not plugins_loaded:
+            output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
+            return
         Core_Mods = {
             'Canary Save File Monitor': {
                 'condition': 'CanarySaveFileMonitor' in logtext,
@@ -599,7 +602,6 @@ def scan_logs():
 
                 return mod_trap
 
-
             def check_conflicts(mods, mod_trap):
                 if plugins_loaded:
                     for mod_data in mods.values():
@@ -756,7 +758,7 @@ def scan_logs():
             assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
-            check_core_mods()
+            check_core_mods(plugins_loaded, output, gpu_nvidia, gpu_amd, gpu_other)
 
             output.writelines(["====================================================\n",
                                "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CULPRITS...\n",
