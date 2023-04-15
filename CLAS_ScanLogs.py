@@ -23,7 +23,7 @@ else:
                 LCL_skip_list[i] = ' ' + LCL_skip_list[i]
 
 # =================== TERMINAL OUTPUT START ====================
-print("Hello World! | Crash Log Auto Scanner (CLAS) | Version", UNIVERSE.CLAS_Current[-4:], "| Fallout 4")
+print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Current[-4:]} | Fallout 4")
 print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION \n")
 
 
