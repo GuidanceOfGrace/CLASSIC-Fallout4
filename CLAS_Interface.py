@@ -19,38 +19,38 @@ clas_ini_create()
 # noinspection PyUnresolvedReferences
 class UiCLASMainWin(object):
     def __init__(self):
-        self.ArtBT_Buffout4 = None
-        self.ArtBT_Patches = None
-        self.ArtBT_Troubleshoot = None
+        self.ArtBT_Buffout4: QtWidgets.QPushButton
+        self.ArtBT_Patches: QtWidgets.QPushButton
+        self.ArtBT_Troubleshoot: QtWidgets.QPushButton
 
-        self.ChkBT_FCXMode = None
-        self.ChkBT_IMIMode = None
-        self.ChkBT_Stats = None
-        self.ChkBT_Unsolved = None
-        self.ChkBT_Update = None
+        self.ChkBT_FCXMode: QtWidgets.QCheckBox
+        self.ChkBT_IMIMode: QtWidgets.QCheckBox
+        self.ChkBT_Stats: QtWidgets.QCheckBox
+        self.ChkBT_Unsolved: QtWidgets.QCheckBox
+        self.ChkBT_Update: QtWidgets.QCheckBox
 
-        self.LBL_ArtWeb = None
-        self.LBL_Settings = None
+        self.LBL_ArtWeb: QtWidgets.QLabel
+        self.LBL_Settings: QtWidgets.QLabel
 
-        self.Line_SelectedFolder = None
-        self.Line_Separator_1 = None
-        self.Line_Separator_2 = None
+        self.Line_SelectedFolder: QtWidgets.QLineEdit
+        self.Line_Separator_1: QtWidgets.QFrame
+        self.Line_Separator_2: QtWidgets.QFrame
 
-        self.RegBT_Browse = None
-        self.RegBT_ChangeINI = None
-        self.RegBT_CheckUpdates = None
-        self.RegBT_Exit = None
-        self.RegBT_Help = None
-        self.RegBT_SCAN_LOGS = None
-        self.RegBT_SCAN_FILES = None
+        self.RegBT_Browse: QtWidgets.QPushButton
+        self.RegBT_ChangeINI: QtWidgets.QPushButton
+        self.RegBT_CheckUpdates: QtWidgets.QPushButton
+        self.RegBT_Exit: QtWidgets.QPushButton
+        self.RegBT_Help: QtWidgets.QPushButton
+        self.RegBT_SCAN_LOGS: QtWidgets.QPushButton
+        self.RegBT_SCAN_FILES: QtWidgets.QPushButton
 
-        self.TXT_About = None
-        self.TXT_Contributors = None
-        self.TXT_Window = None
+        self.TXT_About: QtWidgets.QLabel
+        self.TXT_Contributors: QtWidgets.QLabel
+        self.TXT_Window: QtWidgets.QTextBrowser
 
-        self.WebBT_Buffout4_Nexus = None
-        self.WebBT_CLAS_Github = None
-        self.WebBT_CLAS_Nexus = None
+        self.WebBT_Buffout4_Nexus: QtWidgets.QPushButton
+        self.WebBT_CLAS_Github: QtWidgets.QPushButton
+        self.WebBT_CLAS_Nexus: QtWidgets.QPushButton
 
     def setup_ui(self, CLAS_MainWin):
 
@@ -84,7 +84,7 @@ class UiCLASMainWin(object):
         self.RegBT_Browse.setGeometry(QtCore.QRect(490, 30, 130, 24))
         self.RegBT_Browse.setObjectName("RegBT_Browse")
         self.RegBT_Browse.setText("Browse Folder...")
-        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)  # type: ignore
+        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)
 
         # Button - SCAN LOGS (CRASH LOGS)
         self.RegBT_SCAN_LOGS = QtWidgets.QPushButton(CLAS_MainWin)
@@ -95,7 +95,7 @@ class UiCLASMainWin(object):
         self.RegBT_SCAN_LOGS.setFont(font)
         self.RegBT_SCAN_LOGS.setObjectName("RegBT_SCAN_LOGS")
         self.RegBT_SCAN_LOGS.setText("SCAN LOGS")
-        self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)  # type: ignore
+        self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)
 
         # Button - SCAN FILES (GAME FILES)
         self.RegBT_SCAN_FILES = QtWidgets.QPushButton(CLAS_MainWin)
@@ -106,7 +106,7 @@ class UiCLASMainWin(object):
         self.RegBT_SCAN_FILES.setFont(font)
         self.RegBT_SCAN_FILES.setObjectName("RegBT_SCAN_FILES")
         self.RegBT_SCAN_FILES.setText("Scan Game Files")
-        self.RegBT_SCAN_FILES.clicked.connect(self.Gamefiles_SCAN)  # type: ignore
+        self.RegBT_SCAN_FILES.clicked.connect(self.Gamefiles_SCAN)
 
         # Button - Set INI Path
         self.RegBT_ChangeINI = QtWidgets.QPushButton(CLAS_MainWin)
@@ -114,22 +114,22 @@ class UiCLASMainWin(object):
         self.RegBT_ChangeINI.setObjectName("RegBT_ChangeINI")
         self.RegBT_ChangeINI.setText("CHANGE INI PATH")
         self.RegBT_ChangeINI.setToolTip("Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.")
-        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI)  # type: ignore
+        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI)
 
         # Button - Check Updates
         self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
         self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(420, 150, 140, 32))
         self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
         self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
-        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)  # type: ignore
+        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)
 
         # SEGMENT - SETTINGS
 
         # SEPARATOR LINE 1
         self.Line_Separator_1 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_1.setGeometry(QtCore.QRect(40, 180, 560, 20))
-        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.Shape.HLine)  # type: ignore
-        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)  # type: ignore
+        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.Shape.HLine)
+        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
         self.Line_Separator_1.setObjectName("Line_Separator_1")
         # SEPARATOR TEXT 1 (SETTINGS)
         self.LBL_Settings = QtWidgets.QLabel(CLAS_MainWin)
@@ -192,7 +192,7 @@ class UiCLASMainWin(object):
         # SEPARATOR LINE 2
         self.Line_Separator_2 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_2.setGeometry(QtCore.QRect(40, 310, 560, 20))
-        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.HLine)  # type: ignore
+        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.HLine) # type: ignore
         self.Line_Separator_2.setFrameShadow(QtWidgets.QFrame.Sunken)  # type: ignore
         self.Line_Separator_2.setObjectName("Line_Separator_2")
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
@@ -224,7 +224,7 @@ class UiCLASMainWin(object):
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
             button.setFont(font)
             button.setText(data["text"])
-            button.clicked.connect(lambda url=data["url"]: QDesktopServices.openUrl(QUrl(url)))  # type: ignore
+            button.clicked.connect(lambda url=data["url"]: QDesktopServices.openUrl(QUrl(url)))
 
         # BOTTOM
 
@@ -234,14 +234,14 @@ class UiCLASMainWin(object):
         self.RegBT_Help.setObjectName("RegBT_Help")
         self.RegBT_Help.setText("HELP")
         self.RegBT_Help.setToolTip("How To Use CLAS GUI")
-        self.RegBT_Help.clicked.connect(self.Help_Popup)  # type: ignore
+        self.RegBT_Help.clicked.connect(self.Help_Popup)
         # Button - EXIT
         self.RegBT_Exit = QtWidgets.QPushButton(CLAS_MainWin)
         self.RegBT_Exit.setGeometry(QtCore.QRect(510, 480, 110, 24))
         self.RegBT_Exit.setObjectName("RegBT_Exit")
         self.RegBT_Exit.setText("EXIT")
         self.RegBT_Exit.setToolTip("Exit CLAS GUI")
-        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)  # type: ignore
+        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)
 
         def create_label(parent, text, geometry):
             label = QtWidgets.QLabel(parent)
@@ -263,11 +263,11 @@ class UiCLASMainWin(object):
 
         # ====================== CHECK BOXES ========================
 
-        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_IMIMode, "IMI Mode"))  # type: ignore
-        self.ChkBT_Stats.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Stats, "Stat Logging"))  # type: ignore
-        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Unsolved, "Move Unsolved"))  # type: ignore
-        self.ChkBT_Update.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Update, "Update Check"))  # type: ignore
-        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_FCXMode, "FCX Mode"))  # type: ignore
+        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_IMIMode, "IMI Mode"))
+        self.ChkBT_Stats.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Stats, "Stat Logging"))
+        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Unsolved, "Move Unsolved"))
+        self.ChkBT_Update.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Update, "Update Check"))
+        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_FCXMode, "FCX Mode"))
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
@@ -297,18 +297,18 @@ class UiCLASMainWin(object):
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
-            self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
+            self.Line_SelectedFolder.setText(SCAN_folder)
             clas_ini_update("Scan Path", SCAN_folder)
             # Change text color back to black.
-            LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
-            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
-            self.Line_SelectedFolder.setPalette(LSF_palette)  # type: ignore
+            LSF_palette = self.Line_SelectedFolder.palette()
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
+            self.Line_SelectedFolder.setPalette(LSF_palette)
 
     @staticmethod
     def SelectFolder_INI():
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
-            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)  # type: ignore
+            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)
             clas_ini_update("INI Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
