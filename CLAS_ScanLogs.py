@@ -480,7 +480,7 @@ def scan_logs():
 
     # ==================== AUTOSCAN REPORT ====================
     print("PERFORMING SCAN... \n")
-    statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
+    statL_scanned = statL_incomplete = statL_failed = 0  # statM_CHW = 0 # according to Pylance (VS Code's Python extension), statM_CHW is unused
     start_time = time.perf_counter()
 
     SCAN_folder = os.getcwd()
