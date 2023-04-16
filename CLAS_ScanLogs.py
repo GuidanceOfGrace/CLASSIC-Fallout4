@@ -164,7 +164,7 @@ def scan_logs():
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
 
-    def check_core_mods(logtext, plugins_loaded, output, gpu_nvidia, gpu_amd):
+    def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
                 'condition': 'CanarySaveFileMonitor' in logtext,
@@ -187,17 +187,17 @@ def scan_logs():
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': 'vulkan-1.dll' in logtext and gpu_amd,
+                'condition': 'vulkan-1.dll' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files'
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': 'WeaponDebrisCrashFix.dll' in logtext and gpu_nvidia,
+                'condition': 'WeaponDebrisCrashFix.dll' in logtext,
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
             },
             'Nvidia Reflex Support': {
-                'condition': 'NVIDIA_Reflex.dll' in logtext and gpu_nvidia,
+                'condition': 'NVIDIA_Reflex.dll' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files'
             }
@@ -205,7 +205,7 @@ def scan_logs():
 
         if plugins_loaded:
             for mod_name, mod_data in Core_Mods.items():
-                if gpu_amd:
+                if gpu_amd or gpu_other:
                     if mod_data['condition'] and "Nvidia" not in mod_name:
                         output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
                     elif not mod_data['condition'] and "Nvidia" not in mod_name:
@@ -738,11 +738,11 @@ def scan_logs():
                                "====================================================\n"])
             gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
             gpu_amd = any("GPU" in line and "AMD" in line for line in loglines) if not gpu_nvidia else False
+            gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefined
             assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
-            # gpu_other = True if not gpu_nvidia and not gpu_amd else False # This might come in handy later (who knows what Skyrim will bring) - evildarkarchon
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
-            check_core_mods(logtext, plugins_loaded, output, gpu_amd, gpu_nvidia)
+            check_core_mods()
 
             output.writelines(["====================================================\n",
                                "SCANNING THE LOG FOR SPECIFIC (POSSIBLE) CULPRITS...\n",

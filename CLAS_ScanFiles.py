@@ -12,27 +12,9 @@ def scan_game_files():
 
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
 
-    if len(PLANET.xse_check_errors(SYSTEM.FO4_F4SE_Path)) >= 1:
-        GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in PLANET.xse_check_errors(SYSTEM.FO4_F4SE_Path):
-            GALAXY.scan_game_report.append(elem)
-
-    elif len(PLANET.xse_check_errors(SYSTEM.FO4_F4SEVR_Path)) >= 1:
-        GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in PLANET.xse_check_errors(SYSTEM.FO4_F4SEVR_Path):
-            GALAXY.scan_game_report.append(elem)
-
-    else:
-        GALAXY.scan_game_report.append("  -----\n✔️ Available logs in your Documents Folder do not report any errors, all is well.\n  -----")
-
-    # =========== CHECK GAME FOLDER -> ERRORS IN ALL LOGS ===========
-
-    if len(PLANET.xse_check_errors(SYSTEM.Game_Path)) >= 1:
-        GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-        for elem in PLANET.xse_check_errors(SYSTEM.Game_Path):
-            GALAXY.scan_game_report.append(f"{elem}\n-----\n")
-    else:
-        GALAXY.scan_game_report.append(f"✔️ Available logs in your {GALAXY.Game_Name} Game Folder do not report any additional errors.\n  -----")
+    PLANET.log_check_errors(SYSTEM.FO4_F4SE_Path, "Documents -> F4SE")
+    PLANET.log_check_errors(SYSTEM.FO4_F4SEVR_Path, "Documents -> F4SEVR")
+    PLANET.log_check_errors(SYSTEM.Game_Root, "Fallout 4 Root")
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INEGRITY ==========
 

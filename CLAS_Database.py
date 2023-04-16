@@ -117,7 +117,7 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
     CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
     CLAS_config.read("CLAS Settings.ini")
-    CLAS_Current = "CLAS v6.90"
+    CLAS_Current = "CLAS v6.95"
     CLAS_Date = "140423"
 
     LOG_Errors_Catch = ("critical", "error", "failed")
@@ -188,7 +188,7 @@ class ClasSpecificVars:
     Game_Plugins_Exclude = ("Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
 
     Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11.dll+", "dxgi.dll+", "[FE:", "f4se", "KERNEL", "kernel32.dll+", "MSVC", "ntdll",
-                                                    "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled exception", "USER32", "usvfs_x64", "win32u")
+    "flexRelease_x64.dll+", "nvcuda64.dll+", "cudart64_75.dll+", "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled", "USER32", "usvfs_x64", "win32u")
 
     XSE_Scripts_Count = 29
 
@@ -632,24 +632,30 @@ class ClasCheckFiles:
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
     # Don't forget to check both OG and VR script extender logs!
 
-    def xse_check_errors(self, xse_logpath):
+    def log_check_errors(self, log_path, log_source):
         list_log_errors = []
-        for filename in glob(f"{xse_logpath}/*.log"):
+        for filename in glob(f"{log_path}/*.log"):
+            print(filename)
             logname = ""
             if not all(exc in filename for exc in UNIVERSE.LOG_Files_Exclude):
-                filepath = Path(filename).resolve()
-                if filepath.is_file():
-                    try:
+                try:
+                    filepath = Path(filename).resolve()
+                    if filepath.is_file():
                         with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
                             Log_Errors = LOG_Check.readlines()
                             for logline in Log_Errors:
                                 if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
                                     logname = str(filepath)
                                     list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
-                    except (PermissionError, OSError):
-                        list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {logname}")
-                        continue
-        return list_log_errors
+                except (PermissionError, OSError):
+                    list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {logname}")
+                    continue
+        if len(list_log_errors) >= 1:
+            GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
+            for elem in list_log_errors:
+                GALAXY.scan_game_report.append(elem)
+        else:
+            GALAXY.scan_game_report.append(f"  -----\n✔️ Available logs in your {log_source} Folder do not report any additional errors. \n  -----")
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INTEGRITY =========
     # RESERVED | ADJUST FOR OTHER GAMES
