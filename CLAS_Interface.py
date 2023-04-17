@@ -241,7 +241,6 @@ class UiCLASMainWin(object):
         # SEGMENT - ARTICLES / WEBSITES
 
         # SEPARATOR LINE 2
-        self.Line_Separator_2 = QtWidgets.QFrame(CLAS_MainWin)
         self.Line_Separator_2 = create_custom_frame(CLAS_MainWin,
                                                     QtCore.QRect(40, 310, 560, 20),
                                                     QtWidgets.QFrame.Shape.HLine,
@@ -299,7 +298,9 @@ class UiCLASMainWin(object):
                                                     )
 
         # Usage
-        self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120))
+        self.TXT_Window = create_text_browser(CLAS_MainWin,
+                                              QtCore.QRect(20, 510, 600, 120)
+                                              )
         self.TXT_About = create_label(CLAS_MainWin,
                                       "Crash Log Auto Scanner (CLAS) | Made by: Poet #9800",
                                       QtCore.QRect(30, 520, 320, 16)
