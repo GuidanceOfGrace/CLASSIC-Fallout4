@@ -207,18 +207,18 @@ def scan_logs():
         }
 
         for mod_name, mod_data in Core_Mods.items():
-            if not mod_data['condition']:
-                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                             f"  {mod_data['description']}\n"
-                             f"  Link: {mod_data['link']}\n"
-                             "  -----\n")
-            elif "Nvidia" in mod_name and not gpu_nvidia:
+            if "Nvidia" in mod_name and not gpu_nvidia and mod_data['condition']:
                 output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
                              "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
                              f"   You should uninstall {mod_name} to avoid any problems.\n"
                              "  -----\n")
-            elif "Vulkan" in mod_name and gpu_nvidia:
+            elif "Vulkan" in mod_name and gpu_nvidia and mod_data['condition']:
                 continue
+            elif not mod_data['condition']:
+                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                             f"  {mod_data['description']}\n"
+                             f"  Link: {mod_data['link']}\n"
+                             "  -----\n")
             else:
                 output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
