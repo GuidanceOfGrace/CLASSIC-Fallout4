@@ -848,9 +848,9 @@ CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255
         print("NOTICE : CLAS WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
         for elem in list_SCANFAIL:
             print(elem)
-    print("===============================================================================")
-    print("Most common reason for this are logs being incomplete or in the wrong format.")
-    print("Make sure that your crash logs are saved with .log file format, NOT .txt!")
+        print("===============================================================================")
+        print("Most common reason for this are logs being incomplete or in the wrong format.")
+        print("Make sure that your crash logs are saved with .log file format, NOT .txt!")
 
     # ====================== TERMINAL OUTPUT END ======================
     print("===============================================================================")
