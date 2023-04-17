@@ -212,7 +212,7 @@ def scan_logs():
                              "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
                              f"   You should uninstall {mod_name} to avoid any problems.\n"
                              "  -----\n")
-            elif "Vulkan" in mod_name and gpu_nvidia and mod_data['condition']:
+            elif "Vulkan" in mod_name and gpu_nvidia:
                 continue
             elif not mod_data['condition']:
                 output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
