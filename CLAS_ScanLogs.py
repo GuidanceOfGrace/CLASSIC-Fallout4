@@ -207,7 +207,7 @@ def scan_logs():
         }
 
         for mod_name, mod_data in Core_Mods.items():
-            if "Nvidia" in mod_name and gpu_nvidia and mod_data['condition']:
+            if "Nvidia" in mod_name and not gpu_nvidia and mod_data['condition']:
                 output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
                              "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
                              f"   You should uninstall {mod_name} to avoid any problems.\n"
