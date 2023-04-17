@@ -206,32 +206,21 @@ def scan_logs():
             }
         }
 
-        if plugins_loaded:
-            for mod_name, mod_data in Core_Mods.items():
-                if gpu_amd or gpu_other:
-                    if mod_data['condition'] and "Nvidia" not in mod_name:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    elif not mod_data['condition'] and "Nvidia" not in mod_name:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
-                    elif mod_data['condition'] and "Nvidia" in mod_name:
-                        output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
-                                     "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
-                                     f"   You should uninstall {mod_name} to avoid any problems.\n"
-                                     "  -----\n")
-
-                elif gpu_nvidia and "Vulkan" not in mod_name:
-                    if mod_data['condition']:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    else:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
-        else:
-            output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
+        for mod_name, mod_data in Core_Mods.items():
+            if "Nvidia" in mod_name and not gpu_nvidia and mod_data['condition']:
+                output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
+                             "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
+                             f"   You should uninstall {mod_name} to avoid any problems.\n"
+                             "  -----\n")
+            elif "Vulkan" in mod_name and gpu_nvidia:
+                continue
+            elif not mod_data['condition']:
+                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                             f"  {mod_data['description']}\n"
+                             f"  Link: {mod_data['link']}\n"
+                             "  -----\n")
+            else:
+                output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
     def culprit_check(output, logtext, section_stack_text):
         # "xxxxx" are placeholders since None values are non iterable.
