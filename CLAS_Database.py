@@ -445,45 +445,60 @@ class ClasLocalFiles:
     # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
     def docs_path_check(self):
         def get_windows_docs_path():
+            """Get Windows Documents folder path."""
             CSIDL_PERSONAL = 5  # (My) Documents folder from user.
             SHGFP_TYPE_CURRENT = 0  # Get current, not default value.
-            User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)  # type: ignore
-            ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, User_Documents)  # type: ignore
-            Win_Docs = Path(User_Documents.value)
+
+            user_documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+            ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, user_documents)
+
+            win_docs = Path(user_documents.value)
             GALAXY.Game_Docs_Found = True
-            return Win_Docs
+            return win_docs
+
 
         def get_linux_docs_path():
+            """Get Linux Documents folder path."""
             libraryfolders_path = Path.home().joinpath(".local", "share", "Steam", "steamapps", "common", "libraryfolders.vdf")
+
             if libraryfolders_path.is_file():
                 library_path = None
+
                 with libraryfolders_path.open(encoding="utf-8", errors="ignore") as steam_library_raw:
                     steam_library = steam_library_raw.readlines()
+
                 for library_line in steam_library:
                     if "path" in library_line:
                         library_path = Path(library_line.split('"')[3])
-                    if str(GALAXY.Game_SID) in library_line:
-                        library_path = library_path.joinpath("steamapps")  # type: ignore
-                        Lin_Docs = library_path.joinpath("compatdata", str(GALAXY.Game_SID), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", GALAXY.Game_Docs)
-                        if library_path.joinpath("common", GALAXY.Game_Name).exists() and Lin_Docs.exists():
+                    if str(GALAXY.Game_SID) in library_line and library_path is not None: # The None check is to appease VSCode's type checker.
+                        library_path = library_path.joinpath("steamapps")
+                        lin_docs = library_path.joinpath("compatdata", str(GALAXY.Game_SID), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", GALAXY.Game_Docs)
+
+                        if library_path.joinpath("common", GALAXY.Game_Name).exists() and lin_docs.exists():
                             GALAXY.Game_Docs_Found = True
-                            return Lin_Docs
+                            return lin_docs
+
             return None
+
 
         def get_ini_docs_path():
+            """Get INI Documents folder path."""
             if str(GALAXY.Game_Docs).lower() in UNIVERSE.CLAS_config["MAIN"]["INI Path"].lower():
-                INI_Line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
-                INI_Docs = Path(INI_Line)
-                return INI_Docs
+                ini_line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
+                ini_docs = Path(ini_line)
+                return ini_docs
+
             return None
 
+
         def get_manual_docs_path():
+            """Get Manual Documents folder path."""
             print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {GALAXY.Game_Docs}.ini IS LOCATED < <")
-            Path_Input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
-            print("You entered :", Path_Input, "| This path will be automatically added to CLAS Settings.ini")
-            Manual_Docs = Path(Path_Input.strip())
-            clas_ini_update("INI Path", Path_Input)
-            return Manual_Docs
+            path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
+            print("You entered :", path_input, "| This path will be automatically added to CLAS Settings.ini")
+            manual_docs = Path(path_input.strip())
+            clas_ini_update("INI Path", path_input)
+            return manual_docs
 
         if platform.system() == "Windows":
             docs_path = get_windows_docs_path()
