@@ -143,7 +143,9 @@ class UiCLASMainWin(object):
 
         self.Line_SelectedFolder = create_custom_line_edit(CLAS_MainWin,
                                                            QtCore.QRect(20, 30, 450, 22),
-                                                           "Line_SelectedFolder", "(Optional) Press 'Browse Folder...' to set a different scan folder location.", "darkgray"
+                                                           "Line_SelectedFolder",
+                                                           "(Optional) Press 'Browse Folder...' to set a different scan folder location.",
+                                                           "darkgray"
                                                            )
         self.RegBT_Browse = create_custom_push_button(CLAS_MainWin,
                                                       QtCore.QRect(490, 30, 130, 24),
