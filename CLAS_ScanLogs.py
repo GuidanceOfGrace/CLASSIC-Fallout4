@@ -819,7 +819,7 @@ CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255
             LOG_Check.seek(0)  # Return line pointer to first line.
             line_count = sum(1 for _ in LOG_Check)
 
-        File_Check = File_Check.replace(user_name, "******")
+        File_Check = File_Check.replace(f"Users/{user_name}", "******").replace(f"Users\\{user_name}", "******")
         with open(file, "w", encoding="utf-8", errors="ignore") as LOG_Text:
             LOG_Text.write(File_Check)
 
