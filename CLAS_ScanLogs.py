@@ -86,13 +86,15 @@ def scan_logs():
         return [plugin for plugin in detected_plugins if plugin not in excluded_plugins]
 
     def find_plugin_culprits(all_plugins, detected_plugins):
-        culprits = []
+        culprits = set()
         counter = Counter(detected_plugins)
         for elem in all_plugins:
             matches = [item for item in detected_plugins if item in elem]
-            if matches:
-                culprits.append(matches)
-        return culprits, counter
+            if matches and len(matches) > 1:
+                culprits = set(matches)
+            elif matches and len(matches) == 1:
+                culprits.add(matches[0])
+        return sorted(culprits), counter
 
     def write_plugin_culprits(output, culprits, detected_plugins_counter):
         if not culprits:
@@ -100,7 +102,10 @@ def scan_logs():
                                "-----\n"])
         else:
             for matches in culprits:
-                output.write(f"- {' '.join(matches)} : {detected_plugins_counter[matches[-1]]}\n")
+                if isinstance(matches, str):
+                    output.write(f"- {matches} : {detected_plugins_counter[matches]}\n")
+                else:
+                    output.write(f"- {' '.join(matches)} : {detected_plugins_counter[matches[-1]]}\n")
             output.writelines(["-----\n",
                                "[Last number counts how many times each plugin culprit shows up in the crash log.]\n",
                                "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
