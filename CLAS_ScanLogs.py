@@ -865,7 +865,7 @@ This way, the code snippet is still more concise, and the special cases are prop
 Used a single with statement to open multiple files.
 Used pathlib for file path manipulation.
 Simplified the check for failed scans using the Path methods.
-These changes should make the code more readable and easier to maintain.'''  # This does not include any change to fix the contributor user name censoring.
+These changes should make the code more readable and easier to maintain.'''
 
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
     unsolved_folder = "CLAS UNSOLVED"
@@ -873,6 +873,7 @@ These changes should make the code more readable and easier to maintain.'''  # T
 
     failed_scans = []
     user_name = os.getlogin()
+    homedir = Path.home()
 
     for crash_file_path in Path(SCAN_folder).glob("crash-*"):
         file_move = False
@@ -887,7 +888,7 @@ These changes should make the code more readable and easier to maintain.'''  # T
             line_count = sum(1 for _ in crash_file)
 
         if user_name in file_contents:
-            file_contents = file_contents.replace(user_name, "******")
+            file_contents = file_contents.replace(f"{homedir.parent}\\{homedir.name}", "******").replace(f"{homedir.parent}/{homedir.name}", "******")
             with open(crash_file_path, "w", encoding="utf-8", errors="ignore") as crash_file:
                 crash_file.write(file_contents)
 
