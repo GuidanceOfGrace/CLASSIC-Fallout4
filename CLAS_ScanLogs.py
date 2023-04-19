@@ -862,32 +862,32 @@ This way, the code snippet is still more concise, and the special cases are prop
 
     '''GPT Changes:
     Replaced variable names with more descriptive alternatives.
-Used a single with statement to open multiple files.
 Used pathlib for file path manipulation.
 Simplified the check for failed scans using the Path methods.
 These changes should make the code more readable and easier to maintain.'''
 
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
     unsolved_folder = "CLAS UNSOLVED"
-    Path(unsolved_folder).mkdir(exist_ok=True)
+    if UNIVERSE.CLAS_config["MAIN"]["Move Unsolved"]:
+        Path(unsolved_folder).mkdir(exist_ok=True)
 
     failed_scans = []
-    user_name = os.getlogin()
     homedir = Path.home()
 
     for crash_file_path in Path(SCAN_folder).glob("crash-*"):
         file_move = False
-        scan_file_path = crash_file_path.with_name(crash_file_path.stem + "-AUTOSCAN.md")
+        scan_file_path = crash_file_path
+        if crash_file_path.suffix == ".log":
+            scan_file_path = crash_file_path.with_name(crash_file_path.stem + "-AUTOSCAN.md")
         crash_move = Path(unsolved_folder, crash_file_path.name)
         scan_move = Path(unsolved_folder, scan_file_path.name)
 
-        with open(crash_file_path, "r", encoding="utf-8", errors="ignore") as crash_file, \
-                open(scan_file_path, "r", encoding="utf-8", errors="ignore") as scan_file:
+        with open(crash_file_path, "r", encoding="utf-8", errors="ignore") as crash_file:
             file_contents = crash_file.read()
             crash_file.seek(0)
             line_count = sum(1 for _ in crash_file)
 
-        if user_name in file_contents:
+        if homedir.name in file_contents:
             file_contents = file_contents.replace(f"{homedir.parent}\\{homedir.name}", "******").replace(f"{homedir.parent}/{homedir.name}", "******")
             with open(crash_file_path, "w", encoding="utf-8", errors="ignore") as crash_file:
                 crash_file.write(file_contents)
