@@ -239,7 +239,7 @@ These changes should make the function more readable and easier to maintain.'''
         if plugins_loaded:
             for mod_name, mod_data in Core_Mods.items():
                 mod_condition = mod_data['condition']
-                nvidia_specific = mod_data.get('nvidia_specific', False)
+                nvidia_specific = mod_data.get('nvidia_specific', False) # If the key doesn't exist, return False
                 amd_specific = mod_data.get('amd_specific', False)
 
                 if gpu_amd or gpu_other:
