@@ -858,10 +858,6 @@ Simplified the check for failed scans using the Path methods.
 These changes should make the code more readable and easier to maintain.'''
 
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
-    unsolved_folder = "CLAS UNSOLVED"
-    if UNIVERSE.CLAS_config["MAIN"]["Move Unsolved"]:
-        Path(unsolved_folder).mkdir(exist_ok=True)
-
     failed_scans = []
     homedir = Path.home()
 
@@ -870,9 +866,7 @@ These changes should make the code more readable and easier to maintain.'''
         scan_file_path = crash_file_path
         if crash_file_path.suffix == ".log":
             scan_file_path = crash_file_path.with_name(crash_file_path.stem + "-AUTOSCAN.md")
-        crash_move = Path(unsolved_folder, crash_file_path.name)
-        scan_move = Path(unsolved_folder, scan_file_path.name)
-
+        
         with open(crash_file_path, "r", encoding="utf-8", errors="ignore") as crash_file:
             file_contents = crash_file.read()
             crash_file.seek(0)
@@ -893,6 +887,11 @@ These changes should make the code more readable and easier to maintain.'''
             file_move = True
 
         if file_move and UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"):
+            unsolved_folder = "CLAS UNSOLVED"
+            Path(unsolved_folder).mkdir(exist_ok=True)
+            crash_move = Path(unsolved_folder, crash_file_path.name)
+            scan_move = Path(unsolved_folder, scan_file_path.name)
+
             if crash_file_path.exists():
                 shutil.move(crash_file_path, crash_move)
             if scan_file_path.exists():
