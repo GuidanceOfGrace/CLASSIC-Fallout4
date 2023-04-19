@@ -16,7 +16,86 @@ if current_platform == 'Windows':
 '''
 clas_ini_create()
 
+
+def create_custom_line_edit(parent, geometry, object_name, text, text_color="black"):
+    line_edit = QtWidgets.QLineEdit(parent)
+    line_edit.setGeometry(geometry)
+    line_edit.setObjectName(object_name)
+    line_edit.setText(text)
+    palette = line_edit.palette()
+    palette.setColor(QPalette.Text, QColor(text_color))  # type: ignore
+    line_edit.setPalette(palette)
+    return line_edit
+
+
+def create_custom_push_button(parent, geometry, object_name, text, font, tooltip="", callback=None):
+    button = QtWidgets.QPushButton(parent)
+    button.setGeometry(geometry)
+    button.setObjectName(object_name)
+    button.setText(text)
+    button.setFont(font)
+    button.setToolTip(tooltip)
+    if callback:
+        button.clicked.connect(callback)
+    return button
+
+
+def create_simple_button(parent, geometry, object_name, text, tooltip, callback):
+    button = QtWidgets.QPushButton(parent)
+    button.setGeometry(geometry)
+    button.setObjectName(object_name)
+    button.setText(text)
+    button.setToolTip(tooltip)
+    button.clicked.connect(callback)
+    return button
+
+
+def create_custom_frame(parent, geometry, frame_shape, frame_shadow, object_name):
+    frame = QtWidgets.QFrame(parent)
+    frame.setGeometry(geometry)
+    frame.setFrameShape(frame_shape)
+    frame.setFrameShadow(frame_shadow)
+    frame.setObjectName(object_name)
+    return frame
+
+
+def create_custom_label(parent, geometry, text, font, object_name):
+    label = QtWidgets.QLabel(parent)
+    label.setGeometry(geometry)
+    label.setText(text)
+    label.setFont(font)
+    label.setObjectName(object_name)
+    return label
+
+
+def create_custom_check_box(parent, geometry, text, tooltip, checked, object_name):
+    check_box = QtWidgets.QCheckBox(parent)
+    check_box.setGeometry(geometry)
+    check_box.setText(text)
+    check_box.setToolTip(tooltip)
+    if checked:
+        check_box.setChecked(True)
+    check_box.setObjectName(object_name)
+    return check_box
+
+
+def create_label(parent, text, geometry):
+    label = QtWidgets.QLabel(parent)
+    label.setGeometry(geometry)
+    label.setObjectName("label")
+    label.setText(text)
+    return label
+
+
+def create_text_browser(parent, geometry):
+    text_browser = QtWidgets.QTextBrowser(parent)
+    text_browser.setGeometry(geometry)
+    text_browser.setObjectName("text_browser")
+    return text_browser
+
 # noinspection PyUnresolvedReferences
+
+
 class UiCLASMainWin(object):
     def __init__(self):
         self.ArtBT_Buffout4 = None
@@ -66,135 +145,37 @@ class UiCLASMainWin(object):
         # TOP
 
         # Text Box - Selected Folder
-        self.Line_SelectedFolder = QtWidgets.QLineEdit(CLAS_MainWin)
-        self.Line_SelectedFolder.setGeometry(QtCore.QRect(20, 30, 450, 22))
-        self.Line_SelectedFolder.setObjectName("Line_SelectedFolder")
+        font_bold_10 = QtGui.QFont()
+        font_bold_10.setPointSize(10)
+        font_bold_10.setBold(True)
+        font_10 = QtGui.QFont()
+        font_10.setPointSize(10)
+
+        self.Line_SelectedFolder = create_custom_line_edit(CLAS_MainWin, QtCore.QRect(20, 30, 450, 22), "Line_SelectedFolder", "(Optional) Press 'Browse Folder...' to set a different scan folder location.", "darkgray")
+        self.RegBT_Browse = create_simple_button(CLAS_MainWin, QtCore.QRect(490, 30, 130, 24), "RegBT_Browse", "Browse Folder...", "", self.SelectFolder_SCAN)
+        self.RegBT_SCAN_LOGS = create_custom_push_button(CLAS_MainWin, QtCore.QRect(220, 80, 200, 40), "RegBT_SCAN_LOGS", "SCAN LOGS", font_bold_10, "", self.CrashLogs_SCAN)
+        self.RegBT_SCAN_FILES = create_custom_push_button(CLAS_MainWin, QtCore.QRect(245, 150, 150, 32), "RegBT_SCAN_FILES", "Scan Game Files", font_bold_10, "", self.Gamefiles_SCAN)
+        self.RegBT_ChangeINI = create_custom_push_button(CLAS_MainWin, QtCore.QRect(90, 150, 130, 32), "RegBT_ChangeINI", "CHANGE INI PATH", font_10, "Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.", self.SelectFolder_INI)
+        self.RegBT_CheckUpdates = create_custom_push_button(CLAS_MainWin, QtCore.QRect(420, 150, 140, 32), "RegBT_CheckUpdates", "CHECK FOR UPDATES", font_10, "", self.Update_Popup)
+
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"].strip()
         if len(SCAN_folder) > 1:
             self.Line_SelectedFolder.setText(SCAN_folder)
-        else:
-            self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
-        # Change text color to gray.
-        LSF_palette = self.Line_SelectedFolder.palette()
-        LSF_palette.setColor(QPalette.Text, QColor("darkgray"))  # type: ignore
-        self.Line_SelectedFolder.setPalette(LSF_palette)
-
-        # Button - Browse Folder
-        self.RegBT_Browse = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_Browse.setGeometry(QtCore.QRect(490, 30, 130, 24))
-        self.RegBT_Browse.setObjectName("RegBT_Browse")
-        self.RegBT_Browse.setText("Browse Folder...")
-        self.RegBT_Browse.clicked.connect(self.SelectFolder_SCAN)  # type: ignore
-
-        # Button - SCAN LOGS (CRASH LOGS)
-        self.RegBT_SCAN_LOGS = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_SCAN_LOGS.setGeometry(QtCore.QRect(220, 80, 200, 40))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.RegBT_SCAN_LOGS.setFont(font)
-        self.RegBT_SCAN_LOGS.setObjectName("RegBT_SCAN_LOGS")
-        self.RegBT_SCAN_LOGS.setText("SCAN LOGS")
-        self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)  # type: ignore
-
-        # Button - SCAN FILES (GAME FILES)
-        self.RegBT_SCAN_FILES = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_SCAN_FILES.setGeometry(QtCore.QRect(245, 150, 150, 32))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.RegBT_SCAN_FILES.setFont(font)
-        self.RegBT_SCAN_FILES.setObjectName("RegBT_SCAN_FILES")
-        self.RegBT_SCAN_FILES.setText("Scan Game Files")
-        self.RegBT_SCAN_FILES.clicked.connect(self.Gamefiles_SCAN)  # type: ignore
-
-        # Button - Set INI Path
-        self.RegBT_ChangeINI = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_ChangeINI.setGeometry(QtCore.QRect(90, 150, 130, 32))
-        self.RegBT_ChangeINI.setObjectName("RegBT_ChangeINI")
-        self.RegBT_ChangeINI.setText("CHANGE INI PATH")
-        self.RegBT_ChangeINI.setToolTip("Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.")
-        self.RegBT_ChangeINI.clicked.connect(self.SelectFolder_INI)  # type: ignore
-
-        # Button - Check Updates
-        self.RegBT_CheckUpdates = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_CheckUpdates.setGeometry(QtCore.QRect(420, 150, 140, 32))
-        self.RegBT_CheckUpdates.setObjectName("RegBT_CheckUpdates")
-        self.RegBT_CheckUpdates.setText("CHECK FOR UPDATES")
-        self.RegBT_CheckUpdates.clicked.connect(self.Update_Popup)  # type: ignore
 
         # SEGMENT - SETTINGS
 
-        # SEPARATOR LINE 1
-        self.Line_Separator_1 = QtWidgets.QFrame(CLAS_MainWin)
-        self.Line_Separator_1.setGeometry(QtCore.QRect(40, 180, 560, 20))
-        self.Line_Separator_1.setFrameShape(QtWidgets.QFrame.Shape.HLine)  # type: ignore
-        self.Line_Separator_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)  # type: ignore
-        self.Line_Separator_1.setObjectName("Line_Separator_1")
-        # SEPARATOR TEXT 1 (SETTINGS)
-        self.LBL_Settings = QtWidgets.QLabel(CLAS_MainWin)
-        self.LBL_Settings.setGeometry(QtCore.QRect(290, 200, 60, 16))
-        self.LBL_Settings.setText("SETTINGS")
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.LBL_Settings.setFont(font)
-        self.LBL_Settings.setObjectName("LBL_Settings")
-
-        # Check Box - FCX Mode
-        self.ChkBT_FCXMode = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_FCXMode.setGeometry(QtCore.QRect(100, 230, 110, 20))
-        self.ChkBT_FCXMode.setText("FCX MODE")
-        self.ChkBT_FCXMode.setToolTip("Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.")
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "FCX Mode"):
-            self.ChkBT_FCXMode.setChecked(True)
-        self.ChkBT_FCXMode.setObjectName("ChkBT_FCXMode")
-
-        # Check Box - IMI Mode
-        self.ChkBT_IMIMode = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_IMIMode.setGeometry(QtCore.QRect(260, 210, 100, 100))
-        self.ChkBT_IMIMode.setText("IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS")
-        self.ChkBT_IMIMode.setToolTip("Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager. ")
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "IMI Mode"):
-            self.ChkBT_IMIMode.setChecked(True)
-        self.ChkBT_IMIMode.setObjectName("ChkBT_IMIMode")
-
-        # Check Box - INI Update
-        self.ChkBT_Update = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Update.setGeometry(QtCore.QRect(430, 230, 110, 20))
-        self.ChkBT_Update.setText("UPDATE CHECK")
-        self.ChkBT_Update.setToolTip("Enable if you want Auto-Scanner to check your Python version and if all required packages are installed. ")
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check"):
-            self.ChkBT_Update.setChecked(True)
-        self.ChkBT_Update.setObjectName("ChkBT_Update")
-
-        # Check Box - INI Stats
-        self.ChkBT_Stats = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Stats.setGeometry(QtCore.QRect(100, 270, 120, 20))
-        self.ChkBT_Stats.setText("STAT LOGGING")
-        self.ChkBT_Stats.setToolTip("Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window. ")
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "Stat Logging"):
-            self.ChkBT_Stats.setChecked(True)
-        self.ChkBT_Stats.setObjectName("ChkBT_Stats")
-
-        # Check Box - INI Unsolved
-        self.ChkBT_Unsolved = QtWidgets.QCheckBox(CLAS_MainWin)
-        self.ChkBT_Unsolved.setGeometry(QtCore.QRect(430, 270, 130, 20))
-        self.ChkBT_Unsolved.setText("MOVE UNSOLVED")
-        self.ChkBT_Unsolved.setToolTip(
-            "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)")
-        if UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"):
-            self.ChkBT_Unsolved.setChecked(True)
-        self.ChkBT_Unsolved.setObjectName("ChkBT_Unsolved")
+        self.Line_Separator_1 = create_custom_frame(CLAS_MainWin, QtCore.QRect(40, 180, 560, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Separator_1")
+        self.LBL_Settings = create_custom_label(CLAS_MainWin, QtCore.QRect(290, 200, 60, 16), "SETTINGS", font_bold_10, "LBL_Settings")
+        self.ChkBT_FCXMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 230, 110, 20), "FCX MODE", "Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.", UNIVERSE.CLAS_config.getboolean("MAIN", "FCX Mode"), "ChkBT_FCXMode")
+        self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 100, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config.getboolean("MAIN", "IMI Mode"), "ChkBT_IMIMode")
+        self.ChkBT_Update = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 230, 110, 20), "UPDATE CHECK", "Enable if you want Auto-Scanner to check your Python version and if all required packages are installed.", UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check"), "ChkBT_Update")
+        self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window.", UNIVERSE.CLAS_config.getboolean("MAIN", "Stat Logging"), "ChkBT_Stats")
+        self.ChkBT_Unsolved = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 270, 130, 20), "MOVE UNSOLVED", "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)", UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"), "ChkBT_Unsolved")
 
         # SEGMENT - ARTICLES / WEBSITES
 
         # SEPARATOR LINE 2
-        self.Line_Separator_2 = QtWidgets.QFrame(CLAS_MainWin)
-        self.Line_Separator_2.setGeometry(QtCore.QRect(40, 310, 560, 20))
-        self.Line_Separator_2.setFrameShape(QtWidgets.QFrame.HLine)  # type: ignore
-        self.Line_Separator_2.setFrameShadow(QtWidgets.QFrame.Sunken)  # type: ignore
-        self.Line_Separator_2.setObjectName("Line_Separator_2")
+        self.Line_Separator_2 = create_custom_frame(CLAS_MainWin, QtCore.QRect(40, 310, 560, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Separator_2")
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
         self.LBL_ArtWeb = QtWidgets.QLabel(CLAS_MainWin)
         self.LBL_ArtWeb.setGeometry(QtCore.QRect(250, 330, 140, 16))
@@ -204,6 +185,7 @@ class UiCLASMainWin(object):
         font.setBold(True)
         self.LBL_ArtWeb.setFont(font)
         self.LBL_ArtWeb.setObjectName("LBL_ArtWeb")
+        self.LBL_ArtWeb = create_custom_label(CLAS_MainWin, QtCore.QRect(250, 330, 140, 16), "ARTICLES / WEBSITES", font_bold_10, "LBL_ArtWeb")
 
         # Articles & Websites
         button_data = [
@@ -229,32 +211,9 @@ class UiCLASMainWin(object):
         # BOTTOM
 
         # Button - HELP
-        self.RegBT_Help = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_Help.setGeometry(QtCore.QRect(20, 480, 110, 24))
-        self.RegBT_Help.setObjectName("RegBT_Help")
-        self.RegBT_Help.setText("HELP")
-        self.RegBT_Help.setToolTip("How To Use CLAS GUI")
-        self.RegBT_Help.clicked.connect(self.Help_Popup)  # type: ignore
+        self.RegBT_Help = create_custom_push_button(CLAS_MainWin, QtCore.QRect(20, 480, 110, 24), "RegBT_Help", "HELP", font_10, "How To Use CLAS GUI", self.Help_Popup)
         # Button - EXIT
-        self.RegBT_Exit = QtWidgets.QPushButton(CLAS_MainWin)
-        self.RegBT_Exit.setGeometry(QtCore.QRect(510, 480, 110, 24))
-        self.RegBT_Exit.setObjectName("RegBT_Exit")
-        self.RegBT_Exit.setText("EXIT")
-        self.RegBT_Exit.setToolTip("Exit CLAS GUI")
-        self.RegBT_Exit.clicked.connect(CLAS_MainWin.close)  # type: ignore
-
-        def create_label(parent, text, geometry):
-            label = QtWidgets.QLabel(parent)
-            label.setGeometry(geometry)
-            label.setObjectName("label")
-            label.setText(text)
-            return label
-
-        def create_text_browser(parent, geometry):
-            text_browser = QtWidgets.QTextBrowser(parent)
-            text_browser.setGeometry(geometry)
-            text_browser.setObjectName("text_browser")
-            return text_browser
+        self.RegBT_Exit = create_custom_push_button(CLAS_MainWin, QtCore.QRect(510, 480, 110, 24), "RegBT_Exit", "EXIT", font_10, "Exit CLAS GUI", CLAS_MainWin.close)
 
         # Usage
         self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120))
