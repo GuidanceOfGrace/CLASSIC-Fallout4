@@ -262,15 +262,6 @@ These changes should make the function more readable and easier to maintain.'''
         else:
             output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 
-    '''GPT Changes Part 1:
-    Created a new function check_culprit_conditions to handle the logic of checking culprit conditions. This function takes the logtext, crash_error, section_stack_text, and culprit_data as input arguments, and returns True if any condition is met, otherwise False.
-Removed the hard-coded culprit names and simplified the conditions by calling the check_culprit_conditions function.
-Removed the redundant nested conditionals and replaced them with a single if-statement.
-Kept the main loop for iterating through the culprits and writing the output if the conditions are met.'''
-    '''GPT Changes Part 2:
-    In this updated version, I've reintroduced the special cases by creating a new function called check_special_case. The function checks if the culprit_name is one of the special cases and handles them accordingly. The check_culprit_conditions function now calls this check_special_case function to handle the special cases.
-This way, the code snippet is still more concise, and the special cases are properly handled.'''  # it originally didn't handle the special cases properly.
-
     def culprit_check(output, logtext, section_stack_text):
         # "xxxxx" are placeholders since None values are non iterable.
         Culprits = {
@@ -494,39 +485,31 @@ This way, the code snippet is still more concise, and the special cases are prop
                 'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                 'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
         }
-
-        def check_special_case(logtext, section_stack_text, culprit_name, stack_conditions):
-            special_cases = {
-                'Nvidia Debris Crash': "nvidia",
-                'Nvidia Driver Crash': "nvidia",
-                'Nvidia Reflex Crash': "nvidia",
-                'Vulkan Memory Crash': "vulkan",
-                'Vulkan Settings Crash': "vulkan"
-            }
-
-            keyword = special_cases.get(culprit_name)
-            if keyword and keyword in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                return True
-            return False
-
-        def check_culprit_conditions(logtext, crash_error, section_stack_text, culprit_name, culprit_data):
-            error_conditions = culprit_data['error_conditions']
-            stack_conditions = culprit_data['stack_conditions']
-            error_conditions = [error_conditions] if isinstance(error_conditions, str) else error_conditions
-            stack_conditions = [stack_conditions] if isinstance(stack_conditions, str) else stack_conditions
-
-            if check_special_case(logtext, section_stack_text, culprit_name, stack_conditions):
-                return True
-            if culprit_name == 'Player Character Crash' and any(section_stack_text.count(item) >= 3 for item in stack_conditions):
-                return True
-            if any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
-                return True
-
-            return False
-
         Culprit_Trap = False
         for culprit_name, culprit_data in Culprits.items():
-            if check_culprit_conditions(logtext, crash_error, section_stack_text, culprit_name, culprit_data):
+
+            # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
+            error_conditions = culprit_data['error_conditions']
+            if isinstance(error_conditions, str):
+                error_conditions = [error_conditions]
+            stack_conditions = culprit_data['stack_conditions']
+            if isinstance(stack_conditions, str):
+                stack_conditions = [stack_conditions]
+
+            # CHECK CULPRIT KEYS IN CRASH LOG
+            if culprit_name == 'Nvidia Debris Crash' or culprit_name == 'Nvidia Driver Crash' or culprit_name == 'Nvidia Reflex Crash':
+                if "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
+                    Culprit_Trap = True
+            elif culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
+                if "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
+                    Culprit_Trap = True
+            elif culprit_name == 'Player Character Crash':
+                if any(section_stack_text.count(item) >= 3 for item in stack_conditions):
+                    output.write(f"{culprit_data['description']}  -----\n")
+                    Culprit_Trap = True
+            elif any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
                 output.write(f"{culprit_data['description']}  -----\n")
                 Culprit_Trap = True
         return Culprit_Trap
@@ -618,6 +601,12 @@ This way, the code snippet is still more concise, and the special cases are prop
             # ====================== HEADER CULPRITS =====================
             if ".dll" in crash_error.lower() and "tbbmalloc" not in crash_error.lower():
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
+
+            # ====================== GPU Variables ======================
+            gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
+            gpu_amd = any("GPU" in line and "AMD" in line for line in loglines) if not gpu_nvidia else False
+            gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefined
+            assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
 
             # =================== CRASH CULPRITS CHECK ==================
             Culprit_Trap = culprit_check(output, logtext, section_stack_text)
@@ -807,10 +796,7 @@ This way, the code snippet is still more concise, and the special cases are prop
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
-            gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
-            gpu_amd = any("GPU" in line and "AMD" in line for line in loglines) if not gpu_nvidia else False
-            gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefined
-            assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
+            
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
             check_core_mods()
