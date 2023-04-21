@@ -1,12 +1,14 @@
 # CRASH LOG AUTO SCANNER (CLAS) | By Poet (The Sound Of Snow)
 import os
+import random
 import shutil
 import time
-import random
-from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_check
 from collections import Counter
 from glob import glob
 from pathlib import Path
+
+from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_ini_create,
+                           clas_ini_update, clas_update_check)
 
 clas_ini_create()
 clas_update_check()
@@ -542,7 +544,8 @@ These changes should make the function more readable and easier to maintain.'''
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
 
     if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
-        from CLAS_ScanFiles import scan_game_files, scan_wryecheck, scan_mod_inis
+        from CLAS_ScanFiles import (scan_game_files, scan_mod_inis,
+                                    scan_wryecheck)
         GALAXY.scan_game_report = []
         scan_game_files()
         scan_wryecheck()

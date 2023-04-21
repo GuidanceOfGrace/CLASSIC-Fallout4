@@ -1,14 +1,15 @@
-import os
-import stat
 import configparser
-import platform
-import requests
 import hashlib
-import tomlkit
+import os
+import platform
+import stat
+from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
-from dataclasses import dataclass, field
 from typing import Optional
+
+import requests
+import tomlkit
 
 if platform.system() == "Windows":
     import ctypes.wintypes
@@ -648,7 +649,6 @@ class ClasCheckFiles:
     def log_check_errors(self, log_path, log_source):
         list_log_errors = []
         for filename in glob(f"{log_path}/*.log"):
-            print(filename)
             logname = ""
             if not all(exc in filename for exc in UNIVERSE.LOG_Files_Exclude):
                 try:

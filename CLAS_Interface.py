@@ -1,11 +1,15 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
-from CLAS_Database import UNIVERSE, GALAXY, clas_ini_create, clas_ini_update, clas_update_check
-from CLAS_ScanLogs import scan_logs
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QApplication, QFileDialog
+
+from CLAS_Database import (GALAXY, UNIVERSE, clas_ini_create, clas_ini_update,
+                           clas_update_check)
+from CLAS_ScanLogs import scan_logs
+
 '''import platform  # RESERVED FOR FUTURE UPDATE
 current_platform = platform.system()
 if current_platform == 'Windows':
