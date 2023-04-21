@@ -444,7 +444,7 @@ class ClasLocalFiles:
         self.WB_Plugin_Check = docs_location.joinpath("My Games", "Fallout4", "ModChecker.html")
 
     # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
-        
+
         '''GPT Changes:
         In this updated version, I've made the following changes:
 
@@ -452,7 +452,8 @@ Used snake_case for function and variable names.
 Used f-strings for better string formatting.
 Added type hints to the function signatures.
 Replaced print and string concatenation with f-strings.'''
-    def docs_path_check(self): 
+
+    def docs_path_check(self):
         def get_windows_docs_path() -> Path:
             CSIDL_PERSONAL = 5
             SHGFP_TYPE_CURRENT = 0

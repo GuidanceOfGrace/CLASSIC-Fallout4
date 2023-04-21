@@ -239,7 +239,7 @@ These changes should make the function more readable and easier to maintain.'''
         if plugins_loaded:
             for mod_name, mod_data in Core_Mods.items():
                 mod_condition = mod_data['condition']
-                nvidia_specific = mod_data.get('nvidia_specific', False) # If the key doesn't exist, return False
+                nvidia_specific = mod_data.get('nvidia_specific', False)  # If the key doesn't exist, return False
                 amd_specific = mod_data.get('amd_specific', False)
 
                 if gpu_amd or gpu_other:
@@ -527,7 +527,7 @@ These changes should make the function more readable and easier to maintain.'''
 
         with logpath.open(encoding="utf-8", errors="ignore") as f:
             loglines = f.readlines()
-        
+
         loglines = list(map(str.strip, loglines))
 
         return logpath, scanpath, logname, logtext, loglines
@@ -803,7 +803,6 @@ These changes should make the function more readable and easier to maintain.'''
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
-            
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
             check_core_mods()
@@ -868,7 +867,7 @@ These changes should make the code more readable and easier to maintain.'''
         scan_file_path = crash_file_path
         if crash_file_path.suffix == ".log":
             scan_file_path = crash_file_path.with_name(crash_file_path.stem + "-AUTOSCAN.md")
-        
+
         with open(crash_file_path, "r", encoding="utf-8", errors="ignore") as crash_file:
             file_contents = crash_file.read()
             crash_file.seek(0)
