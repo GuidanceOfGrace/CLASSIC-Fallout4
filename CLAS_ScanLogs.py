@@ -557,10 +557,7 @@ These changes should make the function more readable and easier to maintain.'''
                                "====================================================\n"])
             # DEFINE LINE INDEXES HERE
             crash_ver = loglines[1].strip()
-            if not loglines[2] or loglines[2] == "\n":
-                crash_error = loglines[3].strip()
-            else:
-                crash_error = loglines[2].strip()
+            crash_error = loglines[2].strip() if loglines[2] and not loglines[2] == "\n" else loglines[3].strip()
             assert len(crash_error) > 0
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
