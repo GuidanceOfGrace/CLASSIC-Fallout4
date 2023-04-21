@@ -549,7 +549,7 @@ These changes should make the function more readable and easier to maintain.'''
         scan_mod_inis()
 
     for file in glob(f"{SCAN_folder}/crash-*.log"):
-        logpath, scanpath, logname, logtext, loglines = process_file_data(file)  # logpath doesn't seem to be used anywhere anymore, but keeping it in case it's needed later.
+        logpath, scanpath, logname, logtext, loglines = process_file_data(file)  # logpath doesn't seem to be used anywhere besides generating scanpath, keeping it in case it's needed later.
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
