@@ -521,12 +521,14 @@ These changes should make the function more readable and easier to maintain.'''
 
     def process_file_data(file):
         logpath = Path(file).resolve()
-        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
+        scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
 
         with logpath.open(encoding="utf-8", errors="ignore") as f:
             loglines = f.readlines()
+        
+        loglines = list(map(str.strip, loglines))
 
         return logpath, scanpath, logname, logtext, loglines
 
