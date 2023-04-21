@@ -910,10 +910,10 @@ These changes should make the code more readable and easier to maintain.'''
 
     # ====================== TERMINAL OUTPUT END ======================
     print("===============================================================================")
-    print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - start_time)[:7]), "seconds.")
-    print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
-    print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
-    print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
+    print(f"\nScanned all available logs in ({str(time.perf_counter() - 0.5 - start_time)[:7]}) seconds.")
+    print(f"Number of Scanned Logs (No Autoscan Errors): {statL_scanned}")
+    print(f"Number of Incomplete Logs (No Plugins List): {statL_incomplete}")
+    print(f"Number of Failed Logs (Autoscan Can't Scan): {statL_failed}")
     print("-----")
     print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md")
     print("PLEASE OPEN THESE FILES WITH NOTEPAD++ OR SIMILAR AND READ GIVEN RESULTS")
