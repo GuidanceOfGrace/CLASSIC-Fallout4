@@ -553,10 +553,13 @@ These changes should make the function more readable and easier to maintain.'''
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
                                "====================================================\n"])
-
             # DEFINE LINE INDEXES HERE
             crash_ver = loglines[1].strip()
-            crash_error = loglines[2].strip()
+            if not loglines[2] or loglines[2] == "\n":
+                crash_error = loglines[3].strip()
+            else:
+                crash_error = loglines[2].strip()
+            assert len(crash_error) > 0
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
