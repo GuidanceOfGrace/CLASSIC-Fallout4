@@ -125,7 +125,7 @@ Added a return statement to return the form_ids list.
 These changes should make the function more readable and easier to maintain.'''
 
     '''GPT Changes Part 2:
-    In the updated version, I've added the missing else block to handle the case when plugins_loaded is False. 
+    In the updated version, I've added the missing else block to handle the case when plugins_loaded is False.
     The function now appends the line directly to the form_ids list in that case. The rest of the function remains the same as in the previous improvement.'''  # I initially forgot to paste the whole function.
 
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
@@ -492,10 +492,27 @@ These changes should make the function more readable and easier to maintain.'''
                 'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                 'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
         }
+
+        Special_Cases = {
+            'Nvidia_Crashes': ['Nvidia Debris Crash', 'Nvidia Driver Crash', 'Nvidia Reflex Crash'],
+            'Vulkan_Crashes': ['Vulkan Memory Crash', 'Vulkan Settings Crash'],
+            'Player_Character_Crash': ['Player Character Crash']
+            }
+
+        def check_conditions(culprit_name, error_conditions, stack_conditions):
+            if culprit_name in Special_Cases['Nvidia_Crashes']:
+                return "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions)
+            elif culprit_name in Special_Cases['Vulkan_Crashes']:
+                return "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions)
+            elif culprit_name in Special_Cases['Player_Character_Crash']:
+                return any(section_stack_text.count(item) >= 3 for item in stack_conditions)
+            else:
+                return any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions)
+
         Culprit_Trap = False
         for culprit_name, culprit_data in Culprits.items():
 
-            # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
+            # Wrap any keys with single items into a list
             error_conditions = culprit_data['error_conditions']
             if isinstance(error_conditions, str):
                 error_conditions = [error_conditions]
@@ -503,22 +520,11 @@ These changes should make the function more readable and easier to maintain.'''
             if isinstance(stack_conditions, str):
                 stack_conditions = [stack_conditions]
 
-            # CHECK CULPRIT KEYS IN CRASH LOG
-            if culprit_name == 'Nvidia Debris Crash' or culprit_name == 'Nvidia Driver Crash' or culprit_name == 'Nvidia Reflex Crash':
-                if "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
-            elif culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
-                if "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
-            elif culprit_name == 'Player Character Crash':
-                if any(section_stack_text.count(item) >= 3 for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
-            elif any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
+            # Check culprit keys in crash log
+            if check_conditions(culprit_name, error_conditions, stack_conditions):
                 output.write(f"{culprit_data['description']}  -----\n")
                 Culprit_Trap = True
+
         return Culprit_Trap
 
     def process_file_data(file):
