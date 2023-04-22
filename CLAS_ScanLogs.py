@@ -36,11 +36,11 @@ def scan_logs():
         index_plugins = 1
         plugins_loaded = False
 
-        for line in loglines:
+        for index, line in enumerate(loglines):
             if "MODULES:" in line:
-                index_stack = loglines.index(line)
+                index_stack = index
             if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
-                index_plugins = loglines.index(line)
+                index_plugins = index
             if "[00]" in line:
                 plugins_loaded = True
                 break
