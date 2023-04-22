@@ -72,16 +72,16 @@ def scan_logs():
                 start_index = line.index("[")
                 end_index = line.index("]")
                 if end_index - start_index == 3 or end_index - start_index == 7:
-                    plugin_ids.append(line.strip())
+                    plugin_ids.append(line)
         return plugin_ids
 
     def extract_detected_plugins(loglines):
         detected_plugins = set()
         for line in loglines:
             if "File:" in line and "Fallout4.esm" not in line:
-                line = line.replace("File: ", "").replace('"', '').strip()
-                if line.strip():
-                    detected_plugins.add(line.strip())
+                line = line.replace("File: ", "").replace('"', '')
+                if line:
+                    detected_plugins.add(line)
         return sorted(detected_plugins)
 
     def filter_excluded_plugins(detected_plugins, excluded_plugins):
@@ -134,12 +134,12 @@ These changes should make the function more readable and easier to maintain.'''
         for line in loglines:
             if ("Form ID:" in line or "FormID:" in line) and "0xFF" not in line:
                 # Normalize the line
-                line = line.replace("0x", "").replace("Form ID: ", "").replace("FormID: ", "").strip()
+                line = line.replace("0x", "").replace("Form ID: ", "").replace("FormID: ", "")
 
                 if plugins_loaded:
                     for plugin in section_plugins_list:
                         # Normalize the plugin
-                        plugin = plugin.replace(":", "").strip()
+                        plugin = plugin.replace(":", "")
 
                         # Handle plugins without "[FE"
                         if "]" in plugin and "[FE" not in plugin:
@@ -151,7 +151,7 @@ These changes should make the function more readable and easier to maintain.'''
                             if plugin[2:7] == line[:5]:
                                 form_ids.append(f"Form ID: {line} | {plugin}")
                 else:
-                    form_ids.append(line.strip())
+                    form_ids.append(line)
 
         return sorted(set(form_ids))
 
@@ -173,7 +173,7 @@ These changes should make the function more readable and easier to maintain.'''
             if any(elem in line.lower() for elem in crash_records_catch):
                 if not any(elem in line for elem in crash_records_exclude):
                     line = line.replace('"', '')
-                    named_records.append(line.strip())
+                    named_records.append(line)
         named_records = sorted(named_records)
         return dict(Counter(named_records))
 
@@ -565,8 +565,8 @@ These changes should make the function more readable and easier to maintain.'''
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
                                "====================================================\n"])
             # DEFINE LINE INDEXES HERE
-            crash_ver = loglines[1].strip()
-            crash_error = loglines[2].strip() if loglines[2] and not loglines[2] == "\n" else loglines[3].strip()
+            crash_ver = loglines[1]
+            crash_error = loglines[2] if loglines[2] and not loglines[2] == "\n" else loglines[3]
             assert len(crash_error) > 0
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
@@ -574,7 +574,7 @@ These changes should make the function more readable and easier to maintain.'''
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
                                "====================================================\n",
-                               f"Detected Buffout Version: {crash_ver.strip()}\n",
+                               f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
 
             if crash_ver.casefold() == GALAXY.CRASHGEN_OLD.casefold():
@@ -645,7 +645,7 @@ These changes should make the function more readable and easier to maintain.'''
                     for mod_name, mod_data in mods.items():
                         if "File:" not in line and mod_data["mod"] in line and mod_data["mod"] not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
-                            prefix = line[0:5].strip() if "[FE" not in line else line[0:9].strip()
+                            prefix = line[0:5] if "[FE" not in line else line[0:9]
                             output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
                             mod_trap = True
 
