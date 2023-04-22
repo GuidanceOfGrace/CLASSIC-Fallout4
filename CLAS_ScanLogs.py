@@ -497,7 +497,7 @@ These changes should make the function more readable and easier to maintain.'''
             'Nvidia_Crashes': ['Nvidia Debris Crash', 'Nvidia Driver Crash', 'Nvidia Reflex Crash'],
             'Vulkan_Crashes': ['Vulkan Memory Crash', 'Vulkan Settings Crash'],
             'Player_Character_Crash': ['Player Character Crash']
-            }
+        }
 
         def check_conditions(culprit_name, error_conditions, stack_conditions):
             if culprit_name in Special_Cases['Nvidia_Crashes']:
