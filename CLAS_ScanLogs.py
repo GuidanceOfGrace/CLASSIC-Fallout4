@@ -31,6 +31,19 @@ print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION
 
 def scan_logs():
     # =================== HELPER FUNCTIONS ===================
+    def process_file_data(file):
+        logpath = Path(file).resolve()
+        scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
+        logname = logpath.name
+        logtext = logpath.read_text(encoding="utf-8", errors="ignore")
+
+        with logpath.open(encoding="utf-8", errors="ignore") as f:
+            loglines = f.readlines()
+
+        loglines = list(map(str.strip, loglines))
+
+        return logpath, scanpath, logname, logtext, loglines
+
     def process_log_sections(loglines):
         index_stack = len(loglines) - 1
         index_plugins = 1
@@ -526,19 +539,6 @@ These changes should make the function more readable and easier to maintain.'''
                 Culprit_Trap = True
 
         return Culprit_Trap
-
-    def process_file_data(file):
-        logpath = Path(file).resolve()
-        scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
-        logname = logpath.name
-        logtext = logpath.read_text(encoding="utf-8", errors="ignore")
-
-        with logpath.open(encoding="utf-8", errors="ignore") as f:
-            loglines = f.readlines()
-
-        loglines = list(map(str.strip, loglines))
-
-        return logpath, scanpath, logname, logtext, loglines
 
     # ==================== AUTOSCAN REPORT ====================
     print("PERFORMING SCAN... \n")
