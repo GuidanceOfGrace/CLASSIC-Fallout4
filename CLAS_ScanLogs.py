@@ -642,7 +642,7 @@ These changes should make the function more readable and easier to maintain.'''
                     return mod_trap
 
                 for line in section_plugins_list:
-                    for mod_name, mod_data in mods.items():
+                    for mod_data in mods.values():
                         if "File:" not in line and mod_data["mod"] in line and mod_data["mod"] not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
                             prefix = line[0:5] if "[FE" not in line else line[0:9]
