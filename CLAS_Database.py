@@ -1,13 +1,15 @@
-import os
-import stat
 import configparser
-import platform
-import requests
 import hashlib
-import tomlkit
+import os
+import platform
+import stat
+from dataclasses import dataclass, field
 from glob import glob
 from pathlib import Path
-from dataclasses import dataclass, field
+from typing import Optional
+
+import requests
+import tomlkit
 
 if platform.system() == "Windows":
     import ctypes.wintypes
@@ -70,7 +72,7 @@ def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
 
 def mods_ini_config(file_path, section, key, new_value=None):
     mod_config = configparser.ConfigParser()
-    mod_config.optionxform = str
+    mod_config.optionxform = str  # type: ignore
     mod_config.read(file_path)
 
     if section not in mod_config:
@@ -188,7 +190,7 @@ class ClasSpecificVars:
     Game_Plugins_Exclude = ("Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
 
     Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11.dll+", "dxgi.dll+", "[FE:", "f4se", "KERNEL", "kernel32.dll+", "MSVC", "ntdll",
-    "flexRelease_x64.dll+", "nvcuda64.dll+", "cudart64_75.dll+", "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled", "USER32", "usvfs_x64", "win32u")
+                                                    "flexRelease_x64.dll+", "nvcuda64.dll+", "cudart64_75.dll+", "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled", "USER32", "usvfs_x64", "win32u")
 
     XSE_Scripts_Count = 29
 
@@ -443,47 +445,56 @@ class ClasLocalFiles:
         self.WB_Plugin_Check = docs_location.joinpath("My Games", "Fallout4", "ModChecker.html")
 
     # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
-    def docs_path_check(self):
-        def get_windows_docs_path():
-            CSIDL_PERSONAL = 5  # (My) Documents folder from user.
-            SHGFP_TYPE_CURRENT = 0  # Get current, not default value.
-            User_Documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)  # type: ignore
-            ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, User_Documents)  # type: ignore
-            Win_Docs = Path(User_Documents.value)
-            GALAXY.Game_Docs_Found = True
-            return Win_Docs
 
-        def get_linux_docs_path():
+        '''GPT Changes:
+        In this updated version, I've made the following changes:
+
+Used snake_case for function and variable names.
+Used f-strings for better string formatting.
+Added type hints to the function signatures.
+Replaced print and string concatenation with f-strings.'''
+
+    def docs_path_check(self):
+        def get_windows_docs_path() -> Path:
+            CSIDL_PERSONAL = 5
+            SHGFP_TYPE_CURRENT = 0
+            user_documents = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+            ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, user_documents)
+            win_docs = Path(user_documents.value)
+            GALAXY.Game_Docs_Found = True
+            return win_docs
+
+        def get_linux_docs_path() -> Optional[Path]:
             libraryfolders_path = Path.home().joinpath(".local", "share", "Steam", "steamapps", "common", "libraryfolders.vdf")
             if libraryfolders_path.is_file():
-                library_path = None
+                library_path = Path()
                 with libraryfolders_path.open(encoding="utf-8", errors="ignore") as steam_library_raw:
                     steam_library = steam_library_raw.readlines()
                 for library_line in steam_library:
                     if "path" in library_line:
                         library_path = Path(library_line.split('"')[3])
                     if str(GALAXY.Game_SID) in library_line:
-                        library_path = library_path.joinpath("steamapps")  # type: ignore
-                        Lin_Docs = library_path.joinpath("compatdata", str(GALAXY.Game_SID), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", GALAXY.Game_Docs)
-                        if library_path.joinpath("common", GALAXY.Game_Name).exists() and Lin_Docs.exists():
+                        library_path = library_path.joinpath("steamapps")
+                        lin_docs = library_path.joinpath("compatdata", str(GALAXY.Game_SID), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", GALAXY.Game_Docs)
+                        if library_path.joinpath("common", GALAXY.Game_Name).exists() and lin_docs.exists():
                             GALAXY.Game_Docs_Found = True
-                            return Lin_Docs
+                            return lin_docs
             return None
 
-        def get_ini_docs_path():
+        def get_ini_docs_path() -> Optional[Path]:
             if str(GALAXY.Game_Docs).lower() in UNIVERSE.CLAS_config["MAIN"]["INI Path"].lower():
-                INI_Line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
-                INI_Docs = Path(INI_Line)
-                return INI_Docs
+                ini_line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
+                ini_docs = Path(ini_line)
+                return ini_docs
             return None
 
-        def get_manual_docs_path():
+        def get_manual_docs_path() -> Path:
             print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {GALAXY.Game_Docs}.ini IS LOCATED < <")
-            Path_Input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
-            print("You entered :", Path_Input, "| This path will be automatically added to CLAS Settings.ini")
-            Manual_Docs = Path(Path_Input.strip())
-            clas_ini_update("INI Path", Path_Input)
-            return Manual_Docs
+            path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
+            print(f"You entered: {path_input} | This path will be automatically added to CLAS Settings.ini")
+            manual_docs = Path(path_input.strip())
+            clas_ini_update("INI Path", path_input)
+            return manual_docs
 
         if platform.system() == "Windows":
             docs_path = get_windows_docs_path()
@@ -551,6 +562,9 @@ class ClasLocalFiles:
             GALAXY.ADLIB_Loaded = True
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_F4SE_BO4"])
+
+        if not Game_Path:
+            raise FileNotFoundError("❌ ERROR: Could not find game path in F4SE log file.")  # This is to appease VSCode's type checker. The extremely remote possibility that it could return None freaks is out.
 
         return Game_Path
 
@@ -635,9 +649,8 @@ class ClasCheckFiles:
     def log_check_errors(self, log_path, log_source):
         list_log_errors = []
         for filename in glob(f"{log_path}/*.log"):
-            print(filename)
             logname = ""
-            if not all(exc in filename for exc in UNIVERSE.LOG_Files_Exclude):
+            if not any(exc in filename for exc in UNIVERSE.LOG_Files_Exclude):
                 try:
                     filepath = Path(filename).resolve()
                     if filepath.is_file():

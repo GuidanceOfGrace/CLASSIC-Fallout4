@@ -1,12 +1,14 @@
 # CRASH LOG AUTO SCANNER (CLAS) | By Poet (The Sound Of Snow)
 import os
+import random
 import shutil
 import time
-import random
-from CLAS_Database import UNIVERSE, GALAXY, MOON, clas_ini_create, clas_ini_update, clas_update_check
 from collections import Counter
 from glob import glob
 from pathlib import Path
+
+from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_ini_create,
+                           clas_ini_update, clas_update_check)
 
 clas_ini_create()
 clas_update_check()
@@ -23,22 +25,35 @@ else:
                 LCL_skip_list[i] = ' ' + LCL_skip_list[i]
 
 # =================== TERMINAL OUTPUT START ====================
-print("Hello World! | Crash Log Auto Scanner (CLAS) | Version", UNIVERSE.CLAS_Current[-4:], "| Fallout 4")
+print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Current[-4:]} | Fallout 4")
 print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION \n")
 
 
 def scan_logs():
     # =================== HELPER FUNCTIONS ===================
+    def process_file_data(file):
+        logpath = Path(file).resolve()
+        scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
+        logname = logpath.name
+        logtext = logpath.read_text(encoding="utf-8", errors="ignore")
+
+        with logpath.open(encoding="utf-8", errors="ignore") as f:
+            loglines = f.readlines()
+
+        loglines = list(map(str.strip, loglines))
+
+        return logpath, scanpath, logname, logtext, loglines
+
     def process_log_sections(loglines):
         index_stack = len(loglines) - 1
         index_plugins = 1
         plugins_loaded = False
 
-        for line in loglines:
+        for index, line in enumerate(loglines):
             if "MODULES:" in line:
-                index_stack = loglines.index(line)
+                index_stack = index
             if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
-                index_plugins = loglines.index(line)
+                index_plugins = index
             if "[00]" in line:
                 plugins_loaded = True
                 break
@@ -70,29 +85,31 @@ def scan_logs():
                 start_index = line.index("[")
                 end_index = line.index("]")
                 if end_index - start_index == 3 or end_index - start_index == 7:
-                    plugin_ids.append(line.strip())
+                    plugin_ids.append(line)
         return plugin_ids
 
     def extract_detected_plugins(loglines):
         detected_plugins = set()
         for line in loglines:
             if "File:" in line and "Fallout4.esm" not in line:
-                line = line.replace("File: ", "").replace('"', '').strip()
-                if line.strip():
-                    detected_plugins.add(line.strip())
+                line = line.replace("File: ", "").replace('"', '')
+                if line:
+                    detected_plugins.add(line)
         return sorted(detected_plugins)
 
     def filter_excluded_plugins(detected_plugins, excluded_plugins):
         return [plugin for plugin in detected_plugins if plugin not in excluded_plugins]
 
     def find_plugin_culprits(all_plugins, detected_plugins):
-        culprits = []
+        culprits = set()
         counter = Counter(detected_plugins)
         for elem in all_plugins:
             matches = [item for item in detected_plugins if item in elem]
-            if matches:
-                culprits.append(matches)
-        return culprits, counter
+            if matches and len(matches) > 1:
+                culprits = set(matches)
+            elif matches and len(matches) == 1:
+                culprits.add(matches[0])
+        return sorted(culprits), counter
 
     def write_plugin_culprits(output, culprits, detected_plugins_counter):
         if not culprits:
@@ -100,33 +117,55 @@ def scan_logs():
                                "-----\n"])
         else:
             for matches in culprits:
-                output.write(f"- {' '.join(matches)} : {detected_plugins_counter[matches[-1]]}\n")
+                if isinstance(matches, str):
+                    output.write(f"- {matches} : {detected_plugins_counter[matches]}\n")
+                else:
+                    output.write(f"- {' '.join(matches)} : {detected_plugins_counter[matches[-1]]}\n")
             output.writelines(["-----\n",
                                "[Last number counts how many times each plugin culprit shows up in the crash log.]\n",
                                "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
                                "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
                                "-----\n"])
 
+    '''GPT Changes Part 1:
+    In the updated version, I've made the following changes:
+
+Simplified the string manipulations by normalizing the line and plugin strings at the beginning of the loops.
+Used more descriptive variable names like plugin instead of elem.
+Removed the redundant id_only variable and used line directly.
+Removed unnecessary string replacements with spaces.
+Added a return statement to return the form_ids list.
+These changes should make the function more readable and easier to maintain.'''
+
+    '''GPT Changes Part 2:
+    In the updated version, I've added the missing else block to handle the case when plugins_loaded is False.
+    The function now appends the line directly to the form_ids list in that case. The rest of the function remains the same as in the previous improvement.'''  # I initially forgot to paste the whole function.
+
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
         form_ids = []
+
         for line in loglines:
             if ("Form ID:" in line or "FormID:" in line) and "0xFF" not in line:
-                line = line.replace("0x", "")
+                # Normalize the line
+                line = line.replace("0x", "").replace("Form ID: ", "").replace("FormID: ", "")
+
                 if plugins_loaded:
-                    line = line.replace("Form ID: ", "").replace("FormID: ", "").strip()
-                    id_only = line
-                    for elem in section_plugins_list:
-                        if "]" in elem and "[FE" not in elem:
-                            if elem[2:4].strip() == id_only[:2]:
-                                full_line = f"Form ID: {id_only} | {elem.strip()}"
-                                form_ids.append(full_line.replace("    ", ""))
-                        if "[FE" in elem:
-                            elem = elem.replace(":", "")
-                            if elem[2:7] == id_only[:5]:
-                                full_line = f"Form ID: {id_only} | {elem.strip()}"
-                                form_ids.append(full_line.replace("    ", ""))
+                    for plugin in section_plugins_list:
+                        # Normalize the plugin
+                        plugin = plugin.replace(":", "")
+
+                        # Handle plugins without "[FE"
+                        if "]" in plugin and "[FE" not in plugin:
+                            if plugin[2:4] == line[:2]:
+                                form_ids.append(f"Form ID: {line} | {plugin}")
+
+                        # Handle plugins with "[FE"
+                        elif "[FE" in plugin:
+                            if plugin[2:7] == line[:5]:
+                                form_ids.append(f"Form ID: {line} | {plugin}")
                 else:
-                    form_ids.append(line.strip())
+                    form_ids.append(line)
+
         return sorted(set(form_ids))
 
     def write_form_id_culprits(output, form_ids):
@@ -147,7 +186,7 @@ def scan_logs():
             if any(elem in line.lower() for elem in crash_records_catch):
                 if not any(elem in line for elem in crash_records_exclude):
                     line = line.replace('"', '')
-                    named_records.append(line.strip())
+                    named_records.append(line)
         named_records = sorted(named_records)
         return dict(Counter(named_records))
 
@@ -163,6 +202,12 @@ def scan_logs():
                                "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
+
+    '''GPT Changes:
+    Introduced a new variable mod_condition to store the mod's condition.
+    Added two new optional keys nvidia_specific and amd_specific to the mod dictionary, which will be checked before writing any output.
+    Removed the redundant nested conditionals, and replaced them with a single continue statement.
+    Combined the two separate output writing blocks into one, reducing code duplication.'''
 
     def check_core_mods():
         Core_Mods = {
@@ -189,44 +234,51 @@ def scan_logs():
             'Vulkan Renderer': {
                 'condition': 'vulkan-1.dll' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
-                'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files'
+                'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
+                'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
                 'condition': 'WeaponDebrisCrashFix.dll' in logtext,
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
-                'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files'
+                'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
+                'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
                 'condition': 'NVIDIA_Reflex.dll' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
-                'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files'
+                'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
+                'nvidia_specific': True
             }
         }
 
         if plugins_loaded:
             for mod_name, mod_data in Core_Mods.items():
-                if gpu_amd or gpu_other:
-                    if mod_data['condition'] and "Nvidia" not in mod_name:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    elif not mod_data['condition'] and "Nvidia" not in mod_name:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
-                    elif mod_data['condition'] and "Nvidia" in mod_name:
-                        output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
-                                     "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
-                                     f"   You should uninstall {mod_name} to avoid any problems.\n"
-                                     "  -----\n")
+                mod_condition = mod_data['condition']
+                nvidia_specific = mod_data.get('nvidia_specific', False)  # If the key doesn't exist, return False
+                amd_specific = mod_data.get('amd_specific', False)
 
-                elif gpu_nvidia and "Vulkan" not in mod_name:
-                    if mod_data['condition']:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                    else:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                     f"  {mod_data['description']}\n"
-                                     f"  Link: {mod_data['link']}\n"
-                                     "  -----\n")
+                if gpu_amd or gpu_other:
+                    if nvidia_specific:
+                        if mod_condition:
+                            output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
+                                         "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
+                                         f"   You should uninstall {mod_name} to avoid any problems.\n"
+                                         "  -----\n")
+                        continue
+                    elif amd_specific:
+                        continue
+
+                elif gpu_nvidia and "Vulkan" in mod_name:
+                    continue
+
+                if mod_condition:
+                    output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                else:
+                    output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                 f"  {mod_data['description']}\n"
+                                 f"  Link: {mod_data['link']}\n"
+                                 "  -----\n")
+
         else:
             output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 
@@ -453,10 +505,27 @@ def scan_logs():
                 'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                 'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Priority : [1] *\n'},
         }
+
+        Special_Cases = {
+            'Nvidia_Crashes': ['Nvidia Debris Crash', 'Nvidia Driver Crash', 'Nvidia Reflex Crash'],
+            'Vulkan_Crashes': ['Vulkan Memory Crash', 'Vulkan Settings Crash'],
+            'Player_Character_Crash': ['Player Character Crash']
+        }
+
+        def check_conditions(culprit_name, error_conditions, stack_conditions):
+            if culprit_name in Special_Cases['Nvidia_Crashes']:
+                return "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions)
+            elif culprit_name in Special_Cases['Vulkan_Crashes']:
+                return "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions)
+            elif culprit_name in Special_Cases['Player_Character_Crash']:
+                return any(section_stack_text.count(item) >= 3 for item in stack_conditions)
+            else:
+                return any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions)
+
         Culprit_Trap = False
         for culprit_name, culprit_data in Culprits.items():
 
-            # WRAP ANY KEYS WITH SINGLE ITEMS INTO A LIST
+            # Wrap any keys with single items into a list
             error_conditions = culprit_data['error_conditions']
             if isinstance(error_conditions, str):
                 error_conditions = [error_conditions]
@@ -464,22 +533,11 @@ def scan_logs():
             if isinstance(stack_conditions, str):
                 stack_conditions = [stack_conditions]
 
-            # CHECK CULPRIT KEYS IN CRASH LOG
-            if culprit_name == 'Nvidia Debris Crash' or culprit_name == 'Nvidia Driver Crash' or culprit_name == 'Nvidia Reflex Crash':
-                if "nvidia" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
-            elif culprit_name == 'Vulkan Memory Crash' or culprit_name == 'Vulkan Settings Crash':
-                if "vulkan" in logtext.lower() and any(item in section_stack_text for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
-            elif culprit_name == 'Player Character Crash':
-                if any(section_stack_text.count(item) >= 3 for item in stack_conditions):
-                    output.write(f"{culprit_data['description']}  -----\n")
-                    Culprit_Trap = True
-            elif any(item in crash_error for item in error_conditions) or any(item in section_stack_text for item in stack_conditions):
+            # Check culprit keys in crash log
+            if check_conditions(culprit_name, error_conditions, stack_conditions):
                 output.write(f"{culprit_data['description']}  -----\n")
                 Culprit_Trap = True
+
         return Culprit_Trap
 
     # ==================== AUTOSCAN REPORT ====================
@@ -492,36 +550,31 @@ def scan_logs():
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
 
     if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
-        from CLAS_ScanFiles import scan_game_files, scan_wryecheck, scan_mod_inis
+        from CLAS_ScanFiles import (scan_game_files, scan_mod_inis,
+                                    scan_wryecheck)
         GALAXY.scan_game_report = []
         scan_game_files()
         scan_wryecheck()
         scan_mod_inis()
 
     for file in glob(f"{SCAN_folder}/crash-*.log"):
-        logpath = Path(file).resolve()
-        scanpath = Path(str(logpath.absolute()).replace(".log", "-AUTOSCAN.md")).resolve().absolute()
-        logname = logpath.name
-        logtext = logpath.read_text(encoding="utf-8", errors="ignore")
-
-        with logpath.open("r+", encoding="utf-8", errors="ignore") as crash_log:
-            loglines = [line for line in crash_log if line.strip() and "(size_t)" not in line and "(void*)" not in line]
+        logpath, scanpath, logname, logtext, loglines = process_file_data(file)  # logpath doesn't seem to be used anywhere besides generating scanpath, keeping it in case it's needed later.
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
                                "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES # \n",
                                "====================================================\n"])
-
             # DEFINE LINE INDEXES HERE
-            crash_ver = loglines[1].strip()
-            crash_error = loglines[2].strip()
+            crash_ver = loglines[1]
+            crash_error = loglines[2] if loglines[2] and not loglines[2] == "\n" else loglines[3]
+            assert len(crash_error) > 0
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
                                "====================================================\n",
-                               f"Detected Buffout Version: {crash_ver.strip()}\n",
+                               f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
 
             if crash_ver.casefold() == GALAXY.CRASHGEN_OLD.casefold():
@@ -565,6 +618,12 @@ def scan_logs():
             if ".dll" in crash_error.lower() and "tbbmalloc" not in crash_error.lower():
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
+            # ====================== GPU Variables ======================
+            gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
+            gpu_amd = any("GPU" in line and "AMD" in line for line in loglines) if not gpu_nvidia else False
+            gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefined
+            assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
+
             # =================== CRASH CULPRITS CHECK ==================
             Culprit_Trap = culprit_check(output, logtext, section_stack_text)
 
@@ -578,30 +637,30 @@ def scan_logs():
                                    "-----\n"])
 
             # =============== MOD / PLUGIN CHECK TEMPLATES ==============
-            def check_plugins(mods, mod_trap):
-                if plugins_loaded:
-                    for LINE in section_plugins_list:
-                        for elem in mods.keys():
-                            if "File:" not in LINE and "[FE" not in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
-                                warn = ''.join(mods[elem]["warn"])
-                                output.writelines([f"[!] Found: {LINE[0:5].strip()} {warn}\n",
-                                                   "-----\n"])
-                                mod_trap = True
-                            elif "File:" not in LINE and "[FE" in LINE and mods[elem]["mod"] in LINE and mods[elem]["mod"] not in LCL_skip_list:
-                                warn = ''.join(mods[elem]["warn"])
-                                output.writelines([f"[!] Found: {LINE[0:9].strip()} {warn}\n",
-                                                   "-----\n"])
-                                mod_trap = True
+            def check_plugins(mods, mod_trap, plugins_loaded, section_plugins_list, LCL_skip_list):
+                if not plugins_loaded:
+                    return mod_trap
+
+                for line in section_plugins_list:
+                    for mod_data in mods.values():
+                        if "File:" not in line and mod_data["mod"] in line and mod_data["mod"] not in LCL_skip_list:
+                            warn = ''.join(mod_data["warn"])
+                            prefix = line[0:5] if "[FE" not in line else line[0:9]
+                            output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
+                            mod_trap = True
+
                 return mod_trap
 
-            def check_conflicts(mods, mod_trap):
-                if plugins_loaded:
-                    for elem in mods.keys():
-                        if mods[elem]["mod_1"] in logtext and mods[elem]["mod_2"] in logtext:
-                            warn = ''.join(mods[elem]["warn"])
-                            output.writelines([f"[!] CAUTION : {warn}\n",
-                                               "-----\n"])
-                            mod_trap = True
+            def check_conflicts(mods, mod_trap, plugins_loaded, logtext):
+                if not plugins_loaded:
+                    return mod_trap
+
+                for mod_data in mods.values():
+                    if mod_data["mod_1"] in logtext and mod_data["mod_2"] in logtext:
+                        warn = ''.join(mod_data["warn"])
+                        output.writelines([f"[!] CAUTION : {warn}\n", "-----\n"])
+                        mod_trap = True
+
                 return mod_trap
 
             # ================= ALL MOD / PLUGIN CHECKS =================
@@ -610,26 +669,24 @@ def scan_logs():
                                "CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...\n",
                                "====================================================\n"])
 
-            Mod_Trap1 = False
-            if plugins_loaded:
-                Mod_Check1 = check_plugins(MOON.Mods1, Mod_Trap1)
-
-                # =============== SPECIAL MOD / PLUGIN CHECKS ===============
-
+            def check_special_mods(logtext, crash_error, output, statM_CHW):
+                found = False
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
                                        "You should disable CHW to further confirm this.\n",
                                        "-----\n"])
                     statM_CHW += 1
-                    Mod_Trap1 = True
+                    found = True
                 elif "ClassicHolsteredWeapons" in logtext and "d3d11" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
                                        "CLAS CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
                                        "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",
                                        "This usually prevents most common crashes with Classic Holstered Weapons.\n",
                                        "-----\n"])
+                return found
 
+            def process_mod_check_results(Mod_Check1, Mod_Trap1, output, statL_scanned):
                 if (Mod_Check1 or Mod_Trap1) is True:
                     output.writelines(["# [!] CAUTION : ANY ABOVE DETECTED MODS HAVE A MUCH HIGHER CHANCE TO CRASH YOUR GAME! #\n",
                                        "  You can disable any/all of them temporarily to confirm they caused this crash.\n",
@@ -641,6 +698,16 @@ def scan_logs():
                                        "Plugin Checker Instructions: https://www.nexusmods.com/fallout4/articles/4141\n",
                                        "-----\n"])
                     statL_scanned += 1
+                return statL_scanned
+
+            Mod_Trap1 = False
+            if plugins_loaded:
+                Mod_Check1 = check_plugins(MOON.Mods1, Mod_Trap1, plugins_loaded, section_plugins_list, LCL_skip_list)
+
+                # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+                Mod_Trap1 = check_special_mods(logtext, crash_error, output, statM_CHW)
+
+                statL_scanned = process_mod_check_results(Mod_Check1, Mod_Trap1, output, statL_scanned)
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
                 statL_incomplete += 1
@@ -651,7 +718,7 @@ def scan_logs():
 
             Mod_Trap2 = False
             if plugins_loaded:
-                Mod_Check2 = check_conflicts(MOON.Mods2, Mod_Trap2)
+                Mod_Check2 = check_conflicts(MOON.Mods2, Mod_Trap2, plugins_loaded, logtext)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
@@ -670,32 +737,41 @@ def scan_logs():
                                "CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES\n",
                                "====================================================\n"])
 
-            Mod_Trap3 = False
-            if plugins_loaded:
-                Mod_Check3 = check_plugins(MOON.Mods3, Mod_Trap3)
+            def check_special_mods_with_solutions(logtext, output):
+                found = False
 
-                # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+                thuggy_smurf_mods = ("Depravity", "FusionCityRising", "HotC", "OutcastsAndRemnants", "ProjectValkyrie")
+                custom_race_mods = ("CaN.esm", "AnimeRace_Nanako.esp")
 
-                if any(item in logtext for item in ("Depravity", "FusionCityRising", "HotC", "OutcastsAndRemnants", "ProjectValkyrie")):
+                if any(item in logtext for item in thuggy_smurf_mods):
                     output.writelines([f"[!] Found: [XX] THUGGYSMURF QUEST MOD(S)\n",
                                        "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
                                        "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
                                        "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
                                        "-----\n"])
-                    Mod_Trap3 = True
+                    found = True
 
-                if any(item in logtext for item in ("CaN.esm", "AnimeRace_Nanako.esp")):
+                if any(item in logtext for item in custom_race_mods):
                     output.writelines([f"[!] Found: [XX] CUSTOM RACE SKELETON MOD(S)\n",
                                        "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
                                        "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n"])
-                    Mod_Trap3 = True
+                    found = True
 
                 if "FallSouls.dll" in logtext:
                     output.writelines([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
                                        "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.\n",
                                        "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n",
                                        "-----\n"])
-                    Mod_Trap3 = True
+                    found = True
+
+                return found
+
+            Mod_Trap3 = False
+            if plugins_loaded:
+                Mod_Check3 = check_plugins(MOON.Mods3, Mod_Trap3, plugins_loaded, section_plugins_list, LCL_skip_list)
+
+                # =============== SPECIAL MOD / PLUGIN CHECKS ===============
+                Mod_Trap3 = check_special_mods_with_solutions(logtext, output)
 
                 if Mod_Check3 or Mod_Trap3 is True:
                     output.writelines([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
@@ -718,7 +794,7 @@ def scan_logs():
 
             Mod_Trap4 = False
             if plugins_loaded:
-                Mod_Check4 = check_plugins(MOON.Mods4, Mod_Trap4)
+                Mod_Check4 = check_plugins(MOON.Mods4, Mod_Trap4, plugins_loaded, section_plugins_list, LCL_skip_list)
 
                 # =============== SPECIAL MOD / PLUGIN CHECKS ===============
                 # CURRENTLY NONE
@@ -736,10 +812,6 @@ def scan_logs():
             output.writelines(["====================================================\n",
                                "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
                                "====================================================\n"])
-            gpu_nvidia = any("GPU" in line and "Nvidia" in line for line in loglines)
-            gpu_amd = any("GPU" in line and "AMD" in line for line in loglines) if not gpu_nvidia else False
-            gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefined
-            assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
 
             # 5) CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED
             check_core_mods()
@@ -789,60 +861,65 @@ def scan_logs():
     print("CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(GALAXY.Sneaky_Tips))
 
+    '''GPT Changes:
+    Replaced variable names with more descriptive alternatives.
+Used pathlib for file path manipulation.
+Simplified the check for failed scans using the Path methods.
+These changes should make the code more readable and easier to maintain.'''
+
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
-    list_SCANFAIL = []
-    user_name = os.getlogin()
-    unsolved_path = "CLAS UNSOLVED"
-    if not os.path.exists(unsolved_path):
-        os.mkdir(unsolved_path)
+    failed_scans = []
+    homedir = Path.home()
 
-    for file in glob(f"{SCAN_folder}/crash-*"):
+    for crash_file_path in Path(SCAN_folder).glob("crash-*"):
         file_move = False
-        crash_name = str(file)
-        scan_name = str(file).replace(".log", "-AUTOSCAN.md")
-        crash_move = os.path.join(unsolved_path, crash_name)
-        scan_move = os.path.join(unsolved_path, scan_name)
+        scan_file_path = crash_file_path
+        if crash_file_path.suffix == ".log":
+            scan_file_path = crash_file_path.with_name(crash_file_path.stem + "-AUTOSCAN.md")
 
-        with open(file, "r", encoding="utf-8", errors="ignore") as LOG_Check:
-            File_Check = LOG_Check.read()
-            LOG_Check.seek(0)  # Return line pointer to first line.
-            Line_Check = LOG_Check.readlines()
-            line_count = sum(1 for _ in Line_Check)
+        with open(crash_file_path, "r", encoding="utf-8", errors="ignore") as crash_file:
+            file_contents = crash_file.read()
+            crash_file.seek(0)
+            line_count = sum(1 for _ in crash_file)
 
-        if user_name in File_Check:
-            File_Check = File_Check.replace(user_name, "******")
-            with open(file, "w", encoding="utf-8", errors="ignore") as LOG_Text:
-                LOG_Text.write(File_Check)
+        if homedir.name in file_contents:
+            file_contents = file_contents.replace(f"{homedir.parent}\\{homedir.name}", "******").replace(f"{homedir.parent}/{homedir.name}", "******")
+            with open(crash_file_path, "w", encoding="utf-8", errors="ignore") as crash_file:
+                crash_file.write(file_contents)
 
-        if "FOUND NO CRASH ERRORS" in File_Check:
+        if "FOUND NO CRASH ERRORS" in file_contents:
             file_move = True
 
-        if ".txt" in crash_name or line_count < 20:  # Failed scans are usually 16 lines.
-            list_SCANFAIL.append(crash_name)
+        if ".txt" in crash_file_path.name or line_count < 20:
+            failed_scans.append(crash_file_path.name)
             statL_failed += 1
             statL_scanned -= 1
             file_move = True
 
         if file_move and UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"):
-            if os.path.exists(crash_name):
-                shutil.move(crash_name, crash_move)
-            if os.path.exists(scan_name):
-                shutil.move(scan_name, scan_move)
+            unsolved_folder = "CLAS UNSOLVED"
+            Path(unsolved_folder).mkdir(exist_ok=True)
+            crash_move = Path(unsolved_folder, crash_file_path.name)
+            scan_move = Path(unsolved_folder, scan_file_path.name)
 
-    if len(list_SCANFAIL) >= 1:
-        print("NOTICE : CLAS WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S): ")
-        for elem in list_SCANFAIL:
-            print(elem)
+            if crash_file_path.exists():
+                shutil.move(crash_file_path, crash_move)
+            if scan_file_path.exists():
+                shutil.move(scan_file_path, scan_move)
+
+    if failed_scans:
+        print("NOTICE : CLAS WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S):")
+        print('\n'.join(failed_scans))
         print("===============================================================================")
         print("Most common reason for this are logs being incomplete or in the wrong format.")
         print("Make sure that your crash logs are saved with .log file format, NOT .txt!")
 
     # ====================== TERMINAL OUTPUT END ======================
     print("===============================================================================")
-    print("\nScanned all available logs in", (str(time.perf_counter() - 0.5 - start_time)[:7]), "seconds.")
-    print("Number of Scanned Logs (No Autoscan Errors): ", statL_scanned)
-    print("Number of Incomplete Logs (No Plugins List): ", statL_incomplete)
-    print("Number of Failed Logs (Autoscan Can't Scan): ", statL_failed)
+    print(f"\nScanned all available logs in ({str(time.perf_counter() - 0.5 - start_time)[:7]}) seconds.")
+    print(f"Number of Scanned Logs (No Autoscan Errors): {statL_scanned}")
+    print(f"Number of Incomplete Logs (No Plugins List): {statL_incomplete}")
+    print(f"Number of Failed Logs (Autoscan Can't Scan): {statL_failed}")
     print("-----")
     print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md")
     print("PLEASE OPEN THESE FILES WITH NOTEPAD++ OR SIMILAR AND READ GIVEN RESULTS")
