@@ -4,7 +4,6 @@ import os
 import platform
 import stat
 from dataclasses import dataclass, field
-from glob import glob
 from pathlib import Path
 from typing import Optional
 
@@ -648,11 +647,11 @@ class ClasCheckFiles:
 
     def log_check_errors(self, log_path, log_source):
         list_log_errors = []
-        for filename in glob(f"{log_path}/*.log"):
+        for filename in Path(log_path).glob("*.log"):
             logname = ""
-            if not any(exc in filename for exc in UNIVERSE.LOG_Files_Exclude):
+            if not any(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
                 try:
-                    filepath = Path(filename).resolve()
+                    filepath = filename.resolve()
                     if filepath.is_file():
                         with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
                             Log_Errors = LOG_Check.readlines()

@@ -4,7 +4,6 @@ import random
 import shutil
 import time
 from collections import Counter
-from glob import glob
 from pathlib import Path
 
 from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_ini_create,
@@ -31,8 +30,8 @@ print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION
 
 def scan_logs():
     # =================== HELPER FUNCTIONS ===================
-    def process_file_data(file):
-        logpath = Path(file).resolve()
+    def process_file_data(file: Path):
+        logpath = file.resolve()
         scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
@@ -42,7 +41,7 @@ def scan_logs():
 
         loglines = list(map(str.strip, loglines))
 
-        return logpath, scanpath, logname, logtext, loglines
+        return scanpath, logname, logtext, loglines
 
     def process_log_sections(loglines):
         index_stack = len(loglines) - 1
@@ -557,8 +556,8 @@ These changes should make the function more readable and easier to maintain.'''
         scan_wryecheck()
         scan_mod_inis()
 
-    for file in glob(f"{SCAN_folder}/crash-*.log"):
-        logpath, scanpath, logname, logtext, loglines = process_file_data(file)  # logpath doesn't seem to be used anywhere besides generating scanpath, keeping it in case it's needed later.
+    for file in Path(SCAN_folder).glob("crash-*.log"):
+        scanpath, logname, logtext, loglines = process_file_data(file)
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
             output.writelines([f"{logname} | Scanned with Crash Log Auto Scanner (CLAS) version {UNIVERSE.CLAS_Current[-4:]} \n",
