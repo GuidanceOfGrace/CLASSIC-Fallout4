@@ -1,13 +1,10 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
-
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QApplication, QFileDialog
-
-from CLAS_Database import (GALAXY, UNIVERSE, clas_ini_create, clas_ini_update,
-                           clas_update_check)
+from CLAS_Database import (GALAXY, UNIVERSE, clas_ini_create, clas_ini_update, clas_update_check)
 from CLAS_ScanLogs import scan_logs
 
 '''import platform  # RESERVED FOR FUTURE UPDATE
@@ -158,9 +155,9 @@ class UiCLASMainWin(object):
         self.Line_SelectedFolder = create_custom_line_edit(CLAS_MainWin, QtCore.QRect(20, 30, 450, 22), "Line_SelectedFolder", "(Optional) Press 'Browse Folder...' to set a different scan folder location.", "darkgray")
         self.RegBT_Browse = create_simple_button(CLAS_MainWin, QtCore.QRect(490, 30, 130, 24), "RegBT_Browse", "Browse Folder...", "", self.SelectFolder_SCAN)
         self.RegBT_SCAN_LOGS = create_custom_push_button(CLAS_MainWin, QtCore.QRect(220, 80, 200, 40), "RegBT_SCAN_LOGS", "SCAN LOGS", font_bold_10, "", self.CrashLogs_SCAN)
-        self.RegBT_SCAN_FILES = create_custom_push_button(CLAS_MainWin, QtCore.QRect(245, 150, 150, 32), "RegBT_SCAN_FILES", "Scan Game Files", font_bold_10, "", self.Gamefiles_SCAN)
-        self.RegBT_ChangeINI = create_custom_push_button(CLAS_MainWin, QtCore.QRect(90, 150, 130, 32), "RegBT_ChangeINI", "CHANGE INI PATH", font_10, "Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.", self.SelectFolder_INI)
-        self.RegBT_CheckUpdates = create_custom_push_button(CLAS_MainWin, QtCore.QRect(420, 150, 140, 32), "RegBT_CheckUpdates", "CHECK FOR UPDATES", font_10, "", self.Update_Popup)
+        self.RegBT_SCAN_FILES = create_custom_push_button(CLAS_MainWin, QtCore.QRect(245, 140, 150, 32), "RegBT_SCAN_FILES", "Scan Game Files", font_bold_10, "", self.Gamefiles_SCAN)
+        self.RegBT_ChangeINI = create_custom_push_button(CLAS_MainWin, QtCore.QRect(90, 140, 130, 32), "RegBT_ChangeINI", "CHANGE INI PATH", font_10, "Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.", self.SelectFolder_INI)
+        self.RegBT_CheckUpdates = create_custom_push_button(CLAS_MainWin, QtCore.QRect(420, 140, 140, 32), "RegBT_CheckUpdates", "CHECK FOR UPDATES", font_10, "", self.Update_Popup)
 
         SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"].strip()
         if len(SCAN_folder) > 1:

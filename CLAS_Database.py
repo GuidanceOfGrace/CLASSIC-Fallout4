@@ -119,17 +119,17 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
     CLAS_config.read("CLAS Settings.ini")
     CLAS_Current = "CLAS v6.95"
-    CLAS_Date = "140423"
+    CLAS_Date = "250423"
 
     LOG_Errors_Catch = ("critical", "error", "failed")
 
     LOG_Errors_Exclude = ("keybind", "failed to open pdb", "failed to register method", "failed to get next record",
-                          "no errors with this power grid", "no errors with this workshop", "unable to locate pdb")
+                          "no errors with this", "unable to locate pdb")
 
     LOG_Files_Exclude = ("crash-", "cbpfo4.log", "CreationKit", "DumpStack.log", "f4se.log", "Fallout4_dxgi.log", "HHS.log")
 
-    Crash_Records_Catch = ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
-                           ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
+    Crash_Records_Catch = LOG_Errors_Catch + ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
+                                              ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
 
 
 UNIVERSE = ClasUniversalVars()
@@ -173,6 +173,7 @@ class ClasSpecificVars:
         "Utility.pex": "e10d65904d0a1e9ee568bdaba02636f0183bfa9565b4056758b1461540f9be75",
         "WaterType.pex": "c4f8589ed33f72265e95a6bec2c9cab58667795e972bcf5f7d17c40deed43207",
         "Weapon.pex": "f39cf899d90d47d694873ccaa2a72308c6717f5e36a302d6f95243e53672d77d"}
+    GameVR_HASH = {}  # RESERVED
 
     XSE_Symbol = "F4SE"
     XSE_Handle = "Fallout 4 Script Extender (F4SE)"
@@ -188,14 +189,14 @@ class ClasSpecificVars:
 
     Game_Plugins_Exclude = ("Fallout4.esm", "DLCCoast.esm", "DLCNukaWorld.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCworkshop02.esm", "DLCworkshop03.esm")
 
-    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11.dll+", "dxgi.dll+", "[FE:", "f4se", "KERNEL", "kernel32.dll+", "MSVC", "ntdll",
-                                                    "flexRelease_x64.dll+", "nvcuda64.dll+", "cudart64_75.dll+", "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled", "USER32", "usvfs_x64", "win32u")
+    Crash_Records_Exclude = Game_Plugins_Exclude + ('""', "...", "Buffout4.dll+", "d3d11.dll+", "dxgi.dll+", "[FE:", "f4se", "KERNEL", "kernel32.dll+", "MSVC", "ntdll", "flexRelease_x64.dll+",
+                                                    "nvcuda64.dll+", "cudart64_75.dll+", "nvwgf2umx.dll+", "nvumdshimx.dll+", "steamclient64.dll+", "Unhandled", "USER32", "usvfs_x64", "vrclient_x64.dll+", "win32u")
 
     XSE_Scripts_Count = 29
 
-    XSE_Scripts_List = ("Actor.pex", "ActorBase.pex", "Armor.pex", "ArmorAddon.pex", "Cell.pex", "Component.pex", "ConstructibleObject.pex", "DefaultObject.pex", "EncounterZone.pex",
-                        "EquipSlot.pex", "F4SE.pex", "FavoritesManager.pex", "Form.pex", "Game.pex", "HeadPart.pex", "Input.pex", "InstanceData.pex", "Location.pex", "Math.pex",
-                        "MatSwap.pex", "MiscObject.pex", "ObjectMod.pex", "ObjectReference.pex", "Perk.pex", "ScriptObject.pex", "UI.pex", "Utility.pex", "WaterType.pex", "Weapon.pex")
+    XSE_Scripts_List = ("Actor.pex", "ActorBase.pex", "Armor.pex", "ArmorAddon.pex", "Cell.pex", "Component.pex", "ConstructibleObject.pex", "DefaultObject.pex",
+                        "EncounterZone.pex", "EquipSlot.pex", "F4SE.pex", "FavoritesManager.pex", "Form.pex", "Game.pex", "HeadPart.pex", "Input.pex", "InstanceData.pex", "Location.pex",
+                        "Math.pex", "MatSwap.pex", "MiscObject.pex", "ObjectMod.pex", "ObjectReference.pex", "Perk.pex", "ScriptObject.pex", "UI.pex", "Utility.pex", "WaterType.pex", "Weapon.pex")
 
     # ===================== FLAVOR TEXT =====================
     Sneaky_Tips = ("\nRandom Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.\n",
@@ -214,19 +215,22 @@ class ClasSpecificVars:
     WB_Problems = {
         "Corrupted": """\
     ❓ Wrye Bash could not read these plugins, as they might be corrupted.
-       Try to resave them in Creation Kit and see if problems persist.
+       You should resave them in Creation Kit and then check if problems persist.
+       If WB still reports these as corrupted after resaving, remove them completely.
 """,
         "Incorrect ESL Flag": """\
     ❓ These plugins have an incorrectly assigned ESL flag or extension.
        Remove the ESL flag with FO4Edit or rename the extension to .esp.
+       These plugins could potentially crash the game if you don't do this.
 """,
         "Missing Masters": """\
     ❓ These plugins have missing requirements (required mods cannot be found).
-       Either install missing requirements or completely disable these plugins.
+       Either install missing requirements or completely remove these plugins.
 """,
         "Delinquent Masters": """\
     ❓ These plugins are not in the correct load order. You should run Wrye Bash
        and reorder plugins with orange checkboxes until they turn green or yellow.
+       Incorrect load order will either crash the game or break some ingame items.
 """,
         "Old Header Form Versions": """\
     ❓ These plugins have a header that is older than the minimum Creation Kit version.
@@ -443,7 +447,7 @@ class ClasLocalFiles:
         self.FO4_Custom_INI = docs_location.joinpath("My Games", "Fallout4", "Fallout4Custom.ini")
         self.WB_Plugin_Check = docs_location.joinpath("My Games", "Fallout4", "ModChecker.html")
 
-    # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
+        # =========== CHECK DOCUMENTS -> CHECK GAME PATH ===========
 
         '''GPT Changes:
         In this updated version, I've made the following changes:
@@ -611,7 +615,7 @@ class ClasCheckFiles:
         if "C:\\Program Files" in game_folderpath or "C:\\Program Files (x86)" in game_folderpath:
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
-                                            "   To ensure that everyting works, move your Game or entire Steam folder outside of Program Files.",
+                                            "   To ensure that everything works, move your Game or entire Steam folder outside of Program Files.",
                                             "  -----"])
         else:
             GALAXY.scan_game_report.append(f"✔️ Your {GALAXY.Game_Name} game files are installed outside of Program Files folder. \n  -----")
@@ -649,7 +653,7 @@ class ClasCheckFiles:
         list_log_errors = []
         for filename in Path(log_path).glob("*.log"):
             logname = ""
-            if not any(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
+            if not all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
                 try:
                     filepath = filename.resolve()
                     if filepath.is_file():
@@ -1014,8 +1018,9 @@ class ClasCheckMods:
 
         6: {"mod": " EveryonesBestFriend",
             "warn": ["EVERYONE'S BEST FRIEND \n",
-                     "- This mod needs a compatibility patch to properly work with the Unofficial Patch (UFO4P). \n",
-                     "  Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM"]},
+                     "- This mod needs a compatibility patch to forward changes made by the Unofficial Patch. \n",
+                     "  Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM \n",
+                     "  [If you have Horizon installed or don't use UFO4P, this patch is not needed.]"]},
 
         7: {"mod": " M8r_Item_Tags",
             "warn": ["FALLUI ITEM SORTER (OLD) \n",
