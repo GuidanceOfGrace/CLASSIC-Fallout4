@@ -149,7 +149,7 @@ These changes should make the function more readable and easier to maintain.'''
                 line = line.replace("0x", "").replace("Form ID: ", "").replace("FormID: ", "")
                 if plugins_loaded:
                     for plugin in section_plugins_list:
-                        plugin = plugin.replace(":", "")
+                        plugin = plugin.replace(":", "").strip()
                         if "[FE" not in plugin:
                             if plugin[1:3] == line[:2]:
                                 form_ids.append(f"Form ID: {line} | {plugin}")
