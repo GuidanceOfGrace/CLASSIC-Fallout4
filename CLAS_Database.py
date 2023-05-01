@@ -2,6 +2,7 @@ import configparser
 import hashlib
 import os
 import platform
+import re
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -660,7 +661,10 @@ class ClasCheckFiles:
                         with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
                             Log_Errors = LOG_Check.readlines()
                             for logline in Log_Errors:
-                                if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
+                                '''logline_lower = logline.lower()
+
+                                if any(re.search(err, logline_lower) for err in UNIVERSE.LOG_Errors_Catch) and not any(re.search(err, logline_lower) for err in UNIVERSE.LOG_Errors_Exclude):'''  # GPT version
+                                if any(re.search(err, logline, re.IGNORECASE) for err in UNIVERSE.LOG_Errors_Catch) and all(re.search(err, logline, re.IGNORECASE) for err in UNIVERSE.LOG_Errors_Exclude):  # evildarkarchon version
                                     logname = str(filepath)
                                     list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
                 except (PermissionError, OSError):
@@ -774,56 +778,55 @@ class ClasCheckFiles:
     # =========== CHECK GAME FOLDER -> BUFFOUT 4 SETTINGS ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
+    def check_and_update_config(self, config, section, key, expected_value, warning_msg, report):
+        current_value = config[section][key]
+        if current_value != expected_value:
+            report.extend(warning_msg)
+            report.append("-----")
+            config[section][key] = expected_value
+        else:
+            report.append(f"✔️ {key} parameter in *Buffout4.toml* is correctly configured.\n  -----")
+
     def bo4_check_settings(self):
         if SYSTEM.Buffout_TOML.is_file() and SYSTEM.Buffout_DLL.is_file():
             os.chmod(SYSTEM.Buffout_TOML, stat.S_IWRITE)  # MODIFY TOML WRITE PERMISSIONS
             GALAXY.scan_game_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
+
             with open(SYSTEM.Buffout_TOML, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
                 BUFF_config: tomlkit.TOMLDocument = tomlkit.load(BUFF_Custom)
 
-                if SYSTEM.BO4_Achievements_LOG.is_file() and BUFF_config["Patches"]["Achievements"] is True:  # type: ignore
-                    GALAXY.scan_game_report.extend(["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
-                                                    "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
-                                                    "-----"])
-                    BUFF_config["Patches"]["Achievements"] = False  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----")
+                if SYSTEM.Buffout_TOML.is_file():
+                    self.check_and_update_config(BUFF_config, "Patches", "Achievements", False,
+                                                 ["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
+                                                  "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4."],
+                                                 GALAXY.scan_game_report)
 
-                if SYSTEM.BO4_BakaSH_LOG.is_file() and BUFF_config["Patches"]["MemoryManager"] is True:  # type: ignore
-                    GALAXY.scan_game_report.extend(["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
-                                                    "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
-                                                    "-----"])
-                    BUFF_config["Patches"]["MemoryManager"] = False  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----")
+                if SYSTEM.BO4_BakaSH_LOG.is_file():
+                    self.check_and_update_config(BUFF_config, "Patches", "MemoryManager", False,
+                                                 ["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
+                                                  "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4."],
+                                                 GALAXY.scan_game_report)
 
-                if SYSTEM.BO4_LooksMenu_LOG.is_file() and BUFF_config["Compatibility"]["F4EE"] is False:  # type: ignore
-                    GALAXY.scan_game_report.extend(["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
-                                                    "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.",
-                                                    "-----"])
-                    BUFF_config["Compatibility"]["F4EE"] = True  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
+                if SYSTEM.BO4_LooksMenu_LOG.is_file():
+                    self.check_and_update_config(BUFF_config, "Compatibility", "F4EE", True,
+                                                 ["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
+                                                  "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu."],
+                                                 GALAXY.scan_game_report)
 
-                if BUFF_config["Patches"]["MaxStdIO"] != 2048:  # type: ignore
-                    if BUFF_config["Patches"]["MaxStdIO"] < 2048:  # type: ignore
-                        GALAXY.scan_game_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
-                                                        "Auto-Scanner will increase this value to 2048 to prevent possible crashes.",
-                                                        "-----"])
-                    elif BUFF_config["Patches"]["MaxStdIO"] > 2048:  # type: ignore
-                        GALAXY.scan_game_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",
-                                                        "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
-                                                        "-----"])
-                    elif not isinstance(BUFF_config["Patches"]["MaxStdIO"], int):  # type: ignore
-                        GALAXY.scan_game_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.",
-                                                        "Auto-Scanner will change this value to 2048.",
-                                                        "-----"])
-                    BUFF_config["Patches"]["MaxStdIO"] = 2048  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n")
+                if BUFF_config["Patches"]["MaxStdIO"] < 2048:  # type: ignore
+                    self.check_and_update_config(BUFF_config, "Patches", "MaxStdIO", 2048,
+                                                 ["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
+                                                  "Auto-Scanner will increase this value to 2048 to prevent possible crashes."],
+                                                 GALAXY.scan_game_report)
+                elif BUFF_config["Patches"]["MaxStdIO"] > 2048:  # type: ignore
+                    self.check_and_update_config(BUFF_config, "Patches", "MaxStdIO", 2048,
+                                                 ["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",
+                                                  "Auto-Scanner will decrease this value to 2048 to prevent possible crashes."],
+                                                 GALAXY.scan_game_report)
 
             with open(SYSTEM.Buffout_TOML, "w+", encoding="utf-8", errors="ignore") as BUFF_Custom:
                 tomlkit.dump(BUFF_config, BUFF_Custom)
+
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_Buffout4"])
 

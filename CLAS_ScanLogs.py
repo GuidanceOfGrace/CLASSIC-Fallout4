@@ -685,14 +685,17 @@ These changes should make the function more readable and easier to maintain.'''
 
             def check_special_mods(logtext, crash_error, output, statM_CHW):
                 found = False
-                if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in crash_error:
+                chw_pattern = r"ClassicHolsteredWeapons"
+                d3d11_pattern = r"d3d11"
+
+                if len(re.findall(chw_pattern, logtext)) >= 3 or re.search(chw_pattern, crash_error):
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
                                        "You should disable CHW to further confirm this.\n",
                                        "-----\n"])
                     statM_CHW += 1
                     found = True
-                elif "ClassicHolsteredWeapons" in logtext and "d3d11" in crash_error:
+                elif re.search(chw_pattern, logtext) and re.search(d3d11_pattern, crash_error):
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
                                        "CLAS CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
                                        "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",
