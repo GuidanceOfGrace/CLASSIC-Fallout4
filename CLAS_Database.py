@@ -654,7 +654,7 @@ class ClasCheckFiles:
         list_log_errors = []
         for filename in Path(log_path).glob("*.log"):
             logname = ""
-            if not all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
+            if not all(re.search(exc, str(filename), re.IGNORECASE) for exc in UNIVERSE.LOG_Files_Exclude):
                 try:
                     filepath = filename.resolve()
                     if filepath.is_file():
