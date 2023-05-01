@@ -508,7 +508,7 @@ These changes should make the function more readable and easier to maintain.'''
 
         def check_conditions(culprit_name, error_conditions, stack_conditions):
             def search_any(patterns, text):
-                return any(re.search(re.escape(pattern), re.escape(text), re.IGNORECASE) for pattern in patterns)
+                return any(re.search(re.escape(pattern), re.escape(text), re.IGNORECASE) for pattern in patterns) # not sure if IGNORECASE is needed or desired.
 
             if culprit_name in Special_Cases['Nvidia_Crashes']:
                 return search_any(["nvidia"], logtext) and search_any(stack_conditions, section_stack_text)

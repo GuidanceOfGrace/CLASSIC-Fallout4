@@ -613,7 +613,7 @@ class ClasCheckFiles:
 
     def game_check_folderpath(self):
         game_folderpath = SYSTEM.game_path_check()
-        if re.search(r"C:\\Program Files( \(x86\))?", game_folderpath):
+        if re.search(r"C:\\Program Files( \(x86\))?", game_folderpath, re.IGNORECASE):
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
                                             "   To ensure that everything works, move your Game or entire Steam folder outside of Program Files.",
