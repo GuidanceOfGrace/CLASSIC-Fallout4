@@ -251,7 +251,7 @@ These changes should make the function more readable and easier to maintain.'''
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': 'NvidiaWeaponDebrisFix.dll' in logtext,
+                'condition': 'WeaponDebrisCrashFix.dll' in logtext,
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
