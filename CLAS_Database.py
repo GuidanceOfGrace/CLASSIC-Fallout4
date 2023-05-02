@@ -651,28 +651,43 @@ class ClasCheckFiles:
     # Don't forget to check both OG and VR script extender logs!
 
     def log_check_errors(self, log_path, log_source):
+        def get_error_log_lines(filepath):
+            with filepath.open("r", encoding="utf-8", errors="ignore") as log_file:
+                log_lines = log_file.readlines()
+
+            error_lines = [
+                line for line in log_lines
+                if any(err in line for err in UNIVERSE.LOG_Errors_Catch) and
+                all(err in line for err in UNIVERSE.LOG_Errors_Exclude)
+            ]
+
+            return error_lines
+
         list_log_errors = []
+
         for filename in Path(log_path).glob("*.log"):
-            logname = ""
-            if not all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
-                try:
-                    filepath = filename.resolve()
-                    if filepath.is_file():
-                        with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
-                            Log_Errors = LOG_Check.readlines()
-                            for logline in Log_Errors:
-                                if any(err in logline for err in UNIVERSE.LOG_Errors_Catch) and all(err in logline for err in UNIVERSE.LOG_Errors_Exclude):
-                                    logname = str(filepath)
-                                    list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
-                except (PermissionError, OSError):
-                    list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {logname}")
-                    continue
-        if len(list_log_errors) >= 1:
+            if all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
+                continue
+
+            try:
+                filepath = filename.resolve()
+                if filepath.is_file():
+                    error_lines = get_error_log_lines(filepath)
+                    list_log_errors.extend(
+                        f"  LOG PATH > {filepath}\n  ERROR > {line}\n  -----"
+                        for line in error_lines
+                    )
+            except (PermissionError, OSError):
+                list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {filename}")
+                continue
+
+        if list_log_errors:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-            for elem in list_log_errors:
-                GALAXY.scan_game_report.append(elem)
+            GALAXY.scan_game_report.extend(list_log_errors)
         else:
-            GALAXY.scan_game_report.append(f"  -----\n✔️ Available logs in your {log_source} Folder do not report any additional errors. \n  -----")
+            GALAXY.scan_game_report.append(
+                f"  -----\n✔️ Available logs in your {log_source} Folder do not report any additional errors. \n  -----"
+            )
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INTEGRITY =========
     # RESERVED | ADJUST FOR OTHER GAMES
