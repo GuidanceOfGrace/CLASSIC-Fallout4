@@ -52,6 +52,8 @@ def scan_logs():
     form_id_pattern = re.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
     nvidia_pattern = re.compile(r'GPU.*Nvidia', re.IGNORECASE)
     amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
+    catch_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
+    exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -195,12 +197,12 @@ These changes should make the function more readable and easier to maintain.'''
                                "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n",
                                "-----\n"])
 
-    def extract_named_records(section_stack_list, crash_records_catch, crash_records_exclude):
+    def extract_named_records(section_stack_list):
         named_records = []
         for line in section_stack_list:
-            if any(elem in line.lower() for elem in crash_records_catch):
-                if not any(elem in line for elem in crash_records_exclude):
-                    line = line.replace('"', '')
+            if catch_pattern.search(line.lower()):
+                if not exclude_pattern.search(line):
+                    line = re.sub('"', '', line)
                     named_records.append(line)
         named_records = sorted(named_records)
         return dict(Counter(named_records))
@@ -648,7 +650,7 @@ These changes should make the function more readable and easier to maintain.'''
 
             # ===========================================================
 
-            list_records = extract_named_records(section_stack_list, UNIVERSE.Crash_Records_Catch, GALAXY.Crash_Records_Exclude)
+            list_records = extract_named_records(section_stack_list)
 
             output.write("LIST OF DETECTED (NAMED) RECORDS:\n")
             write_named_records(output, list_records)
