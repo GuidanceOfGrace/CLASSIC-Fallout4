@@ -425,8 +425,8 @@ These changes should make the function more readable and easier to maintain.'''
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
             # ====================== GPU Variables ======================
-            gpu_nvidia = any(re.search(nvidia_pattern, line) for line in loglines)
-            gpu_amd = any(re.search(amd_pattern, line) for line in loglines) if not gpu_nvidia else False
+            gpu_nvidia = any(nvidia_pattern.search(line) for line in loglines)
+            gpu_amd = any(amd_pattern.search(line) for line in loglines) if not gpu_nvidia else False
             gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefine
             assert not (gpu_nvidia and gpu_amd), "❌ ERROR : Both GPU types detected in the log file!"
 
@@ -477,8 +477,7 @@ These changes should make the function more readable and easier to maintain.'''
 
             def check_special_mods(logtext, crash_error, output, statM_CHW):
                 found = False
-
-                # if len(re.findall(chw_pattern, logtext)) >= 3 or re.search(chw_pattern, crash_error):
+                
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
