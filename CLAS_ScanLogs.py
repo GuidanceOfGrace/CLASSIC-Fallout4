@@ -5,9 +5,10 @@ import random
 import re
 import shutil
 import time
-import pkg_resources
 from collections import Counter
 from pathlib import Path
+
+import pkg_resources
 
 from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_ini_create,
                            clas_ini_update, clas_update_check)
@@ -31,8 +32,28 @@ print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Cu
 print("ELIGIBLE CRASH LOGS MUST START WITH 'crash-' AND HAVE .log FILE EXTENSION \n")
 
 
+def culprit_data():
+    try:
+        json_path = pkg_resources.resource_filename(__name__, "crash_culprits.json")
+        with open(json_path, encoding="utf-8", errors="ignore") as f:
+            Culprits = json.load(f)
+    except FileNotFoundError:
+        json_path = os.path.join(os.path.dirname(__file__), "crash_culprits.json")
+        with open(json_path, encoding="utf-8", errors="ignore") as f:
+            Culprits = json.load(f)
+    return Culprits
+
+
 def scan_logs():
+    # =================== IMPORTED DATA AND REGEX PATTERNS ===================
+    Culprits = culprit_data()
+    plugin_id_pattern = re.compile(r'\[[0-9A-Fa-f]{2,6}\]')
+    detected_plugin_pattern = re.compile(r'File:\s+"?([^"]+)"?')
+    form_id_pattern = re.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
+    nvidia_pattern = re.compile(r'GPU.*Nvidia', re.IGNORECASE)
+    amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
+
     def process_file_data(file: Path):
         logpath = file.resolve()
         scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
@@ -82,16 +103,14 @@ def scan_logs():
 
     def extract_plugin_ids(loglines):
         # Define the pattern for the plugin IDs
-        plugin_id_pattern = re.compile(r'\[[0-9A-Fa-f]{2,6}\]')
+        nonlocal plugin_id_pattern
 
         # Use a list comprehension to filter the loglines that match the pattern
-        plugin_ids = [line for line in loglines if plugin_id_pattern.search(line) and "Modified by:" not in line]
-
-        return plugin_ids
+        return [line for line in loglines if plugin_id_pattern.search(line) and "Modified by:" not in line]
 
     def extract_detected_plugins(loglines):
         # Define the pattern for the detected plugins
-        detected_plugin_pattern = re.compile(r'File:\s+"?([^"]+)"?')
+        nonlocal detected_plugin_pattern
 
         # Use a list comprehension to filter the loglines that match the pattern and not Fallout4.esm
         detected_plugins = {match.group(1) for line in loglines if (match := detected_plugin_pattern.search(line)) and "Fallout4.esm" not in line}
@@ -143,7 +162,7 @@ These changes should make the function more readable and easier to maintain.'''
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
         form_ids = []
 
-        form_id_pattern = re.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
+        nonlocal form_id_pattern
 
         for line in loglines:
             match = form_id_pattern.search(line)
@@ -208,7 +227,7 @@ These changes should make the function more readable and easier to maintain.'''
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': re.search(r'CanarySaveFileMonitor', logtext, re.IGNORECASE),
+                'condition': 'CanarySaveFileMonitor' in logtext,
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
@@ -218,29 +237,29 @@ These changes should make the function more readable and easier to maintain.'''
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': re.search(r'PPF.esm', logtext, re.IGNORECASE),
+                'condition': 'PPF.esm' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': re.search(r'Unofficial Fallout 4 Patch.esp', logtext, re.IGNORECASE),
+                'condition': 'Unofficial Fallout 4 Patch.esp' in logtext,
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': re.search(r'vulkan-1.dll', logtext, re.IGNORECASE),
+                'condition': 'vulkan-1.dll' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': re.search(r'NvidiaWeaponDebrisFix.dll', logtext, re.IGNORECASE),
+                'condition': 'NvidiaWeaponDebrisFix.dll' in logtext,
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
-                'condition': re.search(r'NVIDIA_Reflex.dll', logtext, re.IGNORECASE),
+                'condition': 'NVIDIA_Reflex.dll' in logtext,
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
                 'nvidia_specific': True
@@ -280,15 +299,7 @@ These changes should make the function more readable and easier to maintain.'''
 
     def culprit_check(output, logtext, section_stack_text):
         # "xxxxx" are placeholders since None values are non iterable.
-        try:
-            json_path = pkg_resources.resource_filename(__name__, "crash_culprits.json")
-            with open(json_path, encoding="utf-8", errors="ignore") as f:
-                Culprits = json.load(f)
-        except FileNotFoundError:
-            json_path = os.path.join(os.path.dirname(__file__), "crash_culprits.json")
-            with open(json_path, encoding="utf-8", errors="ignore") as f:
-                Culprits = json.load(f)
-
+        nonlocal Culprits
         Special_Cases = {
             'Nvidia_Crashes': ['Nvidia Debris Crash', 'Nvidia Driver Crash', 'Nvidia Reflex Crash'],
             'Vulkan_Crashes': ['Vulkan Memory Crash', 'Vulkan Settings Crash'],
@@ -297,7 +308,7 @@ These changes should make the function more readable and easier to maintain.'''
 
         def check_conditions(culprit_name, error_conditions, stack_conditions):
             def search_any(patterns, text):
-                return any(re.search(re.escape(pattern), re.escape(text), re.IGNORECASE) for pattern in patterns)  # not sure if IGNORECASE is needed or desired.
+                return any(pattern in text for pattern in patterns)
 
             if culprit_name in Special_Cases['Nvidia_Crashes']:
                 return search_any(["nvidia"], logtext) and search_any(stack_conditions, section_stack_text)
@@ -412,16 +423,11 @@ These changes should make the function more readable and easier to maintain.'''
                                "====================================================\n"])
 
             # ====================== HEADER CULPRITS =====================
-            pattern = re.compile(r'\.dll', re.IGNORECASE)
-            negative_pattern = re.compile(r'tbbmalloc', re.IGNORECASE)
 
-            if re.search(pattern, crash_error) and not re.search(negative_pattern, crash_error):
+            if ".dll" in crash_error and not "tbbmalloc" in crash_error:
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
             # ====================== GPU Variables ======================
-            nvidia_pattern = re.compile(r'GPU.*Nvidia', re.IGNORECASE)
-            amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
-
             gpu_nvidia = any(re.search(nvidia_pattern, line) for line in loglines)
             gpu_amd = any(re.search(amd_pattern, line) for line in loglines) if not gpu_nvidia else False
             gpu_other = True if not gpu_nvidia and not gpu_amd else False  # INTEL GPUs & Other Undefine
@@ -474,17 +480,16 @@ These changes should make the function more readable and easier to maintain.'''
 
             def check_special_mods(logtext, crash_error, output, statM_CHW):
                 found = False
-                chw_pattern = r"ClassicHolsteredWeapons"
-                d3d11_pattern = r"d3d11"
 
-                if len(re.findall(chw_pattern, logtext)) >= 3 or re.search(chw_pattern, crash_error):
+                # if len(re.findall(chw_pattern, logtext)) >= 3 or re.search(chw_pattern, crash_error):
+                if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
                                        "You should disable CHW to further confirm this.\n",
                                        "-----\n"])
                     statM_CHW += 1
                     found = True
-                elif re.search(chw_pattern, logtext) and re.search(d3d11_pattern, crash_error):
+                elif "ClassicHolsteredWeapons" in logtext and "d3d11" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS, BUT...\n",
                                        "CLAS CANNOT ACCURATELY DETERMINE IF CHW CAUSED THIS CRASH OR NOT.\n",
                                        "You should open CHW's ini file and change IsHolsterVisibleOnNPCs to 0.\n",

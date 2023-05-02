@@ -654,17 +654,14 @@ class ClasCheckFiles:
         list_log_errors = []
         for filename in Path(log_path).glob("*.log"):
             logname = ""
-            if not all(re.search(exc, str(filename), re.IGNORECASE) for exc in UNIVERSE.LOG_Files_Exclude):
+            if not all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
                 try:
                     filepath = filename.resolve()
                     if filepath.is_file():
                         with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
                             Log_Errors = LOG_Check.readlines()
                             for logline in Log_Errors:
-                                '''logline_lower = logline.lower()
-
-                                if any(re.search(err, logline_lower) for err in UNIVERSE.LOG_Errors_Catch) and not any(re.search(err, logline_lower) for err in UNIVERSE.LOG_Errors_Exclude):'''  # GPT version
-                                if any(re.search(err, logline, re.IGNORECASE) for err in UNIVERSE.LOG_Errors_Catch) and all(re.search(err, logline, re.IGNORECASE) for err in UNIVERSE.LOG_Errors_Exclude):  # evildarkarchon version
+                                if any(err in logline for err in UNIVERSE.LOG_Errors_Catch) and all(err in logline for err in UNIVERSE.LOG_Errors_Exclude):
                                     logname = str(filepath)
                                     list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
                 except (PermissionError, OSError):
