@@ -650,6 +650,12 @@ class ClasCheckFiles:
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
     # Don't forget to check both OG and VR script extender logs!
 
+    '''GPT Change List:
+    Separated the error log line filtering into a separate function, get_error_log_lines(), to improve code readability.
+    Removed the unnecessary logname variable.
+    Used the extend() method instead of looping through list_log_errors to append elements.
+    Replaced the if len(list_log_errors) >= 1 with a more Pythonic if list_log_errors:.'''
+
     def log_check_errors(self, log_path, log_source):
         def get_error_log_lines(filepath):
             with filepath.open("r", encoding="utf-8", errors="ignore") as log_file:
