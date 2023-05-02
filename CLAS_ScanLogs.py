@@ -421,7 +421,7 @@ These changes should make the function more readable and easier to maintain.'''
 
             # ====================== HEADER CULPRITS =====================
 
-            if ".dll" in crash_error and not "tbbmalloc" in crash_error:
+            if ".dll" in crash_error.lower() and "tbbmalloc" not in crash_error.lower():
                 output.write(GALAXY.Warnings["Warn_SCAN_NOTE_DLL"])
 
             # ====================== GPU Variables ======================
