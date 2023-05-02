@@ -477,7 +477,7 @@ These changes should make the function more readable and easier to maintain.'''
 
             def check_special_mods(logtext, crash_error, output, statM_CHW):
                 found = False
-                
+
                 if logtext.count("ClassicHolsteredWeapons") >= 3 or "ClassicHolsteredWeapons" in crash_error:
                     output.writelines(["[!] Found: CLASSIC HOLSTERED WEAPONS\n",
                                        "CLAS IS PRETTY CERTAIN THAT CHW CAUSED THIS CRASH!\n",
