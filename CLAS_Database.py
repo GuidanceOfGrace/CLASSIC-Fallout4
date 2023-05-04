@@ -131,6 +131,10 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
     Crash_Records_Catch = LOG_Errors_Catch + ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                                               ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
+    
+    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch))
+    LOG_Exclude_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Exclude))
+    LOG_File_Exclude_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Files_Exclude))
 
 
 UNIVERSE = ClasUniversalVars()
