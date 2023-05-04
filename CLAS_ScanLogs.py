@@ -54,6 +54,7 @@ def scan_logs():
     amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
     catch_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
+    plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)")
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -204,6 +205,11 @@ These changes should make the function more readable and easier to maintain.'''
         return dict(Counter(named_records))
 
     def write_named_records(output, named_records):
+        '''nr = set(named_records.keys())  # I picked set because a dict_keys object is based on the set built-in type (same for items and values).
+        for item in nr:
+            if plugins_pattern.search(item):
+                del named_records[item]''' # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
+        
         if not named_records:
             output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
                                "-----\n"])
