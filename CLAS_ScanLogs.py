@@ -273,20 +273,40 @@ These changes should make the function more readable and easier to maintain.'''
                 amd_specific = mod_data.get('amd_specific', False)
 
                 if gpu_amd or gpu_other:
-                    if nvidia_specific:
-                        if mod_condition:
-                            output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
+                    if nvidia_specific and mod_condition:
+                        output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
                                          "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
                                          f"   You should uninstall {mod_name} to avoid any problems.\n"
                                          "  -----\n")
                         continue
-                    elif amd_specific:
+                    elif amd_specific and mod_condition:
+                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
                         continue
+                    elif amd_specific and not mod_condition:
+                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                         f"  {mod_data['description']}\n"
+                                         f"  Link: {mod_data['link']}\n"
+                                         "  -----\n")
+                        continue
+                    elif nvidia_specific:
+                        continue
+                
+                if gpu_nvidia:
+                    if amd_specific or "Vulkan" in mod_name:
+                        continue
+                    elif nvidia_specific and mod_condition:
+                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                        continue
+                    elif nvidia_specific and not mod_condition:
+                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                                            f"  {mod_data['description']}\n"
+                                            f"  Link: {mod_data['link']}\n"
+                                            "  -----\n")
+                        continue
+                
+                    
 
-                elif gpu_nvidia and "Vulkan" in mod_name:
-                    continue
-
-                if mod_condition:
+                if not (amd_specific or nvidia_specific) and mod_condition:
                     output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
                 else:
                     output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
