@@ -54,7 +54,7 @@ def scan_logs():
     amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
     catch_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
-    plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)")
+    plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)", re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
