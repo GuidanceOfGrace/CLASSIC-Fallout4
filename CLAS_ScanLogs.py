@@ -583,7 +583,8 @@ These changes should make the function more readable and easier to maintain.'''
                 if any(item in logtext for item in custom_race_mods):
                     output.writelines([f"[!] Found: [XX] CUSTOM RACE SKELETON MOD(S)\n",
                                        "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
-                                       "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n"])
+                                       "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n",
+                                       "-----\n"])
                     found = True
 
                 if "FallSouls.dll" in logtext:
