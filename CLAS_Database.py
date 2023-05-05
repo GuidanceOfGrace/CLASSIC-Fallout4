@@ -132,9 +132,9 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     Crash_Records_Catch = LOG_Errors_Catch + ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                                               ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
     
-    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch))
-    LOG_Exclude_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Exclude))
-    LOG_File_Exclude_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Files_Exclude))
+    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch), re.IGNORECASE)
+    LOG_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Errors_Exclude) + ')', re.IGNORECASE)
+    LOG_Files_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Files_Exclude) + ')', re.IGNORECASE)
 
 
 UNIVERSE = ClasUniversalVars()
@@ -535,7 +535,7 @@ Replaced print and string concatenation with f-strings.'''
                         Game_Path = logline.replace("\n", "")
                     if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
                         XSE_Version = True
-                    if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
+                    if UNIVERSE.LOG_Catch_Pattern.search(logline) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
                         XSE_Error = True
                         Error_List.append(logline)
                     if GALAXY.CRASHGEN_DLL in logline.lower() and "loaded correctly" in logline.lower():
@@ -667,8 +667,8 @@ class ClasCheckFiles:
 
             error_lines = [
                 line for line in log_lines
-                if any(err in line for err in UNIVERSE.LOG_Errors_Catch) and
-                all(err in line for err in UNIVERSE.LOG_Errors_Exclude)
+                if UNIVERSE.LOG_Catch_Pattern.search(line) and
+                not UNIVERSE.LOG_Files_Exclude_Pattern.search(line)
             ]
 
             return error_lines
@@ -676,7 +676,7 @@ class ClasCheckFiles:
         list_log_errors = []
 
         for filename in Path(log_path).glob("*.log"):
-            if all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
+            if UNIVERSE.LOG_Files_Exclude_Pattern.search(filename.name):
                 continue
 
             try:
