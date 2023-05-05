@@ -52,8 +52,8 @@ def scan_logs():
     form_id_pattern = re.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
     nvidia_pattern = re.compile(r'GPU.*Nvidia', re.IGNORECASE)
     amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
-    catch_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
-    exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
+    records_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
+    records_exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)", re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
@@ -197,8 +197,8 @@ These changes should make the function more readable and easier to maintain.'''
     def extract_named_records(section_stack_list):
         named_records = []
         for line in section_stack_list:
-            if catch_pattern.search(line.lower()):
-                if not exclude_pattern.search(line):
+            if records_pattern.search(line.lower()):
+                if not records_exclude_pattern.search(line):
                     line = re.sub('"', '', line)
                     named_records.append(line)
         named_records = sorted(named_records)
