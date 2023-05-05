@@ -105,14 +105,10 @@ def scan_logs():
         return section_stack_list, section_stack_text, section_plugins_list, plugins_loaded
 
     def extract_plugin_ids(loglines):
-        # Define the pattern for the plugin IDs
-
         # Use a list comprehension to filter the loglines that match the pattern
         return [line for line in loglines if plugin_id_pattern.search(line) and "Modified by:" not in line]
 
     def extract_detected_plugins(loglines):
-        # Define the pattern for the detected plugins
-
         # Use a list comprehension to filter the loglines that match the pattern and not Fallout4.esm
         detected_plugins = {match.group(1) for line in loglines if (match := detected_plugin_pattern.search(line)) and "Fallout4.esm" not in line}
 
