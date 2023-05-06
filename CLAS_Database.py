@@ -2,6 +2,7 @@ import configparser
 import hashlib
 import os
 import platform
+import re
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -130,6 +131,10 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
     Crash_Records_Catch = LOG_Errors_Catch + ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                                               ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
+    
+    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch), re.IGNORECASE) # Equivalent to any() without the need for a loop.
+    LOG_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Errors_Exclude) + ')', re.IGNORECASE) # Equivalent to all() without the need for a loop.
+    LOG_Files_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Files_Exclude) + ')', re.IGNORECASE)
 
 
 UNIVERSE = ClasUniversalVars()
@@ -530,7 +535,7 @@ Replaced print and string concatenation with f-strings.'''
                         Game_Path = logline.replace("\n", "")
                     if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
                         XSE_Version = True
-                    if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
+                    if UNIVERSE.LOG_Catch_Pattern.search(logline) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
                         XSE_Error = True
                         Error_List.append(logline)
                     if GALAXY.CRASHGEN_DLL in logline.lower() and "loaded correctly" in logline.lower():
@@ -612,7 +617,7 @@ class ClasCheckFiles:
 
     def game_check_folderpath(self):
         game_folderpath = SYSTEM.game_path_check()
-        if "C:\\Program Files" in game_folderpath or "C:\\Program Files (x86)" in game_folderpath:
+        if re.search(r"C:\\Program Files( \(x86\))?", game_folderpath, re.IGNORECASE):
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
                                             "   To ensure that everything works, move your Game or entire Steam folder outside of Program Files.",
@@ -649,29 +654,50 @@ class ClasCheckFiles:
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
     # Don't forget to check both OG and VR script extender logs!
 
+    '''GPT Change List:
+    Separated the error log line filtering into a separate function, get_error_log_lines(), to improve code readability.
+    Removed the unnecessary logname variable.
+    Used the extend() method instead of looping through list_log_errors to append elements.
+    Replaced the if len(list_log_errors) >= 1 with a more Pythonic if list_log_errors:.'''
+
     def log_check_errors(self, log_path, log_source):
+        def get_error_log_lines(filepath):
+            with filepath.open("r", encoding="utf-8", errors="ignore") as log_file:
+                log_lines = log_file.readlines()
+
+            error_lines = [
+                line for line in log_lines
+                if UNIVERSE.LOG_Catch_Pattern.search(line) and
+                not UNIVERSE.LOG_Files_Exclude_Pattern.search(line)
+            ]
+
+            return error_lines
+
         list_log_errors = []
+
         for filename in Path(log_path).glob("*.log"):
-            logname = ""
-            if not all(exc in str(filename) for exc in UNIVERSE.LOG_Files_Exclude):
-                try:
-                    filepath = filename.resolve()
-                    if filepath.is_file():
-                        with filepath.open("r", encoding="utf-8", errors="ignore") as LOG_Check:
-                            Log_Errors = LOG_Check.readlines()
-                            for logline in Log_Errors:
-                                if any(err in logline.lower() for err in UNIVERSE.LOG_Errors_Catch) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
-                                    logname = str(filepath)
-                                    list_log_errors.append(f"  LOG PATH > {logname}\n  ERROR > {logline}\n  -----")
-                except (PermissionError, OSError):
-                    list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {logname}")
-                    continue
-        if len(list_log_errors) >= 1:
+            if UNIVERSE.LOG_Files_Exclude_Pattern.search(filename.name):
+                continue
+
+            try:
+                filepath = filename.resolve()
+                if filepath.is_file():
+                    error_lines = get_error_log_lines(filepath)
+                    list_log_errors.extend(
+                        f"  LOG PATH > {filepath}\n  ERROR > {line}\n  -----"
+                        for line in error_lines
+                    )
+            except (PermissionError, OSError):
+                list_log_errors.append(f"  ❌ CLAS was unable to scan this log file :\n  {filename}")
+                continue
+
+        if list_log_errors:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Log_Errors"])
-            for elem in list_log_errors:
-                GALAXY.scan_game_report.append(elem)
+            GALAXY.scan_game_report.extend(list_log_errors)
         else:
-            GALAXY.scan_game_report.append(f"  -----\n✔️ Available logs in your {log_source} Folder do not report any additional errors. \n  -----")
+            GALAXY.scan_game_report.append(
+                f"  -----\n✔️ Available logs in your {log_source} Folder do not report any additional errors. \n  -----"
+            )
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INTEGRITY =========
     # RESERVED | ADJUST FOR OTHER GAMES
@@ -774,56 +800,55 @@ class ClasCheckFiles:
     # =========== CHECK GAME FOLDER -> BUFFOUT 4 SETTINGS ===========
     # RESERVED | ADJUST FOR OTHER GAMES
 
+    def check_and_update_config(self, config, section, key, expected_value, warning_msg, report):
+        current_value = config[section][key]
+        if current_value != expected_value:
+            report.extend(warning_msg)
+            report.append("-----")
+            config[section][key] = expected_value
+        else:
+            report.append(f"✔️ {key} parameter in *Buffout4.toml* is correctly configured.\n  -----")
+
     def bo4_check_settings(self):
         if SYSTEM.Buffout_TOML.is_file() and SYSTEM.Buffout_DLL.is_file():
             os.chmod(SYSTEM.Buffout_TOML, stat.S_IWRITE)  # MODIFY TOML WRITE PERMISSIONS
             GALAXY.scan_game_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
+
             with open(SYSTEM.Buffout_TOML, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
                 BUFF_config: tomlkit.TOMLDocument = tomlkit.load(BUFF_Custom)
 
-                if SYSTEM.BO4_Achievements_LOG.is_file() and BUFF_config["Patches"]["Achievements"] is True:  # type: ignore
-                    GALAXY.scan_game_report.extend(["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
-                                                    "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
-                                                    "-----"])
-                    BUFF_config["Patches"]["Achievements"] = False  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----")
+                if SYSTEM.Buffout_TOML.is_file():
+                    self.check_and_update_config(BUFF_config, "Patches", "Achievements", False,
+                                                 ["# ❌ WARNING: Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #",
+                                                  "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4."],
+                                                 GALAXY.scan_game_report)
 
-                if SYSTEM.BO4_BakaSH_LOG.is_file() and BUFF_config["Patches"]["MemoryManager"] is True:  # type: ignore
-                    GALAXY.scan_game_report.extend(["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
-                                                    "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4.",
-                                                    "-----"])
-                    BUFF_config["Patches"]["MemoryManager"] = False  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----")
+                if SYSTEM.BO4_BakaSH_LOG.is_file():
+                    self.check_and_update_config(BUFF_config, "Patches", "MemoryManager", False,
+                                                 ["# ❌ WARNING: Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE #",
+                                                  "Auto-Scanner will change this parameter to FALSE to prevent conflicts with Buffout 4."],
+                                                 GALAXY.scan_game_report)
 
-                if SYSTEM.BO4_LooksMenu_LOG.is_file() and BUFF_config["Compatibility"]["F4EE"] is False:  # type: ignore
-                    GALAXY.scan_game_report.extend(["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
-                                                    "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu.",
-                                                    "-----"])
-                    BUFF_config["Compatibility"]["F4EE"] = True  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----")
+                if SYSTEM.BO4_LooksMenu_LOG.is_file():
+                    self.check_and_update_config(BUFF_config, "Compatibility", "F4EE", True,
+                                                 ["# ❌ WARNING: Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
+                                                  "Auto-Scanner will change this parameter to TRUE to prevent bugs and crashes from Looks Menu."],
+                                                 GALAXY.scan_game_report)
 
-                if BUFF_config["Patches"]["MaxStdIO"] != 2048:  # type: ignore
-                    if BUFF_config["Patches"]["MaxStdIO"] < 2048:  # type: ignore
-                        GALAXY.scan_game_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
-                                                        "Auto-Scanner will increase this value to 2048 to prevent possible crashes.",
-                                                        "-----"])
-                    elif BUFF_config["Patches"]["MaxStdIO"] > 2048:  # type: ignore
-                        GALAXY.scan_game_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",
-                                                        "Auto-Scanner will change this value to 2048 to prevent possible crashes.",
-                                                        "-----"])
-                    elif not isinstance(BUFF_config["Patches"]["MaxStdIO"], int):  # type: ignore
-                        GALAXY.scan_game_report.extend(["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* is not a number.",
-                                                        "Auto-Scanner will change this value to 2048.",
-                                                        "-----"])
-                    BUFF_config["Patches"]["MaxStdIO"] = 2048  # type: ignore
-                else:
-                    GALAXY.scan_game_report.append("✔️ MaxStdIO parameter value in *Buffout4.toml* is correctly configured.\n")
+                if BUFF_config["Patches"]["MaxStdIO"] < 2048:  # type: ignore
+                    self.check_and_update_config(BUFF_config, "Patches", "MaxStdIO", 2048,
+                                                 ["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too low.",
+                                                  "Auto-Scanner will increase this value to 2048 to prevent possible crashes."],
+                                                 GALAXY.scan_game_report)
+                elif BUFF_config["Patches"]["MaxStdIO"] > 2048:  # type: ignore
+                    self.check_and_update_config(BUFF_config, "Patches", "MaxStdIO", 2048,
+                                                 ["# ❌ WARNING: MaxStdIO parameter value in *Buffout4.toml* might be too high.",
+                                                  "Auto-Scanner will decrease this value to 2048 to prevent possible crashes."],
+                                                 GALAXY.scan_game_report)
 
             with open(SYSTEM.Buffout_TOML, "w+", encoding="utf-8", errors="ignore") as BUFF_Custom:
                 tomlkit.dump(BUFF_config, BUFF_Custom)
+
         else:
             GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Missing_Buffout4"])
 
