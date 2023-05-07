@@ -110,7 +110,7 @@ def scan_logs():
 
     def extract_detected_plugins(loglines):
         # Use a list comprehension to filter the loglines that match the pattern and not Fallout4.esm
-        detected_plugins = {match.group(1) for line in loglines if (match := detected_plugin_pattern.search(line)) and "Fallout4.esm" not in line}
+        detected_plugins = [match.group(1) for line in loglines if (match := detected_plugin_pattern.search(line)) and "Fallout4.esm" not in line]
 
         return sorted(detected_plugins)
 
