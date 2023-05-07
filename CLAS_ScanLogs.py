@@ -110,7 +110,7 @@ def scan_logs():
 
     def extract_detected_plugins(loglines):
         # Use a list comprehension to filter the loglines that match the pattern and not Fallout4.esm
-        detected_plugins = {match.group(1) for line in loglines if (match := detected_plugin_pattern.search(line)) and "Fallout4.esm" not in line}
+        detected_plugins = [match.group(1) for line in loglines if (match := detected_plugin_pattern.search(line)) and "Fallout4.esm" not in line]
 
         return sorted(detected_plugins)
 
@@ -204,8 +204,8 @@ These changes should make the function more readable and easier to maintain.'''
         '''nr = set(named_records.keys())  # I picked set because a dict_keys object is based on the set built-in type (same for items and values).
         for item in nr:
             if plugins_pattern.search(item):
-                del named_records[item]''' # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
-        
+                del named_records[item]'''  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
+
         if not named_records:
             output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
                                "-----\n"])
@@ -265,55 +265,55 @@ These changes should make the function more readable and easier to maintain.'''
                 'nvidia_specific': True
             }
         }
-
         if plugins_loaded:
+            def write_installed(output, mod_name):
+                output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+
+            def write_not_installed(output, mod_name, mod_data):
+                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                             f"  {mod_data['description']}\n"
+                             f"  Link: {mod_data['link']}\n"
+                             "  -----\n")
+
+            def write_nvidia_warning(output, mod_name):
+                output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
+                             "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
+                             f"   You should uninstall {mod_name} to avoid any problems.\n"
+                             "  -----\n")
+
             for mod_name, mod_data in Core_Mods.items():
                 mod_condition = mod_data['condition']
-                nvidia_specific = mod_data.get('nvidia_specific', False)  # If the key doesn't exist, return False
+                nvidia_specific = mod_data.get('nvidia_specific', False)
                 amd_specific = mod_data.get('amd_specific', False)
 
                 if gpu_amd or gpu_other:
                     if nvidia_specific and mod_condition:
-                        output.write(f"# ❓ {mod_name.upper()} IS INSTALLED BUT... #\n"
-                                         "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
-                                         f"   You should uninstall {mod_name} to avoid any problems.\n"
-                                         "  -----\n")
+                        write_nvidia_warning(output, mod_name)
                         continue
-                    elif amd_specific and mod_condition:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                    if amd_specific:
+                        if mod_condition:
+                            write_installed(output, mod_name)
+                        else:
+                            write_not_installed(output, mod_name, mod_data)
                         continue
-                    elif amd_specific and not mod_condition:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                         f"  {mod_data['description']}\n"
-                                         f"  Link: {mod_data['link']}\n"
-                                         "  -----\n")
+                    if nvidia_specific:
                         continue
-                    elif nvidia_specific:
-                        continue
-                
+
                 if gpu_nvidia:
                     if amd_specific or "Vulkan" in mod_name:
                         continue
-                    elif nvidia_specific and mod_condition:
-                        output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
+                    if nvidia_specific:
+                        if mod_condition:
+                            write_installed(output, mod_name)
+                        else:
+                            write_not_installed(output, mod_name, mod_data)
                         continue
-                    elif nvidia_specific and not mod_condition:
-                        output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                            f"  {mod_data['description']}\n"
-                                            f"  Link: {mod_data['link']}\n"
-                                            "  -----\n")
-                        continue
-                
-                    
 
-                if not (amd_specific or nvidia_specific) and mod_condition:
-                    output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
-                else:
-                    output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
-                                 f"  {mod_data['description']}\n"
-                                 f"  Link: {mod_data['link']}\n"
-                                 "  -----\n")
-
+                if not (amd_specific or nvidia_specific):
+                    if mod_condition:
+                        write_installed(output, mod_name)
+                    else:
+                        write_not_installed(output, mod_name, mod_data)
         else:
             output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
 
