@@ -30,7 +30,7 @@ def clas_toml_create():
 Update_Check = true
 
 # FCX - File Check Xtended | Set to true if you want CLAS to check the integrity of your game files and core mods.
-"FCX_Mode = true
+FCX_Mode = true
 
 # IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings.
 # I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.
