@@ -223,11 +223,11 @@ class UiCLASMainWin(object):
 
         # ====================== CHECK BOXES ========================
 
-        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_IMIMode, "IMI Mode"))  # type: ignore
-        self.ChkBT_Stats.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Stats, "Stat Logging"))  # type: ignore
-        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Unsolved, "Move Unsolved"))  # type: ignore
-        self.ChkBT_Update.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Update, "Update Check"))  # type: ignore
-        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_FCXMode, "FCX Mode"))  # type: ignore
+        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_IMIMode, "IMI_Mode"))  # type: ignore
+        self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))  # type: ignore
+        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))  # type: ignore
+        self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))  # type: ignore
+        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))  # type: ignore
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
@@ -235,7 +235,7 @@ class UiCLASMainWin(object):
         # @staticmethod recommended for func that don't call "self".
 
     @staticmethod
-    def update_ini_config(checkbox, config_key):
+    def update_toml_config(checkbox, config_key):
         if checkbox.isChecked():
             clas_toml_update(config_key, True)
         else:
@@ -258,7 +258,7 @@ class UiCLASMainWin(object):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
             self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
-            clas_toml_update("Scan Path", SCAN_folder)
+            clas_toml_update("Scan_Path", SCAN_folder)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
             LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
@@ -269,7 +269,7 @@ class UiCLASMainWin(object):
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
             QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)  # type: ignore
-            clas_toml_update("INI Path", INI_folder)
+            clas_toml_update("INI_Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
 
