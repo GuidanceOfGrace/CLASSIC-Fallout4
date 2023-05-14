@@ -1,5 +1,6 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
+from functools import partial
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
@@ -207,7 +208,8 @@ class UiCLASMainWin(object):
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
             button.setFont(font)
             button.setText(data["text"])
-            button.clicked.connect(lambda url=data["url"]: QDesktopServices.openUrl(QUrl(url)))  # type: ignore
+            open_url = partial(QDesktopServices.openUrl, QUrl(data["url"]))
+            button.clicked.connect(open_url)  # type: ignore
 
         # BOTTOM
 
