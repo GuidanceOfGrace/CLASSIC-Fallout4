@@ -6,7 +6,7 @@ import re
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import requests
 import tomlkit
@@ -21,53 +21,51 @@ if platform.system() == "Windows":
 '''
 
 
-# =================== CLAS INI FILE ===================
-def clas_ini_create():
-    if not os.path.exists("CLAS Settings.ini"):  # INI FILE FORCLAS
-        ini_settings = """[MAIN]
+# =================== CLAS TOML FILE ===================
+def clas_toml_create():
+    if not os.path.exists("CLAS Settings.toml"):  # INI FILE FORCLAS
+        toml_settings = """[MAIN]
 # This file contains settings for both source scripts and Crash Log Auto Scanner.exe
 # Set to true if you want CLAS to check that you have the latest version of CLAS.
-Update Check = true
+"Update Check" = true
 
 # FCX - File Check Xtended | Set to true if you want CLAS to check the integrity of your game files and core mods.
-FCX Mode = true
+"FCX Mode" = true
 
 # IMI - Ignore Manual Installation | Set to true if you want CLAS to hide / ignore all manual installation warnings.
 # I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.
-IMI Mode = false
+"IMI Mode" = false
 
 # Set to true if you want CLAS to show extra stats about scanned logs in the command line window.
-Stat Logging = false
+"Stat Logging" = false
 
 # Set to true if you want CLAS to move all unsolved logs and their autoscans to CL-UNSOLVED folder.
 # Unsolved logs are all crash logs where CLAS didn't detect any known crash errors or messages.
-Move Unsolved = false
+"Move Unsolved" = false
 
 # Set or copy-paste your INI directory path below. Example: INI Path = C:/Users/Zen/Documents/My Games/Fallout4
 # Only required if Profile Specific INIs are enabled in MO2 or you moved your Documents folder somewhere else.
 # I highly recommend that you disable Profile Specific Game INI Files in MO2, located in Tools > Profiles...
-INI Path =
+"INI Path" = ""
 
 # Set or copy-paste your custom scan folder path below, from which your crash logs will be scanned.
 # If no path is set, CLAS will search for logs in the same folder from which you are running the exe.
-Scan Path =
+"Scan Path" = ""
 """
-        with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as INI_Autoscan:
-            INI_Autoscan.writelines(ini_settings)
+        toml_data = tomlkit.parse(toml_settings)
+        with open("CLAS Settings.toml", "w+", encoding="utf-8", errors="ignore") as TOML_Autoscan:
+            TOML_Autoscan.write(toml_data.as_string())
 
 
-clas_ini_create()
+clas_toml_create()
 
 
 # ================= INI UPDATE FUNCTIONS =================
-def clas_ini_update(section: str, value: str):  # For checking & writing to INI.
-    if isinstance(section, str) and isinstance(value, str):
-        UNIVERSE.CLAS_config["MAIN"][section] = value
-    else:
-        UNIVERSE.CLAS_config["MAIN"][str(section)] = str(value)
+def clas_toml_update(section: Union[str, bool], value: Union[str, bool]):  # For checking & writing to INI.
+    UNIVERSE.CLAS_config[section] = value
 
-    with open("CLAS Settings.ini", "w+", encoding="utf-8", errors="ignore") as CLAS_INI:
-        UNIVERSE.CLAS_config.write(CLAS_INI)
+    with open("CLAS Settings.toml", "w+", encoding="utf-8", errors="ignore") as TOML:
+        TOML.write(UNIVERSE.CLAS_TOML.as_string())
 
 
 def mods_ini_config(file_path, section, key, new_value=None):
@@ -94,7 +92,7 @@ def mods_ini_config(file_path, section, key, new_value=None):
 # ================= CLAS UPDATE FUNCTIONS ================
 # Don't forget to update the API link for specific games.
 def clas_update_check():
-    if UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check") is True:
+    if UNIVERSE.CLAS_config["Update Check"] is True:
         print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
         print("    (You can disable this check in the EXE or CLAS Settings.ini)")
         try:
@@ -116,9 +114,10 @@ def clas_update_check():
 
 
 class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comments.
-    CLAS_config = configparser.ConfigParser(allow_no_value=True, comment_prefixes="$")
-    CLAS_config.optionxform = str  # type: ignore # Preserve INI formatting.
-    CLAS_config.read("CLAS Settings.ini")
+    with open("CLAS Settings.toml", "r", encoding="utf-8", errors="ignore") as toml_in:
+        CLAS_TOML: tomlkit.TOMLDocument = tomlkit.parse(toml_in.read())
+    CLAS_config: tomlkit.items.Table = CLAS_TOML["MAIN"] # type: ignore
+    
     CLAS_Current = "CLAS v6.95"
     CLAS_Date = "250423"
 
@@ -490,8 +489,8 @@ Replaced print and string concatenation with f-strings.'''
             return None
 
         def get_ini_docs_path() -> Optional[Path]:
-            if str(GALAXY.Game_Docs).lower() in UNIVERSE.CLAS_config["MAIN"]["INI Path"].lower():
-                ini_line = UNIVERSE.CLAS_config["MAIN"]["INI Path"].strip()
+            if str(GALAXY.Game_Docs).lower() in UNIVERSE.CLAS_config["INI Path"].lower():
+                ini_line = UNIVERSE.CLAS_config["INI Path"].strip()
                 ini_docs = Path(ini_line)
                 return ini_docs
             return None
@@ -501,7 +500,7 @@ Replaced print and string concatenation with f-strings.'''
             path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
             print(f"You entered: {path_input} | This path will be automatically added to CLAS Settings.ini")
             manual_docs = Path(path_input.strip())
-            clas_ini_update("INI Path", path_input)
+            clas_toml_update("INI Path", str(path_input))
             return manual_docs
 
         if platform.system() == "Windows":
@@ -752,7 +751,7 @@ class ClasCheckFiles:
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def game_check_extensions(self):
-        if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
+        if str(UNIVERSE.CLAS_config["IMI Mode"]).lower() == "false":
             GALAXY.scan_game_report.extend(["IF YOU ARE USING DYNAMIC PERFORMANCE TUNER AND/OR LOAD ACCELERATOR,",
                                             "remove these mods completely and switch to High FPS Physics Fix!",
                                             "Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files \n"])
@@ -781,7 +780,7 @@ class ClasCheckFiles:
     # RESERVED | ADJUST FOR OTHER GAMES
 
     def bo4_check_required(self):
-        if str(UNIVERSE.CLAS_config["MAIN"]["IMI Mode"]).lower() == "false":
+        if str(UNIVERSE.CLAS_config["IMI Mode"]).lower() == "false":
             if SYSTEM.Preloader_XML.is_file() and SYSTEM.Preloader_DLL.is_file():
                 GALAXY.scan_game_report.append(fr"{GALAXY.Warnings['Warn_SCAN_NOTE_Preloader']}")
             else:

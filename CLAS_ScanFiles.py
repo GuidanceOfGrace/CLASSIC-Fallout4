@@ -2,10 +2,10 @@ import os
 
 from bs4 import BeautifulSoup  # For parsing HTML / XML (Wrye Plugin Check)
 
-from CLAS_Database import (GALAXY, PLANET, SYSTEM, clas_ini_create,
+from CLAS_Database import (GALAXY, PLANET, SYSTEM, clas_toml_create,
                            mods_ini_config)
 
-clas_ini_create()
+clas_toml_create()
 GALAXY.scan_game_report = []
 
 
