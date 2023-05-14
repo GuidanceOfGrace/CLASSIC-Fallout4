@@ -94,7 +94,7 @@ def mods_ini_config(file_path, section, key, new_value=None):
 def clas_update_check():
     if UNIVERSE.CLAS_config["Update_Check"] is True:
         print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
-        print("    (You can disable this check in the EXE or CLAS Settings.ini)")
+        print("    (You can disable this check in the EXE or CLAS Settings.toml)")
         try:
             response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest")  # type: ignore
             CLAS_Received = response.json()["name"]
@@ -298,12 +298,12 @@ class ClasSpecificVars:
 """,
         "Warn_SCAN_FCX_Enabled": """\
 * NOTICE: FCX MODE IS ENABLED. AUTOSCAN MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
-[ To disable mod & game files detection, disable FCX Mode in the exe or CLAS Settings.ini ]
+[ To disable mod & game files detection, disable FCX Mode in the exe or CLAS Settings.toml ]
 
 """,
         "Warn_SCAN_FCX_Disabled": """\
 * NOTICE: FCX MODE IS DISABLED. YOU CAN ENABLE IT TO DETECT PROBLEMS IN MOD & GAME FILES *
-[ FCX Mode can be enabled in the exe or CLAS Settings.ini located in your CLAS folder. ]
+[ FCX Mode can be enabled in the exe or CLAS Settings.toml located in your CLAS folder. ]
 
 """,
         "Warn_SCAN_Log_Errors": """
@@ -498,7 +498,7 @@ Replaced print and string concatenation with f-strings.'''
         def get_manual_docs_path() -> Path:
             print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {GALAXY.Game_Docs}.ini IS LOCATED < <")
             path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{GALAXY.Game_Docs} | Press ENTER to confirm.)\n> ")
-            print(f"You entered: {path_input} | This path will be automatically added to CLAS Settings.ini")
+            print(f"You entered: {path_input} | This path will be automatically added to CLAS Settings.toml")
             manual_docs = Path(path_input.strip())
             clas_toml_update("INI_Path", str(path_input))
             return manual_docs
