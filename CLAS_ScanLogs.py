@@ -362,10 +362,10 @@ These changes should make the function more readable and easier to maintain.'''
     start_time = time.perf_counter()
 
     SCAN_folder = os.getcwd()
-    if UNIVERSE.CLAS_config["Scan_Path"]:
-        SCAN_folder = UNIVERSE.CLAS_config["Scan_Path"]
+    if UNIVERSE.CLAS_config["Scan Path"]:
+        SCAN_folder = UNIVERSE.CLAS_config["Scan Path"]
 
-    if UNIVERSE.CLAS_config["FCX_Mode"]:
+    if UNIVERSE.CLAS_config["FCX Mode"]:
         from CLAS_ScanFiles import (scan_game_files, scan_mod_inis,
                                     scan_wryecheck)
         GALAXY.scan_game_report = []
@@ -409,7 +409,7 @@ These changes should make the function more readable and easier to maintain.'''
                                "CHECKING IF NECESSARY FILES/SETTINGS ARE CORRECT...\n",
                                "====================================================\n"])
 
-            fcx_mode = UNIVERSE.CLAS_config["FCX_Mode"]
+            fcx_mode = UNIVERSE.CLAS_config["FCX Mode"]
 
             if fcx_mode == "true":
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Enabled"])
@@ -726,7 +726,7 @@ These changes should make the code more readable and easier to maintain.'''
             statL_scanned -= 1
             file_move = True
 
-        if file_move and UNIVERSE.CLAS_config["Move_Unsolved"]:
+        if file_move and UNIVERSE.CLAS_config["Move Unsolved"]:
             unsolved_folder = "CLAS UNSOLVED"
             Path(unsolved_folder).mkdir(exist_ok=True)
             crash_move = Path(unsolved_folder, crash_file_path.name)
@@ -779,23 +779,23 @@ if __name__ == "__main__":  # AKA only autorun / do the following when NOT impor
 
     # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
     # So it will respect current INI values if not specified on the command line.
-    if isinstance(args.fcx_mode, bool) and not args.fcx_mode == UNIVERSE.CLAS_config["FCX_Mode"]:
-        clas_toml_update("FCX_Mode", args.fcx_mode)
+    if isinstance(args.fcx_mode, bool) and not args.fcx_mode == UNIVERSE.CLAS_config["FCX Mode"]:
+        clas_toml_update("FCX Mode", args.fcx_mode)
 
-    if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config["IMI_Mode"]:
-        clas_toml_update("IMI_Mode", args.imi_mode)
+    if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config["IMI Mode"]:
+        clas_toml_update("IMI Mode", args.imi_mode)
 
-    if isinstance(args.stat_logging, bool) and not args.stat_logging == UNIVERSE.CLAS_config["Stat_Logging"]:
-        clas_toml_update("Stat_Logging", args.stat_logging)
+    if isinstance(args.stat_logging, bool) and not args.stat_logging == UNIVERSE.CLAS_config["Stat Logging"]:
+        clas_toml_update("Stat Logging", args.stat_logging)
 
-    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config["Move_Unsolved"]:
-        clas_toml_update("Move_Unsolved", args.move_unsolved)
+    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config["Move Unsolved"]:
+        clas_toml_update("Move Unsolved", args.move_unsolved)
 
-    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == UNIVERSE.CLAS_config["INI_Path"]:
-        clas_toml_update("INI_Path", str(Path(ini_path).resolve()))
+    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == UNIVERSE.CLAS_config["INI Path"]:
+        clas_toml_update("INI Path", str(Path(ini_path).resolve()))
 
-    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == UNIVERSE.CLAS_config["Scan_Path"]:
-        clas_toml_update("Scan_Path", str(Path(scan_path).resolve()))
+    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == UNIVERSE.CLAS_config["Scan Path"]:
+        clas_toml_update("Scan Path", str(Path(scan_path).resolve()))
 
     scan_logs()
     os.system("pause")
