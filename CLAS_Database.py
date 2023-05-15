@@ -534,7 +534,7 @@ Replaced print and string concatenation with f-strings.'''
                         Game_Path = logline.replace("\n", "")
                     if GALAXY.XSEOG_Latest in logline or GALAXY.XSEVR_Latest in logline:
                         XSE_Version = True
-                    if UNIVERSE.LOG_Catch_Pattern.search(logline) and all(err not in logline.lower() for err in UNIVERSE.LOG_Errors_Exclude):
+                    if UNIVERSE.LOG_Catch_Pattern.search(logline) and not UNIVERSE.LOG_Exclude_Pattern.search(logline):
                         XSE_Error = True
                         Error_List.append(logline)
                     if GALAXY.CRASHGEN_DLL in logline.lower() and "loaded correctly" in logline.lower():
