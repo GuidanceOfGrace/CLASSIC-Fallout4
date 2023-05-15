@@ -23,9 +23,7 @@ if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
 else:
     with open("CLAS Ignore.txt", "r", encoding="utf-8", errors="ignore") as CLAS_Ignore:
         LCL_skip_list = [line.strip() for line in CLAS_Ignore.readlines()[1:]]
-        for i in range(len(LCL_skip_list)):
-            if not LCL_skip_list[i].startswith(' '):
-                LCL_skip_list[i] = ' ' + LCL_skip_list[i]
+        LCL_skip_list = [' ' + line if not line.startswith(' ') else line for line in LCL_skip_list]
 
 # =================== TERMINAL OUTPUT START ====================
 print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Current[-4:]} | Fallout 4")
@@ -571,28 +569,31 @@ These changes should make the function more readable and easier to maintain.'''
 
                 thuggy_smurf_mods = ("Depravity", "FusionCityRising", "HotC", "OutcastsAndRemnants", "ProjectValkyrie")
                 custom_race_mods = ("CaN.esm", "AnimeRace_Nanako.esp")
+                fall_souls_mod = "FallSouls.dll"
+
+                def write_output(message):
+                    nonlocal found
+                    output.writelines(message)
+                    found = True
 
                 if any(item in logtext for item in thuggy_smurf_mods):
-                    output.writelines([f"[!] Found: [XX] THUGGYSMURF QUEST MOD(S)\n",
-                                       "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
-                                       "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
-                                       "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
-                                       "-----\n"])
-                    found = True
+                    write_output([f"[!] Found: [XX] THUGGYSMURF QUEST MOD(S)\n",
+                                  "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
+                                  "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
+                                  "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
+                                  "-----\n"])
 
                 if any(item in logtext for item in custom_race_mods):
-                    output.writelines([f"[!] Found: [XX] CUSTOM RACE SKELETON MOD(S)\n",
-                                       "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
-                                       "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n",
-                                       "-----\n"])
-                    found = True
+                    write_output([f"[!] Found: [XX] CUSTOM RACE SKELETON MOD(S)\n",
+                                  "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
+                                  "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n",
+                                  "-----\n"])
 
-                if "FallSouls.dll" in logtext:
-                    output.writelines([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
-                                       "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.\n",
-                                       "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n",
-                                       "-----\n"])
-                    found = True
+                if fall_souls_mod in logtext:
+                    write_output([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
+                                  "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.\n",
+                                  "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n",
+                                  "-----\n"])
 
                 return found
 

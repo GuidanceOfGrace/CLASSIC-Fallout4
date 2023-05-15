@@ -116,8 +116,8 @@ def clas_update_check():
 class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comments.
     with open("CLAS Settings.toml", "r", encoding="utf-8", errors="ignore") as toml_in:
         CLAS_TOML: tomlkit.TOMLDocument = tomlkit.parse(toml_in.read())
-    CLAS_config: tomlkit.items.Table = CLAS_TOML["MAIN"] # type: ignore
-    
+    CLAS_config: tomlkit.items.Table = CLAS_TOML["MAIN"]  # type: ignore
+
     CLAS_Current = "CLAS v6.95"
     CLAS_Date = "250423"
 
@@ -130,9 +130,9 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
     Crash_Records_Catch = LOG_Errors_Catch + ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                                               ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
-    
-    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch), re.IGNORECASE) # Equivalent to any() without the need for a loop.
-    LOG_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Errors_Exclude) + ')', re.IGNORECASE) # Equivalent to all() without the need for a loop.
+
+    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch), re.IGNORECASE)  # Equivalent to any() without the need for a loop.
+    LOG_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Errors_Exclude) + ')', re.IGNORECASE)  # Equivalent to all() without the need for a loop.
     LOG_Files_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Files_Exclude) + ')', re.IGNORECASE)
 
 
