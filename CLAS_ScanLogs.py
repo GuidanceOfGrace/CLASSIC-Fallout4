@@ -381,7 +381,8 @@ These changes should make the function more readable and easier to maintain.'''
             crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"  # type: ignore
             error_match = unhandled_exception_pattern.search(logtext)
             crash_error = error_match.group() if error_match else re.search(r"Unhandled exception(.*)", logtext, re.IGNORECASE).group()  # type: ignore
-
+            if not crash_error:
+                crash_error = "❌ Error Not Found"
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
             # BUFFOUT VERSION CHECK
