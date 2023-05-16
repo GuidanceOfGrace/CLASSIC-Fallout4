@@ -66,6 +66,8 @@ def scan_logs():
 
         loglines = logtext.strip().splitlines()
 
+        loglines = list(map(str.strip, loglines))
+
         return scanpath, logname, logtext, loglines
 
     def process_log_sections(loglines):
