@@ -52,6 +52,8 @@ def scan_logs():
     amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
     records_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     records_exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
+    # unhandled_exception_pattern = re.compile(r"Unhandled exception.*\+(.*)", re.IGNORECASE)
+    unhandled_exception_pattern = re.compile(r"Unhandled exception.*(\+.*)", re.IGNORECASE)
     plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)", re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
@@ -359,9 +361,7 @@ These changes should make the function more readable and easier to maintain.'''
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
 
-    SCAN_folder = os.getcwd()
-    if UNIVERSE.CLAS_config["Scan_Path"]:
-        SCAN_folder = UNIVERSE.CLAS_config["Scan_Path"]
+    SCAN_folder = UNIVERSE.CLAS_config["Scan_Path"] if UNIVERSE.CLAS_config["Scan_Path"] else os.getcwd()
 
     if UNIVERSE.CLAS_config["FCX_Mode"]:
         from CLAS_ScanFiles import (scan_game_files, scan_mod_inis,
@@ -385,8 +385,10 @@ These changes should make the function more readable and easier to maintain.'''
 
             # DEFINE LINE INDEXES HERE
             crash_ver = loglines[1]
-            crash_error = loglines[2] if loglines[2] and not loglines[2] == "\n" else loglines[3]
-            assert len(crash_error) > 0
+            error_match = unhandled_exception_pattern.search(logtext)
+            crash_error = error_match.group() if error_match else None # type: ignore
+            assert crash_error is not None, "Unhandled Exception not found in log file."
+            assert len(crash_error) > 0 # type: ignore
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
