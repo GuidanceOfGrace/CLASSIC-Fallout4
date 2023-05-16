@@ -189,7 +189,7 @@ These changes should make the function more readable and easier to maintain.'''
             if records_pattern.search(line.lower()):
                 if not records_exclude_pattern.search(line):
                     line = re.sub('"', '', line)
-                    named_records.append(line)
+                    named_records.append(line.strip())
         named_records = sorted(named_records)
         return dict(Counter(named_records))
 
@@ -464,7 +464,8 @@ These changes should make the function more readable and easier to maintain.'''
 
                 for line in section_plugins_list:
                     for mod_data in mods.values():
-                        if "File:" not in line and mod_data["mod"] in line and mod_data["mod"] not in LCL_skip_list:
+                        mod_data_match = mod_data["mod"].search(line)
+                        if "File:" not in line and mod_data_match and mod_data_match.group() not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
                             prefix = line[0:5] if "[FE" not in line else line[0:9]
                             output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
@@ -477,7 +478,9 @@ These changes should make the function more readable and easier to maintain.'''
                     return mod_trap
 
                 for mod_data in mods.values():
-                    if mod_data["mod_1"] in logtext and mod_data["mod_2"] in logtext:
+                    mod1_match = mod_data["mod_1"].search(logtext)
+                    mod2_match = mod_data["mod_2"].search(logtext)
+                    if mod1_match and mod2_match:
                         warn = ''.join(mod_data["warn"])
                         output.writelines([f"[!] CAUTION : {warn}\n", "-----\n"])
                         mod_trap = True
