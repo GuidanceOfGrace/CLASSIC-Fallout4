@@ -861,6 +861,7 @@ class ClasCheckMods:
     # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES | Leave 1 empty space as prefix to prevent most duplicates.
     chw_regex = re.compile(r"ClassicHolsteredWeapons(.*)")
     awkcr_regex = re.compile("ArmorKeywords.esm")
+    betterpowerarmor_regex = re.compile("BetterPowerArmorRedux.dll")
     Mods1 = {
         0: {"mod": re.compile("DamageThresholdFramework.esm"),
             "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
@@ -932,13 +933,13 @@ class ClasCheckMods:
     # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS | Leave 1 empty space as prefix to prevent most duplicates.
     # mod_1 should be less popular mod, mod_2 more popular mod.
     Mods2 = {
-        0: {"mod_1": re.compile("BetterPowerArmorRedux.dll"),
+        0: {"mod_1": betterpowerarmor_regex,
             "mod_2": re.compile("FloatingDamage.dll"),
             "warn": [" BETTER POWER ARMOR REDUX ❌ CONFLICTS WITH : FLOATING DAMAGE \n",
                      "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
                      "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
-        1: {"mod_1": re.compile("BetterPowerArmorRedux.dll"),
+        1: {"mod_1": betterpowerarmor_regex,
             "mod_2": re.compile("KnockoutFramework.dll"),
             "warn": [" BETTER POWER ARMOR REDUX ❌ CONFLICTS WITH : KNOCKOUT FRAMEWORK \n",
                      "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
