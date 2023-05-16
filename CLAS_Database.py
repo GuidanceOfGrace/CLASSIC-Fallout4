@@ -859,6 +859,8 @@ PLANET = ClasCheckFiles()
 
 class ClasCheckMods:
     # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES | Leave 1 empty space as prefix to prevent most duplicates.
+    chw_regex = re.compile(r"ClassicHolsteredWeapons(.*)")
+    awkcr_regex = re.compile("ArmorKeywords.esm")
     Mods1 = {
         0: {"mod": re.compile("DamageThresholdFramework.esm"),
             "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
@@ -942,8 +944,8 @@ class ClasCheckMods:
                      "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
                      "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
-        2: {"mod_1": re.compile(r" BostonFPSFix(.*)"),
-            "mod_2": re.compile(" PRP.esp"),
+        2: {"mod_1": re.compile(r"BostonFPSFix(.*)"),
+            "mod_2": re.compile("PRP.esp"),
             "warn": ["BOSTON FPS FIX ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
                      "[Using both mods can break precombines. CLAS suggests using Previs Repair Pack only.]"]},
 
@@ -981,24 +983,24 @@ class ClasCheckMods:
                      "[Both mods make changes to the in-game camera. CLAS suggests using Camera Tweaks only, since it's an updated alternative.]"]},
 
         9: {"mod_1": re.compile("UniquePlayer.esp"),
-            "mod_2": re.compile(r"ClassicHolsteredWeapons(.*)"),
+            "mod_2": chw_regex,
             "warn": ["UNIQUE PLAYER ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
                      "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                      "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
         10: {"mod_1": re.compile("HHS.dll"),
-             "mod_2": re.compile(r"ClassicHolsteredWeapons(.*)"),
+             "mod_2": chw_regex,
              "warn": ["HIGH HEELS SYSTEM ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
                       "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                       "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
         11: {"mod_1": re.compile("cbp.dll"),
-             "mod_2": re.compile(r"ClassicHolsteredWeapons(.*)"),
+             "mod_2": chw_regex,
              "warn": ["CBP PHYSICS ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
                       "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                       "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
-        12: {"mod_1": re.compile("ArmorKeywords.esm"),
+        12: {"mod_1": awkcr_regex,
              "mod_2": re.compile("SKKCraftableWeaponsAmmo.esp"),
              "warn": ["ARMOR AND WEAPON KEYWORDS ❌ CONFLICTS WITH : SKK CRAFT WEAPONS AND SCRAP AMMO \n",
                       "[SKK Craft Weapons & Ammo Version 008 is incompatible with AWKCR and will cause crashes while saving the game.]\n",
@@ -1021,7 +1023,7 @@ class ClasCheckMods:
                      "- Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs \n",
                      "  If you notice AAF related problems, remove latest version of Looks Menu and switch to 1.6.18"]},
 
-        2: {"mod": re.compile("ArmorKeywords.esm"),
+        2: {"mod": awkcr_regex,
             "warn": ["ARMOR AND WEAPONS KEYWORDS\n",
                      "- If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul \n",
                      "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files \n",
