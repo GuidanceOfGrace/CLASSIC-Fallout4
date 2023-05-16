@@ -64,10 +64,7 @@ def scan_logs():
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
 
-        with logpath.open(encoding="utf-8", errors="ignore") as f:
-            loglines = f.readlines()
-
-        loglines = list(map(str.strip, loglines))
+        loglines = logtext.strip().splitlines()
 
         return scanpath, logname, logtext, loglines
 
@@ -383,7 +380,7 @@ These changes should make the function more readable and easier to maintain.'''
             crash_ver_match = buffout4_pattern.search(logtext)
             crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"  # type: ignore
             error_match = unhandled_exception_pattern.search(logtext)
-            crash_error = error_match.group() if error_match else "❌ No Error Found"  # type: ignore
+            crash_error = error_match.group() if error_match else re.search(r"Unhandled exception(.*)", logtext, re.IGNORECASE).group()  # type: ignore
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
