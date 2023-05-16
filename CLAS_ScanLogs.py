@@ -54,6 +54,7 @@ def scan_logs():
     records_exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     # unhandled_exception_pattern = re.compile(r"Unhandled exception.*\+(.*)", re.IGNORECASE)
     unhandled_exception_pattern = re.compile(r"Unhandled exception.*(\+.*)", re.IGNORECASE)
+    buffout4_pattern = re.compile(r"Buffout 4 (.*)", re.IGNORECASE)
     plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)", re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
@@ -384,11 +385,15 @@ These changes should make the function more readable and easier to maintain.'''
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
 
             # DEFINE LINE INDEXES HERE
-            crash_ver = loglines[1]
+            crash_ver_match = buffout4_pattern.search(logtext)
+            crash_ver = crash_ver_match.group() if crash_ver_match else None  # type: ignore
+            assert crash_ver is not None, "Buffout 4 Version not found in log file."
+            assert len(crash_ver) > 0  # type: ignore
+
             error_match = unhandled_exception_pattern.search(logtext)
-            crash_error = error_match.group() if error_match else None # type: ignore
+            crash_error = error_match.group() if error_match else None  # type: ignore
             assert crash_error is not None, "Unhandled Exception not found in log file."
-            assert len(crash_error) > 0 # type: ignore
+            assert len(crash_error) > 0  # type: ignore
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
