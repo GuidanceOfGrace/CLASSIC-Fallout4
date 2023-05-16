@@ -89,19 +89,14 @@ def scan_logs():
         section_stack_text = str(section_stack_list)
         section_plugins_list = loglines[index_plugins:]
 
-        if os.path.exists("loadorder.txt"):
+        loadorder_path = Path("loadorder.txt")
+
+        if loadorder_path.exists():
             plugins_loaded = True
-            section_plugins_list = []
+            plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
 
-            with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
-                plugin_format = loadorder_check.readlines()
-
-                if len(plugin_format) >= 1 and not any("[00]" in elem for elem in section_plugins_list):
-                    section_plugins_list.append("[00]")
-
-                for line in plugin_format:
-                    line = "[LO] " + line.strip()
-                    section_plugins_list.append(line)
+            section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
+            section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
 
         return section_stack_list, section_stack_text, section_plugins_list, plugins_loaded
 
