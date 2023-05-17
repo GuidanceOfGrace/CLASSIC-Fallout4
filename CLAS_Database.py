@@ -297,7 +297,7 @@ class ClasSpecificVars:
    CLAS will now enable this setting automatically in the INI.
 """,
         "Warn_SCAN_FCX_Enabled": """\
-* NOTICE: FCX MODE IS ENABLED. AUTOSCAN MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
+* NOTICE: FCX MODE IS ENABLED. CLAS MUST BE RUN BY ORIGINAL USER FOR CORRECT DETECTION *
 [ To disable mod & game files detection, disable FCX Mode in the exe or CLAS Settings.toml ]
 
 """,
@@ -344,12 +344,12 @@ class ClasSpecificVars:
   -----
 """,
         "Warn_SCAN_Outdated_Buffout4": """
-# [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY AUTOSCAN #
+# [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY CLAS #
   UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/64880
 """,
         "Warn_BLOG_NOTE_Plugins": """\
 # [!] NOTICE : BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #
-  Autoscan cannot continue. Try scanning a different crash log
+  CLAS cannot continue. Try scanning a different crash log
   OR copy-paste your *loadorder.txt* into your CLAS folder.
   -----
 """,
@@ -365,7 +365,7 @@ class ClasSpecificVars:
     F4SE Link (Regular & VR Version): https://f4se.silverlock.org
 """,
         "Warn_SCAN_Outdated_F4SE": """
-# [!] CAUTION : REPORTED F4SE VERSION DOES NOT MATCH THE F4SE VERSION USED BY AUTOSCAN #
+# [!] CAUTION : REPORTED F4SE VERSION DOES NOT MATCH THE F4SE VERSION USED BY CLAS #
       UPDATE FALLOUT 4 SCRIPT EXTENDER IF NECESSARY: https://f4se.silverlock.org
       F4SE VERSION FOR VIRTUAL REALITY IS LOCATED ON THE SAME WEBSITE
 """,
@@ -761,7 +761,7 @@ class ClasCheckFiles:
             if SYSTEM.VR_EXE.is_file() and SYSTEM.VR_Buffout.is_file():
                 GALAXY.scan_game_report.append("*✔️ Buffout 4 VR Version* is (manually) installed.\n  -----")
             elif SYSTEM.VR_EXE.is_file() and not SYSTEM.VR_Buffout.is_file():
-                GALAXY.scan_game_report.extend(["# ❌ BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                GALAXY.scan_game_report.extend(["# ❌ BUFFOUT 4 FOR VR VERSION ISN'T INSTALLED OR CLAS CANNOT DETECT IT #",
                                                 "  This is a mandatory Buffout 4 port for the VR Version of Fallout 4.",
                                                 "  Link: https://www.nexusmods.com/fallout4/mods/64880?tab=files",
                                                 "  -----"])
@@ -771,7 +771,7 @@ class ClasCheckFiles:
             if (SYSTEM.CreationKit_EXE.is_file() and os.path.exists(SYSTEM.CreationKit_Fixes)) or (isinstance(SYSTEM.Game_Path, str) and Path(SYSTEM.Game_Path).joinpath("winhttp.dll").is_file()):  # type: ignore
                 GALAXY.scan_game_report.append("✔️ *Creation Kit Fixes* is (manually) installed.\n  -----")
             elif SYSTEM.CreationKit_EXE.is_file() and not os.path.exists(SYSTEM.CreationKit_Fixes):
-                GALAXY.scan_game_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR AUTOSCAN CANNOT DETECT IT #",
+                GALAXY.scan_game_report.extend(["# ❌ CREATION KIT FIXES ISN'T INSTALLED OR CLAS CANNOT DETECT IT #",
                                                 "  This is a highly recommended patch for the Fallout 4 Creation Kit.",
                                                 "  Link: https://www.nexusmods.com/fallout4/mods/51165?tab=files",
                                                 "  -----"])

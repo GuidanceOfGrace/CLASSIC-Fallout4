@@ -123,7 +123,7 @@ def scan_logs():
 
     def write_plugin_culprits(output, culprits, detected_plugins_counter):
         if not culprits:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
+            output.writelines(["* CLAS COULDN'T FIND ANY PLUGIN CULPRITS *\n",
                                "-----\n"])
         else:
             for matches in culprits:
@@ -175,7 +175,7 @@ These changes should make the function more readable and easier to maintain.'''
 
     def write_form_id_culprits(output, form_ids):
         if not form_ids:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
+            output.writelines(["* CLAS COULDN'T FIND ANY FORM ID CULPRITS *\n",
                                "-----\n"])
         else:
             for elem in form_ids:
@@ -202,7 +202,7 @@ These changes should make the function more readable and easier to maintain.'''
                 del named_records[item]'''  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
 
         if not named_records:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
+            output.writelines(["* CLAS COULDN'T FIND ANY NAMED RECORDS *\n",
                                "-----\n"])
         else:
             for item in named_records:
@@ -265,7 +265,7 @@ These changes should make the function more readable and easier to maintain.'''
                 output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
             def write_not_installed(output, mod_name, mod_data):
-                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR CLAS CANNOT DETECT IT #\n"
                              f"  {mod_data['description']}\n"
                              f"  Link: {mod_data['link']}\n"
                              "  -----\n")
@@ -451,7 +451,7 @@ These changes should make the function more readable and easier to maintain.'''
             Culprit_Trap = culprit_check(output, logtext, section_stack_text)
 
             if Culprit_Trap is False:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
-                output.writelines(["# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
+                output.writelines(["# CLAS FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
                                    "Check below for mods that can cause frequent crashes and other problems.\n",
                                    "-----\n"])
             else:
@@ -551,11 +551,11 @@ These changes should make the function more readable and easier to maintain.'''
                 # CURRENTLY NONE
 
                 if (Mod_Check2 or Mod_Trap2) is True:
-                    output.writelines(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
+                    output.writelines(["# CLAS FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
                                        "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
                                        "-----\n"])
                 elif (Mod_Check2 and Mod_Trap2) is False:
-                    output.writelines(["# AUTOSCAN FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
+                    output.writelines(["# CLAS FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
@@ -605,12 +605,12 @@ These changes should make the function more readable and easier to maintain.'''
                 Mod_Trap3 = check_special_mods_with_solutions(logtext, output)
 
                 if Mod_Check3 or Mod_Trap3 is True:
-                    output.writelines([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                    output.writelines([f"# CLAS FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
                                        "[Due to limitations, CLAS will show warnings for some mods even if fixes or patches are already installed.]\n",
                                        "[To hide these warnings, you can add their plugin names to the CLAS Ignore.txt file. ONE PLUGIN PER LINE.]\n",
                                        "-----\n"])
                 elif Mod_Check3 and Mod_Trap3 is False:
-                    output.writelines([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                    output.writelines([f"# CLAS FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
@@ -635,7 +635,7 @@ These changes should make the function more readable and easier to maintain.'''
                                        "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n",
                                        "-----\n"])
                 elif (Mod_Check4 and Mod_Trap4) is False:
-                    output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
+                    output.writelines(["# CLAS FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
