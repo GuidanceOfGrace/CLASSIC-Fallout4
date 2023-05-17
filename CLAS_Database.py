@@ -962,7 +962,7 @@ class ClasCheckMods:
                      "[FROST Cell Fixes: https://www.nexusmods.com/fallout4/mods/59652?tab=files]"]},
 
         5: {"mod_1": re.compile("DCGuard_Overhaul.esp"),
-            "mod_2": re.compile(r"(.*)Guards.esp"),
+            "mod_2": re.compile("Guards.esp"),
             "warn": ["THE FENS SHERIFF'S DEPARTMENT ❌ CONFLICTS WITH : VARIED DIAMOND CITY GUARDS \n",
                      "[Both mods heavily modify Diamond City Guards records. You should use only one of these mods, not both at the same time.]"]},
 
@@ -972,7 +972,7 @@ class ClasCheckMods:
                      "[Both mods likely use the same DLL hooks. This can crash the game or cause weird mod behavior.]\n",
                      "[If you encounter problems or crashes, You should use only one of these mods, not both at the same time.]"]},
 
-        7: {"mod_1": re.compile(r"(.*)vulkan(.*)"),
+        7: {"mod_1": re.compile(r"vulkan(.*)"),
             "mod_2": re.compile("NVIDIA_Reflex.dll"),
             "warn": ["VULKAN RENDERER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
                      "[Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior.]\n",
