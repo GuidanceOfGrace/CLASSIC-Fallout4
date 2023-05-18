@@ -463,14 +463,16 @@ These changes should make the function more readable and easier to maintain.'''
             def check_plugins(mods, mod_trap, plugins_loaded, section_plugins_list, LCL_skip_list):
                 if not plugins_loaded:
                     return mod_trap
-
+                mods_found = set()
                 for line in section_plugins_list:
-                    for mod_data in mods.values():
+                    for mod_data in mods:  # changed from mods.values()
                         mod_data_match = mod_data["mod"].search(line)
                         if "File:" not in line and mod_data_match and mod_data_match.group() not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
                             prefix = line[0:5] if "[FE" not in line else line[0:9]
-                            output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
+                            if mod_data_match.group() not in mods_found:
+                                output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
+                            mods_found.add(mod_data_match.group())
                             mod_trap = True
 
                 return mod_trap
@@ -479,7 +481,7 @@ These changes should make the function more readable and easier to maintain.'''
                 if not plugins_loaded:
                     return mod_trap
 
-                for mod_data in mods.values():
+                for mod_data in mods:  # changed from mods.values()
                     mod1_match = mod_data["mod_1"].search(logtext)
                     mod2_match = mod_data["mod_2"].search(logtext)
                     if mod1_match and mod2_match:
