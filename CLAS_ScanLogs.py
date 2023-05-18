@@ -17,13 +17,14 @@ clas_toml_create()
 clas_update_check()
 
 LCL_skip_list = []
+plugins_pattern = re.compile(r"(.+?)(\.(esp|esm|esl))$", re.IGNORECASE)
+LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
         CLAS_Ignore.write("Write plugin names you want CLAS to ignore here. (ONE PLUGIN PER LINE)\n")
 else:
     with open("CLAS Ignore.txt", "r", encoding="utf-8", errors="ignore") as CLAS_Ignore:
-        LCL_skip_list = [line.strip() for line in CLAS_Ignore.readlines()[1:]]
-        LCL_skip_list = [' ' + line if not line.startswith(' ') else line for line in LCL_skip_list]
+        LCL_skip_list = [f"{line[0]}{line[1]}" for line in plugins_pattern.findall(CLAS_Ignore.read())]
 
 # =================== TERMINAL OUTPUT START ====================
 print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Current[-4:]} | Fallout 4")
@@ -55,7 +56,6 @@ def scan_logs():
     # unhandled_exception_pattern = re.compile(r"Unhandled exception.*\+(.*)", re.IGNORECASE)
     unhandled_exception_pattern = re.compile(r"Unhandled exception.*(\+.*)", re.IGNORECASE)
     buffout4_pattern = re.compile(r"Buffout 4.* (.*)", re.IGNORECASE)
-    plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)", re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -464,6 +464,7 @@ These changes should make the function more readable and easier to maintain.'''
                 if not plugins_loaded:
                     return mod_trap
                 mods_found = set()
+                print(LCL_skip_list)
                 for line in section_plugins_list:
                     for mod_data in mods:  # changed from mods.values()
                         mod_data_match = mod_data["mod"].search(line)
