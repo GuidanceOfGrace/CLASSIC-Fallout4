@@ -464,7 +464,6 @@ These changes should make the function more readable and easier to maintain.'''
                 if not plugins_loaded:
                     return mod_trap
                 mods_found = set()
-                print(LCL_skip_list)
                 for line in section_plugins_list:
                     for mod_data in mods:  # changed from mods.values()
                         mod_data_match = mod_data["mod"].search(line)
