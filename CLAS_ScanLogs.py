@@ -325,9 +325,11 @@ These changes should make the function more readable and easier to maintain.'''
                 return any(pattern in text for pattern in patterns)
 
             if culprit_name in Special_Cases['Nvidia_Crashes']:
-                return search_any(["nvidia"], logtext) and search_any(stack_conditions, section_stack_text)
+                nvidia_match = re.search("nvidia", logtext, re.IGNORECASE)
+                return bool(nvidia_match) and search_any(stack_conditions, section_stack_text)
             elif culprit_name in Special_Cases['Vulkan_Crashes']:
-                return search_any(["vulkan"], logtext) and search_any(stack_conditions, section_stack_text)
+                vulkan_match = re.search("vulkan", logtext, re.IGNORECASE)
+                return bool(vulkan_match) and search_any(stack_conditions, section_stack_text)
             elif culprit_name in Special_Cases['Player_Character_Crash']:
                 return any(section_stack_text.count(item) >= 3 for item in stack_conditions)
             else:
