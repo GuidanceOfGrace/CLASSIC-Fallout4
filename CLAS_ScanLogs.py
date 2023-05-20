@@ -54,7 +54,7 @@ def scan_logs():
     records_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     records_exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     # unhandled_exception_pattern = re.compile(r"Unhandled exception.*\+(.*)", re.IGNORECASE)
-    unhandled_exception_pattern = re.compile(r"Unhandled exception.*(\+.*)", re.IGNORECASE)
+    unhandled_exception_pattern = re.compile(r"Unhandled exception.*(\+.{7})(.*)", re.IGNORECASE)
     buffout4_pattern = re.compile(r"Buffout 4.* (.*)", re.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
