@@ -1152,7 +1152,7 @@ class ClasCheckMods:
                   "- Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n",
                   "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files"]},
 
-        {"mod": re.compile("SuperMutantRedux.esp$", re.IGNORECASE),
+        {"mod": re.compile("SuperMutantRedux.esp", re.IGNORECASE),
          "warn": ["SUPER MUTANT REDUX \n",
                   "- Causes crashes at specific locations or with certain Super Mutant enemies and items. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]},
