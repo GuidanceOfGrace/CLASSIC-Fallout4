@@ -178,7 +178,7 @@ class UiCLASMainWin(object):
             button.setFont(font)
             button.setText(data["text"])
             open_url = partial(QDesktopServices.openUrl, QUrl(data["url"]))
-            button.clicked.connect(open_url)  # type: ignore
+            button.clicked.connect(open_url)
 
         # BOTTOM
 
@@ -192,11 +192,11 @@ class UiCLASMainWin(object):
 
         # ====================== CHECK BOXES ========================
 
-        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_IMIMode, "IMI_Mode"))  # type: ignore
-        self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))  # type: ignore
-        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))  # type: ignore
-        self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))  # type: ignore
-        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))  # type: ignore
+        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_IMIMode, "IMI_Mode"))
+        self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))
+        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))
+        self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))
+        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
@@ -226,18 +226,18 @@ class UiCLASMainWin(object):
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
-            self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
+            self.Line_SelectedFolder.setText(SCAN_folder)
             clas_toml_update("Scan_Path", SCAN_folder)
             # Change text color back to black.
-            LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
-            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
-            self.Line_SelectedFolder.setPalette(LSF_palette)  # type: ignore
+            LSF_palette = self.Line_SelectedFolder.palette()
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
+            self.Line_SelectedFolder.setPalette(LSF_palette)
 
     @staticmethod
     def SelectFolder_INI():
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
-            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)  # type: ignore
+            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)
             clas_toml_update("INI_Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
