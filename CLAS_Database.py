@@ -1116,7 +1116,7 @@ class ClasCheckMods:
                   "- Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files"]},
 
-        {"mod": re.compile(r"NAC.es[pml]", re.IGNORECASE),
+        {"mod": re.compile(r"NAC\.es[pml]", re.IGNORECASE),
          "warn": ["NATURAL AND ATMOSPHERIC COMMONWEALTH \n",
                   "- If you notice weird looking skin tones with either NAC or NACX, install this patch. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files"]},
