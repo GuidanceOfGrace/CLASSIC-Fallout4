@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from bs4 import BeautifulSoup  # For parsing HTML / XML (Wrye Plugin Check)
 
@@ -15,9 +16,13 @@ def scan_game_files():
 
     # ============ CHECK DOCUMENTS -> ERRORS IN ALL LOGS ============
 
-    PLANET.log_check_errors(SYSTEM.FO4_F4SE_Path, "Documents -> F4SE")
-    PLANET.log_check_errors(SYSTEM.FO4_F4SEVR_Path, "Documents -> F4SEVR")
-    PLANET.log_check_errors(SYSTEM.Game_Root, "Fallout 4 Root")
+    if os.path.exists(SYSTEM.FO4_F4SE_Path):
+        PLANET.log_check_errors(SYSTEM.FO4_F4SE_Path, "Documents -> F4SE")
+    elif os.path.exists(SYSTEM.FO4_F4SEVR_Path):
+        PLANET.log_check_errors(SYSTEM.FO4_F4SEVR_Path, "Documents -> F4SEVR")
+    else:
+        if len(Path(SYSTEM.Game_Root).parts) > 1:
+            PLANET.log_check_errors(SYSTEM.Game_Root, "Fallout 4 Root")
 
     # ========== CHECK GAME FOLDER -> XSE SCRIPTS INEGRITY ==========
 

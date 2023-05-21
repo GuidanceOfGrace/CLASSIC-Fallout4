@@ -660,7 +660,7 @@ class ClasCheckFiles:
     Replaced the if len(list_log_errors) >= 1 with a more Pythonic if list_log_errors:.'''
 
     def log_check_errors(self, log_path, log_source):
-        if not os.path.exists(log_path):
+        if not os.path.exists(log_path) or len(Path(log_path).parts) < 2:
             return
 
         def get_error_log_lines(filepath):
