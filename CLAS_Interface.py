@@ -92,52 +92,18 @@ def create_label(parent, text, geometry):
     return label
 
 
-def create_text_browser(parent, geometry):
+def create_text_browser(parent, geometry, text):
     text_browser = QtWidgets.QTextBrowser(parent)
     text_browser.setGeometry(geometry)
     text_browser.setObjectName("text_browser")
+    text_browser.setPlainText(text)
     return text_browser
 
 # noinspection PyUnresolvedReferences
 
 
 class UiCLASMainWin(object):
-    def __init__(self):
-        self.ArtBT_Buffout4 = None
-        self.ArtBT_Patches = None
-        self.ArtBT_Troubleshoot = None
-
-        self.ChkBT_FCXMode = None
-        self.ChkBT_IMIMode = None
-        self.ChkBT_Stats = None
-        self.ChkBT_Unsolved = None
-        self.ChkBT_Update = None
-
-        self.LBL_ArtWeb = None
-        self.LBL_Settings = None
-
-        self.Line_SelectedFolder = None
-        self.Line_Separator_1 = None
-        self.Line_Separator_2 = None
-
-        self.RegBT_Browse = None
-        self.RegBT_ChangeINI = None
-        self.RegBT_CheckUpdates = None
-        self.RegBT_Exit = None
-        self.RegBT_Help = None
-        self.RegBT_SCAN_LOGS = None
-        self.RegBT_SCAN_FILES = None
-
-        self.TXT_About = None
-        self.TXT_Contributors = None
-        self.TXT_Window = None
-
-        self.WebBT_Buffout4_Nexus = None
-        self.WebBT_CLAS_Github = None
-        self.WebBT_CLAS_Nexus = None
-
-    def setup_ui(self, CLAS_MainWin):
-
+    def __init__(self, CLAS_MainWin):
         # MAIN WINDOW
         CLAS_MainWin.setObjectName("CLAS_MainWin")
         CLAS_MainWin.setWindowTitle(f"Crash Log Auto Scanner {UNIVERSE.CLAS_Current[-4:]}")
@@ -222,9 +188,7 @@ class UiCLASMainWin(object):
         self.RegBT_Exit = create_custom_push_button(CLAS_MainWin, QtCore.QRect(510, 480, 110, 24), "RegBT_Exit", "EXIT", font_10, "Exit CLAS GUI", CLAS_MainWin.close)
 
         # Usage
-        self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120))
-        self.TXT_About = create_label(CLAS_MainWin, "Crash Log Auto Scanner (CLAS) | Made by: Poet #9800", QtCore.QRect(30, 520, 320, 16))
-        self.TXT_Contributors = create_label(CLAS_MainWin, "Contributors: evildarkarchon | kittivelae | AtomicFallout757", QtCore.QRect(30, 540, 340, 16))
+        self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120), "Crash Log Auto Scanner (CLAS) | Made by: Poet #9800\nContributors: evildarkarchon | kittivelae | AtomicFallout757")
 
         # ====================== CHECK BOXES ========================
 
@@ -305,7 +269,6 @@ DON'T FORGET TO CHECK THE CLAS README FOR MORE DETAILS AND INSTRUCTIONS
     print(gui_prompt)
     app = QtWidgets.QApplication(sys.argv)
     CLAS_MainWin = QtWidgets.QDialog()
-    ui = UiCLASMainWin()
-    ui.setup_ui(CLAS_MainWin)
+    ui = UiCLASMainWin(CLAS_MainWin)
     CLAS_MainWin.show()
     sys.exit(app.exec())
