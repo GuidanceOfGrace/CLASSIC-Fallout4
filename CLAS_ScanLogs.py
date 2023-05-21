@@ -382,10 +382,10 @@ These changes should make the function more readable and easier to maintain.'''
 
             # DEFINE LINE INDEXES HERE
             crash_ver_match = buffout4_pattern.search(logtext)
-            crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"  # type: ignore
+            crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"
             error_match = unhandled_exception_pattern.search(logtext)
             if error_match:
-                crash_error = error_match.group()  # type: ignore
+                crash_error = error_match.group()
             else:
                 crash_error = "❌ Error Not Found"
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
