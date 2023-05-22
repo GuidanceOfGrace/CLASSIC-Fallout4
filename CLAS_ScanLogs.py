@@ -16,7 +16,7 @@ from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_toml_create,
 clas_toml_create()
 clas_update_check()
 
-plugins_pattern = re.compile(r"(.+?)(\.(esp|esm|esl))$", re.IGNORECASE | re.MULTILINE)
+plugins_pattern = re.compile(r"(.+?)(\.[esp|esm|esl]+)$", re.IGNORECASE | re.MULTILINE)
 LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
