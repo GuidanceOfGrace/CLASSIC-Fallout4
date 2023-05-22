@@ -16,14 +16,14 @@ from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_toml_create,
 clas_toml_create()
 clas_update_check()
 
-plugins_pattern = re.compile(r"(.+?)(\.(esp|esm|esl))$", re.IGNORECASE)
+plugins_pattern = re.compile(r"(.+?)(\.(esp|esm|esl))$", re.IGNORECASE | re.MULTILINE)
 LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
         CLAS_Ignore.write("Write plugin names you want CLAS to ignore here. (ONE PLUGIN PER LINE)\n")
 else:
     with open("CLAS Ignore.txt", "r", encoding="utf-8", errors="ignore") as CLAS_Ignore:
-        LCL_skip_list = [f"{line[0]}{line[1]}" for line in plugins_pattern.findall(CLAS_Ignore.read())]
+        LCL_skip_list = [line.group() for line in plugins_pattern.finditer(CLAS_Ignore.read())]
 
 # =================== TERMINAL OUTPUT START ====================
 print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Current[-4:]} | Fallout 4")
