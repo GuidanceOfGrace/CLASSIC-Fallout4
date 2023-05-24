@@ -221,39 +221,39 @@ These changes should make the function more readable and easier to maintain.'''
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': re.search('CanarySaveFileMonitor', logtext, re.IGNORECASE),
+                'condition': re.search('CanarySaveFileMonitor', logtext),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
             'High FPS Physics Fix': {
-                'condition': re.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext, re.IGNORECASE),
+                'condition': re.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext),
                 'description': 'This is a mandatory patch / fix that prevents game engine problems.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': re.search("PPF.esm", logtext, re.IGNORECASE),
+                'condition': re.search("PPF.esm", logtext),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': re.search("Unofficial Fallout 4 Patch.esp", logtext, re.IGNORECASE),
+                'condition': re.search("Unofficial Fallout 4 Patch.esp", logtext),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': re.search("vulkan-1.dll", logtext, re.IGNORECASE),
+                'condition': re.search("vulkan-1.dll", logtext),
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': re.search('WeaponDebrisCrashFix.dll', logtext, re.IGNORECASE),
+                'condition': re.search('WeaponDebrisCrashFix.dll', logtext),
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
-                'condition': re.search('NVIDIA_Reflex.dll', logtext, re.IGNORECASE),
+                'condition': re.search('NVIDIA_Reflex.dll', logtext),
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
                 'nvidia_specific': True
