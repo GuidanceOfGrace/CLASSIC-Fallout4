@@ -136,20 +136,6 @@ def scan_logs():
                                "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
                                "-----\n"])
 
-    '''GPT Changes Part 1:
-    In the updated version, I've made the following changes:
-
-Simplified the string manipulations by normalizing the line and plugin strings at the beginning of the loops.
-Used more descriptive variable names like plugin instead of elem.
-Removed the redundant id_only variable and used line directly.
-Removed unnecessary string replacements with spaces.
-Added a return statement to return the form_ids list.
-These changes should make the function more readable and easier to maintain.'''
-
-    '''GPT Changes Part 2:
-    In the updated version, I've added the missing else block to handle the case when plugins_loaded is False.
-    The function now appends the line directly to the form_ids list in that case. The rest of the function remains the same as in the previous improvement.'''  # I initially forgot to paste the whole function.
-
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
         form_ids = []
 
@@ -211,12 +197,6 @@ These changes should make the function more readable and easier to maintain.'''
                                "These records were caught by Buffout 4 and some of them might be related to this crash.\n",
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
-
-    '''GPT Changes:
-    Introduced a new variable mod_condition to store the mod's condition.
-    Added two new optional keys nvidia_specific and amd_specific to the mod dictionary, which will be checked before writing any output.
-    Removed the redundant nested conditionals, and replaced them with a single continue statement.
-    Combined the two separate output writing blocks into one, reducing code duplication.'''
 
     def check_core_mods():
         Core_Mods = {
@@ -693,12 +673,6 @@ These changes should make the function more readable and easier to maintain.'''
     print("NEXUS PROFILE | https://www.nexusmods.com/users/64682231")
     print("CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(GALAXY.Sneaky_Tips))
-
-    '''GPT Changes:
-    Replaced variable names with more descriptive alternatives.
-Used pathlib for file path manipulation.
-Simplified the check for failed scans using the Path methods.
-These changes should make the code more readable and easier to maintain.'''
 
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
     failed_scans = []
