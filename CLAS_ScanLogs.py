@@ -2,7 +2,10 @@
 import json
 import os
 import random
-import re
+try:
+    import regex as re
+except ImportError:
+    import re
 import shutil
 import time
 from collections import Counter
@@ -12,6 +15,11 @@ import pkg_resources
 
 from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_toml_create,
                            clas_toml_update, clas_update_check)
+
+try:
+    re.DEFAULT_VERSION = re.VERSION1  # type: ignore
+except AttributeError:
+    pass
 
 clas_toml_create()
 clas_update_check()
@@ -364,7 +372,7 @@ def scan_logs():
             crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"
             error_match = unhandled_exception_pattern.search(logtext)
             crash_error = error_match.group() if error_match else "❌ Error Not Found"
-            
+
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
             # BUFFOUT VERSION CHECK

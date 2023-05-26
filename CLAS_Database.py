@@ -2,7 +2,10 @@ import configparser
 import hashlib
 import os
 import platform
-import re
+try:
+    import regex as re
+except ImportError:
+    import re
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -13,6 +16,11 @@ import tomlkit
 
 if platform.system() == "Windows":
     import ctypes.wintypes
+
+try:
+    re.DEFAULT_VERSION = re.VERSION1  # type: ignore
+except AttributeError:
+    pass
 
 '''AUTHOR NOTES (POET):
 - In cases where output.write is used instead of output.writelines, this was done to more easily copy-paste content.
