@@ -868,7 +868,7 @@ class ClasCheckMods:
          "warn": ["FALLOUT SAKHALIN \n",
                   "[Breaks the precombine system all across Far Harbor which will randomly crash your game.]"]},
 
-        {"mod": re.compile(r"\b76HUD - (AIO\.esl|Caps\.esl|EnemyLevel\.esl|PlayerLevel\.esl)$", re.MULTILINE),
+        {"mod": re.compile(r"\b76HUD - (AIO|Caps|EnemyLevel|PlayerLevel)\.esl$", re.MULTILINE),
          "warn": ["HUD76 HUD REPLACER \n",
                   "[Can sometimes cause interface and pip-boy related bugs, glitches and crashes.]"]},
 
