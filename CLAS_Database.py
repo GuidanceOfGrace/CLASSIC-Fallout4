@@ -880,7 +880,7 @@ class ClasCheckMods:
          "warn": ["RESPAWNABLE LEGENDARY BOSSES \n",
                   "[Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons.]"]},
 
-        {"mod": re.compile(r"\bScrap Everything - (Core|Ultimate)\.esp$", re.MULTILINE),
+        {"mod": re.compile(r"\bScrap Everything - (Core|Ultimate Edition)\.esp$", re.MULTILINE),
          "warn": ["SCRAP EVERYTHING (Core or Ultimate) \n",
                   "[Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order.]"]},
 
