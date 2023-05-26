@@ -853,7 +853,7 @@ PLANET = ClasCheckFiles()
 
 
 class ClasCheckMods:
-    # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES | Leave 1 empty space as prefix to prevent most duplicates.
+    # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES
     chw_regex = regx.compile(r"\bClassicHolsteredWeapons(.*)")
     awkcr_regex = regx.compile(r"\bArmorKeywords\.esm$", regx.MULTILINE)
     betterpowerarmor_regex = regx.compile(r"\bBetterPowerArmorRedux\.dll")
@@ -922,7 +922,7 @@ class ClasCheckMods:
                   "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]}
     ]
 
-    # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS | Leave 1 empty space as prefix to prevent most duplicates.
+    # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS
     # mod_1 should be less popular mod, mod_2 more popular mod.
     Mods2 = [
         {"mod_1": betterpowerarmor_regex,
@@ -1001,7 +1001,7 @@ class ClasCheckMods:
 
     ]
 
-    # 3) CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES | Leave 1 empty space as prefix to prevent most duplicates.
+    # 3) CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES
     Mods3 = [
         {"mod": regx.compile(r"\bDLCUltraHighResolution\.esm$", regx.MULTILINE),
          "warn": ["HIGH RESOLUTION DLC. I STRONGLY ADVISE AGAINST USING IT! \n",
@@ -1160,7 +1160,7 @@ class ClasCheckMods:
 
     ]
 
-    # 4) CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER | Leave 1 empty space as prefix to prevent most duplicates.
+    # 4) CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER
     Mods4 = [
         {"mod": regx.compile(r"\bBTB- Beyond the Borders FO4\.esp$", regx.MULTILINE),
          "warn": "Beyond the Borders"},
