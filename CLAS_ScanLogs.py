@@ -3,9 +3,9 @@ import json
 import os
 import random
 try:
-    import regex as re
+    import regex as regx
 except ImportError:
-    import re
+    import re as regx
 import shutil
 import time
 from collections import Counter
@@ -17,16 +17,16 @@ from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_toml_create,
                            clas_toml_update, clas_update_check)
 
 try:
-    re.DEFAULT_VERSION = re.VERSION1  # type: ignore
+    regx.DEFAULT_VERSION = regx.VERSION1  # type: ignore
 except AttributeError:
     pass
 
 clas_toml_create()
 clas_update_check()
 
-plugins_pattern = re.compile(r"(.+?)(\.(esp|esm|esl)+)$", re.IGNORECASE | re.MULTILINE)
+plugins_pattern = regx.compile(r"(.+?)(\.(esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
 LCL_skip_list = []
-if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
+if not os.path.exists("CLAS Ignoregx.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
         CLAS_Ignore.write("Write plugin names you want CLAS to ignore here. (ONE PLUGIN PER LINE)\n")
 else:
@@ -53,16 +53,16 @@ def culprit_data():
 def scan_logs():
     # =================== IMPORTED DATA AND REGEX PATTERNS ===================
     Culprits = culprit_data()
-    plugin_id_pattern = re.compile(r'\[[0-9A-Fa-f]{2,6}\]')
-    detected_plugin_pattern = re.compile(r'File:\s+"?([^"]+)"?')
-    form_id_pattern = re.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
-    nvidia_pattern = re.compile(r'GPU.*Nvidia', re.IGNORECASE)
-    amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
-    records_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
-    records_exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
-    # unhandled_exception_pattern = re.compile(r"Unhandled exception.*\+(.*)", re.IGNORECASE)
-    unhandled_exception_pattern = re.compile(r"Unhandled exception.*(\+.{7})(.*)", re.IGNORECASE)
-    buffout4_pattern = re.compile(r"Buffout 4.* (.*)", re.IGNORECASE)
+    plugin_id_pattern = regx.compile(r'\[[0-9A-Fa-f]{2,6}\]')
+    detected_plugin_pattern = regx.compile(r'File:\s+"?([^"]+)"?')
+    form_id_pattern = regx.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
+    nvidia_pattern = regx.compile(r'GPU.*Nvidia', regx.IGNORECASE)
+    amd_pattern = regx.compile(r'GPU.*AMD', regx.IGNORECASE)
+    records_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
+    records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
+    # unhandled_exception_pattern = regx.compile(r"Unhandled exception.*\+(.*)", regx.IGNORECASE)
+    unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(\+.{7})(.*)", regx.IGNORECASE)
+    buffout4_pattern = regx.compile(r"Buffout 4.* (.*)", regx.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -183,7 +183,7 @@ def scan_logs():
         for line in section_stack_list:
             if records_pattern.search(line.lower()):
                 if not records_exclude_pattern.search(line):
-                    line = re.sub('"', '', line)
+                    line = regx.sub('"', '', line)
                     named_records.append(line.strip())
         named_records = sorted(named_records)
         return dict(Counter(named_records))
@@ -209,39 +209,39 @@ def scan_logs():
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': re.search('CanarySaveFileMonitor', logtext),
+                'condition': regx.search('CanarySaveFileMonitor', logtext),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
             'High FPS Physics Fix': {
-                'condition': re.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext),
+                'condition': regx.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext),
                 'description': 'This is a mandatory patch / fix that prevents game engine problems.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': re.search("PPF.esm", logtext),
+                'condition': regx.search("PPF.esm", logtext),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': re.search("Unofficial Fallout 4 Patch.esp", logtext),
+                'condition': regx.search("Unofficial Fallout 4 Patch.esp", logtext),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': re.search("vulkan-1.dll", logtext),
+                'condition': regx.search("vulkan-1.dll", logtext),
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': re.search('WeaponDebrisCrashFix.dll', logtext),
+                'condition': regx.search('WeaponDebrisCrashFix.dll', logtext),
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
-                'condition': re.search('NVIDIA_Reflex.dll', logtext),
+                'condition': regx.search('NVIDIA_Reflex.dll', logtext),
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
                 'nvidia_specific': True
@@ -312,10 +312,10 @@ def scan_logs():
                 return any(pattern in text for pattern in patterns)
 
             if culprit_name in Special_Cases['Nvidia_Crashes']:
-                nvidia_match = re.search("nvidia", logtext, re.IGNORECASE)
+                nvidia_match = regx.search("nvidia", logtext, regx.IGNORECASE)
                 return bool(nvidia_match) and search_any(stack_conditions, section_stack_text)
             elif culprit_name in Special_Cases['Vulkan_Crashes']:
-                vulkan_match = re.search("vulkan", logtext, re.IGNORECASE)
+                vulkan_match = regx.search("vulkan", logtext, regx.IGNORECASE)
                 return bool(vulkan_match) and search_any(stack_conditions, section_stack_text)
             elif culprit_name in Special_Cases['Player_Character_Crash']:
                 return any(section_stack_text.count(item) >= 3 for item in stack_conditions)

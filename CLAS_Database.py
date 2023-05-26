@@ -3,9 +3,9 @@ import hashlib
 import os
 import platform
 try:
-    import regex as re
+    import regex as regx
 except ImportError:
-    import re
+    import re as regx
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -18,7 +18,7 @@ if platform.system() == "Windows":
     import ctypes.wintypes
 
 try:
-    re.DEFAULT_VERSION = re.VERSION1  # type: ignore
+    regx.DEFAULT_VERSION = regx.VERSION1  # type: ignore
 except AttributeError:
     pass
 
@@ -139,9 +139,9 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     Crash_Records_Catch = LOG_Errors_Catch + ("editorid:", "file:", "function:", "name:", ".bgsm", ".bto", ".btr", ".dds", ".dll+", ".fuz", ".hkb", ".hkx",
                                               ".ini", ".nif", ".pex", ".swf", ".strings", ".txt", ".uvd", ".wav", ".xwm", "data\\", "data/")
 
-    LOG_Catch_Pattern = re.compile('|'.join(re.escape(pattern) for pattern in LOG_Errors_Catch), re.IGNORECASE)  # Equivalent to any() without the need for a loop.
-    LOG_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Errors_Exclude) + ')', re.IGNORECASE)  # Equivalent to all() without the need for a loop.
-    LOG_Files_Exclude_Pattern = re.compile('^(?!' + '|'.join(re.escape(err) for err in LOG_Files_Exclude) + ')', re.IGNORECASE)
+    LOG_Catch_Pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in LOG_Errors_Catch), regx.IGNORECASE)  # Equivalent to any() without the need for a loop.
+    LOG_Exclude_Pattern = regx.compile('^(?!' + '|'.join(regx.escape(err) for err in LOG_Errors_Exclude) + ')', regx.IGNORECASE)  # Equivalent to all() without the need for a loop.
+    LOG_Files_Exclude_Pattern = regx.compile('^(?!' + '|'.join(regx.escape(err) for err in LOG_Files_Exclude) + ')', regx.IGNORECASE)
 
 
 UNIVERSE = ClasUniversalVars()
@@ -616,7 +616,7 @@ class ClasCheckFiles:
 
     def game_check_folderpath(self):
         game_folderpath = SYSTEM.game_path_check()
-        if re.search(r"C:\\Program Files( \(x86\))?", game_folderpath, re.IGNORECASE):
+        if regx.search(r"C:\\Program Files( \(x86\))?", game_folderpath, regx.IGNORECASE):
             GALAXY.scan_game_report.extend([f"❌ CAUTION : Your {GALAXY.Game_Name} game files are installed inside of the Program Files folder!",
                                             "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
                                             "   To ensure that everything works, move your Game or entire Steam folder outside of Program Files.",
@@ -854,70 +854,70 @@ PLANET = ClasCheckFiles()
 
 class ClasCheckMods:
     # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES | Leave 1 empty space as prefix to prevent most duplicates.
-    chw_regex = re.compile(r"\bClassicHolsteredWeapons(.*)")
-    awkcr_regex = re.compile(r"\bArmorKeywords\.esm$", re.MULTILINE)
-    betterpowerarmor_regex = re.compile(r"\bBetterPowerArmorRedux\.dll")
-    prp_regex = re.compile(r"\bPRP\.esp$", re.MULTILINE)
+    chw_regex = regx.compile(r"\bClassicHolsteredWeapons(.*)")
+    awkcr_regex = regx.compile(r"\bArmorKeywords\.esm$", regx.MULTILINE)
+    betterpowerarmor_regex = regx.compile(r"\bBetterPowerArmorRedux\.dll")
+    prp_regex = regx.compile(r"\bPRP\.esp$", regx.MULTILINE)
     Mods1 = [
-        {"mod": re.compile(r"\bDamageThresholdFramework\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bDamageThresholdFramework\.esm$", regx.MULTILINE),
          "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
                   "[Can cause crashes in combat on some occasions due to how damage calculations are done.]"]},
 
-        {"mod": re.compile(r"\bEndless Warfare\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bEndless Warfare\.esm$", regx.MULTILINE),
          "warn": ["ENDLESS WARFARE \n",
                   "[Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding.]"]},
 
-        {"mod": re.compile(r"\bEPO\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bEPO\.esp$", regx.MULTILINE),
          "warn": ["EXTREME PARTICLES OVERHAUL \n",
                   "[Can cause particle effects related crashes, consider switching to Burst Impact Blast FX.] \n",
                   "[Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789?tab=files]"]},
 
-        {"mod": re.compile(r"\bSakhalinWasteland\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSakhalinWasteland\.esp$", regx.MULTILINE),
          "warn": ["FALLOUT SAKHALIN \n",
                   "[Breaks the precombine system all across Far Harbor which will randomly crash your game.]"]},
 
-        {"mod": re.compile(r"\b76HUD - (AIO|Caps|EnemyLevel|PlayerLevel)\.esl$", re.MULTILINE),
+        {"mod": regx.compile(r"\b76HUD - (AIO|Caps|EnemyLevel|PlayerLevel)\.esl$", regx.MULTILINE),
          "warn": ["HUD76 HUD REPLACER \n",
                   "[Can sometimes cause interface and pip-boy related bugs, glitches and crashes.]"]},
 
-        {"mod": re.compile(r"\bNCRenegade\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bNCRenegade\.esp$", regx.MULTILINE),
          "warn": ["NCR RENEGADE ARMOR \n",
                   "[Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit.]"]},
 
-        {"mod": re.compile(r"\bRespawnable Legendary Bosses\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bRespawnable Legendary Bosses\.esp$", regx.MULTILINE),
          "warn": ["RESPAWNABLE LEGENDARY BOSSES \n",
                   "[Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons.]"]},
 
-        {"mod": re.compile(r"\bScrap Everything - (Core|Ultimate Edition)\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bScrap Everything - (Core|Ultimate Edition)\.esp$", regx.MULTILINE),
          "warn": ["SCRAP EVERYTHING (Core or Ultimate) \n",
                   "[Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order.]"]},
 
-        {"mod": re.compile(r"\bNiTeNull - Shade Girl Leather Outfits\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bNiTeNull - Shade Girl Leather Outfits\.esp$", regx.MULTILINE),
          "warn": ["SHADE GIRL LEATHER OUTFITS \n",
                   "[Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes.]"]},
 
-        {"mod": re.compile(r"\bSpringCleaning\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSpringCleaning\.esm$", regx.MULTILINE),
          "warn": ["SPRING CLEANING \n",
                   "[Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file.]"]},
 
-        {"mod": re.compile(r"\b\(STO\) NO(.*)"),
+        {"mod": regx.compile(r"\b\(STO\) NO(.*)"),
          "warn": ["STALKER TEXTURE OVERHAUL \n",
                   "[Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes.]"]},
 
-        {"mod": re.compile(r"\bTacticalTablet\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bTacticalTablet\.esp$", regx.MULTILINE),
          "warn": ["TACTICAL TABLET \n",
                   "[Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO.]"]},
 
-        {"mod": re.compile(r"\bTrue Nights v03\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bTrue Nights v03\.esp$", regx.MULTILINE),
          "warn": ["TRUE NIGHTS \n",
                   "[Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed.]"]},
 
-        {"mod": re.compile(r"\bWeaponsFramework\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bWeaponsFramework\.esm$", regx.MULTILINE),
          "warn": ["WEAPONS FRAMEWORK BETA \n",
                   "[Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods.]\n"
                   "[Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769]"]},
 
-        {"mod": re.compile(r"\bWOTC\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bWOTC\.esp$", regx.MULTILINE),
          "warn": ["WAR OF THE COMMONWEALTH \n",
                   "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]}
     ]
@@ -926,75 +926,75 @@ class ClasCheckMods:
     # mod_1 should be less popular mod, mod_2 more popular mod.
     Mods2 = [
         {"mod_1": betterpowerarmor_regex,
-         "mod_2": re.compile(r"\bFloatingDamage\.dll"),
+         "mod_2": regx.compile(r"\bFloatingDamage\.dll"),
          "warn": [" BETTER POWER ARMOR REDUX ❌ CONFLICTS WITH : FLOATING DAMAGE \n",
                   "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
                   "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
         {"mod_1": betterpowerarmor_regex,
-         "mod_2": re.compile(r"\bKnockoutFramework\.dll"),
+         "mod_2": regx.compile(r"\bKnockoutFramework\.dll"),
          "warn": [" BETTER POWER ARMOR REDUX ❌ CONFLICTS WITH : KNOCKOUT FRAMEWORK \n",
                   "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
                   "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
-        {"mod_1": re.compile(r"\bBostonFPSFix(.*)"),
+        {"mod_1": regx.compile(r"\bBostonFPSFix(.*)"),
          "mod_2": prp_regex,
          "warn": ["BOSTON FPS FIX ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
                   "[Using both mods can break precombines. CLAS suggests using Previs Repair Pack only.]"]},
 
-        {"mod_1": re.compile(r"\bExtendedWeaponSystem\.esm$", re.MULTILINE),
-         "mod_2": re.compile(r"\bTacticalReload\.esm$", re.MULTILINE),
+        {"mod_1": regx.compile(r"\bExtendedWeaponSystem\.esm$", regx.MULTILINE),
+         "mod_2": regx.compile(r"\bTacticalReload\.esm$", regx.MULTILINE),
          "warn": ["EXTENDED WEAPON SYSTEMS ❌ CONFLICTS WITH : TACTICAL RELOAD \n",
                   "[Using both mods can frequently crash the game. You should use only one of these mods, not both at the same time.]"]},
 
-        {"mod_1": re.compile(r"\bFROST\.esp$", re.MULTILINE),
+        {"mod_1": regx.compile(r"\bFROST\.esp$", regx.MULTILINE),
          "mod_2": prp_regex,
          "warn": ["FROST SURVIVAL SIMULATOR ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
                   "[For precombine fixes, remove PRP and switch to FROST Cell Fixes (FCF).]\n",
                   "[FROST Cell Fixes: https://www.nexusmods.com/fallout4/mods/59652?tab=files]"]},
 
-        {"mod_1": re.compile(r"\bDCGuard_Overhaul\.esp$", re.MULTILINE),
-         "mod_2": re.compile(r"\bGuards\.esp$", re.MULTILINE),
+        {"mod_1": regx.compile(r"\bDCGuard_Overhaul\.esp$", regx.MULTILINE),
+         "mod_2": regx.compile(r"\bGuards\.esp$", regx.MULTILINE),
          "warn": ["THE FENS SHERIFF'S DEPARTMENT ❌ CONFLICTS WITH : VARIED DIAMOND CITY GUARDS \n",
                   "[Both mods heavily modify Diamond City Guards records. You should use only one of these mods, not both at the same time.]"]},
 
-        {"mod_1": re.compile(r"\bFallout4Upscaler\.dll"),
-         "mod_2": re.compile(r"\bNVIDIA_Reflex\.dll"),
+        {"mod_1": regx.compile(r"\bFallout4Upscaler\.dll"),
+         "mod_2": regx.compile(r"\bNVIDIA_Reflex\.dll"),
          "warn": ["FALLOUT 4 UPSCALER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
                   "[Both mods likely use the same DLL hooks. This can crash the game or cause weird mod behavior.]\n",
                   "[If you encounter problems or crashes, You should use only one of these mods, not both at the same time.]"]},
 
-        {"mod_1": re.compile(r"\bvulkan(.*)"),
-         "mod_2": re.compile(r"\bNVIDIA_Reflex\.dll"),
+        {"mod_1": regx.compile(r"\bvulkan(.*)"),
+         "mod_2": regx.compile(r"\bNVIDIA_Reflex\.dll"),
          "warn": ["VULKAN RENDERER ❌ CONFLICTS WITH : NVIDIA REFLEX SUPPORT \n",
                   "[Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior.]\n",
                   "[If you encounter Nvidia Driver crashes, CLAS suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.]"]},
 
-        {"mod_1": re.compile(r"\bCustomCamera\.esp$", re.MULTILINE),
-         "mod_2": re.compile(r"\bCameraTweaks\.esp$", re.MULTILINE),
+        {"mod_1": regx.compile(r"\bCustomCamera\.esp$", regx.MULTILINE),
+         "mod_2": regx.compile(r"\bCameraTweaks\.esp$", regx.MULTILINE),
          "warn": ["CUSTOM CAMERA ❌ CONFLICTS WITH : CAMERA TWEAKS \n",
                   "[Both mods make changes to the in-game camera. CLAS suggests using Camera Tweaks only, since it's an updated alternative.]"]},
 
-        {"mod_1": re.compile(r"\bUniquePlayer\.esp$", re.MULTILINE),
+        {"mod_1": regx.compile(r"\bUniquePlayer\.esp$", regx.MULTILINE),
          "mod_2": chw_regex,
          "warn": ["UNIQUE PLAYER ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
                   "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                   "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
-        {"mod_1": re.compile(r"\bHHS\.dll"),
+        {"mod_1": regx.compile(r"\bHHS\.dll"),
          "mod_2": chw_regex,
          "warn": ["HIGH HEELS SYSTEM ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
                   "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                   "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
-        {"mod_1": re.compile(r"\bcbp\.dll"),
+        {"mod_1": regx.compile(r"\bcbp\.dll"),
          "mod_2": chw_regex,
          "warn": ["CBP PHYSICS ❌ CONFLICTS WITH : CLASSIC HOLSTERED WEAPONS \n",
                   "[Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.]\n",
                   "[If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496]"]},
 
         {"mod_1": awkcr_regex,
-         "mod_2": re.compile(r"\bSKKCraftableWeaponsAmmo\.esp$", re.MULTILINE),
+         "mod_2": regx.compile(r"\bSKKCraftableWeaponsAmmo\.esp$", regx.MULTILINE),
          "warn": ["ARMOR AND WEAPON KEYWORDS ❌ CONFLICTS WITH : SKK CRAFT WEAPONS AND SCRAP AMMO \n",
                   "[SKK Craft Weapons & Ammo Version 008 is incompatible with AWKCR and will cause crashes while saving the game.]\n",
                   "[If you encounter problems or crashes, remove AWKCR and / or switch to Equipment and Crafting Overhaul instead.]"]},
@@ -1003,12 +1003,12 @@ class ClasCheckMods:
 
     # 3) CHECKING FOR MODS WITH SOLUTIONS & COMMUNITY PATCHES | Leave 1 empty space as prefix to prevent most duplicates.
     Mods3 = [
-        {"mod": re.compile(r"\bDLCUltraHighResolution\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bDLCUltraHighResolution\.esm$", regx.MULTILINE),
          "warn": ["HIGH RESOLUTION DLC. I STRONGLY ADVISE AGAINST USING IT! \n",
                   "- Right click on Fallout 4 in your Steam Library folder, then select Properties \n",
                   "  Switch to the DLC tab and uncheck / disable the High Resolution Texture Pack"]},
 
-        {"mod": re.compile(r"\bAAF\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bAAF\.esm$", regx.MULTILINE),
          "warn": ["ADVANCED ANIMATION FRAMEWORK \n",
                   "- Latest AAF version only available on Moddingham | AAF Tech Support: https://discord.gg/gWZuhMC \n",
                   "  Latest AAF Link (register / login to download): https://www.moddingham.com/viewtopic.php?t=2 \n",
@@ -1022,138 +1022,138 @@ class ClasCheckMods:
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files \n",
                   "  Patches to remove AWKCR: https://www.nexusmods.com/fallout4/mods/40752?tab=files"]},
 
-        {"mod": re.compile(r"\bBTInteriors_Project\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bBTInteriors_Project\.esp$", regx.MULTILINE),
          "warn": ["BEANTOWN INTERIORS \n",
                   "- Usually causes fps drops, stuttering, crashing and culling issues in multiple locations. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/53894?tab=files"]},
 
-        {"mod": re.compile(r"\bCombatZoneRestored\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bCombatZoneRestored\.esp$", regx.MULTILINE),
          "warn": ["COMBAT ZONE RESTORED \n",
                   "- Contains few small issues and NPCs usually have trouble navigating the interior space. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/59329?tab=files"]},
 
-        {"mod": re.compile(r"\bD\.E\.C\.A\.Y\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bD\.E\.C\.A\.Y\.esp$", regx.MULTILINE),
          "warn": ["DECAY BETTER GHOULS \n",
                   "- You have to install DECAY Redux patch to prevent its audio files from crashing the game. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/59025?tab=files"]},
 
-        {"mod": re.compile(r"\bEveryonesBestFriend\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bEveryonesBestFriend\.esp$", regx.MULTILINE),
          "warn": ["EVERYONE'S BEST FRIEND \n",
                   "- This mod needs a compatibility patch to forward changes made by the Unofficial Patch. \n",
                   "  Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM \n",
                   "  [If you have Horizon installed or don't use UFO4P, this patch is not needed.]"]},
 
-        {"mod": re.compile(r"\bM8r_Item_Tags(.*)"),
+        {"mod": regx.compile(r"\bM8r_Item_Tags(.*)"),
          "warn": ["FALLUI ITEM SORTER (OLD) \n",
                   "- This is an outdated item tagging / sorting patch that can cause crashes or conflicts in all kinds of situations. \n",
                   "  I strongly recommend to instead generate your own sorting patch and place it last in your load order. \n",
                   "  That way, you won't experience any conflicts / crashes and even modded items will be sorted. \n",
                   "  Generate Sorting Patch With This: https://www.nexusmods.com/fallout4/mods/48826?tab=files"]},
 
-        {"mod": re.compile(r"\bFo4FI_FPS_fix\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bFo4FI_FPS_fix\.esp$", regx.MULTILINE),
          "warn": ["FO4FI FPS FIX \n",
                   "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
 
-        {"mod": re.compile(r"\bBostonFPSFixAIO\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bBostonFPSFixAIO\.esp$", regx.MULTILINE),
          "warn": ["BOSTON FPS FIX \n",
                   "- This mod is severely outdated. Either install the PRP patch or switch to PRP entirely. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/59021?tab=files \n",
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
 
-        {"mod": re.compile(r"\bFunctionalDisplays\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bFunctionalDisplays\.esp$", regx.MULTILINE),
          "warn": ["FUNCTIONAL DISPLAYS \n",
                   "- Frequently causes object model (nif) related crashes and this needs to be manually corrected. \n",
                   "  Advised Fix: Open its Meshes folder and delete everything inside EXCEPT for the Functional Displays folder."]},
 
-        {"mod": re.compile(r"\bskeleton(male|female)(player|playerLMCC)\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bskeleton(male|female)(player|playerLMCC)\.esp$", regx.MULTILINE),
          "warn": ["GENDER SPECIFIC SKELETONS (MALE/FEMALE) \n",
                   "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
                   "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]},
 
-        {"mod": re.compile(r"\bGive Me That Bottle\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bGive Me That Bottle\.esp$", regx.MULTILINE),
          "warn": ["GIVE ME THAT BOTTLE \n",
                   "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n",
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files"]},
 
-        {"mod": re.compile(r"\bCapsWidget.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bCapsWidget.esp$", regx.MULTILINE),
          "warn": ["HUD CAPS \n",
                   "- Often breaks the Save / Quicksave function due to poor script implementation. \n",
                   "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n",
                   "  Fix Link: https://drive.google.com/file/d/1egmtKVR7mSbjRgo106UbXv_ySKBg5az2"]},
 
-        {"mod": re.compile(r"\bHomemaker\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bHomemaker\.esm$", regx.MULTILINE),
          "warn": ["HOMEMAKER \n",
                   "- Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
 
-        {"mod": re.compile(r"\bLegendaryModification\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bLegendaryModification\.esp$", regx.MULTILINE),
          "warn": ["LEGENDARY MODIFICATION \n",
                   "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files"]},
 
-        {"mod": re.compile(r"\bLooksMenu Customization Compendium\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bLooksMenu Customization Compendium\.esp$", regx.MULTILINE),
          "warn": ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",
                   "- If you are getting broken hair colors, install this mod and make sure it loads after LMCC. \n",
                   "  Mod Link: https://www.nexusmods.com/fallout4/mods/18287?tab=files"]},
 
-        {"mod": re.compile(r"\bMilitarizedMinutemen\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bMilitarizedMinutemen\.esp$", regx.MULTILINE),
          "warn": ["MILITARIZED MINUTEMEN \n"
                   "- Can occasionally crash the game due to a broken mesh on some minutemen outfits. \n"
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/32369?tab=files"]},
 
-        {"mod": re.compile(r"\bMoreUniques.(esp|esm|esl)$", re.MULTILINE),
+        {"mod": regx.compile(r"\bMoreUniques.(esp|esm|esl)$", regx.MULTILINE),
          "warn": ["MORE UNIQUE WEAPONS EXPANSION \n",
                   "- Causes crashes due to broken precombines and compatibility issues with other weapon mods. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files"]},
 
-        {"mod": re.compile(r"\bNAC\.(esp|esm|esl)$", re.MULTILINE),
+        {"mod": regx.compile(r"\bNAC\.(esp|esm|esl)$", regx.MULTILINE),
          "warn": ["NATURAL AND ATMOSPHERIC COMMONWEALTH \n",
                   "- If you notice weird looking skin tones with either NAC or NACX, install this patch. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files"]},
 
-        {"mod": re.compile(r"\bNorthland Diggers New\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bNorthland Diggers New\.esp$", regx.MULTILINE),
          "warn": ["NORTHLAND DIGGERS RESOURCES \n",
                   "- Contains various bugs and issues that can cause crashes or negatively affect other mods. \n",
                   "  Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files"]},
 
-        {"mod": re.compile(r"\bProject Zeta\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bProject Zeta\.esp$", regx.MULTILINE),
          "warn": ["PROJECT ZETA \n",
                   "- Invasion quests seem overly buggy or trigger too frequently, minor sound issues. \n",
                   "  Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files"]},
 
-        {"mod": re.compile(r"\bRaiderOverhaul\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bRaiderOverhaul\.esp$", regx.MULTILINE),
          "warn": ["RAIDER OVERHAUL \n",
                   "- Old mod that requires several patches to function as intended. Use ONE Version instead. \n",
                   "  Updated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files"]},
 
-        {"mod": re.compile(r"\bRusty Face Fix\.(esp|esl)$", re.MULTILINE),
+        {"mod": regx.compile(r"\bRusty Face Fix\.(esp|esl)$", regx.MULTILINE),
          "warn": ["RUSTY FACE FIX \n",
                   "- Make sure you have the latest 2.0 version installed or try the REDUX Version instead. \n",
                   "  Original Rusty Face Fix: https://www.nexusmods.com/fallout4/mods/31028?tab=files \n",
                   "  Alternative REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files"]},
 
-        {"mod": re.compile(r"\bSOTS\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSOTS\.esp$", regx.MULTILINE),
          "warn": ["SOUTH OF THE SEA \n",
                   "- Very unstable mod that consistently and frequently causes strange problems and crashes. \n",
                   "  Updated Version: https://www.nexusmods.com/fallout4/mods/63152?tab=files"]},
 
-        {"mod": re.compile(r"\bStartMeUp\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bStartMeUp\.esp$", regx.MULTILINE),
          "warn": ["START ME UP \n",
                   "- Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead. \n",
                   "  Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files"]},
 
-        {"mod": re.compile(r"\bSuperMutantRedux\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSuperMutantRedux\.esp$", regx.MULTILINE),
          "warn": ["SUPER MUTANT REDUX \n",
                   "- Causes crashes at specific locations or with certain Super Mutant enemies and items. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]},
 
-        {"mod": re.compile(r"\bTacticalReload\.esm$", re.MULTILINE),
+        {"mod": regx.compile(r"\bTacticalReload\.esm$", regx.MULTILINE),
          "warn": ["TACTICAL RELOAD \n",
                   "- Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended. \n",
                   "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/67716?tab=files"]},
 
-        {"mod": re.compile(r"\bCreatures and Monsters\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bCreatures and Monsters\.esp$", regx.MULTILINE),
          "warn": ["UNIQUE NPCs CREATURES AND MONSTERS \n",
                   "- Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files"]},
@@ -1162,75 +1162,75 @@ class ClasCheckMods:
 
     # 4) CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER | Leave 1 empty space as prefix to prevent most duplicates.
     Mods4 = [
-        {"mod": re.compile(r"\bBTB- Beyond the Borders FO4\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bBTB- Beyond the Borders FO4\.esp$", regx.MULTILINE),
          "warn": "Beyond the Borders"},
-        {"mod": re.compile(r"\bThe Deadly Commonwealth Expansion\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bThe Deadly Commonwealth Expansion\.esp$", regx.MULTILINE),
          "warn": "Deadly Commonwealth Expansion"},
-        {"mod": re.compile(r"\bDogmeat and Strong Armor - Tumba Munky\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bDogmeat and Strong Armor - Tumba Munky\.esp$", regx.MULTILINE),
          "warn": "Dogmeat and Strong Armor"},
-        {"mod": re.compile(r"\bDoYourDamnJobCodsworth\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bDoYourDamnJobCodsworth\.esp$", regx.MULTILINE),
          "warn": "Do Your Damn JobCodsworth"},
-        {"mod": re.compile(r"\bConcordEXPANDED\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bConcordEXPANDED\.esp$", regx.MULTILINE),
          "warn": "Concord EXPANDED"},
-        {"mod": re.compile(r"\bHagenEXPANDED\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bHagenEXPANDED\.esp$", regx.MULTILINE),
          "warn": "Hagen EXPANDED"},
-        {"mod": re.compile(r"\bGlowingSeaEXPANDED\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bGlowingSeaEXPANDED\.esp$", regx.MULTILINE),
          "warn": "Glowing Sea EXPANDED"},
-        {"mod": re.compile(r"\bSalemEXPANDED\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSalemEXPANDED\.esp$", regx.MULTILINE),
          "warn": "Salem EXPANDED"},
-        {"mod": re.compile(r"\bSwampsEXPANDED\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSwampsEXPANDED\.esp$", regx.MULTILINE),
          "warn": "Swamps EXPANDED"},
-        {"mod": re.compile(r"\b_hod\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\b_hod\.esp$", regx.MULTILINE),
          "warn": "Halls of the Dead"},
-        {"mod": re.compile(r"\bImmersiveBeantown\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bImmersiveBeantown\.esp$", regx.MULTILINE),
          "warn": "Immersive Beantown"},
-        {"mod": re.compile(r"\bCovenantComplex\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bCovenantComplex\.esp$", regx.MULTILINE),
          "warn": "Covenant Complex"},
-        {"mod": re.compile(r"\bGunnersPlazaInterior\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bGunnersPlazaInterior\.esp$", regx.MULTILINE),
          "warn": "Gunners Plaza Interior"},
-        {"mod": re.compile(r"\bImmersiveHubCity\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bImmersiveHubCity\.esp$", regx.MULTILINE),
          "warn": "Immersive Hub City"},
-        {"mod": re.compile(r"\bImmersive_Lexington\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bImmersive_Lexington\.esp$", regx.MULTILINE),
          "warn": "Immersive & Extended Lexington"},
-        {"mod": re.compile(r"\bImmersive Nahant\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bImmersive Nahant\.esp$", regx.MULTILINE),
          "warn": "Immersive & Extended Nahant"},
-        {"mod": re.compile(r"\bImmersive S Boston\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bImmersive S Boston\.esp$", regx.MULTILINE),
          "warn": "Immersive Military Checkpoint"},
-        {"mod": re.compile(r"\bMutilatedDeadBodies\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bMutilatedDeadBodies\.esp$", regx.MULTILINE),
          "warn": "Mutilated Dead Bodies"},
-        {"mod": re.compile(r"\bVault4\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bVault4\.esp$", regx.MULTILINE),
          "warn": "Fourville (Vault 4)"},
-        {"mod": re.compile(r"\batlanticofficesf23\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\batlanticofficesf23\.esp$", regx.MULTILINE),
          "warn": "Lost Building of Atlantic"},
-        {"mod": re.compile(r"\bMinutemen Supply Caches\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bMinutemen Supply Caches\.esp$", regx.MULTILINE),
          "warn": "Minutemen Supply Caches"},
-        {"mod": re.compile(r"\bmoreXplore\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bmoreXplore\.esp$", regx.MULTILINE),
          "warn": "More Xplore"},
-        {"mod": re.compile(r"\bNEST_BUNKER_PROJECT\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bNEST_BUNKER_PROJECT\.esp$", regx.MULTILINE),
          "warn": "NEST Bunker Project"},
-        {"mod": re.compile(r"\bRaider Children\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bRaider Children\.esp$", regx.MULTILINE),
          "warn": "Raider Children"},
-        {"mod": re.compile(r"\bsectorv\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bsectorv\.esp$", regx.MULTILINE),
          "warn": "Sector V"},
-        {"mod": re.compile(r"\bSettlementShelters\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bSettlementShelters\.esp$", regx.MULTILINE),
          "warn": "Settlement Shelters"},
-        {"mod": re.compile(r"\bsubwayrunnerdynamiclighting\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bsubwayrunnerdynamiclighting\.esp$", regx.MULTILINE),
          "warn": "Subway Runner (Dynamic Lights)"},
-        {"mod": re.compile(r"\b3DNPC_FO4Settler\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\b3DNPC_FO4Settler\.esp$", regx.MULTILINE),
          "warn": "Settlers of the Commonwealth"},
-        {"mod": re.compile(r"\b3DNPC_FO4\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\b3DNPC_FO4\.esp$", regx.MULTILINE),
          "warn": "Tales from the Commonwealth"},
-        {"mod": re.compile(r"\bThe Hollow\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bThe Hollow\.esp$", regx.MULTILINE),
          "warn": "The Hollow"},
-        {"mod": re.compile(r"\bnvvault1080\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bnvvault1080\.esp$", regx.MULTILINE),
          "warn": "Vault 1080 (Vault 80)"},
-        {"mod": re.compile(r"\bVertibird Faction Paint Schemes\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bVertibird Faction Paint Schemes\.esp$", regx.MULTILINE),
          "warn": "Vertibird Faction Paint Schemes"},
-        {"mod": re.compile(r"\bMojaveImports\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bMojaveImports\.esp$", regx.MULTILINE),
          "warn": "Wasteland Imports (Mojave Imports)"},
-        {"mod": re.compile(r"\bFirelance2\.5\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bFirelance2\.5\.esp$", regx.MULTILINE),
          "warn": "Xander's Aid"},
-        {"mod": re.compile(r"\bzxcMicroAdditions\.esp$", re.MULTILINE),
+        {"mod": regx.compile(r"\bzxcMicroAdditions\.esp$", regx.MULTILINE),
          "warn": "ZXC Micro Additions"}
     ]
 
