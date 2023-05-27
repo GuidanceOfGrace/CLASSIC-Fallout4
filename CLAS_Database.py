@@ -858,6 +858,7 @@ class ClasCheckMods:
     awkcr_regex = regx.compile(r"\bArmorKeywords\.esm$", regx.MULTILINE)
     betterpowerarmor_regex = regx.compile(r"\bBetterPowerArmorRedux\.dll")
     prp_regex = regx.compile(r"\bPRP\.esp$", regx.MULTILINE)
+    bostonfpsfix_regex = regx.compile(r"\bBostonFPSFix(AIO|Automatron|\-Vanilla|VD|AIO_VD|FarHarbor|\-NukaWorld)\.esp$", regx.MULTILINE)
     Mods1 = [
         {"mod": regx.compile(r"\bDamageThresholdFramework\.esm$", regx.MULTILINE),
          "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
@@ -937,7 +938,7 @@ class ClasCheckMods:
                   "[Both mods use the same script hooks. This can crash the game or cause weird mod behavior.]\n",
                   "[If you encounter problems, You should use only one of these mods, not both at the same time.]"]},
 
-        {"mod_1": regx.compile(r"\bBostonFPSFix(.*)"),
+        {"mod_1": bostonfpsfix_regex,
          "mod_2": prp_regex,
          "warn": ["BOSTON FPS FIX ❌ CONFLICTS WITH : PREVIS REPAIR PACK \n",
                   "[Using both mods can break precombines. CLAS suggests using Previs Repair Pack only.]"]},
@@ -1055,7 +1056,7 @@ class ClasCheckMods:
                   "- This mod is severely outdated and will cause crashes even with compatibility patches. \n",
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files"]},
 
-        {"mod": regx.compile(r"\bBostonFPSFixAIO\.esp$", regx.MULTILINE),
+        {"mod": bostonfpsfix_regex,
          "warn": ["BOSTON FPS FIX \n",
                   "- This mod is severely outdated. Either install the PRP patch or switch to PRP entirely. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/59021?tab=files \n",
