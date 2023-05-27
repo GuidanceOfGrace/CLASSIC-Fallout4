@@ -26,7 +26,7 @@ clas_update_check()
 
 plugins_pattern = regx.compile(r"(.+?)(\.(esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
 LCL_skip_list = []
-if not os.path.exists("CLAS Ignoregx.txt"):  # Local plugin skip / ignore list.
+if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
         CLAS_Ignore.write("Write plugin names you want CLAS to ignore here. (ONE PLUGIN PER LINE)\n")
 else:
