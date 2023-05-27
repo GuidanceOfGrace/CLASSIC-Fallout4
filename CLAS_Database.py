@@ -1067,7 +1067,7 @@ class ClasCheckMods:
                   "- Frequently causes object model (nif) related crashes and this needs to be manually corrected. \n",
                   "  Advised Fix: Open its Meshes folder and delete everything inside EXCEPT for the Functional Displays folder."]},
 
-        {"mod": regx.compile(r"\bskeleton(male|female)(player|playerLMCC)\.esp$", regx.MULTILINE),
+        {"mod": regx.compile(r"\bskeleton(male|female)player(?:LMCC)?\.esp$", regx.MULTILINE),
          "warn": ["GENDER SPECIFIC SKELETONS (MALE/FEMALE) \n",
                   "- High chance to cause a crash when starting a new game or during the game intro sequence. \n",
                   "  Advised Fix: Enable the mod only after leaving Vault 111. Existing saves shouldn't be affected."]},
