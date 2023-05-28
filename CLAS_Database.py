@@ -1077,7 +1077,7 @@ class ClasCheckMods:
                   "- Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead. \n",
                   "  Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files"]},
 
-        {"mod": regx.compile(r"\bCapsWidget.esp$", regx.MULTILINE),
+        {"mod": regx.compile(r"\bCapsWidget\.esp$", regx.MULTILINE),
          "warn": ["HUD CAPS \n",
                   "- Often breaks the Save / Quicksave function due to poor script implementation. \n",
                   "  Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder. \n",
