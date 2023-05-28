@@ -61,7 +61,7 @@ def scan_logs():
     records_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(\+.{7})?(.*)", regx.IGNORECASE)
-    buffout4_pattern = regx.compile(r"Buffout 4.* v(\d+\.\d+\.\d+)(.*)", regx.IGNORECASE)
+    crash_ver_pattern = regx.compile(r"Buffout 4.* v(\d+\.\d+\.\d+)(.*)", regx.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -367,7 +367,7 @@ def scan_logs():
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
 
             # DEFINE LINE INDEXES HERE
-            crash_ver_match = buffout4_pattern.search(logtext)
+            crash_ver_match = crash_ver_pattern.search(logtext)
             crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"
             error_match = unhandled_exception_pattern.search(logtext)
             crash_error = error_match.group() if error_match else "❌ Error Not Found"
