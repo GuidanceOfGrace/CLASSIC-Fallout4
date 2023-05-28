@@ -61,7 +61,7 @@ def scan_logs():
     records_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(\+.{7})?(.*)", regx.IGNORECASE)
-    buffout4_pattern = regx.compile(r"Buffout 4.* (.*)", regx.IGNORECASE)
+    buffout4_pattern = regx.compile(r"Buffout 4.* v(\d+\.\d+\.\d+)(.*)", regx.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
