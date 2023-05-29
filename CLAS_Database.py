@@ -97,8 +97,8 @@ def mods_ini_config(file_path, section, key, new_value=None):
     return mod_config[section][key]
 
 def replace_true_false(text):
-    text = regx.sub(r'\bTrue\b', 'true', text, regx.IGNORECASE)
-    text = regx.sub(r'\bFalse\b', 'false', text, regx.IGNORECASE)
+    text = regx.sub(r'\bTrue\b', 'true', text)
+    text = regx.sub(r'\bFalse\b', 'false', text)
     return text
 
 # ================= CLAS UPDATE FUNCTIONS ================
