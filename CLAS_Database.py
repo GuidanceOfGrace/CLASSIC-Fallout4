@@ -96,6 +96,10 @@ def mods_ini_config(file_path, section, key, new_value=None):
     # Return current value of the key.
     return mod_config[section][key]
 
+def replace_true_false(text):
+    text = regx.sub(r'\bTrue\b', 'true', text)
+    text = regx.sub(r'\bFalse\b', 'false', text)
+    return text
 
 # ================= CLAS UPDATE FUNCTIONS ================
 # Don't forget to update the API link for specific games.
@@ -123,7 +127,8 @@ def clas_update_check():
 
 class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comments.
     with open("CLAS Settings.toml", "r", encoding="utf-8", errors="ignore") as toml_in:
-        CLAS_TOML: tomlkit.TOMLDocument = tomlkit.parse(toml_in.read())
+        CLAS_TOML: tomlkit.TOMLDocument = tomlkit.parse(replace_true_false(toml_in.read()))
+        toml_in.write(CLAS_TOML.as_string())
     CLAS_config: tomlkit.items.Table = CLAS_TOML["MAIN"]  # type: ignore
 
     CLAS_Current = "CLAS v6.95"
@@ -811,7 +816,7 @@ class ClasCheckFiles:
             GALAXY.scan_game_report.append("✔️ REQUIRED: *Buffout 4* is (manually) installed. Checking configuration...\n  -----")
 
             with open(SYSTEM.Buffout_TOML, "r+", encoding="utf-8", errors="ignore") as BUFF_Custom:
-                BUFF_config: tomlkit.TOMLDocument = tomlkit.load(BUFF_Custom)
+                BUFF_config: tomlkit.TOMLDocument = tomlkit.parse(replace_true_false(BUFF_Custom.read()))
 
                 if SYSTEM.Buffout_TOML.is_file():
                     self.check_and_update_config(BUFF_config, "Patches", "Achievements", False,
