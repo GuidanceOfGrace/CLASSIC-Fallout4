@@ -125,7 +125,7 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     with open("CLAS Settings.toml", "r", encoding="utf-8", errors="ignore") as toml_in:
         CLAS_TOML: tomlkit.TOMLDocument = tomlkit.parse(toml_in.read())
     CLAS_config: tomlkit.items.Table = CLAS_TOML["MAIN"]  # type: ignore
-
+    
     CLAS_Current = "CLAS v6.95"
     CLAS_Date = "250423"
 
@@ -146,6 +146,25 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
 UNIVERSE = ClasUniversalVars()
 
+def clas_toml_import():
+    if os.path.exists("CLAS Settings.ini"):
+        print("\n 🛠️ Importing Settings from CLAS Settings.ini")
+        config_import = configparser.ConfigParser()
+        config_import.optionxform = str  # type: ignore
+        config_import.read("CLAS Settings.ini")
+        clas_toml_update("Update_Check", config_import.getboolean("MAIN", "Update Check"))
+        clas_toml_update("FCX_Mode", config_import.getboolean("MAIN", "FCX Mode"))
+        clas_toml_update("IMI_Mode", config_import.getboolean("MAIN", "IMI Mode"))
+        clas_toml_update("Stat_Logging", config_import.getboolean("MAIN", "Stat Logging"))
+        clas_toml_update("Move_Unsolved", config_import.getboolean("MAIN", "Move Unsolved"))
+        if config_import["MAIN"]["INI Path"]:
+            clas_toml_update("INI_Path", config_import["MAIN"]["INI Path"])
+        if config_import["MAIN"]["Scan Path"]:
+            clas_toml_update("Scan_Path", config_import["MAIN"]["Scan Path"])
+        os.remove("CLAS Settings.ini")
+        print(" ✅ CLAS Settings.ini imported successfully!")
+
+clas_toml_import()
 
 class ClasSpecificVars:
     Game_Name = "Fallout 4"
