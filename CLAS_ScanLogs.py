@@ -2,7 +2,10 @@
 import json
 import os
 import random
-import re
+try:
+    import regex as regx
+except ImportError:
+    import re as regx
 import shutil
 import time
 from collections import Counter
@@ -10,22 +13,25 @@ from pathlib import Path
 
 import pkg_resources
 
-from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_ini_create,
-                           clas_ini_update, clas_update_check)
+from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_toml_create,
+                           clas_toml_update, clas_update_check)
 
-clas_ini_create()
+try:
+    regx.DEFAULT_VERSION = regx.VERSION1  # type: ignore
+except AttributeError:
+    pass
+
+clas_toml_create()
 clas_update_check()
 
+plugins_pattern = regx.compile(r"(.+?)(\.(esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
 LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
         CLAS_Ignore.write("Write plugin names you want CLAS to ignore here. (ONE PLUGIN PER LINE)\n")
 else:
     with open("CLAS Ignore.txt", "r", encoding="utf-8", errors="ignore") as CLAS_Ignore:
-        LCL_skip_list = [line.strip() for line in CLAS_Ignore.readlines()[1:]]
-        for i in range(len(LCL_skip_list)):
-            if not LCL_skip_list[i].startswith(' '):
-                LCL_skip_list[i] = ' ' + LCL_skip_list[i]
+        LCL_skip_list = [line.group() for line in plugins_pattern.finditer(CLAS_Ignore.read())]
 
 # =================== TERMINAL OUTPUT START ====================
 print(f"Hello World! | Crash Log Auto Scanner (CLAS) | Version {UNIVERSE.CLAS_Current[-4:]} | Fallout 4")
@@ -47,14 +53,15 @@ def culprit_data():
 def scan_logs():
     # =================== IMPORTED DATA AND REGEX PATTERNS ===================
     Culprits = culprit_data()
-    plugin_id_pattern = re.compile(r'\[[0-9A-Fa-f]{2,6}\]')
-    detected_plugin_pattern = re.compile(r'File:\s+"?([^"]+)"?')
-    form_id_pattern = re.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
-    nvidia_pattern = re.compile(r'GPU.*Nvidia', re.IGNORECASE)
-    amd_pattern = re.compile(r'GPU.*AMD', re.IGNORECASE)
-    records_pattern = re.compile('|'.join(re.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
-    records_exclude_pattern = re.compile('|'.join(re.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
-    plugins_pattern = re.compile(r"(\.esp|\.esl|\.esm)", re.IGNORECASE)
+    plugin_id_pattern = regx.compile(r'\[[0-9A-Fa-f]{2,6}\]')
+    detected_plugin_pattern = regx.compile(r'File:\s+"?([^"]+)"?')
+    form_id_pattern = regx.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
+    nvidia_pattern = regx.compile(r'GPU.*Nvidia', regx.IGNORECASE)
+    amd_pattern = regx.compile(r'GPU.*AMD', regx.IGNORECASE)
+    records_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
+    records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
+    unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(?P<error_code>\+.{7})?(.*)", regx.IGNORECASE)
+    crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(.*)", regx.IGNORECASE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -63,8 +70,7 @@ def scan_logs():
         logname = logpath.name
         logtext = logpath.read_text(encoding="utf-8", errors="ignore")
 
-        with logpath.open(encoding="utf-8", errors="ignore") as f:
-            loglines = f.readlines()
+        loglines = logtext.strip().splitlines()
 
         loglines = list(map(str.strip, loglines))
 
@@ -88,19 +94,14 @@ def scan_logs():
         section_stack_text = str(section_stack_list)
         section_plugins_list = loglines[index_plugins:]
 
-        if os.path.exists("loadorder.txt"):
+        loadorder_path = Path("loadorder.txt")
+
+        if loadorder_path.exists():
             plugins_loaded = True
-            section_plugins_list = []
+            plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
 
-            with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_check:
-                plugin_format = loadorder_check.readlines()
-
-                if len(plugin_format) >= 1 and not any("[00]" in elem for elem in section_plugins_list):
-                    section_plugins_list.append("[00]")
-
-                for line in plugin_format:
-                    line = "[LO] " + line.strip()
-                    section_plugins_list.append(line)
+            section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
+            section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
 
         return section_stack_list, section_stack_text, section_plugins_list, plugins_loaded
 
@@ -128,7 +129,7 @@ def scan_logs():
 
     def write_plugin_culprits(output, culprits, detected_plugins_counter):
         if not culprits:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY PLUGIN CULPRITS *\n",
+            output.writelines(["* CLAS COULDN'T FIND ANY PLUGIN CULPRITS *\n",
                                "-----\n"])
         else:
             for matches in culprits:
@@ -141,20 +142,6 @@ def scan_logs():
                                "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
                                "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n",
                                "-----\n"])
-
-    '''GPT Changes Part 1:
-    In the updated version, I've made the following changes:
-
-Simplified the string manipulations by normalizing the line and plugin strings at the beginning of the loops.
-Used more descriptive variable names like plugin instead of elem.
-Removed the redundant id_only variable and used line directly.
-Removed unnecessary string replacements with spaces.
-Added a return statement to return the form_ids list.
-These changes should make the function more readable and easier to maintain.'''
-
-    '''GPT Changes Part 2:
-    In the updated version, I've added the missing else block to handle the case when plugins_loaded is False.
-    The function now appends the line directly to the form_ids list in that case. The rest of the function remains the same as in the previous improvement.'''  # I initially forgot to paste the whole function.
 
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
         form_ids = []
@@ -180,7 +167,7 @@ These changes should make the function more readable and easier to maintain.'''
 
     def write_form_id_culprits(output, form_ids):
         if not form_ids:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY FORM ID CULPRITS *\n",
+            output.writelines(["* CLAS COULDN'T FIND ANY FORM ID CULPRITS *\n",
                                "-----\n"])
         else:
             for elem in form_ids:
@@ -195,8 +182,8 @@ These changes should make the function more readable and easier to maintain.'''
         for line in section_stack_list:
             if records_pattern.search(line.lower()):
                 if not records_exclude_pattern.search(line):
-                    line = re.sub('"', '', line)
-                    named_records.append(line)
+                    line = regx.sub('"', '', line)
+                    named_records.append(line.strip())
         named_records = sorted(named_records)
         return dict(Counter(named_records))
 
@@ -207,7 +194,7 @@ These changes should make the function more readable and easier to maintain.'''
                 del named_records[item]'''  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
 
         if not named_records:
-            output.writelines(["* AUTOSCAN COULDN'T FIND ANY NAMED RECORDS *\n",
+            output.writelines(["* CLAS COULDN'T FIND ANY NAMED RECORDS *\n",
                                "-----\n"])
         else:
             for item in named_records:
@@ -218,48 +205,42 @@ These changes should make the function more readable and easier to maintain.'''
                                "Named records should give extra info on involved game objects, record types or mod files.\n",
                                "-----\n"])
 
-    '''GPT Changes:
-    Introduced a new variable mod_condition to store the mod's condition.
-    Added two new optional keys nvidia_specific and amd_specific to the mod dictionary, which will be checked before writing any output.
-    Removed the redundant nested conditionals, and replaced them with a single continue statement.
-    Combined the two separate output writing blocks into one, reducing code duplication.'''
-
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': 'CanarySaveFileMonitor' in logtext,
+                'condition': regx.search('CanarySaveFileMonitor', logtext),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
             'High FPS Physics Fix': {
-                'condition': re.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext, re.IGNORECASE),
+                'condition': regx.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext),
                 'description': 'This is a mandatory patch / fix that prevents game engine problems.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': 'PPF.esm' in logtext,
+                'condition': regx.search("PPF.esm", logtext),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': 'Unofficial Fallout 4 Patch.esp' in logtext,
+                'condition': regx.search("Unofficial Fallout 4 Patch.esp", logtext),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': 'vulkan-1.dll' in logtext,
+                'condition': regx.search("vulkan-1.dll", logtext),
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': 'WeaponDebrisCrashFix.dll' in logtext,
+                'condition': regx.search('WeaponDebrisCrashFix.dll', logtext),
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
-                'condition': 'NVIDIA_Reflex.dll' in logtext,
+                'condition': regx.search('NVIDIA_Reflex.dll', logtext),
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
                 'nvidia_specific': True
@@ -270,7 +251,7 @@ These changes should make the function more readable and easier to maintain.'''
                 output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
             def write_not_installed(output, mod_name, mod_data):
-                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR AUTOSCAN CANNOT DETECT IT #\n"
+                output.write(f"# ❌ {mod_name.upper()} IS NOT INSTALLED OR CLAS CANNOT DETECT IT #\n"
                              f"  {mod_data['description']}\n"
                              f"  Link: {mod_data['link']}\n"
                              "  -----\n")
@@ -330,9 +311,11 @@ These changes should make the function more readable and easier to maintain.'''
                 return any(pattern in text for pattern in patterns)
 
             if culprit_name in Special_Cases['Nvidia_Crashes']:
-                return search_any(["nvidia"], logtext) and search_any(stack_conditions, section_stack_text)
+                nvidia_match = regx.search("nvidia", logtext, regx.IGNORECASE)
+                return bool(nvidia_match) and search_any(stack_conditions, section_stack_text)
             elif culprit_name in Special_Cases['Vulkan_Crashes']:
-                return search_any(["vulkan"], logtext) and search_any(stack_conditions, section_stack_text)
+                vulkan_match = regx.search("vulkan", logtext, regx.IGNORECASE)
+                return bool(vulkan_match) and search_any(stack_conditions, section_stack_text)
             elif culprit_name in Special_Cases['Player_Character_Crash']:
                 return any(section_stack_text.count(item) >= 3 for item in stack_conditions)
             else:
@@ -361,11 +344,9 @@ These changes should make the function more readable and easier to maintain.'''
     statL_scanned = statL_incomplete = statL_failed = statM_CHW = 0
     start_time = time.perf_counter()
 
-    SCAN_folder = os.getcwd()
-    if len(UNIVERSE.CLAS_config["MAIN"]["Scan Path"]) > 1:
-        SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"]
+    SCAN_folder = UNIVERSE.CLAS_config["Scan_Path"] if UNIVERSE.CLAS_config["Scan_Path"] else os.getcwd()
 
-    if UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower() == "true":
+    if UNIVERSE.CLAS_config["FCX_Mode"]:
         from CLAS_ScanFiles import (scan_game_files, scan_mod_inis,
                                     scan_wryecheck)
         GALAXY.scan_game_report = []
@@ -386,9 +367,10 @@ These changes should make the function more readable and easier to maintain.'''
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
 
             # DEFINE LINE INDEXES HERE
-            crash_ver = loglines[1]
-            crash_error = loglines[2] if loglines[2] and not loglines[2] == "\n" else loglines[3]
-            assert len(crash_error) > 0
+            crash_ver_match = crash_ver_pattern.search(logtext)
+            crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"
+            error_match = unhandled_exception_pattern.search(logtext)
+            crash_error = error_match.group() if error_match else "❌ Error Not Found"
 
             section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
 
@@ -409,7 +391,7 @@ These changes should make the function more readable and easier to maintain.'''
                                "CHECKING IF NECESSARY FILES/SETTINGS ARE CORRECT...\n",
                                "====================================================\n"])
 
-            fcx_mode = UNIVERSE.CLAS_config["MAIN"]["FCX Mode"].lower()
+            fcx_mode = UNIVERSE.CLAS_config["FCX_Mode"]
 
             if fcx_mode == "true":
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Enabled"])
@@ -456,7 +438,7 @@ These changes should make the function more readable and easier to maintain.'''
             Culprit_Trap = culprit_check(output, logtext, section_stack_text)
 
             if Culprit_Trap is False:  # DEFINE CHECK IF NO KNOWN CRASH ERRORS / CULPRITS ARE FOUND
-                output.writelines(["# AUTOSCAN FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
+                output.writelines(["# CLAS FOUND NO CRASH ERRORS / CULPRITS THAT MATCH THE CURRENT DATABASE #\n",
                                    "Check below for mods that can cause frequent crashes and other problems.\n",
                                    "-----\n"])
             else:
@@ -468,13 +450,16 @@ These changes should make the function more readable and easier to maintain.'''
             def check_plugins(mods, mod_trap, plugins_loaded, section_plugins_list, LCL_skip_list):
                 if not plugins_loaded:
                     return mod_trap
-
+                mods_found = set()
                 for line in section_plugins_list:
-                    for mod_data in mods.values():
-                        if "File:" not in line and mod_data["mod"] in line and mod_data["mod"] not in LCL_skip_list:
+                    for mod_data in mods:  # changed from mods.values()
+                        mod_data_match = mod_data["mod"].search(line)
+                        if "File:" not in line and mod_data_match and mod_data_match.group() not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
                             prefix = line[0:5] if "[FE" not in line else line[0:9]
-                            output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
+                            if mod_data_match.group() not in mods_found:
+                                output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
+                            mods_found.add(mod_data_match.group())
                             mod_trap = True
 
                 return mod_trap
@@ -483,8 +468,10 @@ These changes should make the function more readable and easier to maintain.'''
                 if not plugins_loaded:
                     return mod_trap
 
-                for mod_data in mods.values():
-                    if mod_data["mod_1"] in logtext and mod_data["mod_2"] in logtext:
+                for mod_data in mods:  # changed from mods.values()
+                    mod1_match = mod_data["mod_1"].search(logtext)
+                    mod2_match = mod_data["mod_2"].search(logtext)
+                    if mod1_match and mod2_match:
                         warn = ''.join(mod_data["warn"])
                         output.writelines([f"[!] CAUTION : {warn}\n", "-----\n"])
                         mod_trap = True
@@ -553,11 +540,11 @@ These changes should make the function more readable and easier to maintain.'''
                 # CURRENTLY NONE
 
                 if (Mod_Check2 or Mod_Trap2) is True:
-                    output.writelines(["# AUTOSCAN FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
+                    output.writelines(["# CLAS FOUND MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS # \n",
                                        "* YOU SHOULD CHOOSE WHICH MOD TO KEEP AND REMOVE OR DISABLE THE OTHER MOD * \n",
                                        "-----\n"])
                 elif (Mod_Check2 and Mod_Trap2) is False:
-                    output.writelines(["# AUTOSCAN FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
+                    output.writelines(["# CLAS FOUND NO MODS THAT ARE INCOMPATIBLE OR CONFLICT WITH YOUR OTHER MODS #\n",
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
@@ -571,28 +558,31 @@ These changes should make the function more readable and easier to maintain.'''
 
                 thuggy_smurf_mods = ("Depravity", "FusionCityRising", "HotC", "OutcastsAndRemnants", "ProjectValkyrie")
                 custom_race_mods = ("CaN.esm", "AnimeRace_Nanako.esp")
+                fall_souls_mod = "FallSouls.dll"
+
+                def write_output(message):
+                    nonlocal found
+                    output.writelines(message)
+                    found = True
 
                 if any(item in logtext for item in thuggy_smurf_mods):
-                    output.writelines([f"[!] Found: [XX] THUGGYSMURF QUEST MOD(S)\n",
-                                       "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
-                                       "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
-                                       "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
-                                       "-----\n"])
-                    found = True
+                    write_output([f"[!] Found: [XX] THUGGYSMURF QUEST MOD(S)\n",
+                                  "If you have Depravity, Fusion City Rising, HOTC, Outcasts and Remnants and/or Project Valkyrie\n",
+                                  "install this patch with facegen data, fully generated precomb/previs data and several tweaks.\n",
+                                  "Patch Link: https://www.nexusmods.com/fallout4/mods/56876?tab=files\n",
+                                  "-----\n"])
 
                 if any(item in logtext for item in custom_race_mods):
-                    output.writelines([f"[!] Found: [XX] CUSTOM RACE SKELETON MOD(S)\n",
-                                       "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
-                                       "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n",
-                                       "-----\n"])
-                    found = True
+                    write_output([f"[!] Found: [XX] CUSTOM RACE SKELETON MOD(S)\n",
+                                  "If you have AnimeRace NanakoChan or Crimes Against Nature, install the Race Skeleton Fixes.\n",
+                                  "Skeleton Fixes Link (READ THE DESCRIPTION): https://www.nexusmods.com/fallout4/mods/56101\n",
+                                  "-----\n"])
 
-                if "FallSouls.dll" in logtext:
-                    output.writelines([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
-                                       "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.\n",
-                                       "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n",
-                                       "-----\n"])
-                    found = True
+                if fall_souls_mod in logtext:
+                    write_output([f"[!] Found: FALLSOULS UNPAUSED GAME MENUS\n",
+                                  "Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.\n",
+                                  "Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.\n",
+                                  "-----\n"])
 
                 return found
 
@@ -604,12 +594,12 @@ These changes should make the function more readable and easier to maintain.'''
                 Mod_Trap3 = check_special_mods_with_solutions(logtext, output)
 
                 if Mod_Check3 or Mod_Trap3 is True:
-                    output.writelines([f"# AUTOSCAN FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                    output.writelines([f"# CLAS FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
                                        "[Due to limitations, CLAS will show warnings for some mods even if fixes or patches are already installed.]\n",
                                        "[To hide these warnings, you can add their plugin names to the CLAS Ignore.txt file. ONE PLUGIN PER LINE.]\n",
                                        "-----\n"])
                 elif Mod_Check3 and Mod_Trap3 is False:
-                    output.writelines([f"# AUTOSCAN FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
+                    output.writelines([f"# CLAS FOUND NO PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES #\n",
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
@@ -634,7 +624,7 @@ These changes should make the function more readable and easier to maintain.'''
                                        "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n",
                                        "-----\n"])
                 elif (Mod_Check4 and Mod_Trap4) is False:
-                    output.writelines(["# AUTOSCAN FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
+                    output.writelines(["# CLAS FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH OPC INSTALLER #\n",
                                        "-----\n"])
             else:
                 output.write(GALAXY.Warnings["Warn_BLOG_NOTE_Plugins"])
@@ -691,12 +681,6 @@ These changes should make the function more readable and easier to maintain.'''
     print("CLAS NEXUS PAGE | https://www.nexusmods.com/fallout4/mods/56255")
     print(random.choice(GALAXY.Sneaky_Tips))
 
-    '''GPT Changes:
-    Replaced variable names with more descriptive alternatives.
-Used pathlib for file path manipulation.
-Simplified the check for failed scans using the Path methods.
-These changes should make the code more readable and easier to maintain.'''
-
     # ==== CHECK FAULTY FILES | HIDE USERNAME | MOVE UNSOLVED ====
     failed_scans = []
     homedir = Path.home()
@@ -726,7 +710,7 @@ These changes should make the code more readable and easier to maintain.'''
             statL_scanned -= 1
             file_move = True
 
-        if file_move and UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"):
+        if file_move and UNIVERSE.CLAS_config["Move_Unsolved"]:
             unsolved_folder = "CLAS UNSOLVED"
             Path(unsolved_folder).mkdir(exist_ok=True)
             crash_move = Path(unsolved_folder, crash_file_path.name)
@@ -779,23 +763,23 @@ if __name__ == "__main__":  # AKA only autorun / do the following when NOT impor
 
     # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
     # So it will respect current INI values if not specified on the command line.
-    if isinstance(args.fcx_mode, bool) and not args.fcx_mode == UNIVERSE.CLAS_config.getboolean("MAIN", "FCX Mode"):
-        clas_ini_update("FCX Mode", str(args.fcx_mode).lower())
+    if isinstance(args.fcx_mode, bool) and not args.fcx_mode == UNIVERSE.CLAS_config["FCX_Mode"]:
+        clas_toml_update("FCX_Mode", args.fcx_mode)
 
-    if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config.getboolean("MAIN", "IMI Mode"):
-        clas_ini_update("IMI Mode", str(args.imi_mode).lower())
+    if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config["IMI_Mode"]:
+        clas_toml_update("IMI_Mode", args.imi_mode)
 
-    if isinstance(args.stat_logging, bool) and not args.stat_logging == UNIVERSE.CLAS_config.getboolean("MAIN", "Stat Logging"):
-        clas_ini_update("Stat Logging", str(args.stat_logging).lower())
+    if isinstance(args.stat_logging, bool) and not args.stat_logging == UNIVERSE.CLAS_config["Stat_Logging"]:
+        clas_toml_update("Stat_Logging", args.stat_logging)
 
-    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"):
-        clas_ini_update("Move Unsolved", str(args.move_unsolved).lower())
+    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config["Move_Unsolved"]:
+        clas_toml_update("Move_Unsolved", args.move_unsolved)
 
-    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == UNIVERSE.CLAS_config["MAIN"]["INI Path"]:
-        clas_ini_update("INI Path", str(Path(ini_path).resolve()))
+    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == UNIVERSE.CLAS_config["INI_Path"]:
+        clas_toml_update("INI_Path", str(Path(ini_path).resolve()))
 
-    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == UNIVERSE.CLAS_config["MAIN"]["Scan Path"]:
-        clas_ini_update("Scan Path", str(Path(scan_path).resolve()))
+    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == UNIVERSE.CLAS_config["Scan_Path"]:
+        clas_toml_update("Scan_Path", str(Path(scan_path).resolve()))
 
     scan_logs()
     os.system("pause")

@@ -1,10 +1,14 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
+from functools import partial
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QApplication, QFileDialog
-from CLAS_Database import (GALAXY, UNIVERSE, clas_ini_create, clas_ini_update, clas_update_check)
+
+from CLAS_Database import (GALAXY, UNIVERSE, clas_toml_create,
+                           clas_toml_update, clas_update_check)
 from CLAS_ScanLogs import scan_logs
 
 '''import platform  # RESERVED FOR FUTURE UPDATE
@@ -15,7 +19,7 @@ if current_platform == 'Windows':
         QApplication.setStyle("Fusion")
         sys.argv += ['-platform', 'windows:darkmode=2']
 '''
-clas_ini_create()
+clas_toml_create()
 
 
 def create_custom_line_edit(parent, geometry, object_name, text, text_color="black"):
@@ -88,52 +92,18 @@ def create_label(parent, text, geometry):
     return label
 
 
-def create_text_browser(parent, geometry):
+def create_text_browser(parent, geometry, text):
     text_browser = QtWidgets.QTextBrowser(parent)
     text_browser.setGeometry(geometry)
     text_browser.setObjectName("text_browser")
+    text_browser.setPlainText(text)
     return text_browser
 
 # noinspection PyUnresolvedReferences
 
 
 class UiCLASMainWin(object):
-    def __init__(self):
-        self.ArtBT_Buffout4 = None
-        self.ArtBT_Patches = None
-        self.ArtBT_Troubleshoot = None
-
-        self.ChkBT_FCXMode = None
-        self.ChkBT_IMIMode = None
-        self.ChkBT_Stats = None
-        self.ChkBT_Unsolved = None
-        self.ChkBT_Update = None
-
-        self.LBL_ArtWeb = None
-        self.LBL_Settings = None
-
-        self.Line_SelectedFolder = None
-        self.Line_Separator_1 = None
-        self.Line_Separator_2 = None
-
-        self.RegBT_Browse = None
-        self.RegBT_ChangeINI = None
-        self.RegBT_CheckUpdates = None
-        self.RegBT_Exit = None
-        self.RegBT_Help = None
-        self.RegBT_SCAN_LOGS = None
-        self.RegBT_SCAN_FILES = None
-
-        self.TXT_About = None
-        self.TXT_Contributors = None
-        self.TXT_Window = None
-
-        self.WebBT_Buffout4_Nexus = None
-        self.WebBT_CLAS_Github = None
-        self.WebBT_CLAS_Nexus = None
-
-    def setup_ui(self, CLAS_MainWin):
-
+    def __init__(self, CLAS_MainWin):
         # MAIN WINDOW
         CLAS_MainWin.setObjectName("CLAS_MainWin")
         CLAS_MainWin.setWindowTitle(f"Crash Log Auto Scanner {UNIVERSE.CLAS_Current[-4:]}")
@@ -159,7 +129,7 @@ class UiCLASMainWin(object):
         self.RegBT_ChangeINI = create_custom_push_button(CLAS_MainWin, QtCore.QRect(90, 140, 130, 32), "RegBT_ChangeINI", "CHANGE INI PATH", font_10, "Select the folder where your Fallout4.ini is located so the Auto-Scanner can use that new folder location.", self.SelectFolder_INI)
         self.RegBT_CheckUpdates = create_custom_push_button(CLAS_MainWin, QtCore.QRect(420, 140, 140, 32), "RegBT_CheckUpdates", "CHECK FOR UPDATES", font_10, "", self.Update_Popup)
 
-        SCAN_folder = UNIVERSE.CLAS_config["MAIN"]["Scan Path"].strip()
+        SCAN_folder = UNIVERSE.CLAS_config["Scan_Path"].strip()
         if len(SCAN_folder) > 1:
             self.Line_SelectedFolder.setText(SCAN_folder)
 
@@ -167,11 +137,11 @@ class UiCLASMainWin(object):
 
         self.Line_Separator_1 = create_custom_frame(CLAS_MainWin, QtCore.QRect(40, 180, 560, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Separator_1")
         self.LBL_Settings = create_custom_label(CLAS_MainWin, QtCore.QRect(290, 200, 60, 16), "SETTINGS", font_bold_10, "LBL_Settings")
-        self.ChkBT_FCXMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 230, 110, 20), "FCX MODE", "Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.", UNIVERSE.CLAS_config.getboolean("MAIN", "FCX Mode"), "ChkBT_FCXMode")
-        self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 110, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config.getboolean("MAIN", "IMI Mode"), "ChkBT_IMIMode")
-        self.ChkBT_Update = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 230, 110, 20), "UPDATE CHECK", "Enable if you want Auto-Scanner to check your Python version and if all required packages are installed.", UNIVERSE.CLAS_config.getboolean("MAIN", "Update Check"), "ChkBT_Update")
-        self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window.", UNIVERSE.CLAS_config.getboolean("MAIN", "Stat Logging"), "ChkBT_Stats")
-        self.ChkBT_Unsolved = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 270, 130, 20), "MOVE UNSOLVED", "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)", UNIVERSE.CLAS_config.getboolean("MAIN", "Move Unsolved"), "ChkBT_Unsolved")
+        self.ChkBT_FCXMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 230, 110, 20), "FCX MODE", "Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.", UNIVERSE.CLAS_config["FCX_Mode"], "ChkBT_FCXMode")
+        self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 110, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
+        self.ChkBT_Update = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 230, 110, 20), "UPDATE CHECK", "Enable if you want Auto-Scanner to check your Python version and if all required packages are installed.", UNIVERSE.CLAS_config["Update_Check"], "ChkBT_Update")
+        self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window.", UNIVERSE.CLAS_config["Stat_Logging"], "ChkBT_Stats")
+        self.ChkBT_Unsolved = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 270, 130, 20), "MOVE UNSOLVED", "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)", UNIVERSE.CLAS_config["Move_Unsolved"], "ChkBT_Unsolved")
 
         # SEGMENT - ARTICLES / WEBSITES
 
@@ -207,7 +177,8 @@ class UiCLASMainWin(object):
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
             button.setFont(font)
             button.setText(data["text"])
-            button.clicked.connect(lambda url=data["url"]: QDesktopServices.openUrl(QUrl(url)))  # type: ignore
+            open_url = partial(QDesktopServices.openUrl, QUrl(data["url"]))
+            button.clicked.connect(open_url)
 
         # BOTTOM
 
@@ -217,17 +188,15 @@ class UiCLASMainWin(object):
         self.RegBT_Exit = create_custom_push_button(CLAS_MainWin, QtCore.QRect(510, 480, 110, 24), "RegBT_Exit", "EXIT", font_10, "Exit CLAS GUI", CLAS_MainWin.close)
 
         # Usage
-        self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120))
-        self.TXT_About = create_label(CLAS_MainWin, "Crash Log Auto Scanner (CLAS) | Made by: Poet #9800", QtCore.QRect(30, 520, 320, 16))
-        self.TXT_Contributors = create_label(CLAS_MainWin, "Contributors: evildarkarchon | kittivelae | AtomicFallout757", QtCore.QRect(30, 540, 340, 16))
+        self.TXT_Window = create_text_browser(CLAS_MainWin, QtCore.QRect(20, 510, 600, 120), "Crash Log Auto Scanner (CLAS) | Made by: Poet #9800\nContributors: evildarkarchon | kittivelae | AtomicFallout757")
 
         # ====================== CHECK BOXES ========================
 
-        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_IMIMode, "IMI Mode"))  # type: ignore
-        self.ChkBT_Stats.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Stats, "Stat Logging"))  # type: ignore
-        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Unsolved, "Move Unsolved"))  # type: ignore
-        self.ChkBT_Update.clicked.connect(lambda: self.update_ini_config(self.ChkBT_Update, "Update Check"))  # type: ignore
-        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_ini_config(self.ChkBT_FCXMode, "FCX Mode"))  # type: ignore
+        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_IMIMode, "IMI_Mode"))
+        self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))
+        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))
+        self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))
+        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
@@ -235,11 +204,11 @@ class UiCLASMainWin(object):
         # @staticmethod recommended for func that don't call "self".
 
     @staticmethod
-    def update_ini_config(checkbox, config_key):
+    def update_toml_config(checkbox, config_key):
         if checkbox.isChecked():
-            clas_ini_update(config_key, "true")
+            clas_toml_update(config_key, True)
         else:
-            clas_ini_update(config_key, "false")
+            clas_toml_update(config_key, False)
 
     @staticmethod
     def CrashLogs_SCAN():
@@ -257,19 +226,19 @@ class UiCLASMainWin(object):
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
-            self.Line_SelectedFolder.setText(SCAN_folder)  # type: ignore
-            clas_ini_update("Scan Path", SCAN_folder)
+            self.Line_SelectedFolder.setText(SCAN_folder)
+            clas_toml_update("Scan_Path", SCAN_folder)
             # Change text color back to black.
-            LSF_palette = self.Line_SelectedFolder.palette()  # type: ignore
-            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))  # type: ignore
-            self.Line_SelectedFolder.setPalette(LSF_palette)  # type: ignore
+            LSF_palette = self.Line_SelectedFolder.palette()
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
+            self.Line_SelectedFolder.setPalette(LSF_palette)
 
     @staticmethod
     def SelectFolder_INI():
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
-            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)  # type: ignore
-            clas_ini_update("INI Path", INI_folder)
+            QtWidgets.QMessageBox.information(CLAS_MainWin, "New INI Path Set", "You have set the new path to: \n" + INI_folder)
+            clas_toml_update("INI_Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
 
@@ -300,7 +269,6 @@ DON'T FORGET TO CHECK THE CLAS README FOR MORE DETAILS AND INSTRUCTIONS
     print(gui_prompt)
     app = QtWidgets.QApplication(sys.argv)
     CLAS_MainWin = QtWidgets.QDialog()
-    ui = UiCLASMainWin()
-    ui.setup_ui(CLAS_MainWin)
+    ui = UiCLASMainWin(CLAS_MainWin)
     CLAS_MainWin.show()
     sys.exit(app.exec())
