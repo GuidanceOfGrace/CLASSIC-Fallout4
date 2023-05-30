@@ -909,7 +909,7 @@ class ClasCheckMods:
                   "[Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons.]"]},
 
         {"mod": regx.compile(r"\bScrap Everything - (Core|Ultimate Edition)\.esp$", regx.MULTILINE),
-         "warn": ["SCRAP EVERYTHING (Core or Ultimate) \n",
+         "warn": ["SCRAP EVERYTHING (CORE OR ULTIMATE) \n",
                   "[Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order.]"]},
 
         {"mod": regx.compile(r"\bNiTeNull - Shade Girl Leather Outfits\.esp$", regx.MULTILINE),
