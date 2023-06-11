@@ -943,7 +943,7 @@ class ClasCheckMods:
         
         {"mod": regx.compile(r"\bNewCalibers_Modern(Firearms|Sidearms)\.esp$", regx.MULTILINE),
          "warn": ["MODERN FIREARMS - NEW CALIBERS PATCH \n",
-                  "Unresolvable errors in the plugin that can potentially cause crashes."]}  # Warning message is a placeholder.
+                  "Plugin is out of date and can cause severe crashes."]}  # Warning message is a placeholder.
     ]
 
     # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS
