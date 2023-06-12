@@ -367,7 +367,7 @@ def scan_logs():
 
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
 
-            # DEFINE LINE INDEXES HERE
+            # DEFINE VERSION AND ERROR CODE
             crash_ver_match = crash_ver_pattern.search(logtext)
             crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"
             error_match = unhandled_exception_pattern.search(logtext)
