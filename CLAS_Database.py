@@ -649,16 +649,20 @@ class ClasCheckFiles:
         if SYSTEM.FO4_Custom_INI.is_file():
             try:
                 os.chmod(SYSTEM.FO4_Custom_INI, stat.S_IWRITE)
+                
                 INI_config = configparser.ConfigParser()
                 INI_config.optionxform = str  # type: ignore
                 INI_config.read(SYSTEM.FO4_Custom_INI)
+                
                 if "Archive" not in INI_config.sections():
                     GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                     INI_config.add_section("Archive")
                 else:
                     GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
+                
                 INI_config.set("Archive", "bInvalidateOlderFiles", "1")
                 INI_config.set("Archive", "sResourceDataDirsFinal", "")
+                
                 with open(SYSTEM.FO4_Custom_INI, "w+", encoding="utf-8", errors="ignore") as INI_custom:
                     INI_config.write(INI_custom, space_around_delimiters=False)
             except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
