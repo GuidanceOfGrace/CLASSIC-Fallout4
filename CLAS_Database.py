@@ -877,7 +877,7 @@ PLANET = ClasCheckFiles()
 
 class ClasCheckMods:
     # 1) CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES
-    chw_regex = regx.compile(r"\bClassicHolsteredWeapons(.*)")
+    chw_regex = regx.compile(r"\bClassicHolsteredWeapons\.dll")
     awkcr_regex = regx.compile(r"\bArmorKeywords\.esm$", regx.MULTILINE)
     betterpowerarmor_regex = regx.compile(r"\bBetterPowerArmorRedux\.dll")
     prp_regex = regx.compile(r"\bPRP\.esp$", regx.MULTILINE)
