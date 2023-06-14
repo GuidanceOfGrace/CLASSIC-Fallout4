@@ -24,7 +24,7 @@ except AttributeError:
 clas_toml_create()
 clas_update_check()
 
-plugins_pattern = regx.compile(r"(.+?)(\.(esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
+plugins_pattern = regx.compile(r"(?:.+?)(?:\.(?:esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
 LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
