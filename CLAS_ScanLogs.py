@@ -473,7 +473,6 @@ def scan_logs():
                     mod1_match = mod_data["mod_1"].search(logtext)
                     mod2_match = mod_data["mod_2"].search(logtext)
                     if isinstance(mod1_match, regx.Match) and isinstance(mod2_match, regx.Match):
-                        print(mod1_match.group(), mod2_match.group())
                         warn = ''.join(mod_data["warn"])
                         output.writelines([f"[!] CAUTION : {warn}\n", "-----\n"])
                         mod_trap = True
