@@ -943,7 +943,11 @@ class ClasCheckMods:
 
         {"mod": regx.compile(r"(^\[.*\]\s*)+?WOTC\.esp$", regx.MULTILINE),
          "warn": ["WAR OF THE COMMONWEALTH \n",
-                  "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]}
+                  "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]},
+        
+        {"mod": regx.compile(r"\bNewCalibers_Modern(Firearms|Sidearms)\.esp$", regx.MULTILINE),
+         "warn": ["MODERN FIREARMS - NEW CALIBERS PATCH \n",
+                  "Plugin is out of date and can cause severe crashes."]}  # Warning message is a placeholder.
     ]
 
     # 2) CHECKING FOR MODS THAT CONFLICT WITH OTHER MODS
