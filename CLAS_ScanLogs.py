@@ -62,7 +62,7 @@ def scan_logs():
     records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(?P<error_code>\+.{7})?(.*)", regx.IGNORECASE)
     crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(.*)", regx.IGNORECASE)
-    plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\" ]*)\s-\s(?P<formid>[[0-9a-fA-F]{8})\s\((?P<result>[^\" ]*)\)", regx.MULTILINE)
+    # plugin_formid_result_pattern = regx.compile(r"([^\" ]*)\s-\s([[0-9a-fA-F]{8})\s\(([^\" ]*)\)", regx.MULTILINE)
     # =================== HELPER FUNCTIONS ===================
 
     def process_file_data(file: Path):
@@ -472,7 +472,8 @@ def scan_logs():
                 for mod_data in mods:  # changed from mods.values()
                     mod1_match = mod_data["mod_1"].search(logtext)
                     mod2_match = mod_data["mod_2"].search(logtext)
-                    if mod1_match and mod2_match:
+                    if isinstance(mod1_match, regx.Match) and isinstance(mod2_match, regx.Match):
+                        print(mod1_match.group(), mod2_match.group())
                         warn = ''.join(mod_data["warn"])
                         output.writelines([f"[!] CAUTION : {warn}\n", "-----\n"])
                         mod_trap = True
