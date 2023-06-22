@@ -455,12 +455,13 @@ def scan_logs():
                 for line in section_plugins_list:
                     for mod_data in mods:  # changed from mods.values()
                         mod_data_match = mod_data["mod"].search(line)
-                        if "File:" not in line and mod_data_match and mod_data_match.group() not in LCL_skip_list:
+                        mod_data_group = mod_data_match.group() if mod_data_match else None
+                        if "File:" not in line and mod_data_match and mod_data_group not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
                             prefix = line[0:5] if "[FE" not in line else line[0:9]
-                            if mod_data_match.group() not in mods_found:
+                            if mod_data_group not in mods_found:
                                 output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
-                            mods_found.add(mod_data_match.group())
+                            mods_found.add(mod_data_group)
                             mod_trap = True
 
                 return mod_trap
