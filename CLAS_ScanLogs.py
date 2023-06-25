@@ -103,8 +103,10 @@ def scan_logs():
 
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
+        
+        section_plugins_text = '\n'.join(section_plugins_list)
 
-        return section_stack_list, section_stack_text, section_plugins_list, plugins_loaded
+        return section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded
 
     def extract_plugin_ids(loglines):
         # Use a list comprehension to filter the loglines that match the pattern
@@ -209,7 +211,7 @@ def scan_logs():
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': regx.search('CanarySaveFileMonitor', logtext),
+                'condition': regx.search('CanarySaveFileMonitor', section_plugins_text),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
@@ -219,12 +221,12 @@ def scan_logs():
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search("PPF", logtext),
+                'condition': regx.search("PPF", section_plugins_text),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': regx.search("Unofficial Fallout 4 Patch", logtext),
+                'condition': regx.search("Unofficial Fallout 4 Patch", section_plugins_text),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
@@ -373,7 +375,7 @@ def scan_logs():
             error_match = unhandled_exception_pattern.search(logtext)
             crash_error = error_match.group() if error_match else "❌ Error Not Found"
 
-            section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
+            section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded = process_log_sections(loglines)
 
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
