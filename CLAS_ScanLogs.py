@@ -219,12 +219,12 @@ def scan_logs():
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search("PPF.esm", logtext),
+                'condition': regx.search("PPF", logtext),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': regx.search("Unofficial Fallout 4 Patch.esp", logtext),
+                'condition': regx.search("Unofficial Fallout 4 Patch", logtext),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
