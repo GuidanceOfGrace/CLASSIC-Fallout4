@@ -54,7 +54,7 @@ def scan_logs():
     # =================== IMPORTED DATA AND REGEX PATTERNS ===================
     Culprits = culprit_data()
     plugin_id_pattern = regx.compile(r'\[[0-9A-Fa-f]{2,6}\]')
-    detected_plugin_pattern = regx.compile(r'File:\s+"?([^"]+)"?')
+    detected_plugin_pattern = regx.compile(r'File:\s+\"?([^"]+)\"?')
     form_id_pattern = regx.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
     nvidia_pattern = regx.compile(r'GPU.*Nvidia', regx.IGNORECASE)
     amd_pattern = regx.compile(r'GPU.*AMD', regx.IGNORECASE)
