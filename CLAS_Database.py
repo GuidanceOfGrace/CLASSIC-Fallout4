@@ -924,7 +924,7 @@ class ClasCheckMods:
          "warn": ["SPRING CLEANING \n",
                   "[Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file.]"]},
 
-        {"mod": regx.compile(r"(?:^\[.*\]\s*)+?\(STO\) NO(.*)"),
+        {"mod": regx.compile(r"(?:^\[.*\]\s*)+?\(STO\) NO(.*)"),  # Alternative version: regx.compile((?:^\[.*\]\s*)+?\(STO\) NO[^.]*(?:\.esp|\.esl|\.esm)?$, regx.MULTILINE)
          "warn": ["STALKER TEXTURE OVERHAUL \n",
                   "[Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes.]"]},
 
@@ -1071,7 +1071,7 @@ class ClasCheckMods:
                   "  Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM \n",
                   "  [If you have Horizon installed or don't use UFO4P, this patch is not needed.]"]},
 
-        {"mod": regx.compile(r"(?:^\[.*\]\s*)+?M8r_Item_Tags(.*)"),
+        {"mod": regx.compile(r"(?:^\[.*\]\s*)+?M8r_Item_Tags(.*)"),  # Alternative version: regx.compile(r"(?:^\[.*\]\s*)+?M8r_Item_Tags[^.]*(?:\.esp)?$", regx.MULTILINE)
          "warn": ["FALLUI ITEM SORTER (OLD) \n",
                   "- This is an outdated item tagging / sorting patch that can cause crashes or conflicts in all kinds of situations. \n",
                   "  I strongly recommend to instead generate your own sorting patch and place it last in your load order. \n",
