@@ -881,7 +881,7 @@ class ClasCheckMods:
     awkcr_regex = regx.compile(r"(?:^\[.*\]\s*)+?ArmorKeywords(?:\.esm)?$", regx.MULTILINE)
     betterpowerarmor_regex = regx.compile(r"\bBetterPowerArmorRedux\.dll")
     prp_regex = regx.compile(r"(?:^\[.*\]\s*)+?PRP(?:\.esp)?$", regx.MULTILINE)
-    bostonfpsfix_regex = regx.compile(r"(?:^\[.*\]\s*)+?BostonFPSFix(AIO|Automatron|\-Vanilla|VD|AIO_VD|FarHarbor|\-NukaWorld)(?:\.esp)?$", regx.MULTILINE)
+    bostonfpsfix_regex = regx.compile(r"(?:^\[.*\]\s*)+?BostonFPSFix(?:AIO|Automatron|\-Vanilla|VD|AIO_VD|FarHarbor|\-NukaWorld)(?:\.esp)?$", regx.MULTILINE)
     Mods1 = [
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?DamageThresholdFramework(?:\.esm)?$", regx.MULTILINE),
          "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
