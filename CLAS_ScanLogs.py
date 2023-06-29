@@ -151,9 +151,9 @@ def scan_logs():
 
         for line in loglines:
             match = form_id_pattern.search(line)
-            if match and "0xFF" not in line:
+            form_id = match.group(2).strip() if match else None
+            if form_id and "0xFF" not in line:
                 # Extract the matched Form ID
-                form_id = match.group(2).strip()
                 if plugins_loaded:
                     for plugin in section_plugins_list:
                         plugin = plugin.replace(":", "").strip()
@@ -164,7 +164,7 @@ def scan_logs():
                             if plugin[1:6] == form_id[:5]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
                 else:
-                    form_ids.append(form_id)
+                    form_ids.append(f"Form ID: {form_id} | Unknown Plugin")
 
         return sorted(set(form_ids))
 
