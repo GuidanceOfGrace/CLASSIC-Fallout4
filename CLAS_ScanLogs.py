@@ -197,11 +197,7 @@ def scan_logs():
         named_records = sorted(named_records)
         return dict(Counter(named_records))
 
-    def write_named_records(output, named_records):
-        '''nr = set(named_records.keys())  # I picked set because a dict_keys object is based on the set built-in type (same for items and values).
-        for item in nr:
-            if plugins_pattern.search(item):
-                del named_records[item]'''  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
+    def write_named_records(output, named_records):  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
 
         if not named_records:
             output.writelines(["* CLAS COULDN'T FIND ANY NAMED RECORDS *\n",
