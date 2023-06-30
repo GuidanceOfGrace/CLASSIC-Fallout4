@@ -62,6 +62,7 @@ def scan_logs():
     records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(?P<error_code>\+.{7})?(?:.*)", regx.IGNORECASE)
     crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(?P<build_datetime>.*)", regx.IGNORECASE)
+    known_prefix_pattern = regx.compile(r'^0[0-6]')
     plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\"\n]*.(?:\.esl|\.esp|\.esm))\s-\s(?P<formid>[0-9a-fA-F]{8})\s(?:\(|\[)(?P<value>[^\" ].*)(?:\)|\])$", regx.MULTILINE | regx.DOTALL)
     # =================== HELPER FUNCTIONS ===================
 
@@ -165,7 +166,6 @@ def scan_logs():
                             if plugin[1:6] == form_id[:5]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
                 else:
-                    known_prefix_pattern = regx.compile(r'^0[0-6]')
                     known_plugins = ("Fallout4.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCCoast.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", "DLCNukaWorld.esm")
                     if known_prefix_pattern.match(form_id):
                         known_plugin = known_plugins[int(form_id[:2])]
