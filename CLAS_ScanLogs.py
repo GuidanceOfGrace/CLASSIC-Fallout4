@@ -152,6 +152,7 @@ def scan_logs():
         for line in loglines:
             match = form_id_pattern.search(line)
             form_id = match.group(2).strip() if match else None
+
             if form_id and "0xFF" not in line:
                 # Extract the matched Form ID
                 if plugins_loaded:
@@ -164,7 +165,13 @@ def scan_logs():
                             if plugin[1:6] == form_id[:5]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
                 else:
-                    form_ids.append(f"Form ID: {form_id} | Unknown Plugin")
+                    known_prefix_pattern = regx.compile(r'^0[0-6]')
+                    known_plugins = ("Fallout4.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCCoast.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", "DLCNukaWorld.esm")
+                    if known_prefix_pattern.match(form_id):
+                        known_plugin = known_plugins[int(form_id[:2])]
+                        form_ids.append(f"Form ID: {form_id} | {known_plugin}")
+                    else:
+                        form_ids.append(f"Form ID: {form_id} | Unknown Plugin")
 
         return sorted(set(form_ids))
 
