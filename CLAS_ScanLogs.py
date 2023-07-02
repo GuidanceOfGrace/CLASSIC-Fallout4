@@ -149,6 +149,7 @@ def scan_logs():
 
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
         form_ids = []
+        added_form_ids = set()
 
         for line in loglines:
             match = form_id_pattern.search(line)
@@ -159,19 +160,24 @@ def scan_logs():
                 if plugins_loaded:
                     for plugin in section_plugins_list:
                         plugin = plugin.replace(":", "").strip()
-                        if "[FE" not in plugin:
+                        if "[FE" not in plugin and form_id not in added_form_ids:
                             if plugin[1:3] == form_id[:2]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
-                        elif "[FE" in plugin:
+                                added_form_ids.add(form_id)
+                        elif "[FE" in plugin and form_id not in added_form_ids:
                             if plugin[1:6] == form_id[:5]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
+                                added_form_ids.add(form_id)
                 else:
                     known_plugins = ("Fallout4.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCCoast.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", "DLCNukaWorld.esm")
-                    if known_prefix_pattern.match(form_id):
+                    if known_prefix_pattern.match(form_id) and form_id not in added_form_ids:
                         known_plugin = known_plugins[int(form_id[:2])]
                         form_ids.append(f"Form ID: {form_id} | {known_plugin}")
+                        added_form_ids.add(form_id)
                     else:
-                        form_ids.append(f"Form ID: {form_id} | Unknown Plugin")
+                        if form_id not in added_form_ids:
+                            form_ids.append(f"Form ID: {form_id} | Unknown Plugin")
+                            added_form_ids.add(form_id)
 
         return sorted(set(form_ids))
 
