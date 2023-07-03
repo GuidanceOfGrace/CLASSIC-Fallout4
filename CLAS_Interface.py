@@ -141,6 +141,7 @@ class UiCLASMainWin(object):
         self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 110, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
         self.ChkBT_Update = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 230, 110, 20), "UPDATE CHECK", "Enable if you want Auto-Scanner to check your Python version and if all required packages are installed.", UNIVERSE.CLAS_config["Update_Check"], "ChkBT_Update")
         self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window.", UNIVERSE.CLAS_config["Stat_Logging"], "ChkBT_Stats")
+        self.ChkBT_Stats.setDisabled(True)  # Does this do anything anymore?
         self.ChkBT_Unsolved = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 270, 130, 20), "MOVE UNSOLVED", "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)", UNIVERSE.CLAS_config["Move_Unsolved"], "ChkBT_Unsolved")
 
         # SEGMENT - ARTICLES / WEBSITES
