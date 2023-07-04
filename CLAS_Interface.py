@@ -154,11 +154,6 @@ class UiCLASMainWin(object):
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
         self.LBL_ArtWeb = QtWidgets.QLabel(CLAS_MainWin)
         self.LBL_ArtWeb.setGeometry(QtCore.QRect(250, 330, 140, 16))
-        self.LBL_ArtWeb.setText("ARTICLES / WEBSITES")
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.LBL_ArtWeb.setFont(font)
         self.LBL_ArtWeb.setObjectName("LBL_ArtWeb")
         self.LBL_ArtWeb = create_custom_label(CLAS_MainWin, QtCore.QRect(250, 330, 140, 16), "ARTICLES / WEBSITES", font_bold_10, "LBL_ArtWeb")
 
