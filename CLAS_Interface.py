@@ -84,6 +84,7 @@ def create_custom_check_box(parent, geometry, text, tooltip, checked, object_nam
     if disabled:
         check_box.setEnabled(False)
         check_box.setChecked(False)
+        check_box.setStyleSheet("color: gray;")
     return check_box
 
 
