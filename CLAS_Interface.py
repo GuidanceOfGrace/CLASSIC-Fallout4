@@ -154,9 +154,6 @@ class UiCLASMainWin(object):
         # SEPARATOR LINE 2
         self.Line_Separator_2 = create_custom_frame(CLAS_MainWin, QtCore.QRect(40, 310, 560, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Separator_2")
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
-        self.LBL_ArtWeb = QtWidgets.QLabel(CLAS_MainWin)
-        self.LBL_ArtWeb.setGeometry(QtCore.QRect(250, 330, 140, 16))
-        self.LBL_ArtWeb.setObjectName("LBL_ArtWeb")
         self.LBL_ArtWeb = create_custom_label(CLAS_MainWin, QtCore.QRect(250, 330, 140, 16), "ARTICLES / WEBSITES", font_bold_10, "LBL_ArtWeb")
 
         # Articles & Websites
