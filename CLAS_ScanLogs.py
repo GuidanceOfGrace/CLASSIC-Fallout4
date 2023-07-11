@@ -61,7 +61,7 @@ def scan_logs():
     records_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
     unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(?P<error_code>\+.{7})?(?:.*)", regx.IGNORECASE)
-    crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(?P<build_datetime>.*)", regx.IGNORECASE)
+    crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(?:\ )?(?P<build_datetime>.*)?", regx.IGNORECASE)
     known_prefix_pattern = regx.compile(r'^0[0-6]')
     plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\"\n]*.(?:\.esl|\.esp|\.esm))\s-\s(?P<formid>[0-9a-fA-F]{8})\s(?:\(|\[)(?P<value>[^\" ].*)(?:\)|\])$", regx.MULTILINE | regx.DOTALL)
     # =================== HELPER FUNCTIONS ===================
@@ -391,10 +391,9 @@ def scan_logs():
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
-
-            if crash_ver.casefold() == GALAXY.CRASHGEN_OLD.casefold():
+            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group("version_number") in ("1.26.2", "1.27.0"):
                 output.write("✔️ You have the latest version of Buffout 4!")
-            elif crash_ver.casefold() == GALAXY.CRASHGEN_NEW.casefold():
+            elif isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_Outdated_Buffout4"])
