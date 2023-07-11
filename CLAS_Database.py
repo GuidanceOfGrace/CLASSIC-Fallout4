@@ -622,7 +622,9 @@ class ClasCheckFiles:
     SYSTEM.XSE_VRLoader = SYSTEM.Game_Root.joinpath("f4sevr_loader.exe")
     # BUFFOUT FILES
     SYSTEM.Buffout_DLL = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "Buffout4.dll")
-    SYSTEM.Buffout_TOML = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
+    SYSTEM.Buffout_TOML = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "Buffout4", "config.toml")
+    if not SYSTEM.Buffout_TOML.is_file():
+        SYSTEM.Buffout_TOML = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "Buffout4.toml")
     SYSTEM.Address_Library = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "version-1-10-163-0.bin")
     SYSTEM.Address_LibraryVR = SYSTEM.Game_Root.joinpath("Data", "F4SE", "Plugins", "version-1-2-72-0.csv")
     # GAME EXE HASH
