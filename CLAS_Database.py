@@ -212,7 +212,7 @@ class ClasSpecificVars:
     XSEVR_Latest = "0.6.20"
     CRASHGEN_Handle = "Buffout 4"
     CRASHGEN_DLL = "buffout4.dll"
-    CRASHGEN_OLD = "Buffout 4 v1.26.2"
+    CRASHGEN_OLD = "Buffout 4 v1.28.0"
     CRASHGEN_NEW = "Buffout 4 v1.31.1 Feb 28 2023 00:32:02"
     ADLIB_Loaded = False
 
