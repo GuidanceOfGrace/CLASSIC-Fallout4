@@ -391,7 +391,7 @@ def scan_logs():
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
-            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group("version_number") in ("1.26.2", "1.27.0"):
+            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group("version_number") == "1.30.0" :
                 output.write("✔️ You have the latest version of Buffout 4!")
             elif isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
