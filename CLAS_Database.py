@@ -212,7 +212,7 @@ class ClasSpecificVars:
     XSEVR_Latest = "0.6.20"
     CRASHGEN_Handle = "Buffout 4"
     CRASHGEN_DLL = "buffout4.dll"
-    CRASHGEN_OLD = "Buffout 4 v1.28.0"
+    CRASHGEN_OLD = "Buffout 4 v1.28.1"
     CRASHGEN_NEW = "Buffout 4 v1.31.1 Feb 28 2023 00:32:02"
     ADLIB_Loaded = False
 
@@ -423,10 +423,20 @@ class ClasSpecificVars:
   <LoadMethod Name=\"ImportAddressHook\"> TO <LoadMethod Name=\"OnThreadAttach\"> OR <LoadMethod Name=\"OnProcessAttach\">
   IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER
 """}
-
-
+    
+    def crashgen_update_check(self):
+        try:
+            CRASHGEN = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json").json()
+            CRASHGEN_OLD = CRASHGEN["OLD"][0]
+            CRASHGEN_NEW = CRASHGEN["NEW"][0]
+            if not self.CRASHGEN_OLD == CRASHGEN_OLD:
+                self.CRASHGEN_OLD = CRASHGEN_OLD
+            if not self.CRASHGEN_NEW == CRASHGEN_NEW:
+                self.CRASHGEN_NEW = CRASHGEN_NEW
+        except (OSError, requests.exceptions.RequestException):
+            pass
 GALAXY = ClasSpecificVars()
-
+GALAXY.crashgen_update_check()
 
 # DO NOT USE @staticmethod FOR ANY, NOT CALLABLE FOR PYINSTALLER
 # =================== DEFINE LOCAL FILES ===================
