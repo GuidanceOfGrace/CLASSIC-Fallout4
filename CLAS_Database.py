@@ -427,12 +427,10 @@ class ClasSpecificVars:
     def crashgen_update_check(self):
         try:
             CRASHGEN = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json").json()
-            CRASHGEN_OLD = CRASHGEN["OLD"][0]
-            CRASHGEN_NEW = CRASHGEN["NEW"][0]
-            if not self.CRASHGEN_OLD == CRASHGEN_OLD:
-                self.CRASHGEN_OLD = CRASHGEN_OLD
-            if not self.CRASHGEN_NEW == CRASHGEN_NEW:
-                self.CRASHGEN_NEW = CRASHGEN_NEW
+            if not self.CRASHGEN_OLD == CRASHGEN["OLD"]:
+                self.CRASHGEN_OLD = CRASHGEN["OLD"]
+            if not self.CRASHGEN_NEW == CRASHGEN["NEW"]:
+                self.CRASHGEN_NEW = CRASHGEN["NEW"]
         except (OSError, requests.exceptions.RequestException):
             pass
 GALAXY = ClasSpecificVars()
