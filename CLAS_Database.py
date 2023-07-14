@@ -105,6 +105,8 @@ def clas_update_check():
         print("    (You can disable this check in the EXE or CLAS Settings.toml)")
         try:
             response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest", timeout=10)  # type: ignore
+            if not response.status_code == requests.codes.ok:  # type: ignore
+                response.raise_for_status()
             CLAS_Received = response.json()["name"]
             if CLAS_Received == UNIVERSE.CLAS_Current:
                 print("\n ✔️ You have the latest version of CLAS! \n")
@@ -426,7 +428,10 @@ class ClasSpecificVars:
     
     def crashgen_update_check(self):
         try:
-            CRASHGEN = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json", timeout=10).json()
+            request = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json", timeout=10)
+            if not request.status_code == requests.codes.ok:
+                request.raise_for_status()
+            CRASHGEN = request.json()
             if not self.CRASHGEN_OLD == CRASHGEN["OLD"]:
                 self.CRASHGEN_OLD = CRASHGEN["OLD"]
             if not self.CRASHGEN_NEW == CRASHGEN["NEW"]:
