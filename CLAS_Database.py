@@ -374,7 +374,8 @@ class ClasSpecificVars:
 """,
         "Warn_SCAN_Outdated_Buffout4": """
 # [!] CAUTION : REPORTED BUFFOUT 4 VERSION DOES NOT MATCH THE VERSION USED BY CLAS #
-  UPDATE BUFFOUT 4 IF NECESSARY: https://www.nexusmods.com/fallout4/mods/64880
+  UPDATE BUFFOUT 4 IF NECESSARY:
+  Original: https://www.nexusmods.com/fallout4/mods/47359 / NG: https://www.nexusmods.com/fallout4/mods/64880
 """,
         "Warn_BLOG_NOTE_Plugins": """\
 # [!] NOTICE : BUFFOUT 4 COULDN'T LOAD THE PLUGIN LIST FOR THIS CRASH LOG! #
