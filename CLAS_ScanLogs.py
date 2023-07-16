@@ -65,6 +65,84 @@ def scan_logs():
     known_prefix_pattern = regx.compile(r'^0[0-6]')
     plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\"\n]*.(?:\.esl|\.esp|\.esm))\s-\s(?P<formid>[0-9a-fA-F]{8})\s(?:\(|\[)(?P<value>[^\" ].*)(?:\)|\])$", regx.MULTILINE | regx.DOTALL)
     # =================== HELPER FUNCTIONS ===================
+    def config_parse(logtext):
+        """
+        Parses a string of text containing key-value pairs and sections into a dictionary.
+
+        Args:
+            text (str): The text to parse.
+
+        Returns:
+            dict: A dictionary containing the parsed key-value pairs and sections.
+
+        Example:
+            >>> text = "[Section 1]\nkey1: value1\nkey2: value2\n[Section 2]\nkey3: value3\n"
+            >>> parse_to_dict(text)
+            {'Section 1': {'key1': 'value1', 'key2': 'value2'}, 'Section 2': {'key3': 'value3'}}
+        """
+        data_dict = {}
+        current_section = None
+        localtext = logtext.replace('\t', '\n')
+        for line in localtext.split('\n'):
+            stripped_line = line.strip()
+            if stripped_line.startswith('[') and stripped_line.endswith(']'):
+                # This is a section line, update current_section
+                current_section = stripped_line.strip('[]')
+                data_dict[current_section] = {}
+            elif ':' in stripped_line:
+                # This is a key-value line, update the dictionary
+                try:
+                    key, value = [item.strip() for item in stripped_line.split(':') if len(stripped_line.split(':')) == 2]
+                except ValueError:
+                    key, value = ["", ""]
+                # Try to convert the value to int if possible
+                try:
+                    value = int(value)
+                except ValueError:
+                    if value == 'true' or value == 'True':
+                        value = True
+                    elif value == 'false' or value == 'False':
+                        value = False
+                data_dict[current_section][key] = value
+        return data_dict
+    
+    def parse_log_config_section(logtext):
+        """
+        Extracts a section of a log file containing configuration data and warnings, and converts it into a dictionary.
+
+        Args:
+            logtext (str): The text of the log file.
+
+        Returns:
+            dict: A dictionary containing the extracted configuration data and warnings.
+
+        Example:
+            >>> logtext = "[Compatibility]\nkey1 = value1\nkey2 = value2\n[Warnings]\nWarning 1\nWarning 2\nWarning 3\n"
+            >>> parse_log_config_section(logtext)
+            {'Compatibility': {'F4EE': True}, 'Warnings': ['Warning 1', 'Warning 2', 'Warning 3']}
+        """
+        # Define start and end section
+        start_section = "[Compatibility]"
+        end_section = "[Warnings]"
+        lines = logtext.splitlines()
+
+        # Find the start and end indexes
+        start_index = next(i for i, line in enumerate(lines) if start_section in line)
+        end_index = next(i for i, line in enumerate(lines) if end_section in line)
+
+        # Adjust end_index to include two more lines under [Warnings]
+        end_index_adjusted = end_index + 3  # +3 to include "[Warnings]" line and next two lines
+
+        # Get the lines in the range [start_index, end_index_adjusted]
+        extracted_text_including_warnings = lines[start_index:end_index_adjusted]
+
+        # Join the lines to form a single string
+        extracted_text_including_warnings_str = "".join(extracted_text_including_warnings)
+
+        # Convert the extracted text into a dictionary
+        extracted_dict = config_parse(extracted_text_including_warnings_str)
+        
+        return extracted_dict
 
     def process_file_data(file: Path):
         logpath = file.resolve()
@@ -385,6 +463,7 @@ def scan_logs():
             crash_error = error_match.group() if error_match else "❌ Error Not Found"
 
             section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded = process_log_sections(loglines)
+            log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
 
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
@@ -411,24 +490,32 @@ def scan_logs():
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Disabled"])
 
-                achievements_status = "Achievements: true" in logtext
+                """achievements_status = "Achievements: true" in logtext
                 memory_manager_status = "MemoryManager: true" in logtext
-                f4ee_status = "F4EE: false" in logtext
+                f4ee_status = "F4EE: false" in logtext"""
+                try:
+                    if (log_config_section["Patches"]["Achievements"] and "achievements.dll" in logtext) or (log_config_section["Patches"]["Achievements"] and "UnlimitedSurvivalMode.dll" in logtext):
+                        output.write(GALAXY.Warnings["Warn_TOML_Achievements"])
+                    else:
+                        output.write("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                except KeyError:
+                    output.write("❌ Achievements parameter in *Buffout4.toml* is missing or not present in the log.\n  -----\n")
 
-                if (achievements_status and "achievements.dll" in logtext) or (achievements_status and "UnlimitedSurvivalMode.dll" in logtext):
-                    output.write(GALAXY.Warnings["Warn_TOML_Achievements"])
-                else:
-                    output.write("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                try:
+                    if log_config_section["Patches"]["MemoryManager"] and "BakaScrapHeap.dll" in logtext:
+                        output.write(GALAXY.Warnings["Warn_TOML_Memory"])
+                    else:
+                        output.write("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                except KeyError:
+                    output.write("❌ Memory Manager parameter in *Buffout4.toml* is missing or not present in the log.\n  -----\n")
 
-                if memory_manager_status and "BakaScrapHeap.dll" in logtext:
-                    output.write(GALAXY.Warnings["Warn_TOML_Memory"])
-                else:
-                    output.write("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
-
-                if f4ee_status and "f4ee.dll" in logtext:
-                    output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
-                else:
-                    output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                try:
+                    if log_config_section["Compatibility"]["F4EE"] and "f4ee.dll" in logtext:
+                        output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
+                    else:
+                        output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                except KeyError:
+                    output.write("❌ Looks Menu (F4EE) parameter in *Buffout4.toml* is missing or not present in the log.\n  -----\n")
 
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
