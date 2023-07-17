@@ -23,6 +23,27 @@ clas_toml_create()
 
 
 def create_custom_line_edit(parent, geometry, object_name, text, text_color="black"):
+    """
+    Creates a custom QLineEdit widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        object_name (str): The object name of the widget.
+        text (str): The initial text of the widget.
+        text_color (str): The color of the text. Default is "black".
+
+    Returns:
+        QLineEdit: The created QLineEdit widget.
+
+    Example:
+        >>> parent = QtWidgets.QWidget()
+        >>> geometry = QtCore.QRect(0, 0, 100, 20)
+        >>> object_name = "myLineEdit"
+        >>> text = "Hello, world!"
+        >>> text_color = "red"
+        >>> line_edit = create_custom_line_edit(parent, geometry, object_name, text, text_color)
+    """
     line_edit = QtWidgets.QLineEdit(parent)
     line_edit.setGeometry(geometry)
     line_edit.setObjectName(object_name)
@@ -34,6 +55,31 @@ def create_custom_line_edit(parent, geometry, object_name, text, text_color="bla
 
 
 def create_custom_push_button(parent, geometry, object_name, text, font, tooltip="", callback=None):
+    """
+    Creates a custom QPushButton widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        object_name (str): The object name of the widget.
+        text (str): The text of the widget.
+        font (QFont): The font of the widget.
+        tooltip (str): The tooltip of the widget. Default is an empty string.
+        callback (function): The callback function to be called when the button is clicked. Default is None.
+
+    Returns:
+        QPushButton: The created QPushButton widget.
+
+    Example:
+        >>> parent = QtWidgets.QWidget()
+        >>> geometry = QtCore.QRect(0, 0, 100, 20)
+        >>> object_name = "myPushButton"
+        >>> text = "Click me!"
+        >>> font = QtGui.QFont("Arial", 12)
+        >>> tooltip = "This is a tooltip."
+        >>> callback = my_callback_function
+        >>> push_button = create_custom_push_button(parent, geometry, object_name, text, font, tooltip, callback)
+    """
     button = QtWidgets.QPushButton(parent)
     button.setGeometry(geometry)
     button.setObjectName(object_name)
@@ -46,6 +92,29 @@ def create_custom_push_button(parent, geometry, object_name, text, font, tooltip
 
 
 def create_simple_button(parent, geometry, object_name, text, tooltip, callback):
+    """
+    Creates a simple QPushButton widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        object_name (str): The object name of the widget.
+        text (str): The text of the widget.
+        tooltip (str): The tooltip of the widget.
+        callback (function): The callback function to be called when the button is clicked.
+
+    Returns:
+        QPushButton: The created QPushButton widget.
+
+    Example:
+        >>> parent = QtWidgets.QWidget()
+        >>> geometry = QtCore.QRect(0, 0, 100, 20)
+        >>> object_name = "myPushButton"
+        >>> text = "Click me!"
+        >>> tooltip = "This is a tooltip."
+        >>> callback = my_callback_function
+        >>> push_button = create_simple_button(parent, geometry, object_name, text, tooltip, callback)
+    """
     button = QtWidgets.QPushButton(parent)
     button.setGeometry(geometry)
     button.setObjectName(object_name)
@@ -56,6 +125,19 @@ def create_simple_button(parent, geometry, object_name, text, tooltip, callback)
 
 
 def create_custom_frame(parent, geometry, frame_shape, frame_shadow, object_name):
+    """
+    Creates a custom QFrame widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        frame_shape (QFrame.Shape): The shape of the frame.
+        frame_shadow (QFrame.Shadow): The shadow of the frame.
+        object_name (str): The object name of the widget.
+
+    Returns:
+        QFrame: The created QFrame widget.
+    """
     frame = QtWidgets.QFrame(parent)
     frame.setGeometry(geometry)
     frame.setFrameShape(frame_shape)
@@ -65,6 +147,19 @@ def create_custom_frame(parent, geometry, frame_shape, frame_shadow, object_name
 
 
 def create_custom_label(parent, geometry, text, font, object_name):
+    """
+    Creates a custom QLabel widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        text (str): The text of the widget.
+        font (QFont): The font of the widget.
+        object_name (str): The object name of the widget.
+
+    Returns:
+        QLabel: The created QLabel widget.
+    """
     label = QtWidgets.QLabel(parent)
     label.setGeometry(geometry)
     label.setText(text)
@@ -74,6 +169,21 @@ def create_custom_label(parent, geometry, text, font, object_name):
 
 
 def create_custom_check_box(parent, geometry, text, tooltip, checked, object_name, disabled=False):
+    """
+    Creates a custom QCheckBox widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        text (str): The text of the widget.
+        tooltip (str): The tooltip of the widget.
+        checked (bool): Whether the checkbox is checked.
+        object_name (str): The object name of the widget.
+        disabled (bool): Whether the checkbox is disabled. Default is False.
+
+    Returns:
+        QCheckBox: The created QCheckBox widget.
+    """
     check_box = QtWidgets.QCheckBox(parent)
     check_box.setGeometry(geometry)
     check_box.setText(text)
@@ -89,6 +199,17 @@ def create_custom_check_box(parent, geometry, text, tooltip, checked, object_nam
 
 
 def create_label(parent, text, geometry):
+    """
+    Creates a QLabel widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        text (str): The text of the widget.
+        geometry (QRect): The geometry of the widget.
+
+    Returns:
+        QLabel: The created QLabel widget.
+    """
     label = QtWidgets.QLabel(parent)
     label.setGeometry(geometry)
     label.setObjectName("label")
@@ -97,6 +218,17 @@ def create_label(parent, text, geometry):
 
 
 def create_text_browser(parent, geometry, text):
+    """
+    Creates a QTextBrowser widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        text (str): The initial text of the widget.
+
+    Returns:
+        QTextBrowser: The created QTextBrowser widget.
+    """
     text_browser = QtWidgets.QTextBrowser(parent)
     text_browser.setGeometry(geometry)
     text_browser.setObjectName("text_browser")
