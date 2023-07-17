@@ -499,7 +499,7 @@ def scan_logs():
                     else:
                         output.write("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
                 except KeyError:
-                    output.write("❌ Achievements parameter in *Buffout4.toml* is missing or not present in the log.\n  -----\n")
+                    output.write("❌ Achievements parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
                 try:
                     if log_config_section["Patches"]["MemoryManager"] and "BakaScrapHeap.dll" in logtext:
@@ -507,7 +507,7 @@ def scan_logs():
                     else:
                         output.write("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
                 except KeyError:
-                    output.write("❌ Memory Manager parameter in *Buffout4.toml* is missing or not present in the log.\n  -----\n")
+                    output.write("❌ Memory Manager parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
                 try:
                     if log_config_section["Compatibility"]["F4EE"] and "f4ee.dll" in logtext:
@@ -515,7 +515,7 @@ def scan_logs():
                     else:
                         output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
                 except KeyError:
-                    output.write("❌ Looks Menu (F4EE) parameter in *Buffout4.toml* is missing or not present in the log.\n  -----\n")
+                    output.write("❌ Looks Menu (F4EE) parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
