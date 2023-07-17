@@ -77,7 +77,7 @@ def scan_logs():
 
         Example:
             >>> text = "[Section 1]\nkey1: value1\nkey2: value2\n[Section 2]\nkey3: value3\n"
-            >>> parse_to_dict(text)
+            >>> config_parse(text)
             {'Section 1': {'key1': 'value1', 'key2': 'value2'}, 'Section 2': {'key3': 'value3'}}
         """
         data_dict = {}
