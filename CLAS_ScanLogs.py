@@ -490,9 +490,6 @@ def scan_logs():
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Disabled"])
 
-                """achievements_status = "Achievements: true" in logtext
-                memory_manager_status = "MemoryManager: true" in logtext
-                f4ee_status = "F4EE: false" in logtext"""
                 try:
                     if (log_config_section["Patches"]["Achievements"] and "achievements.dll" in logtext) or (log_config_section["Patches"]["Achievements"] and "UnlimitedSurvivalMode.dll" in logtext):
                         output.write(GALAXY.Warnings["Warn_TOML_Achievements"])
