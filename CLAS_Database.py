@@ -104,7 +104,7 @@ def clas_update_check():
         print("\n ❓ CHECKING FOR NEW CRASH LOG AUTO SCANNER (CLAS) UPDATES...")
         print("    (You can disable this check in the EXE or CLAS Settings.toml)")
         try:
-            response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest", timeout=10)  # type: ignore
+            response = requests.get("https://api.github.com/repos/GuidanceOfGrace/Buffout4-CLAS/releases/latest", timeout=30)  # type: ignore
             if not response.status_code == requests.codes.ok:  # type: ignore
                 response.raise_for_status()
             CLAS_Received = response.json()["name"]
@@ -429,7 +429,7 @@ class ClasSpecificVars:
     
     def crashgen_update_check(self):
         try:
-            request = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json", timeout=10)
+            request = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json", timeout=30)
             if not request.status_code == requests.codes.ok:
                 request.raise_for_status()
             CRASHGEN = request.json()
