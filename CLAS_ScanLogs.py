@@ -510,7 +510,7 @@ def scan_logs():
                     output.write("❌ Memory Manager parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
                 try:
-                    if log_config_section["Compatibility"]["F4EE"] and "f4ee.dll" in logtext:
+                    if not log_config_section["Compatibility"]["F4EE"] and "f4ee.dll" in logtext:
                         output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
                     else:
                         output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
