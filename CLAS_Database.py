@@ -898,6 +898,7 @@ class ClasCheckMods:
     betterpowerarmor_regex = regx.compile(r"\bBetterPowerArmorRedux\.dll")
     prp_regex = regx.compile(r"(?:^\[.*\]\s*)+?PRP(?:\.esp)?$", regx.MULTILINE)
     bostonfpsfix_regex = regx.compile(r"(?:^\[.*\]\s*)+?BostonFPSFix(?:AIO|Automatron|\-Vanilla|VD|AIO_VD|FarHarbor|\-NukaWorld)(?:\.esp)?$", regx.MULTILINE)
+    tacticalreload_regex = regx.compile(r"(?:^\[.*\]\s*)+?TacticalReload(?:\.esm)?$", regx.MULTILINE)
     Mods1 = [
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?DamageThresholdFramework(?:\.esm)?$", regx.MULTILINE),
          "warn": ["DAMAGE THRESHOLD FRAMEWORK \n",
@@ -987,7 +988,7 @@ class ClasCheckMods:
                   "[Using both mods can break precombines. CLAS suggests using Previs Repair Pack only.]"]},
 
         {"mod_1": regx.compile(r"(?:^\[.*\]\s*)+?ExtendedWeaponSystem(?:\.esm)?$", regx.MULTILINE),
-         "mod_2": regx.compile(r"(?:^\[.*\]\s*)+?TacticalReload(?:\.esm)?$", regx.MULTILINE),
+         "mod_2": tacticalreload_regex,
          "warn": ["EXTENDED WEAPON SYSTEMS ❌ CONFLICTS WITH : TACTICAL RELOAD \n",
                   "[Using both mods can frequently crash the game. You should use only one of these mods, not both at the same time.]"]},
 
@@ -1192,7 +1193,7 @@ class ClasCheckMods:
                   "- Causes crashes at specific locations or with certain Super Mutant enemies and items. \n",
                   "  Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files"]},
 
-        {"mod": regx.compile(r"(?:^\[.*\]\s*)+?TacticalReload(?:\.esm)?$", regx.MULTILINE),
+        {"mod": tacticalreload_regex,
          "warn": ["TACTICAL RELOAD \n",
                   "- Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended. \n",
                   "  TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/67716?tab=files"]},
