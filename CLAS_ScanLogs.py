@@ -64,6 +64,8 @@ def scan_logs():
     crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(?:\ )?(?P<build_datetime>.*)?", regx.IGNORECASE)
     known_prefix_pattern = regx.compile(r'^0[0-6]')
     plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\"\n]*.(?:\.esl|\.esp|\.esm))\s-\s(?P<formid>[0-9a-fA-F]{8})\s(?:\(|\[)(?P<value>[^\" ].*)(?:\)|\])$", regx.MULTILINE | regx.DOTALL)
+    plugins_formid_regex_esl = regx.compile(r"\[FE:\s+([\da-fA-F]{1,3})+\](?![^\[]*Fallout4\.exe)(?![^\[]*Form ID)")
+    plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\](?![^\[]*Fallout4\.exe)(?![^\[]*Form ID)")
     # =================== HELPER FUNCTIONS ===================
     def config_parse(logtext):
         """
@@ -160,13 +162,12 @@ def scan_logs():
         index_stack = len(loglines) - 1
         index_plugins = 1
         plugins_loaded = False
-
         for index, line in enumerate(loglines):
             if "MODULES:" in line:
                 index_stack = index
             if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
                 index_plugins = index
-            if "[00]" in line:
+            if ("[00]" in line or "[ 0]" in line) and "PLUGINS:" in loglines[index - 1]:
                 plugins_loaded = True
                 break
 
@@ -179,9 +180,15 @@ def scan_logs():
         if loadorder_path.exists():
             plugins_loaded = True
             plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
-
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
+        
+        if plugins_loaded:
+            for plugin in section_plugins_list:
+                if "[FE" in plugin:
+                    plugins_formid_regex_esl.sub(r"[00\1]", plugin)
+                else:
+                    plugins_formid_regex_esp.sub(r"[0\1]", plugin)
         
         section_plugins_text = '\n'.join(section_plugins_list)
 
@@ -552,7 +559,8 @@ def scan_logs():
                         mod_data_group = mod_data_match.group() if mod_data_match else None
                         if "File:" not in line and mod_data_match and mod_data_group not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
-                            prefix = line[0:5] if "[FE" not in line else line[0:9]
+                            # prefix = line[0:5] if "[FE" not in line else line[0:9]
+                            prefix = plugins_formid_regex_esl.sub(r"[00\1]", line[0:5]) if "[FE" in line else plugins_formid_regex_esp.sub(r"[0\1]", line[0:5])
                             if mod_data_group not in mods_found:
                                 output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
                             mods_found.add(mod_data_group)
