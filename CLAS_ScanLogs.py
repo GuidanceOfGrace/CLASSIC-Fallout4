@@ -560,7 +560,7 @@ def scan_logs():
                         if "File:" not in line and mod_data_match and mod_data_group not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
                             # prefix = line[0:5] if "[FE" not in line else line[0:9]
-                            prefix = plugins_formid_regex_esl.sub(r"[00\1]", line[0:5]) if "[FE" in line else plugins_formid_regex_esp.sub(r"[0\1]", line[0:5])
+                            prefix = plugins_formid_regex_esl.sub(r"[00\1]", line[0:9]) if "[FE" in line else plugins_formid_regex_esp.sub(r"[0\1]", line[0:5])
                             if mod_data_group not in mods_found:
                                 output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
                             mods_found.add(mod_data_group)
