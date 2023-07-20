@@ -147,6 +147,20 @@ def scan_logs():
         return extracted_dict
 
     def process_file_data(file: Path):
+        """
+        Processes the data of a log file and returns relevant information.
+
+        Args:
+            file (Path): The path to the log file.
+
+        Returns:
+            Tuple[Path, str, str, List[str]]: A tuple containing the path to the scan file, the name of the log file,
+            the text content of the log file, and a list of the lines of the log file.
+
+        Example:
+            >>> file = Path("crash-my_log_file.log")
+            >>> scanpath, logname, logtext, loglines = process_file_data(file)
+        """
         logpath = file.resolve()
         scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
         logname = logpath.name
@@ -159,6 +173,21 @@ def scan_logs():
         return scanpath, logname, logtext, loglines
 
     def process_log_sections(loglines):
+        """
+        Processes the sections of a log file and returns relevant information.
+
+        Args:
+            loglines (List[str]): A list of the lines of the log file.
+
+        Returns:
+            Tuple[List[str], str, List[str], str, bool]: A tuple containing the list of lines of the stack section,
+            the text content of the stack section, the list of lines of the plugins section, the text content of the plugins
+            section, and a boolean indicating whether the plugins have been loaded.
+
+        Example:
+            >>> loglines = ["[00] Stack section", "line 1", "line 2", "[00] Plugins section", "line 3", "line 4"]
+            >>> stack_list, stack_text, plugins_list, plugins_text, plugins_loaded = process_log_sections(loglines)
+        """
         index_stack = len(loglines) - 1
         index_plugins = 1
         plugins_loaded = False
@@ -872,9 +901,6 @@ if __name__ == "__main__":  # AKA only autorun / do the following when NOT impor
 
     if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config["IMI_Mode"]:
         clas_toml_update("IMI_Mode", args.imi_mode)
-
-    if isinstance(args.stat_logging, bool) and not args.stat_logging == UNIVERSE.CLAS_config["Stat_Logging"]:
-        clas_toml_update("Stat_Logging", args.stat_logging)
 
     if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config["Move_Unsolved"]:
         clas_toml_update("Move_Unsolved", args.move_unsolved)
