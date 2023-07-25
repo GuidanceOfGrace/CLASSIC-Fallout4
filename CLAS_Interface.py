@@ -1,5 +1,6 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
+import requests
 from functools import partial
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -259,6 +260,7 @@ class UiCLASMainWin(object):
         font_10.setPointSize(10)
 
         self.Line_SelectedFolder = create_custom_line_edit(CLAS_MainWin, QtCore.QRect(20, 30, 450, 22), "Line_SelectedFolder", "(Optional) Press 'Browse Folder...' to set a different scan folder location.", "darkgray")
+        self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE)
         self.RegBT_Browse = create_simple_button(CLAS_MainWin, QtCore.QRect(490, 30, 130, 24), "RegBT_Browse", "Browse Folder...", "", self.SelectFolder_SCAN)
         self.RegBT_SCAN_LOGS = create_custom_push_button(CLAS_MainWin, QtCore.QRect(220, 80, 200, 40), "RegBT_SCAN_LOGS", "SCAN LOGS", font_bold_10, "", self.CrashLogs_SCAN)
         self.RegBT_SCAN_FILES = create_custom_push_button(CLAS_MainWin, QtCore.QRect(245, 140, 150, 32), "RegBT_SCAN_FILES", "Scan Game Files", font_bold_10, "", self.Gamefiles_SCAN)
@@ -277,6 +279,7 @@ class UiCLASMainWin(object):
         # self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 110, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
         self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 255, 20), "IGNORE MANUAL INSTALL WARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
         self.ChkBT_Update = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 230, 110, 20), "UPDATE CHECK", "Enable if you want Auto-Scanner to check your Python version and if all required packages are installed.", UNIVERSE.CLAS_config["Update_Check"], "ChkBT_Update")
+        self.ChkBT_PasteBin = create_custom_check_box(CLAS_MainWin, QtCore.QRect(220, 230, 200, 20), "DOWNLOAD FROM PASTEBIN", "Enable if you want Auto-Scanner to download your crashlog from Pastebin instead of a local directory.", checked=False, object_name="ChkBT_pastebin")
         # self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "*DEPRECATED* This checkbox used to enable more detailed statistics but since those statistics are not collected anymore it does nothing.", UNIVERSE.CLAS_config["Stat_Logging"], "ChkBT_Stats", disabled=True)  # Does this do anything anymore?
         clas_toml_update("Stat_Logging", False)
         self.ChkBT_Unsolved = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 270, 130, 20), "MOVE UNSOLVED", "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)", UNIVERSE.CLAS_config["Move_Unsolved"], "ChkBT_Unsolved")
@@ -327,6 +330,10 @@ class UiCLASMainWin(object):
         self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))
         self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))
         self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))
+        self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.returnPressed.disconnect() if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE))
+        self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.returnPressed.connect(self.PasteBin_SCAN) if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE))
+        self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_Browse.setEnabled(False) if self.ChkBT_PasteBin.isChecked() else self.RegBT_Browse.setEnabled(True))
+        self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.setText("(Optional) Enter the Pastebin URL of your crashlog here. The results will be in the pastebin directory.") if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.") if not UNIVERSE.CLAS_config["Scan_Path"] else self.Line_SelectedFolder.setText(UNIVERSE.CLAS_config["Scan_Path"]))
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
@@ -352,6 +359,18 @@ class UiCLASMainWin(object):
         scan_wryecheck()
         for item in GALAXY.scan_game_report:
             print(item)
+    
+    def PasteBin_SCAN(self, url):
+        Placeholder = requests.get(url).text
+        return Placeholder
+    def SelectFolder_SCAN_LE(self, directory):
+        if directory:
+            self.Line_SelectedFolder.setText(directory)
+            clas_toml_update("Scan_Path", directory)
+            # Change text color back to black.
+            LSF_palette = self.Line_SelectedFolder.palette()
+            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
+            self.Line_SelectedFolder.setPalette(LSF_palette)
 
     def SelectFolder_SCAN(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
