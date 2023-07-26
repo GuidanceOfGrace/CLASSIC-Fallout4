@@ -330,17 +330,30 @@ class UiCLASMainWin(object):
         self.ChkBT_Unsolved.clicked.connect(lambda: clas_toml_update("Move_Unsolved", True) if self.ChkBT_Unsolved.isChecked() else clas_toml_update("Move_Unsolved", False))
         self.ChkBT_Update.clicked.connect(lambda: clas_toml_update("Update_Check", True) if self.ChkBT_Update.isChecked() else clas_toml_update("Update_Check", False))
         self.ChkBT_FCXMode.clicked.connect(lambda: clas_toml_update("FCX_Mode", True) if self.ChkBT_FCXMode.isChecked() else clas_toml_update("FCX_Mode", False))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.returnPressed.disconnect() if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.returnPressed.connect(self.PasteBin_SCAN) if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_Browse.setEnabled(False) if self.ChkBT_PasteBin.isChecked() else self.RegBT_Browse.setEnabled(True))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.setText("Enter the Pastebin URL of your crashlog here. The results will be in the pastebin directory.") if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.") if not UNIVERSE.CLAS_config["Scan_Path"] else self.Line_SelectedFolder.setText(UNIVERSE.CLAS_config["Scan_Path"]))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_SCAN_LOGS.clicked.disconnect() if self.ChkBT_PasteBin.isChecked() else self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_SCAN_LOGS.clicked.connect(lambda: self.PasteBin_SCAN(self.Line_SelectedFolder.text())) if self.ChkBT_PasteBin.isChecked() else self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN))
+        self.ChkBT_PasteBin.clicked.connect(self.Pastebin_Mode)
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
         # ================= MAIN BUTTON FUNCTIONS ===================
         # @staticmethod recommended for func that don't call "self".
+    def Pastebin_Mode(self):
+        if self.ChkBT_PasteBin.isChecked():
+            self.Line_SelectedFolder.returnPressed.disconnect()
+            self.Line_SelectedFolder.returnPressed.connect(self.PasteBin_SCAN)
+            self.RegBT_Browse.setEnabled(False)
+            self.Line_SelectedFolder.setText("Enter the Pastebin URL of your crashlog here. The results will be in the pastebin directory.")
+            self.RegBT_SCAN_LOGS.clicked.disconnect()
+            self.RegBT_SCAN_LOGS.clicked.connect(lambda: self.PasteBin_SCAN(self.Line_SelectedFolder.text()))
+        else:
+            self.Line_SelectedFolder.returnPressed.disconnect()
+            self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE)
+            self.RegBT_Browse.setEnabled(True)
+            if not UNIVERSE.CLAS_config["Scan_Path"]:
+                self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
+            else:
+                self.Line_SelectedFolder.setText(UNIVERSE.CLAS_config["Scan_Path"])
+            self.RegBT_SCAN_LOGS.clicked.disconnect()
+            self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)
 
     @staticmethod
     def CrashLogs_SCAN():
