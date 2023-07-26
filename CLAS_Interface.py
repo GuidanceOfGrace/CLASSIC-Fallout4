@@ -260,7 +260,7 @@ class UiCLASMainWin(object):
         font_10.setPointSize(10)
 
         self.Line_SelectedFolder = create_custom_line_edit(CLAS_MainWin, QtCore.QRect(20, 30, 450, 22), "Line_SelectedFolder", "(Optional) Press 'Browse Folder...' to set a different scan folder location.", "darkgray")
-        self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE)
+        self.Line_SelectedFolder.returnPressed.connect(lambda: self.SelectFolder_SCAN_LE(self.Line_SelectedFolder.text()))
         self.RegBT_Browse = create_simple_button(CLAS_MainWin, QtCore.QRect(490, 30, 130, 24), "RegBT_Browse", "Browse Folder...", "", self.SelectFolder_SCAN)
         self.RegBT_SCAN_LOGS = create_custom_push_button(CLAS_MainWin, QtCore.QRect(220, 80, 200, 40), "RegBT_SCAN_LOGS", "SCAN LOGS", font_bold_10, "", self.CrashLogs_SCAN)
         self.RegBT_SCAN_FILES = create_custom_push_button(CLAS_MainWin, QtCore.QRect(245, 140, 150, 32), "RegBT_SCAN_FILES", "Scan Game Files", font_bold_10, "", self.Gamefiles_SCAN)
@@ -325,29 +325,22 @@ class UiCLASMainWin(object):
 
         # ====================== CHECK BOXES ========================
 
-        self.ChkBT_IMIMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_IMIMode, "IMI_Mode"))
+        self.ChkBT_IMIMode.clicked.connect(lambda: clas_toml_update("IMI_Mode", True) if self.ChkBT_IMIMode.isChecked() else clas_toml_update("IMI_Mode", False))
         # self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))
-        self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))
-        self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))
-        self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))
+        self.ChkBT_Unsolved.clicked.connect(lambda: clas_toml_update("Move_Unsolved", True) if self.ChkBT_Unsolved.isChecked() else clas_toml_update("Move_Unsolved", False))
+        self.ChkBT_Update.clicked.connect(lambda: clas_toml_update("Update_Check", True) if self.ChkBT_Update.isChecked() else clas_toml_update("Update_Check", False))
+        self.ChkBT_FCXMode.clicked.connect(lambda: clas_toml_update("FCX_Mode", True) if self.ChkBT_FCXMode.isChecked() else clas_toml_update("FCX_Mode", False))
         self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.returnPressed.disconnect() if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE))
         self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.returnPressed.connect(self.PasteBin_SCAN) if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE))
         self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_Browse.setEnabled(False) if self.ChkBT_PasteBin.isChecked() else self.RegBT_Browse.setEnabled(True))
         self.ChkBT_PasteBin.clicked.connect(lambda: self.Line_SelectedFolder.setText("(Optional) Enter the Pastebin URL of your crashlog here. The results will be in the pastebin directory.") if self.ChkBT_PasteBin.isChecked() else self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.") if not UNIVERSE.CLAS_config["Scan_Path"] else self.Line_SelectedFolder.setText(UNIVERSE.CLAS_config["Scan_Path"]))
         self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_SCAN_LOGS.clicked.disconnect() if self.ChkBT_PasteBin.isChecked() else self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN))
-        self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_SCAN_LOGS.clicked.connect(lambda: self.PasteBin_SCAN(self.Line_SelectedFolder.text)) if self.ChkBT_PasteBin.isChecked() else self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN))
+        self.ChkBT_PasteBin.clicked.connect(lambda: self.RegBT_SCAN_LOGS.clicked.connect(lambda: self.PasteBin_SCAN(self.Line_SelectedFolder.text())) if self.ChkBT_PasteBin.isChecked() else self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN))
 
         QtCore.QMetaObject.connectSlotsByName(CLAS_MainWin)
 
         # ================= MAIN BUTTON FUNCTIONS ===================
         # @staticmethod recommended for func that don't call "self".
-
-    @staticmethod
-    def update_toml_config(checkbox, config_key):
-        if checkbox.isChecked():
-            clas_toml_update(config_key, True)
-        else:
-            clas_toml_update(config_key, False)
 
     @staticmethod
     def CrashLogs_SCAN():
@@ -361,10 +354,11 @@ class UiCLASMainWin(object):
         scan_wryecheck()
         for item in GALAXY.scan_game_report:
             print(item)
-    
+
     def PasteBin_SCAN(self, url):
         Placeholder = requests.get(url).text
         return Placeholder
+
     def SelectFolder_SCAN_LE(self, directory):
         if directory:
             self.Line_SelectedFolder.setText(directory)
