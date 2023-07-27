@@ -64,9 +64,13 @@ def scan_logs():
     crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(?:\ )?(?P<build_datetime>.*)?", regx.IGNORECASE)
     known_prefix_pattern = regx.compile(r'^0[0-6]')
     plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\"\n]*.(?:\.esl|\.esp|\.esm))\s-\s(?P<formid>[0-9a-fA-F]{8})\s(?:\(|\[)(?P<value>[^\" ].*)(?:\)|\])$", regx.MULTILINE | regx.DOTALL)
-    plugins_formid_regex_esl = regx.compile(r"\[FE:(?:\s+)?([0-9a-fA-F\s]+)\](.*)")
-    plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\]")
+    plugins_formid_regex_esl = regx.compile(r"\[FE:(?:\s+)?([0-9a-fA-F\s]+)\]\s+?(.*)")
+    plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\]\s+?(.*)")
     # =================== HELPER FUNCTIONS ===================
+    def process_match(match):
+        # Remove spaces and add leading zeroes if necessary
+        processed = "{:0>3}".format(match.group(1).strip())
+        return "[FE:" + processed + "]"
     def config_parse(logtext):
         """
         Parses a string of text containing key-value pairs and sections into a dictionary.
@@ -211,6 +215,12 @@ def scan_logs():
             plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
+        
+        for line in section_plugins_list:
+            if "[FE" in line:
+                esl_match = plugins_formid_regex_esl.search(line)
+                if esl_match:
+                    line = f"{process_match(esl_match)} {esl_match.group(2)}"
         
         section_plugins_text = '\n'.join(section_plugins_list)
 
@@ -574,10 +584,6 @@ def scan_logs():
             def check_plugins(mods, mod_trap, plugins_loaded, section_plugins_list, LCL_skip_list):
                 if not plugins_loaded:
                     return mod_trap
-                def process_match(match):
-                    # Remove spaces and add leading zeroes if necessary
-                    processed = "{:0>3}".format(match.group(1).strip())
-                    return "[FE:" + processed + "]"
                 mods_found = set()
                 for line in section_plugins_list:
                     for mod_data in mods:  # changed from mods.values()
