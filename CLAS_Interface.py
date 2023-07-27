@@ -4,13 +4,14 @@ import requests
 from functools import partial
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt, QUrl
+from PySide6.QtCore import Qt, QUrl, Slot, Signal
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QApplication, QFileDialog
 
 from CLAS_Database import (GALAXY, UNIVERSE, clas_toml_create,
                            clas_toml_update, clas_update_check)
 from CLAS_ScanLogs import scan_logs
+from pathlib import Path
 
 '''import platform  # RESERVED FOR FUTURE UPDATE
 current_platform = platform.system()
@@ -259,8 +260,11 @@ class UiCLASMainWin(object):
         font_10 = QtGui.QFont()
         font_10.setPointSize(10)
 
+        self.returnPressed = False 
+        
         self.Line_SelectedFolder = create_custom_line_edit(CLAS_MainWin, QtCore.QRect(20, 30, 450, 22), "Line_SelectedFolder", "(Optional) Press 'Browse Folder...' to set a different scan folder location.", "darkgray")
         self.Line_SelectedFolder.returnPressed.connect(lambda: self.SelectFolder_SCAN_LE(self.Line_SelectedFolder.text()))
+        self.Line_SelectedFolder.returnPressed.connect(self.return_pressed)
         self.RegBT_Browse = create_simple_button(CLAS_MainWin, QtCore.QRect(490, 30, 130, 24), "RegBT_Browse", "Browse Folder...", "", self.SelectFolder_SCAN)
         self.RegBT_SCAN_LOGS = create_custom_push_button(CLAS_MainWin, QtCore.QRect(220, 80, 200, 40), "RegBT_SCAN_LOGS", "SCAN LOGS", font_bold_10, "", self.CrashLogs_SCAN)
         self.RegBT_SCAN_FILES = create_custom_push_button(CLAS_MainWin, QtCore.QRect(245, 140, 150, 32), "RegBT_SCAN_FILES", "Scan Game Files", font_bold_10, "", self.Gamefiles_SCAN)
@@ -336,17 +340,24 @@ class UiCLASMainWin(object):
 
         # ================= MAIN BUTTON FUNCTIONS ===================
         # @staticmethod recommended for func that don't call "self".
+    def return_pressed(self):
+        if not self.returnPressed:
+            self.returnPressed = True
+            return
+        else:
+            self.returnPressed = False
+            return
     def Pastebin_Mode(self):
         if self.ChkBT_PasteBin.isChecked():
             self.Line_SelectedFolder.returnPressed.disconnect()
-            self.Line_SelectedFolder.returnPressed.connect(self.PasteBin_SCAN)
             self.RegBT_Browse.setEnabled(False)
-            self.Line_SelectedFolder.setText("Enter the Pastebin URL of your crashlog here. The results will be in the pastebin directory.")
+            self.Line_SelectedFolder.setText("Enter the Pastebin URL of your crashlog here and press Return/Enter.")
             self.RegBT_SCAN_LOGS.clicked.disconnect()
             self.RegBT_SCAN_LOGS.clicked.connect(lambda: self.PasteBin_SCAN(self.Line_SelectedFolder.text()))
         else:
             self.Line_SelectedFolder.returnPressed.disconnect()
             self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE)
+            self.Line_SelectedFolder.returnPressed.connect(self.return_pressed)
             self.RegBT_Browse.setEnabled(True)
             if not UNIVERSE.CLAS_config["Scan_Path"]:
                 self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
@@ -354,6 +365,7 @@ class UiCLASMainWin(object):
                 self.Line_SelectedFolder.setText(UNIVERSE.CLAS_config["Scan_Path"])
             self.RegBT_SCAN_LOGS.clicked.disconnect()
             self.RegBT_SCAN_LOGS.clicked.connect(self.CrashLogs_SCAN)
+
 
     @staticmethod
     def CrashLogs_SCAN():
@@ -368,13 +380,15 @@ class UiCLASMainWin(object):
         for item in GALAXY.scan_game_report:
             print(item)
 
-    def PasteBin_SCAN(self, url):
+    def PasteBin_SCAN(self, url=""):
+        UNIVERSE.CLAS_config["Scan_Path"] = str(Path.cwd().joinpath("pastebin"))
+        if not url:
+            url = self.Line_SelectedFolder.text()
         Placeholder = requests.get(url).text
         return Placeholder
 
     def SelectFolder_SCAN_LE(self, directory):
         if directory:
-            self.Line_SelectedFolder.setText(directory)
             clas_toml_update("Scan_Path", directory)
             # Change text color back to black.
             LSF_palette = self.Line_SelectedFolder.palette()
