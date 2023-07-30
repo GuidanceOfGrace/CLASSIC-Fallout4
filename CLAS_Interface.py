@@ -1,6 +1,7 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
 import sys
 import requests
+from urllib.parse import urlparse
 from functools import partial
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -381,11 +382,20 @@ class UiCLASMainWin(object):
             print(item)
 
     def PasteBin_SCAN(self, url=""):
+        parsed_url = urlparse(url)
+        url_path = list(parsed_url.path.split("/"))  # using list() to make sure that the url_path is a list.
+        if parsed_url.scheme != "https" or parsed_url.netloc != "pastebin.com" or "raw" in url_path:
+            QtWidgets.QMessageBox.warning(CLAS_MainWin, "Invalid URL", "The URL you entered is invalid. Please enter a valid Pastebin URL.")
+            return
+        if not Path.cwd().joinpath("pastebin").exists():
+            Path.cwd().joinpath("pastebin").mkdir()
         UNIVERSE.CLAS_config["Scan_Path"] = str(Path.cwd().joinpath("pastebin"))
         if not url:
             url = self.Line_SelectedFolder.text()
-        Placeholder = requests.get(url).text
-        return Placeholder
+        url = url.replace("https://pastebin.com/", "https://pastebin.com/raw/")
+        with open(Path.cwd().joinpath("pastebin", f"crash-pastebin-{url_path[0]}.log"), "w") as f:
+            f.write(requests.get(url).text)
+        scan_logs()
 
     def SelectFolder_SCAN_LE(self, directory):
         if directory:
