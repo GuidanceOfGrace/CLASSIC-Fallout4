@@ -1,4 +1,5 @@
 # CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
+import platform  # RESERVED FOR FUTURE UPDATE
 import sys
 from functools import partial
 from pathlib import Path
@@ -14,14 +15,13 @@ from CLAS_Database import (GALAXY, UNIVERSE, clas_toml_create,
                            clas_toml_update, clas_update_check)
 from CLAS_ScanLogs import scan_logs
 
-'''import platform  # RESERVED FOR FUTURE UPDATE
 current_platform = platform.system()
 if current_platform == 'Windows':
     version = platform.release()
     if version.startswith('10') or version.startswith('11'):
         QApplication.setStyle("Fusion")
         sys.argv += ['-platform', 'windows:darkmode=2']
-'''
+
 clas_toml_create()
 
 
@@ -305,15 +305,14 @@ class UiCLASMainWin(object):
             {"text": "AUTO SCANNER NEXUS PAGE", "url": "https://www.nexusmods.com/fallout4/mods/56255"},
             {"text": "AUTO SCANNER GITHUB", "url": "https://github.com/GuidanceOfGrace/Buffout4-CLAS/releases"}
         ]
-
+        font_8 = QtGui.QFont()
+        font_8.setPointSize(8)
         # ARRANGE BUTTONS IN GRID
         for i, data in enumerate(button_data):
-            font = QtGui.QFont()
-            font.setPointSize(8)
             button = QtWidgets.QPushButton(CLAS_MainWin)
             button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 370 + i // 3 * 50, 180, 32))
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
-            button.setFont(font)
+            button.setFont(font_8)
             button.setText(data["text"])
             open_url = partial(QDesktopServices.openUrl, QUrl(data["url"]))
             button.clicked.connect(open_url)
@@ -352,7 +351,7 @@ class UiCLASMainWin(object):
     def Pastebin_Mode(self):
         if self.ChkBT_PasteBin.isChecked():
             self.Line_SelectedFolder.returnPressed.disconnect()
-            self.RegBT_Browse.setEnabled(False)
+            self.RegBT_Browse.setText("Download...")
             self.Line_SelectedFolder.setText("Enter the Pastebin URL of your crashlog here and press Return/Enter.")
             self.RegBT_SCAN_LOGS.clicked.disconnect()
             self.RegBT_SCAN_LOGS.clicked.connect(lambda: self.PasteBin_SCAN(self.Line_SelectedFolder.text()))
@@ -360,7 +359,7 @@ class UiCLASMainWin(object):
             self.Line_SelectedFolder.returnPressed.disconnect()
             self.Line_SelectedFolder.returnPressed.connect(self.SelectFolder_SCAN_LE)
             self.Line_SelectedFolder.returnPressed.connect(self.is_return_pressed)
-            self.RegBT_Browse.setEnabled(True)
+            self.RegBT_Browse.setText("Browse Folder...")
             if not UNIVERSE.CLAS_config["Scan_Path"]:
                 self.Line_SelectedFolder.setText("(Optional) Press 'Browse Folder...' to set a different scan folder location.")
             else:
@@ -398,11 +397,15 @@ class UiCLASMainWin(object):
         UNIVERSE.CLAS_config["Scan_Path"] = str(Path.cwd().joinpath("pastebin"))
 
         url = url.replace("https://pastebin.com/", "https://pastebin.com/raw/")
-
-        with open(Path.cwd().joinpath("pastebin", f"crash-pastebin-{url_path[0]}.log"), "w") as f:
-            f.write(requests.get(url).text)
-
-        scan_logs()
+        request = requests.get(url, timeout=30)
+        try:
+            if not request.status_code == requests.codes.ok:  # type: ignore
+                request.raise_for_status()
+            with open(Path.cwd().joinpath("pastebin", f"crash-pastebin-{url_path[1]}.log"), "w") as f:
+                f.write(request.text.strip())
+            scan_logs()
+        except requests.HTTPError:
+            QtWidgets.QMessageBox.warning(CLAS_MainWin, "HTTP Error", "The URL you entered returned an HTTP error. Please enter a valid Pastebin URL.")
 
     def SelectFolder_SCAN_LE(self, directory):
         if directory:
