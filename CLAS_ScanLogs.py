@@ -11,6 +11,8 @@ import time
 from collections import Counter
 from pathlib import Path
 
+from PySide6.QtCore import Signal, Slot, QObject
+
 import pkg_resources
 
 from CLAS_Database import (GALAXY, MOON, UNIVERSE, clas_toml_create,
@@ -879,41 +881,3 @@ def scan_logs():
         print(" ❌ CLAS found no crash logs to scan.")
         print("    There are no statistics to show.\n")
     return
-
-
-if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
-    import argparse
-
-    parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner (CLAS)", description="All command-line options are saved to the INI file.")
-    # Argument values will simply change INI values since that requires the least refactoring
-    # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
-    parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")
-    parser.add_argument("--imi-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
-    parser.add_argument("--stat-logging", action=argparse.BooleanOptionalAction, help="Enable (or disable) Stat Logging")
-    parser.add_argument("--move-unsolved", action=argparse.BooleanOptionalAction, help="Enable (or disable) moving unsolved logs to a separate directory")
-    parser.add_argument("--ini-path", type=Path, help="Set the directory that stores the game's INI files.")
-    parser.add_argument("--scan-path", type=Path, help="Set which directory to scan")
-    args = parser.parse_args()
-
-    scan_path: Path = args.scan_path  # VSCode gives me type errors because args.* is set at runtime (doesn't know what types it's dealing with).
-    ini_path: Path = args.ini_path  # Using intermediate variables with type annotations to satisfy it.
-
-    # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
-    # So it will respect current INI values if not specified on the command line.
-    if isinstance(args.fcx_mode, bool) and not args.fcx_mode == UNIVERSE.CLAS_config["FCX_Mode"]:
-        clas_toml_update("FCX_Mode", args.fcx_mode)
-
-    if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config["IMI_Mode"]:
-        clas_toml_update("IMI_Mode", args.imi_mode)
-
-    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config["Move_Unsolved"]:
-        clas_toml_update("Move_Unsolved", args.move_unsolved)
-
-    if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == UNIVERSE.CLAS_config["INI_Path"]:
-        clas_toml_update("INI_Path", str(Path(ini_path).resolve()))
-
-    if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == UNIVERSE.CLAS_config["Scan_Path"]:
-        clas_toml_update("Scan_Path", str(Path(scan_path).resolve()))
-
-    scan_logs()
-    os.system("pause")
