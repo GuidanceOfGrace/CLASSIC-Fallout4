@@ -482,8 +482,11 @@ def scan_logs():
         scan_game_files()
         scan_wryecheck()
         scan_mod_inis()
+    
+    logs = list(Path(SCAN_folder).glob("crash-*.log"))
+    logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))
 
-    for file in Path(SCAN_folder).glob("crash-*.log"):
+    for file in logs:
         scanpath, logname, logtext, loglines = process_file_data(file)
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
