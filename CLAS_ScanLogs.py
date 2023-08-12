@@ -499,6 +499,7 @@ def scan_logs():
             try:
                 log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
             except (IndexError, StopIteration):
+                statL_failed += 1
                 continue
 
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
