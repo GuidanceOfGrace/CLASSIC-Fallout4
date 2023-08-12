@@ -484,7 +484,7 @@ def scan_logs():
         scan_mod_inis()
     
     logs = list(Path(SCAN_folder).glob("crash-*.log"))
-    logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))
+    # logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))  # Keeping this out of public release for now.
 
     for file in logs:
         scanpath, logname, logtext, loglines = process_file_data(file)
@@ -495,6 +495,11 @@ def scan_logs():
                           "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES #\n",
                           "====================================================\n")
                 return header
+            
+            try:
+                log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
+            except (IndexError, StopIteration):
+                continue
 
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
 
@@ -505,8 +510,6 @@ def scan_logs():
             crash_error = error_match.group() if error_match else "❌ Error Not Found"
 
             section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded = process_log_sections(loglines)
-            log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
-
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
                                "====================================================\n",
@@ -525,7 +528,7 @@ def scan_logs():
 
             fcx_mode = UNIVERSE.CLAS_config["FCX_Mode"]
 
-            if fcx_mode == "true":
+            if fcx_mode:
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Enabled"])
                 for item in GALAXY.scan_game_report:
                     output.write(f"{item}\n")
