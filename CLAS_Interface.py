@@ -23,6 +23,27 @@ clas_toml_create()
 
 
 def create_custom_line_edit(parent, geometry, object_name, text, text_color="black"):
+    """
+    Creates a custom QLineEdit widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        object_name (str): The object name of the widget.
+        text (str): The initial text of the widget.
+        text_color (str): The color of the text. Default is "black".
+
+    Returns:
+        QLineEdit: The created QLineEdit widget.
+
+    Example:
+        >>> parent = QtWidgets.QWidget()
+        >>> geometry = QtCore.QRect(0, 0, 100, 20)
+        >>> object_name = "myLineEdit"
+        >>> text = "Hello, world!"
+        >>> text_color = "red"
+        >>> line_edit = create_custom_line_edit(parent, geometry, object_name, text, text_color)
+    """
     line_edit = QtWidgets.QLineEdit(parent)
     line_edit.setGeometry(geometry)
     line_edit.setObjectName(object_name)
@@ -34,6 +55,31 @@ def create_custom_line_edit(parent, geometry, object_name, text, text_color="bla
 
 
 def create_custom_push_button(parent, geometry, object_name, text, font, tooltip="", callback=None):
+    """
+    Creates a custom QPushButton widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        object_name (str): The object name of the widget.
+        text (str): The text of the widget.
+        font (QFont): The font of the widget.
+        tooltip (str): The tooltip of the widget. Default is an empty string.
+        callback (function): The callback function to be called when the button is clicked. Default is None.
+
+    Returns:
+        QPushButton: The created QPushButton widget.
+
+    Example:
+        >>> parent = QtWidgets.QWidget()
+        >>> geometry = QtCore.QRect(0, 0, 100, 20)
+        >>> object_name = "myPushButton"
+        >>> text = "Click me!"
+        >>> font = QtGui.QFont("Arial", 12)
+        >>> tooltip = "This is a tooltip."
+        >>> callback = my_callback_function
+        >>> push_button = create_custom_push_button(parent, geometry, object_name, text, font, tooltip, callback)
+    """
     button = QtWidgets.QPushButton(parent)
     button.setGeometry(geometry)
     button.setObjectName(object_name)
@@ -46,6 +92,29 @@ def create_custom_push_button(parent, geometry, object_name, text, font, tooltip
 
 
 def create_simple_button(parent, geometry, object_name, text, tooltip, callback):
+    """
+    Creates a simple QPushButton widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        object_name (str): The object name of the widget.
+        text (str): The text of the widget.
+        tooltip (str): The tooltip of the widget.
+        callback (function): The callback function to be called when the button is clicked.
+
+    Returns:
+        QPushButton: The created QPushButton widget.
+
+    Example:
+        >>> parent = QtWidgets.QWidget()
+        >>> geometry = QtCore.QRect(0, 0, 100, 20)
+        >>> object_name = "myPushButton"
+        >>> text = "Click me!"
+        >>> tooltip = "This is a tooltip."
+        >>> callback = my_callback_function
+        >>> push_button = create_simple_button(parent, geometry, object_name, text, tooltip, callback)
+    """
     button = QtWidgets.QPushButton(parent)
     button.setGeometry(geometry)
     button.setObjectName(object_name)
@@ -56,6 +125,19 @@ def create_simple_button(parent, geometry, object_name, text, tooltip, callback)
 
 
 def create_custom_frame(parent, geometry, frame_shape, frame_shadow, object_name):
+    """
+    Creates a custom QFrame widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        frame_shape (QFrame.Shape): The shape of the frame.
+        frame_shadow (QFrame.Shadow): The shadow of the frame.
+        object_name (str): The object name of the widget.
+
+    Returns:
+        QFrame: The created QFrame widget.
+    """
     frame = QtWidgets.QFrame(parent)
     frame.setGeometry(geometry)
     frame.setFrameShape(frame_shape)
@@ -65,6 +147,19 @@ def create_custom_frame(parent, geometry, frame_shape, frame_shadow, object_name
 
 
 def create_custom_label(parent, geometry, text, font, object_name):
+    """
+    Creates a custom QLabel widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        text (str): The text of the widget.
+        font (QFont): The font of the widget.
+        object_name (str): The object name of the widget.
+
+    Returns:
+        QLabel: The created QLabel widget.
+    """
     label = QtWidgets.QLabel(parent)
     label.setGeometry(geometry)
     label.setText(text)
@@ -73,18 +168,48 @@ def create_custom_label(parent, geometry, text, font, object_name):
     return label
 
 
-def create_custom_check_box(parent, geometry, text, tooltip, checked, object_name):
+def create_custom_check_box(parent, geometry, text, tooltip, checked, object_name, disabled=False):
+    """
+    Creates a custom QCheckBox widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        text (str): The text of the widget.
+        tooltip (str): The tooltip of the widget.
+        checked (bool): Whether the checkbox is checked.
+        object_name (str): The object name of the widget.
+        disabled (bool): Whether the checkbox is disabled. Default is False.
+
+    Returns:
+        QCheckBox: The created QCheckBox widget.
+    """
     check_box = QtWidgets.QCheckBox(parent)
     check_box.setGeometry(geometry)
     check_box.setText(text)
     check_box.setToolTip(tooltip)
-    if checked:
+    if checked and not disabled:
         check_box.setChecked(True)
     check_box.setObjectName(object_name)
+    if disabled:
+        check_box.setEnabled(False)
+        check_box.setChecked(False)
+        check_box.setStyleSheet("color: gray;")
     return check_box
 
 
 def create_label(parent, text, geometry):
+    """
+    Creates a QLabel widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        text (str): The text of the widget.
+        geometry (QRect): The geometry of the widget.
+
+    Returns:
+        QLabel: The created QLabel widget.
+    """
     label = QtWidgets.QLabel(parent)
     label.setGeometry(geometry)
     label.setObjectName("label")
@@ -93,6 +218,17 @@ def create_label(parent, text, geometry):
 
 
 def create_text_browser(parent, geometry, text):
+    """
+    Creates a QTextBrowser widget with the specified properties.
+
+    Args:
+        parent (QWidget): The parent widget.
+        geometry (QRect): The geometry of the widget.
+        text (str): The initial text of the widget.
+
+    Returns:
+        QTextBrowser: The created QTextBrowser widget.
+    """
     text_browser = QtWidgets.QTextBrowser(parent)
     text_browser.setGeometry(geometry)
     text_browser.setObjectName("text_browser")
@@ -138,9 +274,11 @@ class UiCLASMainWin(object):
         self.Line_Separator_1 = create_custom_frame(CLAS_MainWin, QtCore.QRect(40, 180, 560, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Separator_1")
         self.LBL_Settings = create_custom_label(CLAS_MainWin, QtCore.QRect(290, 200, 60, 16), "SETTINGS", font_bold_10, "LBL_Settings")
         self.ChkBT_FCXMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 230, 110, 20), "FCX MODE", "Enable if you want Auto-Scanner to check if Buffout 4 and its requirements are installed correctly.", UNIVERSE.CLAS_config["FCX_Mode"], "ChkBT_FCXMode")
-        self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 110, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
+        # self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(260, 210, 110, 100), "IGNORE ALL\nMANUAL FILE\nINSTALLATION\nWARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
+        self.ChkBT_IMIMode = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 255, 20), "IGNORE MANUAL INSTALL WARNINGS", "Enable if you want Auto-Scanner to hide all manual installation warnings.\nI still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT a mod manager.", UNIVERSE.CLAS_config["IMI_Mode"], "ChkBT_IMIMode")
         self.ChkBT_Update = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 230, 110, 20), "UPDATE CHECK", "Enable if you want Auto-Scanner to check your Python version and if all required packages are installed.", UNIVERSE.CLAS_config["Update_Check"], "ChkBT_Update")
-        self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "Enable if you want Auto-Scanner to show extra stats about scanned logs in the command line window.", UNIVERSE.CLAS_config["Stat_Logging"], "ChkBT_Stats")
+        # self.ChkBT_Stats = create_custom_check_box(CLAS_MainWin, QtCore.QRect(100, 270, 120, 20), "STAT LOGGING", "*DEPRECATED* This checkbox used to enable more detailed statistics but since those statistics are not collected anymore it does nothing.", UNIVERSE.CLAS_config["Stat_Logging"], "ChkBT_Stats", disabled=True)  # Does this do anything anymore?
+        clas_toml_update("Stat_Logging", False)
         self.ChkBT_Unsolved = create_custom_check_box(CLAS_MainWin, QtCore.QRect(430, 270, 130, 20), "MOVE UNSOLVED", "Enable if you want Auto-Scanner to move all unsolved logs and their autoscans to CL-UNSOLVED folder.\n(Unsolved logs are all crash logs where Auto-Scanner didn't detect any known crash errors or messages.)", UNIVERSE.CLAS_config["Move_Unsolved"], "ChkBT_Unsolved")
 
         # SEGMENT - ARTICLES / WEBSITES
@@ -148,14 +286,6 @@ class UiCLASMainWin(object):
         # SEPARATOR LINE 2
         self.Line_Separator_2 = create_custom_frame(CLAS_MainWin, QtCore.QRect(40, 310, 560, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Separator_2")
         # SEPARATOR TEXT 2 (ARTICLES / WEBSITES)
-        self.LBL_ArtWeb = QtWidgets.QLabel(CLAS_MainWin)
-        self.LBL_ArtWeb.setGeometry(QtCore.QRect(250, 330, 140, 16))
-        self.LBL_ArtWeb.setText("ARTICLES / WEBSITES")
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        self.LBL_ArtWeb.setFont(font)
-        self.LBL_ArtWeb.setObjectName("LBL_ArtWeb")
         self.LBL_ArtWeb = create_custom_label(CLAS_MainWin, QtCore.QRect(250, 330, 140, 16), "ARTICLES / WEBSITES", font_bold_10, "LBL_ArtWeb")
 
         # Articles & Websites
@@ -193,7 +323,7 @@ class UiCLASMainWin(object):
         # ====================== CHECK BOXES ========================
 
         self.ChkBT_IMIMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_IMIMode, "IMI_Mode"))
-        self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))
+        # self.ChkBT_Stats.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Stats, "Stat_Logging"))
         self.ChkBT_Unsolved.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Unsolved, "Move_Unsolved"))
         self.ChkBT_Update.clicked.connect(lambda: self.update_toml_config(self.ChkBT_Update, "Update_Check"))
         self.ChkBT_FCXMode.clicked.connect(lambda: self.update_toml_config(self.ChkBT_FCXMode, "FCX_Mode"))

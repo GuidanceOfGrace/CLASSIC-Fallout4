@@ -24,7 +24,7 @@ except AttributeError:
 clas_toml_create()
 clas_update_check()
 
-plugins_pattern = regx.compile(r"(.+?)(\.(esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
+plugins_pattern = regx.compile(r"(?:.+?)(?:\.(?:esp|esm|esl)+)$", regx.IGNORECASE | regx.MULTILINE)
 LCL_skip_list = []
 if not os.path.exists("CLAS Ignore.txt"):  # Local plugin skip / ignore list.
     with open("CLAS Ignore.txt", "w", encoding="utf-8", errors="ignore") as CLAS_Ignore:
@@ -54,17 +54,117 @@ def scan_logs():
     # =================== IMPORTED DATA AND REGEX PATTERNS ===================
     Culprits = culprit_data()
     plugin_id_pattern = regx.compile(r'\[[0-9A-Fa-f]{2,6}\]')
-    detected_plugin_pattern = regx.compile(r'File:\s+"?([^"]+)"?')
+    detected_plugin_pattern = regx.compile(r'File:\s+\"?([^"]+)\"?')
     form_id_pattern = regx.compile(r'(Form ID:|FormID:)\s*0x([0-9A-Fa-f]+)')
     nvidia_pattern = regx.compile(r'GPU.*Nvidia', regx.IGNORECASE)
     amd_pattern = regx.compile(r'GPU.*AMD', regx.IGNORECASE)
     records_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in UNIVERSE.Crash_Records_Catch))
     records_exclude_pattern = regx.compile('|'.join(regx.escape(pattern) for pattern in GALAXY.Crash_Records_Exclude))
-    unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(?P<error_code>\+.{7})?(.*)", regx.IGNORECASE)
-    crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(.*)", regx.IGNORECASE)
+    unhandled_exception_pattern = regx.compile(r"Unhandled exception.*(?P<error_code>\+.{7})?(?:.*)", regx.IGNORECASE)
+    crash_ver_pattern = regx.compile(r"Buffout 4.* v(?P<version_number>\d+\.\d+\.\d+)(?:\ )?(?P<build_datetime>.*)?", regx.IGNORECASE)
+    known_prefix_pattern = regx.compile(r'^0[0-6]')
+    plugin_formid_result_pattern = regx.compile(r"(?P<plugin>[^\"\n]*.(?:\.esl|\.esp|\.esm))\s-\s(?P<formid>[0-9a-fA-F]{8})\s(?:\(|\[)(?P<value>[^\" ].*)(?:\)|\])$", regx.MULTILINE | regx.DOTALL)
+    plugins_formid_regex_esl = regx.compile(r"\[FE:(?:\s+)?([0-9a-fA-F\s]+)\]\s+?(.*)")
+    plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\]\s+?(.*)")
     # =================== HELPER FUNCTIONS ===================
+    def process_match(match):
+        # Remove spaces and add leading zeroes if necessary
+        processed = "{:0>3}".format(match.group(1).strip())
+        return "[FE:" + processed + "]"
+    def config_parse(logtext):
+        """
+        Parses a string of text containing key-value pairs and sections into a dictionary.
+
+        Args:
+            text (str): The text to parse.
+
+        Returns:
+            dict: A dictionary containing the parsed key-value pairs and sections.
+
+        Example:
+            >>> text = "[Section 1]\nkey1: value1\nkey2: value2\n[Section 2]\nkey3: value3\n"
+            >>> config_parse(text)
+            {'Section 1': {'key1': 'value1', 'key2': 'value2'}, 'Section 2': {'key3': 'value3'}}
+        """
+        data_dict = {}
+        current_section = None
+        localtext = logtext.replace('\t', '\n')
+        for line in localtext.split('\n'):
+            stripped_line = line.strip()
+            if stripped_line.startswith('[') and stripped_line.endswith(']'):
+                # This is a section line, update current_section
+                current_section = stripped_line.strip('[]')
+                data_dict[current_section] = {}
+            elif ':' in stripped_line:
+                # This is a key-value line, update the dictionary
+                try:
+                    key, value = [item.strip() for item in stripped_line.split(':') if len(stripped_line.split(':')) == 2]
+                except ValueError:
+                    key, value = ["", ""]
+                # Try to convert the value to int if possible
+                try:
+                    value = int(value)
+                except ValueError:
+                    if value == 'true' or value == 'True':
+                        value = True
+                    elif value == 'false' or value == 'False':
+                        value = False
+                data_dict[current_section][key] = value
+        return data_dict
+    
+    def parse_log_config_section(logtext):
+        """
+        Extracts a section of a log file containing configuration data and warnings, and converts it into a dictionary.
+
+        Args:
+            logtext (str): The text of the log file.
+
+        Returns:
+            dict: A dictionary containing the extracted configuration data and warnings.
+
+        Example:
+            >>> logtext = "[Compatibility]\nkey1 = value1\nkey2 = value2\n[Warnings]\nWarning 1\nWarning 2\nWarning 3\n"
+            >>> parse_log_config_section(logtext)
+            {'Compatibility': {'F4EE': True}, 'Warnings': ['Warning 1', 'Warning 2', 'Warning 3']}
+        """
+        # Define start and end section
+        start_section = "[Compatibility]"
+        end_section = "[Warnings]"
+        lines = logtext.splitlines()
+
+        # Find the start and end indexes
+        start_index = next(i for i, line in enumerate(lines) if start_section in line)
+        end_index = next(i for i, line in enumerate(lines) if end_section in line)
+
+        # Adjust end_index to include two more lines under [Warnings]
+        end_index_adjusted = end_index + 3  # +3 to include "[Warnings]" line and next two lines
+
+        # Get the lines in the range [start_index, end_index_adjusted]
+        extracted_text_including_warnings = lines[start_index:end_index_adjusted]
+
+        # Join the lines to form a single string
+        extracted_text_including_warnings_str = "".join(extracted_text_including_warnings)
+
+        # Convert the extracted text into a dictionary
+        extracted_dict = config_parse(extracted_text_including_warnings_str)
+        
+        return extracted_dict
 
     def process_file_data(file: Path):
+        """
+        Processes the data of a log file and returns relevant information.
+
+        Args:
+            file (Path): The path to the log file.
+
+        Returns:
+            Tuple[Path, str, str, List[str]]: A tuple containing the path to the scan file, the name of the log file,
+            the text content of the log file, and a list of the lines of the log file.
+
+        Example:
+            >>> file = Path("crash-my_log_file.log")
+            >>> scanpath, logname, logtext, loglines = process_file_data(file)
+        """
         logpath = file.resolve()
         scanpath = logpath.with_name(logpath.stem + "-AUTOSCAN.md")
         logname = logpath.name
@@ -77,16 +177,30 @@ def scan_logs():
         return scanpath, logname, logtext, loglines
 
     def process_log_sections(loglines):
+        """
+        Processes the sections of a log file and returns relevant information.
+
+        Args:
+            loglines (List[str]): A list of the lines of the log file.
+
+        Returns:
+            Tuple[List[str], str, List[str], str, bool]: A tuple containing the list of lines of the stack section,
+            the text content of the stack section, the list of lines of the plugins section, the text content of the plugins
+            section, and a boolean indicating whether the plugins have been loaded.
+
+        Example:
+            >>> loglines = ["[00] Stack section", "line 1", "line 2", "[00] Plugins section", "line 3", "line 4"]
+            >>> stack_list, stack_text, plugins_list, plugins_text, plugins_loaded = process_log_sections(loglines)
+        """
         index_stack = len(loglines) - 1
         index_plugins = 1
         plugins_loaded = False
-
         for index, line in enumerate(loglines):
             if "MODULES:" in line:
                 index_stack = index
             if GALAXY.XSE_Symbol not in line and "PLUGINS:" in line:
                 index_plugins = index
-            if "[00]" in line:
+            if ("[00]" in line or "[ 0]" in line) and "PLUGINS:" in loglines[index - 1]:
                 plugins_loaded = True
                 break
 
@@ -99,11 +213,18 @@ def scan_logs():
         if loadorder_path.exists():
             plugins_loaded = True
             plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
-
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
+        
+        for line in section_plugins_list:
+            if "[FE" in line:
+                esl_match = plugins_formid_regex_esl.search(line)
+                if esl_match:
+                    line = f"{process_match(esl_match)} {esl_match.group(2)}"
+        
+        section_plugins_text = '\n'.join(section_plugins_list)
 
-        return section_stack_list, section_stack_text, section_plugins_list, plugins_loaded
+        return section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded
 
     def extract_plugin_ids(loglines):
         # Use a list comprehension to filter the loglines that match the pattern
@@ -145,23 +266,35 @@ def scan_logs():
 
     def extract_form_ids(loglines, plugins_loaded, section_plugins_list):
         form_ids = []
+        added_form_ids = set()
 
         for line in loglines:
             match = form_id_pattern.search(line)
-            if match and "0xFF" not in line:
+            form_id = match.group(2).strip() if match else None
+
+            if form_id and "0xFF" not in line:
                 # Extract the matched Form ID
-                form_id = match.group(2).strip()
                 if plugins_loaded:
                     for plugin in section_plugins_list:
                         plugin = plugin.replace(":", "").strip()
-                        if "[FE" not in plugin:
+                        if "[FE" not in plugin and form_id not in added_form_ids:
                             if plugin[1:3] == form_id[:2]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
-                        elif "[FE" in plugin:
+                                added_form_ids.add(form_id)
+                        elif "[FE" in plugin and form_id not in added_form_ids:
                             if plugin[1:6] == form_id[:5]:
                                 form_ids.append(f"Form ID: {form_id} | {plugin}")
+                                added_form_ids.add(form_id)
                 else:
-                    form_ids.append(form_id)
+                    known_plugins = ("Fallout4.esm", "DLCRobot.esm", "DLCworkshop01.esm", "DLCCoast.esm", "DLCworkshop02.esm", "DLCworkshop03.esm", "DLCNukaWorld.esm")
+                    if known_prefix_pattern.match(form_id) and form_id not in added_form_ids:
+                        known_plugin = known_plugins[int(form_id[:2])]
+                        form_ids.append(f"Form ID: {form_id} | {known_plugin}")
+                        added_form_ids.add(form_id)
+                    else:
+                        if form_id not in added_form_ids:
+                            form_ids.append(f"Form ID: {form_id} | Unknown Plugin")
+                            added_form_ids.add(form_id)
 
         return sorted(set(form_ids))
 
@@ -187,11 +320,7 @@ def scan_logs():
         named_records = sorted(named_records)
         return dict(Counter(named_records))
 
-    def write_named_records(output, named_records):
-        '''nr = set(named_records.keys())  # I picked set because a dict_keys object is based on the set built-in type (same for items and values).
-        for item in nr:
-            if plugins_pattern.search(item):
-                del named_records[item]'''  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
+    def write_named_records(output, named_records):  # demo code for the plugin extension regular expression, removes a plugin from the named records dictionary if it matches the pattern.
 
         if not named_records:
             output.writelines(["* CLAS COULDN'T FIND ANY NAMED RECORDS *\n",
@@ -208,7 +337,7 @@ def scan_logs():
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': regx.search('CanarySaveFileMonitor', logtext),
+                'condition': regx.search('CanarySaveFileMonitor', section_plugins_text),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
@@ -218,12 +347,12 @@ def scan_logs():
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search("PPF.esm", logtext),
+                'condition': regx.search("PPF", section_plugins_text),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': regx.search("Unofficial Fallout 4 Patch.esp", logtext),
+                'condition': regx.search("Unofficial Fallout 4 Patch", section_plugins_text),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
@@ -353,8 +482,11 @@ def scan_logs():
         scan_game_files()
         scan_wryecheck()
         scan_mod_inis()
+    
+    logs = list(Path(SCAN_folder).glob("crash-*.log"))
+    # logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))  # Keeping this out of public release for now.
 
-    for file in Path(SCAN_folder).glob("crash-*.log"):
+    for file in logs:
         scanpath, logname, logtext, loglines = process_file_data(file)
 
         with scanpath.open("w", encoding="utf-8", errors="ignore") as output:
@@ -363,26 +495,30 @@ def scan_logs():
                           "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES #\n",
                           "====================================================\n")
                 return header
+            
+            try:
+                log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
+            except (IndexError, StopIteration):
+                statL_failed += 1
+                continue
 
             output.writelines(build_header(logname, UNIVERSE.CLAS_Current[-4:]))
 
-            # DEFINE LINE INDEXES HERE
+            # DEFINE VERSION AND ERROR CODE
             crash_ver_match = crash_ver_pattern.search(logtext)
             crash_ver = crash_ver_match.group() if crash_ver_match else "❌ Buffout Version Not Found"
             error_match = unhandled_exception_pattern.search(logtext)
             crash_error = error_match.group() if error_match else "❌ Error Not Found"
 
-            section_stack_list, section_stack_text, section_plugins_list, plugins_loaded = process_log_sections(loglines)
-
+            section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded = process_log_sections(loglines)
             # BUFFOUT VERSION CHECK
             output.writelines([f"Main Error: {crash_error}\n",
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
-
-            if crash_ver.casefold() == GALAXY.CRASHGEN_OLD.casefold():
+            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold() :
                 output.write("✔️ You have the latest version of Buffout 4!")
-            elif crash_ver.casefold() == GALAXY.CRASHGEN_NEW.casefold():
+            elif isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_Outdated_Buffout4"])
@@ -393,31 +529,36 @@ def scan_logs():
 
             fcx_mode = UNIVERSE.CLAS_config["FCX_Mode"]
 
-            if fcx_mode == "true":
+            if fcx_mode:
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Enabled"])
                 for item in GALAXY.scan_game_report:
                     output.write(f"{item}\n")
             else:
                 output.write(GALAXY.Warnings["Warn_SCAN_FCX_Disabled"])
 
-                achievements_status = "Achievements: true" in logtext
-                memory_manager_status = "MemoryManager: true" in logtext
-                f4ee_status = "F4EE: false" in logtext
+                try:
+                    if (log_config_section["Patches"]["Achievements"] and "achievements.dll" in logtext) or (log_config_section["Patches"]["Achievements"] and "UnlimitedSurvivalMode.dll" in logtext):
+                        output.write(GALAXY.Warnings["Warn_TOML_Achievements"])
+                    else:
+                        output.write("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                except KeyError:
+                    output.write("❌ Achievements parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
-                if (achievements_status and "achievements.dll" in logtext) or (achievements_status and "UnlimitedSurvivalMode.dll" in logtext):
-                    output.write(GALAXY.Warnings["Warn_TOML_Achievements"])
-                else:
-                    output.write("✔️ Achievements parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                try:
+                    if log_config_section["Patches"]["MemoryManager"] and "BakaScrapHeap.dll" in logtext:
+                        output.write(GALAXY.Warnings["Warn_TOML_Memory"])
+                    else:
+                        output.write("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                except KeyError:
+                    output.write("❌ Memory Manager parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
-                if memory_manager_status and "BakaScrapHeap.dll" in logtext:
-                    output.write(GALAXY.Warnings["Warn_TOML_Memory"])
-                else:
-                    output.write("✔️ Memory Manager parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
-
-                if f4ee_status and "f4ee.dll" in logtext:
-                    output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
-                else:
-                    output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                try:
+                    if not log_config_section["Compatibility"]["F4EE"] and "f4ee.dll" in logtext:
+                        output.write(GALAXY.Warnings["Warn_TOML_F4EE"])
+                    else:
+                        output.write("✔️ Looks Menu (F4EE) parameter in *Buffout4.toml* is correctly configured.\n  -----\n")
+                except KeyError:
+                    output.write("❌ Looks Menu (F4EE) parameter of *Buffout4.toml* is not present in the log.\n  -----\n")
 
             output.writelines(["====================================================\n",
                                "CHECKING IF LOG MATCHES ANY KNOWN CRASH CULPRITS...\n",
@@ -454,12 +595,15 @@ def scan_logs():
                 for line in section_plugins_list:
                     for mod_data in mods:  # changed from mods.values()
                         mod_data_match = mod_data["mod"].search(line)
-                        if "File:" not in line and mod_data_match and mod_data_match.group() not in LCL_skip_list:
+                        mod_data_group = mod_data_match.group() if mod_data_match else None
+                        esl_search = plugins_formid_regex_esl.search(line) if "[FE" in line else None
+                        if "File:" not in line and mod_data_match and mod_data_group not in LCL_skip_list:
                             warn = ''.join(mod_data["warn"])
-                            prefix = line[0:5] if "[FE" not in line else line[0:9]
-                            if mod_data_match.group() not in mods_found:
+                            # prefix = line[0:5] if "[FE" not in line else line[0:9]
+                            prefix = process_match(esl_search) if "[FE" in line and esl_search else plugins_formid_regex_esp.sub(r"[0\1]", line[0:5])
+                            if mod_data_group not in mods_found:
                                 output.writelines([f"[!] Found: {prefix} {warn}\n", "-----\n"])
-                            mods_found.add(mod_data_match.group())
+                            mods_found.add(mod_data_group)
                             mod_trap = True
 
                 return mod_trap
@@ -471,7 +615,7 @@ def scan_logs():
                 for mod_data in mods:  # changed from mods.values()
                     mod1_match = mod_data["mod_1"].search(logtext)
                     mod2_match = mod_data["mod_2"].search(logtext)
-                    if mod1_match and mod2_match:
+                    if isinstance(mod1_match, regx.Match) and isinstance(mod2_match, regx.Match):
                         warn = ''.join(mod_data["warn"])
                         output.writelines([f"[!] CAUTION : {warn}\n", "-----\n"])
                         mod_trap = True
@@ -768,9 +912,6 @@ if __name__ == "__main__":  # AKA only autorun / do the following when NOT impor
 
     if isinstance(args.imi_mode, bool) and not args.imi_mode == UNIVERSE.CLAS_config["IMI_Mode"]:
         clas_toml_update("IMI_Mode", args.imi_mode)
-
-    if isinstance(args.stat_logging, bool) and not args.stat_logging == UNIVERSE.CLAS_config["Stat_Logging"]:
-        clas_toml_update("Stat_Logging", args.stat_logging)
 
     if isinstance(args.move_unsolved, bool) and not args.move_unsolved == UNIVERSE.CLAS_config["Move_Unsolved"]:
         clas_toml_update("Move_Unsolved", args.move_unsolved)

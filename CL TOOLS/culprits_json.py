@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 input_dict = {
             'Stack Overflow Crash': {
@@ -221,6 +222,5 @@ input_dict = {
                 'error_conditions': "xxxxx", 'stack_conditions': "HUDAmmoCounter",
                 'description': '  Checking for *[HUD / Interface Crash]....... DETECTED! > Severity : [1] *\n'},
         }
-
-with open('crash_culprits.json', 'w') as fp:
+with open(str(Path.cwd().parent.joinpath('crash_culprits.json')), 'w') as fp:
     json.dump(input_dict, fp, indent=4)
