@@ -1135,7 +1135,7 @@ class ClasCheckMods:
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?LegendaryModification(?:\.esp)?$", regx.MULTILINE),
          "warn": ["LEGENDARY MODIFICATION \n",
                   "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
-                  "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files"]},
+                  "  Better Alternative: https://www.nexusmods.com/fallout4/mods/66900?tab=files"]},
 
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?LooksMenu Customization Compendium(?:\.esp)?$", regx.MULTILINE),
          "warn": ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",
