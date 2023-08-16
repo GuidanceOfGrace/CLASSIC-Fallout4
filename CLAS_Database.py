@@ -1130,7 +1130,8 @@ class ClasCheckMods:
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?Homemaker(?:\.esm)?$", regx.MULTILINE),
          "warn": ["HOMEMAKER \n",
                   "- Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n",
-                  "  Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
+                  "  Make sure you are using at least version 1.73\n",
+                  "  Patch for older versions: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
 
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?LegendaryModification(?:\.esp)?$", regx.MULTILINE),
          "warn": ["LEGENDARY MODIFICATION \n",
