@@ -2,12 +2,10 @@
 import json
 import os
 import random
-
 try:
     import regex as regx
 except ImportError:
     import re as regx
-
 import shutil
 import time
 from collections import Counter
@@ -69,12 +67,10 @@ def scan_logs():
     plugins_formid_regex_esl = regx.compile(r"\[FE:(?:\s+)?([0-9a-fA-F\s]+)\]\s+?(.*)")
     plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\]\s+?(.*)")
     # =================== HELPER FUNCTIONS ===================
-
     def process_match(match):
         # Remove spaces and add leading zeroes if necessary
         processed = "{:0>3}".format(match.group(1).strip())
         return "[FE:" + processed + "]"
-
     def config_parse(logtext):
         """
         Parses a string of text containing key-value pairs and sections into a dictionary.
@@ -115,7 +111,7 @@ def scan_logs():
                         value = False
                 data_dict[current_section][key] = value
         return data_dict
-
+    
     def parse_log_config_section(logtext):
         """
         Extracts a section of a log file containing configuration data and warnings, and converts it into a dictionary.
@@ -151,7 +147,7 @@ def scan_logs():
 
         # Convert the extracted text into a dictionary
         extracted_dict = config_parse(extracted_text_including_warnings_str)
-
+        
         return extracted_dict
 
     def process_file_data(file: Path):
@@ -219,13 +215,13 @@ def scan_logs():
             plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
-
+        
         for line in section_plugins_list:
             if "[FE" in line:
                 esl_match = plugins_formid_regex_esl.search(line)
                 if esl_match:
                     line = f"{process_match(esl_match)} {esl_match.group(2)}"
-
+        
         section_plugins_text = '\n'.join(section_plugins_list)
 
         return section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded
@@ -341,7 +337,7 @@ def scan_logs():
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': regx.search(r'CanarySaveFileMonitor(?:\.esl)?', section_plugins_text),
+                'condition': regx.search('CanarySaveFileMonitor', section_plugins_text),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
@@ -351,17 +347,12 @@ def scan_logs():
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search(r"PPF(?:\.esm)?", section_plugins_text),
-                'description': 'This is a highly recommended mod that can improve performance. Use this if you are not using FROST.',
-                'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files',
-            },
-            'FROST Cell Fixes': {
-                'condition': regx.search(r"FCF_Main(?:\.esp)?", section_plugins_text),
-                'description': 'This is a highly recommended mod that can improve performance. Use this instead of Previs Repair Pack if using FROST.',
-                'link': 'https://www.nexusmods.com/fallout4/mods/59652?tab=files'
+                'condition': regx.search("PPF", section_plugins_text),
+                'description': 'This is a highly recommended mod that can improve performance.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': regx.search(r"Unofficial Fallout 4 Patch(?:\.esp)?", section_plugins_text),
+                'condition': regx.search("Unofficial Fallout 4 Patch", section_plugins_text),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
@@ -385,13 +376,6 @@ def scan_logs():
             }
         }
         if plugins_loaded:
-            FCF_PPF_Warning = True if Core_Mods["Previs Repair Pack"]["condition"] and Core_Mods["FROST Cell Fixes"]["condition"] else False
-            FCF_PPF_Find = True if Core_Mods["Previs Repair Pack"]["condition"] or Core_Mods["FROST Cell Fixes"]["condition"] else False
-            PPF_Find = True if Core_Mods["Previs Repair Pack"]["condition"] else False
-            FCF_Find = True if Core_Mods["FROST Cell Fixes"]["condition"] else False
-            FCF_PPF_Warning_Count = 0
-            FCF_PPF_Find_Count = 0
-
             def write_installed(output, mod_name):
                 output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
@@ -407,61 +391,12 @@ def scan_logs():
                              f"   You should uninstall {mod_name} to avoid any problems.\n"
                              "  -----\n")
 
-            def write_FCF_PPF_warning(output):
-                output.write("# ❓ FROST CELL FIXES AND PREVIS REPAIR PACK ARE BOTH ACTIVE!\n"
-                             "   Pick the one that matches your setup (FCF if you're using FROST, otherwise PRP).\n"
-                             "  -----\n")
-
             for mod_name, mod_data in Core_Mods.items():
                 mod_condition = mod_data['condition']
                 nvidia_specific = mod_data.get('nvidia_specific', False)
                 amd_specific = mod_data.get('amd_specific', False)
 
-                if Core_Mods["Previs Repair Pack"]["condition"] and Core_Mods["FROST Cell Fixes"]["condition"] and mod_name in ("Previs Repair Pack", "FROST Cell Fixes"):
-                    if not FCF_PPF_Warning_Count:
-                        write_FCF_PPF_warning(output)
-                        FCF_PPF_Warning_Count += 1
-                    continue
-
-                if FCF_PPF_Warning and mod_name in ("Previs Repair Pack", "FROST Cell Fixes"):
-                    if FCF_PPF_Warning_Count == 0 and FCF_PPF_Warning:
-                        write_FCF_PPF_warning(output)
-                        FCF_PPF_Warning_Count += 1
-                        continue
-                elif not FCF_PPF_Warning and mod_name in ("Previs Repair Pack", "FROST Cell Fixes"):
-                    if FCF_PPF_Find:
-                        if FCF_Find and mod_name == "FROST Cell Fixes" and not FCF_PPF_Find_Count:
-                            write_installed(output, mod_name)
-                            FCF_PPF_Find_Count += 1
-                            continue
-                        elif not FCF_Find and mod_name == "FROST Cell Fixes" and not FCF_PPF_Find_Count:
-                            write_not_installed(output, mod_name, mod_data)
-                            FCF_PPF_Find_Count += 1
-                            continue
-                        elif PPF_Find and mod_name == "Previs Repair Pack" and not FCF_PPF_Find_Count:
-                            if regx.search(r"(?:FROST\.esp)?", section_plugins_text):
-                                output.write("# ❓ PREVIS REPAIR PACK IS INSTALLED BUT... FROST IS ALSO INSTALLED #\n"
-                                                   "   Disable Previs Repair Pack and download FROST Cell Fixes.\n"
-                                                   f"   Link: {Core_Mods['FROST Cell Fixes']['link']}\n"
-                                                   "  -----\n")
-                                FCF_PPF_Find_Count += 1
-                                continue
-                            else:
-                                write_installed(output, mod_name)
-                                FCF_PPF_Find_Count += 1
-                                continue
-                        elif not PPF_Find and mod_name == "Previs Repair Pack" and not FCF_PPF_Find_Count:
-                            write_not_installed(output, mod_name, mod_data)
-                            FCF_PPF_Find_Count += 1
-                            continue
-                    else:
-                        if not FCF_PPF_Find_Count:
-                            write_not_installed(output, "Previs Repir Pack", mod_data)
-                            write_not_installed(output, "FROST Cell Fixes", mod_data)
-                            FCF_PPF_Find_Count += 1
-                        continue
-
-                if (gpu_amd or gpu_other) and not mod_name in ("Previs Repair Pack", "FROST Cell Fixes"):
+                if gpu_amd or gpu_other:
                     if nvidia_specific and mod_condition:
                         write_nvidia_warning(output, mod_name)
                         continue
@@ -474,7 +409,7 @@ def scan_logs():
                     if nvidia_specific:
                         continue
 
-                if gpu_nvidia and not mod_name in ("Previs Repair Pack", "FROST Cell Fixes"):
+                if gpu_nvidia:
                     if amd_specific or "Vulkan" in mod_name:
                         continue
                     if nvidia_specific:
@@ -484,7 +419,7 @@ def scan_logs():
                             write_not_installed(output, mod_name, mod_data)
                         continue
 
-                if not (amd_specific or nvidia_specific) and mod_name not in ("Previs Repair Pack", "FROST Cell Fixes"):
+                if not (amd_specific or nvidia_specific):
                     if mod_condition:
                         write_installed(output, mod_name)
                     else:
@@ -547,7 +482,7 @@ def scan_logs():
         scan_game_files()
         scan_wryecheck()
         scan_mod_inis()
-
+    
     logs = list(Path(SCAN_folder).glob("crash-*.log"))
     # logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))  # Keeping this out of public release for now.
 
@@ -560,7 +495,7 @@ def scan_logs():
                           "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES #\n",
                           "====================================================\n")
                 return header
-
+            
             try:
                 log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
             except (IndexError, StopIteration):
@@ -581,7 +516,7 @@ def scan_logs():
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
-            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold():
+            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold() :
                 output.write("✔️ You have the latest version of Buffout 4!")
             elif isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
