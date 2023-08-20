@@ -335,41 +335,49 @@ def scan_logs():
                                "-----\n"])
 
     def check_core_mods():
+        canary_save_file_monitor = regx.compile(r'CanarySaveFileMonitor(?:\.esl)?', regx.IGNORECASE)
+        high_fps_physics_fix = regx.compile(r'HighFPSPhysicsFix(?:VR)?\.dll', regx.IGNORECASE)
+        previs_repair_pack = regx.compile(r'PPF(?:\.esm)?', regx.IGNORECASE)
+        unofficial_fallout_4_patch = regx.compile(r'Unofficial Fallout 4 Patch(?:\.esp)?', regx.IGNORECASE)
+        vulkan_renderer = regx.compile(r'vulkan-1\.dll', regx.IGNORECASE)
+        nvidia_weapon_debris_fix = regx.compile(r'WeaponDebrisCrashFix\.dll', regx.IGNORECASE)
+        nvidia_reflex_support = regx.compile(r'NVIDIA_Reflex\.dll', regx.IGNORECASE)
+
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': regx.search('CanarySaveFileMonitor', section_plugins_text),
+                'condition': canary_save_file_monitor.search(section_plugins_text),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
             'High FPS Physics Fix': {
-                'condition': regx.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext),
+                'condition': high_fps_physics_fix.search(logtext),
                 'description': 'This is a mandatory patch / fix that prevents game engine problems.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search("PPF", section_plugins_text),
+                'condition': previs_repair_pack.search(section_plugins_text),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': regx.search("Unofficial Fallout 4 Patch", section_plugins_text),
+                'condition': unofficial_fallout_4_patch.search(section_plugins_text),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': regx.search("vulkan-1.dll", logtext),
+                'condition': vulkan_renderer.search(logtext),
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': regx.search('WeaponDebrisCrashFix.dll', logtext),
+                'condition': nvidia_weapon_debris_fix.search(logtext),
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
-                'condition': regx.search('NVIDIA_Reflex.dll', logtext),
+                'condition': nvidia_reflex_support.search(logtext),
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
                 'nvidia_specific': True
