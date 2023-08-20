@@ -337,7 +337,7 @@ def scan_logs():
     def check_core_mods():
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': regx.search('CanarySaveFileMonitor', section_plugins_text),
+                'condition': regx.search(r'CanarySaveFileMonitor(?:\.esl)?', section_plugins_text),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
@@ -347,9 +347,14 @@ def scan_logs():
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search("PPF", section_plugins_text),
-                'description': 'This is a highly recommended mod that can improve performance.',
-                'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
+                'condition': regx.search(r"PPF(?:\.esm)?", section_plugins_text),
+                'description': 'This is a highly recommended mod that can improve performance. Use this if not using FROST.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files',
+            },
+            'FROST Cell Fixes': {
+                'condition': regx.search(r"FCF_Main(?:\.esp)?", section_plugins_text),
+                'description': 'This is a highly recommended mod that can improve performance. Use this instead of Previs Repair Pack if using FROST.',
+                'link': 'https://www.nexusmods.com/fallout4/mods/59652?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
                 'condition': regx.search("Unofficial Fallout 4 Patch", section_plugins_text),
@@ -376,6 +381,7 @@ def scan_logs():
             }
         }
         if plugins_loaded:
+            FCF_PPF_Warning_Count = 0
             def write_installed(output, mod_name):
                 output.write(f"✔️ *{mod_name}* is installed.\n  -----\n")
 
@@ -390,12 +396,20 @@ def scan_logs():
                              "   NVIDIA GPU WAS NOT DETECTED, THIS MOD WILL DO NOTHING!\n"
                              f"   You should uninstall {mod_name} to avoid any problems.\n"
                              "  -----\n")
+            def write_FCF_PPF_warning(output):
+                output.write(f"# ❓ FROST CELL FIXES AND PREVIS REPAIR PACK ARE BOTH ACTIVE!\n"
+                             "   This is not recommended and can cause problems.\n"
+                             "  -----\n")
 
             for mod_name, mod_data in Core_Mods.items():
                 mod_condition = mod_data['condition']
                 nvidia_specific = mod_data.get('nvidia_specific', False)
                 amd_specific = mod_data.get('amd_specific', False)
-
+                if (mod_name == 'Previs Repair Pack' and regx.search(r"FCF_Main(?:\.esp)?", section_plugins_text)) or (mod_name == 'FROST Cell Fixes' and regx.search(r"PPF(?:\.esm)?", section_plugins_text)):
+                    if FCF_PPF_Warning_Count == 0:
+                        write_FCF_PPF_warning(output)
+                        FCF_PPF_Warning_Count += 1
+                    continue
                 if gpu_amd or gpu_other:
                     if nvidia_specific and mod_condition:
                         write_nvidia_warning(output, mod_name)
