@@ -432,7 +432,7 @@ class ClasSpecificVars:
 
     def crashgen_update_check(self):
         try:
-            request = requests.get("https://raw.githubusercontent.com/GuidanceOfGrace/Buffout4-CLAS/main/crashgen.json", timeout=30)  # URL obviously temporary until PR merged.
+            request = requests.get("https://raw.githubusercontent.com/GuidanceOfGrace/Buffout4-CLAS/main/crashgen.json", timeout=30)
             if not request.status_code == requests.codes.ok:
                 request.raise_for_status()
             CRASHGEN = request.json()
