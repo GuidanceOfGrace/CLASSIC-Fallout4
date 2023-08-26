@@ -67,10 +67,12 @@ def scan_logs():
     plugins_formid_regex_esl = regx.compile(r"\[FE:(?:\s+)?([0-9a-fA-F\s]+)\]\s+?(.*)")
     plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\]\s+?(.*)")
     # =================== HELPER FUNCTIONS ===================
+
     def process_match(match):
         # Remove spaces and add leading zeroes if necessary
         processed = "{:0>3}".format(match.group(1).strip())
         return "[FE:" + processed + "]"
+
     def config_parse(logtext):
         """
         Parses a string of text containing key-value pairs and sections into a dictionary.
@@ -111,7 +113,7 @@ def scan_logs():
                         value = False
                 data_dict[current_section][key] = value
         return data_dict
-    
+
     def parse_log_config_section(logtext):
         """
         Extracts a section of a log file containing configuration data and warnings, and converts it into a dictionary.
@@ -147,7 +149,7 @@ def scan_logs():
 
         # Convert the extracted text into a dictionary
         extracted_dict = config_parse(extracted_text_including_warnings_str)
-        
+
         return extracted_dict
 
     def process_file_data(file: Path):
@@ -215,13 +217,13 @@ def scan_logs():
             plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
-        
+
         for line in section_plugins_list:
             if "[FE" in line:
                 esl_match = plugins_formid_regex_esl.search(line)
                 if esl_match:
                     line = f"{process_match(esl_match)} {esl_match.group(2)}"
-        
+
         section_plugins_text = '\n'.join(section_plugins_list)
 
         return section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded
@@ -490,7 +492,7 @@ def scan_logs():
         scan_game_files()
         scan_wryecheck()
         scan_mod_inis()
-    
+
     logs = list(Path(SCAN_folder).glob("crash-*.log"))
     # logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))  # Keeping this out of public release for now.
 
@@ -503,7 +505,7 @@ def scan_logs():
                           "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES #\n",
                           "====================================================\n")
                 return header
-            
+
             try:
                 log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
             except (IndexError, StopIteration):
@@ -524,7 +526,7 @@ def scan_logs():
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
-            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold() :
+            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold():
                 output.write("✔️ You have the latest version of Buffout 4!")
             elif isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
