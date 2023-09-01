@@ -128,7 +128,7 @@ Warnings_CRASHGEN:
 
   Warn_NOPlugins: |
     * [!] NOTICE : BUFFOUT 4 WAS NOT ABLE TO LOAD THE PLUGIN LIST FOR THIS CRASH LOG! *
-      CLASSIC cannot perform the full scan. Try scanning a different crash log
+      CLASSIC cannot perform the full scan. Provide or scan a different crash log
       OR copy-paste your *loadorder.txt* into your main CLASSIC folder.
 
 Warnings_XSE:
@@ -289,9 +289,9 @@ Crashlog_Stack_Check:
 
   "5 | Nvidia Driver Crash": [ME-OPT|nvwgf2umx, ME-OPT|USER32, nvwgf2umx.dll, USER32.dll]
 
-  "4 | Nvidia Reflex Crash": [ME-OPT|3A0000, ME-OPT|AD0000, ME-OPT|8E0000, ME-OPT|NVIDIA_Reflex, ME-OPT|Buffout4, NVIDIA_Reflex.dll, 3|Buffout4.dll]
+  "4 | Nvidia Reflex Crash": [ME-OPT|3A0000, ME-OPT|AD0000, ME-OPT|8E0000, ME-OPT|NVIDIA_Reflex, ME-OPT|Buffout4, NVIDIA_Reflex.dll]
 
-  "4 | Vulkan Memory Crash": [ME-OPT|KERNELBASE, ME-OPT|MSVCP140, KERNELBASE.dll, MSVCP140.dll, DxvkSubmissionQueue]
+  "4 | Vulkan Memory Crash": [ME-REQ|KERNELBASE, ME-OPT|MSVCP140, KERNELBASE.dll, MSVCP140.dll, DxvkSubmissionQueue]
 
   "5 | Vulkan Settings Crash": [ME-OPT|00CD99B, ME-OPT|amdvlk64, amdvlk64.dll, dxvk::DXGIAdapter, dxvk::DXGIFactory, VirtualLinearAllocatorWithNode]
 

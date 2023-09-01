@@ -113,7 +113,7 @@ def crashlogs_scan():
         main_files_check = CMain.func_combined_output()
     else:
         main_files_check = "❌ FCX Mode is not enabled, skipping game files check... \n-----\n"
-    
+
     # DETECT ONE WHOLE KEY (1 MOD) PER LOOP IN YAML DICT
     def detect_mods_single(yaml_dict):
         trigger_mod_found = False
@@ -275,7 +275,7 @@ def crashlogs_scan():
             if os.path.exists("loadorder.txt"):
                 autoscan_report.extend(["* ✔️ LOADORDER.TXT FILE FOUND IN THE CLASSIC FOLDER! *\n",
                                         "CLASSIC will now ignore plugins in all crash logs and only detect plugins in this file.\n",
-                                        "[ To disable this functionality, simply remove loadrder.txt from your CLASSIC folder. ]\n"])
+                                        "[ To disable this functionality, simply remove loadorder.txt from your CLASSIC folder. ]\n"])
                 with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_file:
                     loadorder_data = loadorder_file.readlines()
                 for elem in loadorder_data[1:]:
@@ -337,6 +337,7 @@ def crashlogs_scan():
             key_split = key.split(" | ", 1)
             error_req_found = error_opt_found = stack_found = False
             item_list = suspects_stack_list.get(key)
+            has_required_item = any("ME-REQ|" in elem for elem in item_list)
             for item in item_list:
                 if "|" in item:
                     item_split = item.split("|", 1)
@@ -357,10 +358,16 @@ def crashlogs_scan():
                         stack_found = True
 
             # print(f"TEST: {error_req_found} | {error_opt_found} | {stack_found}")
-            if (error_req_found and stack_found) or (error_opt_found or stack_found):
-                key_split[1] = key_split[1].ljust(max_warn_length, ".")
-                autoscan_report.append(f"# Checking for {key_split[1]} SUSPECT FOUND! > Severity : {key_split[0]} # \n-----\n")
-                trigger_suspect_found = True
+            if has_required_item:
+                if error_req_found:
+                    key_split[1] = key_split[1].ljust(max_warn_length, ".")
+                    autoscan_report.append(f"# Checking for {key_split[1]} SUSPECT FOUND! > Severity : {key_split[0]} # \n-----\n")
+                    trigger_suspect_found = True
+            else:
+                if error_opt_found or stack_found:
+                    key_split[1] = key_split[1].ljust(max_warn_length, ".")
+                    autoscan_report.append(f"# Checking for {key_split[1]} SUSPECT FOUND! > Severity : {key_split[0]} # \n-----\n")
+                    trigger_suspect_found = True
 
         if trigger_suspect_found:
             autoscan_report.extend(["* FOR DETAILED DESCRIPTIONS AND POSSIBLE SOLUTIONS TO ANY ABOVE DETECTED CRASH SUSPECTS *\n",
@@ -376,7 +383,7 @@ def crashlogs_scan():
         if not CMain.classic_settings("FCX Mode"):
             autoscan_report.extend(["* NOTICE: FCX MODE IS DISABLED. YOU CAN ENABLE IT TO DETECT PROBLEMS IN YOUR MOD & GAME FILES * \n",
                                     "[ FCX Mode can be enabled in the exe or CLASSIC Settings.yaml located in your CLASSIC folder. ] \n\n"])
-            
+
             crashgen_ignore = ["F4EE", "WaitForDebugger", "Achievements", "InputSwitch", "MemoryManager", "MemoryManagerDebug"]
             for line in segment_crashgen:
                 if "false" in line.lower() and all(elem.lower() not in line.lower() for elem in crashgen_ignore):
@@ -406,7 +413,7 @@ def crashlogs_scan():
         else:
             autoscan_report.extend(["* NOTICE: FCX MODE IS ENABLED. CLASSIC MUST BE RUN BY THE ORIGINAL USER FOR CORRECT DETECTION * \n",
                                     "[ To disable mod & game files detection, disable FCX Mode in the exe or CLASSIC Settings.yaml ] \n\n"])
-            
+
             autoscan_report.append(main_files_check)
 
         autoscan_report.extend(["====================================================\n",
