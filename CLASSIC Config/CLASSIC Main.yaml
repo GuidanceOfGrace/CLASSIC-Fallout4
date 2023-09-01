@@ -1,0 +1,212 @@
+# DYNAMIC DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.0+
+
+CLASSIC_Info:
+  # ========================================================================================
+  # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
+  # ========================================================================================
+  version: CLASSIC v7.00
+  version_date: 23.09.01 #YY/MM/DD
+  default_settings: |
+    # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
+    
+    CLASSIC_Settings:
+    
+    # Set to true if you want CLASSIC to periodically check for its own updates online through GitHub.
+      Update Check: true
+      
+    # Set to true if you want CLASSIC to prioritize scanning the Virtual Reality version of your game.
+      VR Mode: false
+      
+    # FCX - File Check Xtended | Set to true if you want CLASSIC to check the integrity of your game files and core mods.
+      FCX Mode: true
+      
+    # IMI - Ignore Manual Installation | Set to true if you want CLASSIC to hide / ignore most manual installation warnings.
+    # I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT using a mod manager.
+      IMI Mode: false
+    
+    # Set to true if you want CLASSIC to remove some unnecessary lines and redundant information from your crash log files.
+    # CAUTION: Changes will be permanent for each crash log you scan after. May hide info useful for debugger programs.
+      Simplify Logs: false
+    
+    # Set to true if you want CLASSIC to show extra stats about scanned logs in the command line / terminal window.
+    # NOTICE: This setting currently has no effect, crash log stats will be fully implemented in a future update. 
+      Show Statistics: false
+    
+    # Set to true if you want CLASSIC to move all unsolved logs and their autoscans to CL-UNSOLVED folder.
+    # Unsolved logs are all crash logs where CLASSIC didn't detect any known crash errors or suspects.
+      Move Unsolved Logs: false
+    
+    # Copy-paste your INI directory path below. Ex. INI Folder Path: INIFiles_Path = C:/Users/Zen/Documents/My Games/Fallout4
+    # If you are using MO2, I recommend disabling Profile Specific Game INI Files, located in Tools > Profiles
+      INI Folder Path:
+    
+    # Copy-paste your mod directory path below. This can be either your Fallout 4 / Data folder or your
+    # deployed mods folder (Ex. Mod Organizer 2 / mods | deployed mods folder is required if using MO2).
+      MODS Folder Path:
+    
+    # Copy-paste your custom scan folder path below. Ex. SCAN Custom Path: C:/Users/Zen/Documents/My Games/Fallout4/F4SE
+    # If no path is set, CLASSIC will search for crash logs in the same folder from which you are running the executable.
+      SCAN Custom Path:
+
+  default_ignorefile: |
+    # This file contains plugin names that CLASSIC will IGNORE while scanning your crash logs and mod files.
+    # When adding plugin names, make sure you add it under the correct game list, same applies to VR plugins.
+    
+    # To add plugin names yourself, make sure each plugin starts with a dash followed by a space,
+    # AND ends with either .esm | .esp | .esl | .dll | Uppercase / lowercase does not matter.
+    
+    CLASSIC_Ignore_Fallout4:
+      - Example Plugin.esp
+      - Another Example.esl
+      - Example_DLL.dll
+    
+    CLASSIC_Ignore_SkyrimSE:
+      - Example Plugin.esp
+      - Another Example.esl
+      - Example_DLL.dll
+
+# =================== WRYE BASH WARNINGS ==================
+
+Wrye_Warn:
+  Corrupted: |
+    ❓ Wrye Bash could not read these plugins, there's a high chance they are corrupted.
+      Resave them in Creation Kit and run Plugin Checker again to see if anything changed.
+      If corruption persists, consider completely removing these plugins and their mod files.
+
+  Incorrect ESL Flag: |
+    ❓ These plugins have an incorrectly assigned ESL flag or extension.
+      To fix, remove the ESL flag with xEdit or rename the extension to .esp.
+      They can frequently cause the game to crash if you don't fix these plugins.
+
+  Missing Masters: |
+    ❓ These plugins have missing requirements (required mods cannot be found).
+      Either install all missing requirements or completely remove these plugins.
+      Plugins with missing requirements won't work correctly and can crash the game.
+
+  Delinquent Masters: |
+    ❓ These plugins are not in the correct load order. You should run Wrye Bash
+      and reorder plugins with orange checkboxes until they turn green or yellow.
+      Incorrect load order will either crash the game or break some ingame items.
+
+  Old Header Form Versions: |
+    ❓ These plugins have a header that is older than the valid Creation Kit version.
+      Such plugins need to be resaved in Creation Kit to fix the incorrect header.
+
+  Deleted Navmeshes: |
+    ❓ These plugins have deleted navmeshes. These can often cause a crash
+      in specific areas. Try to find a patch that fixes their navmeshes
+      or disable these plugins first if you ever get a navmesh crash.
+
+  Deleted Base Records: |
+    ❓ These plugins have deleted base records. These might cause a crash
+      and deleted records can only be manually restored with xEdit.
+
+  HITMEs: |
+    ❓ These plugins contain Higher Index Than Master-list Entries, which are mainly
+      caused by improper xEdit or CK edits. Resave these plugins with Creation Kit.
+      If HITMEs persist, such plugins may not work correctly and can crash the game.
+
+  Duplicate FormIDs: |
+    ❓ These Form IDs occur at least twice in the listed plugins. This is undefined behavior
+      that may result in crashes or unpredictable issues and this can only be fixed with xEdit.
+      Contact the mod authors and consider uninstalling these plugins if you encounter problems.
+
+  Record Type Collisions: |
+    ❓ These Records are overriding each other, but have different record types. This behavior
+      can often lead to crashes or cause various issues and this can only be fixed with xEdit.
+      Contact the mod authors and consider uninstalling these plugins if you encounter problems.
+
+  Probable Injected Collisions: |
+    ❓ These Injected Records are overriding each other, but have different Editor IDs.
+      This can cause some problems and their Editor IDs should be renamed to match each other.
+      Contact the mod authors and consider uninstalling these plugins if you encounter problems.
+
+# ================= WN SEARCH IN TITLE =================
+  Invalid: |
+    ❓ These plugins were made with a non-standard or invalid Creation Kit version.
+      Resave these plugins in Creation Kit and check if problems or errors persist.
+
+  Cleaning With: |
+    ❓ These plugins contain ITMs and/or UDRs which should be cleaned manually with
+      Quick Auto Clean (QAC) or automatically with Plugin Auto Cleaning Tool (PACT).
+
+# =================== GLOBAL WARNINGS ==================
+
+Global_Warn:
+
+  Warn_SCAN_ArchInv: |
+    ❌ WARNING : Archive Invalidation / Loose Files setting is not enabled.
+      CLASSIC will now enable this setting automatically in the game INI files.
+    -----
+
+  Warn_SCAN_Log_Errors: |
+    [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS!
+    [ Errors do not necessarily mean that the mod is not working. ]
+    -----
+
+  Warn_SCAN_NOTE_DLL: |
+    * NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *
+    If that dll file belongs to a mod, that mod is a prime suspect for the crash.
+    -----
+
+# =============== INCLUDE & EXCLUDE LISTS ==============
+
+catch_log_errors:  # DETECT lines that contain *these* strings from .log files in Documents XSE folder.
+  - critical
+  - error
+  - failed
+
+catch_log_records:  # DETECT lines that contain *these* strings from all available Crash Logs.
+  - .bgsm
+  - .bto
+  - .btr
+  - .dds
+  - .dll+
+  - .fuz
+  - .hkb
+  - .hkx
+  - .ini
+  - .nif
+  - .pex
+  - .strings
+  - .swf
+  - .txt
+  - .uvd
+  - .wav
+  - .xwm
+  - data/
+  - data\\
+  - 'editorid:'
+  - 'file:'
+  - 'function:'
+  - 'name:'
+
+exclude_log_records:  # REMOVE lines that contain *these* strings from all crash logs while Simplify_Logs is true.
+ - '(char*) "	"'
+ - '(char*) ")"'
+ - '(char*) "("'
+ - '(char*) "]"'
+ - '(char*) "["'
+ - '(char*) "."'
+ - (size_t)
+ - (void* -> Fallout4.exe+
+ - (void* -> Fallout4VR.exe+
+ - (void*)
+ - Basic Render Driver
+
+exclude_log_errors:  # EXCLUDE lines that contain *these* strings from .log files in Documents XSE folder.
+  - failed to get next record
+  - failed to open pdb
+  - failed to register method
+  - keybind
+  - no errors with this
+  - unable to locate pdb
+
+exclude_log_files:  # EXCLUDE .log files that contain *these* strings while checking for other errors.
+  - CreationKit
+  - DumpStack
+  - HHS
+  - _dxgi
+  - cbpfo4
+  - crash-
+  - f4se

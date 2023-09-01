@@ -1,0 +1,15 @@
+# This file contains plugin names that CLASSIC will IGNORE while scanning your crash logs and mod files.
+# When adding plugin names, make sure you add it under the correct game list, same applies to VR plugins.
+
+# To add plugin names yourself, make sure each plugin starts with a dash followed by a space,
+# AND ends with either .esm | .esp | .esl | .dll | Uppercase / lowercase does not matter.
+
+CLASSIC_Ignore_Fallout4:
+  - Example Plugin.esp
+  - Another Example.esl
+  - Example DLL.dll
+
+CLASSIC_Ignore_SkyrimSE:
+  - Example Plugin.esp
+  - Another Example.esl
+  - Example DLL.dll
