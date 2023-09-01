@@ -543,6 +543,13 @@ Mods_SOLU:  # 3) MODS WITH SOLUTIONS & COMMUNITY PATCHES
           If you notice AAF related problems, remove latest version of Looks Menu and switch to 1.6.18.
         -----
 
+  AnimeRace_Nanako: |
+    Anime Race Nanako Chan
+        - Make sure you have the Skeleton Fixes installed for this mod.
+          Read the fixes description carefully for installation info.
+          Skeleton Fixes: https://www.nexusmods.com/fallout4/mods/56101
+        -----
+
   AWKCR: |
     Armor And Weapons Keywords
         - If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul
@@ -561,7 +568,14 @@ Mods_SOLU:  # 3) MODS WITH SOLUTIONS & COMMUNITY PATCHES
         - Contains few small issues and NPCs usually have trouble navigating the interior space.
           Patch Link: https://www.nexusmods.com/fallout4/mods/59329?tab=files
         -----
-        
+
+  CaN.esm: |
+    Crimes Against Nature
+        - Make sure you have the Skeleton Fixes installed for this mod.
+          Read the fixes description carefully for installation info.
+          Skeleton Fixes: https://www.nexusmods.com/fallout4/mods/56101
+        -----
+
   D.E.C.A.Y: |
     Decay Better Ghouls
         - You have to install DECAY Redux patch to prevent its audio files from crashing the game.
@@ -573,6 +587,12 @@ Mods_SOLU:  # 3) MODS WITH SOLUTIONS & COMMUNITY PATCHES
         - This mod needs a compatibility patch to forward changes made by the Unofficial Patch.
           Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM
           If you have Horizon installed or don't use UFO4P, this patch is not needed.
+        -----
+
+  FallSouls: |
+    Fallsouls Unpaused Game Menus
+        - Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.
+          Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.
         -----
 
   M8r_Item_Tags: |

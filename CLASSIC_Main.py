@@ -119,6 +119,7 @@ print("REMINDER: COMPATIBLE CRASH LOGS MUST START WITH 'crash-' AND MUST HAVE .l
 print("❓ PLEASE WAIT WHILE CLASSIC CHECKS YOUR SETTINGS AND GAME SETUP...")
 logging.debug(f"> > > STARTED {classic_ver}")
 
+
 # ================================================
 # CREATE REQUIRED FILES, SETTINGS & UPDATE CHECK
 # ================================================
@@ -544,6 +545,7 @@ def ini_check_gamecustom() -> str:
 
     message_output = "".join(message_list)
     return message_output
+
 
 # =========== OTHER ===========
 def func_combined_output():

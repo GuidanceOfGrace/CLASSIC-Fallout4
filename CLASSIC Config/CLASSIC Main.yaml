@@ -32,9 +32,9 @@ CLASSIC_Info:
     # NOTICE: This setting currently has no effect, crash log stats will be fully implemented in a future update. 
       Show Statistics: false
     
-    # Set to true if you want CLASSIC to move all unsolved logs and their autoscans to CL-UNSOLVED folder.
-    # Unsolved logs are all crash logs where CLASSIC didn't detect any known crash errors or suspects.
-      Move Unsolved Logs: false
+    # Set to true if you want CLASSIC to move all unsolved crash logs and their autoscans to CLASSIC UNSOLVED folder.
+    # Unsolved logs are all crash logs that are incomplete or in the wrong format.
+      Move Unsolved Logs: true
     
     # Copy-paste your INI directory path below. Ex. INI Folder Path: INIFiles_Path = C:/Users/Zen/Documents/My Games/Fallout4
     # If you are using MO2, I recommend disabling Profile Specific Game INI Files, located in Tools > Profiles

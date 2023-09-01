@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG, filename="CLASSIC Journal.log", filemod
 # ================================================
 def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
-    CLASSIC_folder = os.getcwd()
+    CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
     XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_F4SE")
     if CMain.classic_settings("VR Mode"):
@@ -31,7 +31,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
                 destination_file = fr"{CLASSIC_folder}/{crash_file.name}"
                 shutil.move(crash_file, destination_file)
 
-    crash_files = list(Path(CLASSIC_folder).glob("crash-*.log"))
+    crash_files = list(CLASSIC_folder.glob("crash-*.log"))
     if CUSTOM_folder:
         if Path(CUSTOM_folder).exists():
             crash_files.extend(Path(CUSTOM_folder).glob("crash-*.log"))
@@ -170,12 +170,15 @@ def crashlogs_scan():
     print("\nSCANNING LOGS, PLEASE WAIT...\n")
     scan_start_time = time.perf_counter()
     crashlog_list = crashlogs_get_files()
+    scan_failed_list = []
+    scan_folder = Path.cwd()
+    user_folder = Path.home()
+    scan_invalid_list = scan_folder.glob("crash-*.txt")
     stats_crashlog_scanned = stats_crashlog_incomplete = stats_crashlog_failed = 0
     logging.info(f"- - - INITIATED CRASH LOG FILE SCAN >>> CURRENTLY SCANNING {len(crashlog_list)} FILES")
     for crashlog_file in crashlog_list:
         autoscan_report = []
-        trigger_plugin_limit = False
-        trigger_plugins_loaded = False
+        trigger_plugin_limit = trigger_plugins_loaded = trigger_scan_failed = False
         with crashlog_file.open("r", encoding="utf-8", errors="ignore") as crash_log:
             crash_data_intact = crash_log.read()
             crash_log.seek(0)  # DON'T FORGET
@@ -190,7 +193,7 @@ def crashlogs_scan():
         # 1) CHECK EXISTENCE AND INDEXES OF EACH SEGMENT
         # ================================================
 
-        # Set default initial index values in case specific index is not found.
+        # Set default index values incase actual index is not found.
         index_crashgenver = 1
         index_mainerror = 3
         index_lastline: int = len(crash_data) - 1
@@ -225,8 +228,14 @@ def crashlogs_scan():
         segment_callstack = crashlog_generate_segment("probable call stack:", "modules:")
         segment_crashgen = crashlog_generate_segment("[compatibility]", "system specs:")
         segment_system = crashlog_generate_segment("system specs:", "probable call stack:")
-        segment_plugins = crashlog_generate_segment("plugins:", "???????")  # Second value doesn't matter.
+        segment_plugins = crashlog_generate_segment("plugins:", "???????")  # Non-existent value makes it go to last line.
         segment_callstack_intact = "".join(segment_callstack)
+        if not segment_plugins:
+            stats_crashlog_incomplete += 1
+        if len(crash_data) < 20:
+            stats_crashlog_scanned -= 1
+            stats_crashlog_failed += 1
+            trigger_scan_failed = True
 
         # ================== MAIN ERROR ==================
         crashlog_mainerror = crash_data[index_mainerror]
@@ -535,7 +544,11 @@ def crashlogs_scan():
         for line in segment_callstack:
             if any(item.lower() in line.lower() for item in classic_records_list):
                 if all(record.lower() not in line.lower() for record in game_ignore_records):
-                    records_matches.append(line.strip())
+                    if "[RSP+" in line:
+                        line = line[30:].strip()
+                        records_matches.append(line)
+                    else:
+                        records_matches.append(line.strip())
         if records_matches:
             records_found = dict(Counter(records_matches))
             for record, count in records_found.items():
@@ -555,16 +568,50 @@ def crashlogs_scan():
                                 "CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757\n",
                                 "CLASSIC | https://www.nexusmods.com/fallout4/mods/56255"])
 
+        # CHECK IF SCAN FAILED
+        stats_crashlog_scanned += 1
+        if trigger_scan_failed:
+            scan_failed_list.append(crashlog_file.name)
+
+        # HIDE PERSONAL USERNAME
+        for line in autoscan_report:
+            if user_folder.name in line:
+                line.replace(f"{user_folder.parent}\\{user_folder.name}", "******").replace(f"{user_folder.parent}/{user_folder.name}", "******")
+
+        # WRITE AUTOSCAN REPORT TO FILE
         autoscan_name = crashlog_file.name.replace(".log", "")
         with open(f"{autoscan_name}-AUTOSCAN.md", "w", encoding="utf-8", errors="ignore") as autoscan_file:
             logging.info(f"- - -> RUNNING CRASH LOG FILE SCAN >>> SCANNED {crashlog_file.name}")
             autoscan_output = "".join(autoscan_report)
             autoscan_file.write(autoscan_output)
 
+        if trigger_scan_failed and CMain.classic_settings("Move Unsolved"):
+            unsolved_folder = "CLASSIC UNSOLVED"
+            Path(unsolved_folder).mkdir(exist_ok=True)
+            autoscan_file = crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md")
+            crash_move = Path(unsolved_folder, crashlog_file.name)
+            scan_move = Path(unsolved_folder, autoscan_file.name)
+
+            if crashlog_file.exists():
+                shutil.move(crashlog_file, crash_move)
+            if autoscan_file.exists():
+                shutil.move(autoscan_file, scan_move)
+
+    # CHECK FOR FAILED OR INVALID CRASH LOGS
+    if scan_failed_list or scan_invalid_list:
+        print("❌ NOTICE : CLASSIC WAS UNABLE TO PROPERLY SCAN THE FOLLOWING LOG(S):")
+        print('\n'.join(scan_failed_list))
+        if scan_invalid_list:
+            for file in scan_invalid_list:
+                print(f"{file}\n")
+        print("===============================================================================")
+        print("Most common reason for this are logs being incomplete or in the wrong format.")
+        print("Make sure that your crash log files have the .log file format, NOT .txt! \n")
+
     # ================================================
     # CRASH LOG SCAN COMPLETE / TERMINAL OUTPUT
     # ================================================
-    logging.info("- - - COMPLETED CRASH LOG FILE SCAN >>> ALL LOGS SCANNED SUCCESSFULLY")
+    logging.info("- - - COMPLETED CRASH LOG FILE SCAN >>> ALL AVAILABLE LOGS SCANNED")
     print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
     print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md \n")
     print(f"{random.choice(classic_game_hints)}\n-----")
@@ -577,10 +624,10 @@ def crashlogs_scan():
     print("================================ CONTACT INFO =================================")
     print("DISCORD | Poet#9800 (guidance.of.grace) | https://discord.gg/DfFYJtt8p4")
     print("CLASSIC ON NEXUS | https://www.nexusmods.com/fallout4/mods/56255")
-    print("NEXUS PROFILE | https://www.nexusmods.com/users/64682231 \n")
+    print("NEXUS PROFILE | https://www.nexusmods.com/users/64682231")
     # Trying to generate Stat Logging for 0 valid logs can crash the script.
     if stats_crashlog_scanned == 0 and stats_crashlog_incomplete == 0:
-        print(" ❌ CLAS found no crash logs to scan or the scan failed.")
+        print("\n❌ CLAS found no crash logs to scan or the scan failed.")
         print("    There are no statistics to show (at this time).\n")
 
 
