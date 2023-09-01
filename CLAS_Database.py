@@ -127,7 +127,7 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
     with open("CLAS Settings.toml", "r", encoding="utf-8", errors="ignore") as toml_in:
         CLAS_TOML: tomlkit.TOMLDocument = tomlkit.parse(toml_in.read())
     CLAS_config: tomlkit.items.Table = CLAS_TOML["MAIN"]  # type: ignore
-    
+
     CLAS_Current = "CLAS v6.95"
     CLAS_Date = "250423"
 
@@ -148,6 +148,7 @@ class ClasUniversalVars:  # Set comment_prefixes to unused char to keep INI comm
 
 UNIVERSE = ClasUniversalVars()
 
+
 def clas_toml_import():
     if os.path.exists("CLAS Settings.ini"):
         print("\n 🛠️ Importing Settings from CLAS Settings.ini")
@@ -166,7 +167,9 @@ def clas_toml_import():
         os.remove("CLAS Settings.ini")
         print(" ✅ CLAS Settings.ini imported successfully!")
 
+
 clas_toml_import()
+
 
 class ClasSpecificVars:
     Game_Name = "Fallout 4"
@@ -426,10 +429,10 @@ class ClasSpecificVars:
   <LoadMethod Name=\"ImportAddressHook\"> TO <LoadMethod Name=\"OnThreadAttach\"> OR <LoadMethod Name=\"OnProcessAttach\">
   IF THE GAME STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR FO4 GAME FOLDER
 """}
-    
+
     def crashgen_update_check(self):
         try:
-            request = requests.get("https://raw.githubusercontent.com/evildarkarchon/Buffout4-CLAS/small-things-3/crashgen.json", timeout=30)  # URL obviously temporary until PR merged.
+            request = requests.get("https://raw.githubusercontent.com/GuidanceOfGrace/Buffout4-CLAS/main/crashgen.json", timeout=30)
             if not request.status_code == requests.codes.ok:
                 request.raise_for_status()
             CRASHGEN = request.json()
@@ -439,11 +442,15 @@ class ClasSpecificVars:
                 self.CRASHGEN_NEW = CRASHGEN["NEW"]
         except (OSError, requests.exceptions.RequestException):
             pass
+
+
 GALAXY = ClasSpecificVars()
 GALAXY.crashgen_update_check()
 
 # DO NOT USE @staticmethod FOR ANY, NOT CALLABLE FOR PYINSTALLER
 # =================== DEFINE LOCAL FILES ===================
+
+
 @dataclass
 class ClasLocalFiles:
     # GENERAL GAME FILES
@@ -665,20 +672,20 @@ class ClasCheckFiles:
         if SYSTEM.FO4_Custom_INI.is_file():
             try:
                 os.chmod(SYSTEM.FO4_Custom_INI, stat.S_IWRITE)
-                
+
                 INI_config = configparser.ConfigParser()
                 INI_config.optionxform = str  # type: ignore
                 INI_config.read(SYSTEM.FO4_Custom_INI)
-                
+
                 if "Archive" not in INI_config.sections():
                     GALAXY.scan_game_report.append(GALAXY.Warnings["Warn_SCAN_Arch_Inv"])
                     INI_config.add_section("Archive")
                 else:
                     GALAXY.scan_game_report.append("✔️ Archive Invalidation / Loose Files setting is already enabled in game INI files.")
-                
+
                 INI_config.set("Archive", "bInvalidateOlderFiles", "1")
                 INI_config.set("Archive", "sResourceDataDirsFinal", "")
-                
+
                 with open(SYSTEM.FO4_Custom_INI, "w+", encoding="utf-8", errors="ignore") as INI_custom:
                     INI_config.write(INI_custom, space_around_delimiters=False)
             except (configparser.MissingSectionHeaderError, configparser.ParsingError, OSError):
@@ -961,7 +968,7 @@ class ClasCheckMods:
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?WOTC(?:\.esp)?$", regx.MULTILINE),
          "warn": ["WAR OF THE COMMONWEALTH \n",
                   "[Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.]"]},
-        
+
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?NewCalibers_Modern(Firearms|Sidearms)(?:\.esp)?$", regx.MULTILINE),
          "warn": ["MODERN FIREARMS - NEW CALIBERS PATCH \n",
                   "Plugin is out of date and can cause severe crashes."]}  # Warning message is a placeholder.
@@ -1130,12 +1137,13 @@ class ClasCheckMods:
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?Homemaker(?:\.esm)?$", regx.MULTILINE),
          "warn": ["HOMEMAKER \n",
                   "- Causes a crash while scrolling over Military / BoS fences in the Settlement Menu. \n",
-                  "  Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
+                  "  Advice: Make sure you are using at least version 1.73 of this mod.\n",
+                  "  Patch link for older versions: https://www.nexusmods.com/fallout4/mods/41434?tab=files"]},
 
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?LegendaryModification(?:\.esp)?$", regx.MULTILINE),
          "warn": ["LEGENDARY MODIFICATION \n",
                   "- Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons. \n",
-                  "  Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files"]},
+                  "  Better Alternative: https://www.nexusmods.com/fallout4/mods/66900?tab=files"]},
 
         {"mod": regx.compile(r"(?:^\[.*\]\s*)+?LooksMenu Customization Compendium(?:\.esp)?$", regx.MULTILINE),
          "warn": ["LOOKS MENU CUSTOMIZATION COMPENDIUM \n",

@@ -67,10 +67,12 @@ def scan_logs():
     plugins_formid_regex_esl = regx.compile(r"\[FE:(?:\s+)?([0-9a-fA-F\s]+)\]\s+?(.*)")
     plugins_formid_regex_esp = regx.compile(r"\[\s+([\da-fA-F]{1,2})\]\s+?(.*)")
     # =================== HELPER FUNCTIONS ===================
+
     def process_match(match):
         # Remove spaces and add leading zeroes if necessary
         processed = "{:0>3}".format(match.group(1).strip())
         return "[FE:" + processed + "]"
+
     def config_parse(logtext):
         """
         Parses a string of text containing key-value pairs and sections into a dictionary.
@@ -111,7 +113,7 @@ def scan_logs():
                         value = False
                 data_dict[current_section][key] = value
         return data_dict
-    
+
     def parse_log_config_section(logtext):
         """
         Extracts a section of a log file containing configuration data and warnings, and converts it into a dictionary.
@@ -147,7 +149,7 @@ def scan_logs():
 
         # Convert the extracted text into a dictionary
         extracted_dict = config_parse(extracted_text_including_warnings_str)
-        
+
         return extracted_dict
 
     def process_file_data(file: Path):
@@ -215,13 +217,13 @@ def scan_logs():
             plugin_format = loadorder_path.read_text(encoding="utf-8", errors="ignore").strip().splitlines()
             section_plugins_list = ["[00]"] if not any("[00]" in elem for elem in plugin_format) else []
             section_plugins_list += [f"[LO] {line.strip()}" for line in plugin_format]
-        
+
         for line in section_plugins_list:
             if "[FE" in line:
                 esl_match = plugins_formid_regex_esl.search(line)
                 if esl_match:
                     line = f"{process_match(esl_match)} {esl_match.group(2)}"
-        
+
         section_plugins_text = '\n'.join(section_plugins_list)
 
         return section_stack_list, section_stack_text, section_plugins_list, section_plugins_text, plugins_loaded
@@ -335,41 +337,49 @@ def scan_logs():
                                "-----\n"])
 
     def check_core_mods():
+        canary_save_file_monitor = regx.compile(r'CanarySaveFileMonitor(?:\.esl)?', regx.IGNORECASE)
+        high_fps_physics_fix = regx.compile(r'HighFPSPhysicsFix(?:VR)?\.dll', regx.IGNORECASE)
+        previs_repair_pack = regx.compile(r'PPF(?:\.esm)?', regx.IGNORECASE)
+        unofficial_fallout_4_patch = regx.compile(r'Unofficial Fallout 4 Patch(?:\.esp)?', regx.IGNORECASE)
+        vulkan_renderer = regx.compile(r'vulkan-1\.dll', regx.IGNORECASE)
+        nvidia_weapon_debris_fix = regx.compile(r'WeaponDebrisCrashFix\.dll', regx.IGNORECASE)
+        nvidia_reflex_support = regx.compile(r'NVIDIA_Reflex\.dll', regx.IGNORECASE)
+
         Core_Mods = {
             'Canary Save File Monitor': {
-                'condition': regx.search('CanarySaveFileMonitor', section_plugins_text),
+                'condition': canary_save_file_monitor.search(section_plugins_text),
                 'description': 'This is a highly recommended mod that can detect save file corruption.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44949?tab=files'
             },
             'High FPS Physics Fix': {
-                'condition': regx.search(r"HighFPSPhysicsFix(?:VR)?\.dll", logtext),
+                'condition': high_fps_physics_fix.search(logtext),
                 'description': 'This is a mandatory patch / fix that prevents game engine problems.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/44798?tab=files'
             },
             'Previs Repair Pack': {
-                'condition': regx.search("PPF", section_plugins_text),
+                'condition': previs_repair_pack.search(section_plugins_text),
                 'description': 'This is a highly recommended mod that can improve performance.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/46403?tab=files'
             },
             'Unofficial Fallout 4 Patch': {
-                'condition': regx.search("Unofficial Fallout 4 Patch", section_plugins_text),
+                'condition': unofficial_fallout_4_patch.search(section_plugins_text),
                 'description': 'If you own all DLCs, make sure that the Unofficial Patch is installed.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/4598?tab=files'
             },
             'Vulkan Renderer': {
-                'condition': regx.search("vulkan-1.dll", logtext),
+                'condition': vulkan_renderer.search(logtext),
                 'description': 'This is a highly recommended mod that can improve performance on AMD GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48053?tab=files',
                 'amd_specific': True
             },
             'Nvidia Weapon Debris Fix': {
-                'condition': regx.search('WeaponDebrisCrashFix.dll', logtext),
+                'condition': nvidia_weapon_debris_fix.search(logtext),
                 'description': 'This is a mandatory patch / fix required for any and all Nvidia GPU models.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/48078?tab=files',
                 'nvidia_specific': True
             },
             'Nvidia Reflex Support': {
-                'condition': regx.search('NVIDIA_Reflex.dll', logtext),
+                'condition': nvidia_reflex_support.search(logtext),
                 'description': 'This is a highly recommended mod that can improve performance on Nvidia GPUs.',
                 'link': 'https://www.nexusmods.com/fallout4/mods/64459?tab=files',
                 'nvidia_specific': True
@@ -482,7 +492,7 @@ def scan_logs():
         scan_game_files()
         scan_wryecheck()
         scan_mod_inis()
-    
+
     logs = list(Path(SCAN_folder).glob("crash-*.log"))
     # logs.extend(Path(SCAN_folder).glob("crash-*.log.txt"))  # Keeping this out of public release for now.
 
@@ -495,7 +505,7 @@ def scan_logs():
                           "# FOR BEST VIEWING EXPERIENCE OPEN THIS FILE IN NOTEPAD++ | BEWARE OF FALSE POSITIVES #\n",
                           "====================================================\n")
                 return header
-            
+
             try:
                 log_config_section = parse_log_config_section(logtext)  # using logtext because loglines confuses the hell out of this function (probably because of all the post-processing done to loglines).
             except (IndexError, StopIteration):
@@ -516,7 +526,7 @@ def scan_logs():
                                "====================================================\n",
                                f"Detected Buffout Version: {crash_ver}\n",
                                f"Latest Buffout Version: {GALAXY.CRASHGEN_OLD[10:17]} / NG: {GALAXY.CRASHGEN_NEW[10:17]}\n"])
-            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold() :
+            if isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_OLD.casefold():
                 output.write("✔️ You have the latest version of Buffout 4!")
             elif isinstance(crash_ver_match, regx.Match) and crash_ver_match.group().casefold() == GALAXY.CRASHGEN_NEW.casefold():
                 output.write("✔️ You have the latest version of Buffout 4 NG!")
