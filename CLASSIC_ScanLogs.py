@@ -223,8 +223,8 @@ def crashlogs_scan():
         # ================================================
         # 2) GENERATE REQUIRED SEGMENTS FROM THE CRASH LOG
         # ================================================
-        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:") if xse_acronym else crashlog_generate_segment("modules:", "plugins:")
-        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:") if xse_acronym else crashlog_generate_segment("plugins:", "plugins:")
+        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:") if xse_acronym else ["modules:", "plugins:"]  # I need a better fix for this.
+        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:") if xse_acronym else ["plugins:", "plugins:"]
         segment_callstack = crashlog_generate_segment("probable call stack:", "modules:")
         segment_crashgen = crashlog_generate_segment("[compatibility]", "system specs:")
         segment_system = crashlog_generate_segment("system specs:", "probable call stack:")
