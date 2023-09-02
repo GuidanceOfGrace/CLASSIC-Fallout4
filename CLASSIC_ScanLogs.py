@@ -24,7 +24,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     if CMain.classic_settings("VR Mode"):
         XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_F4SE")
 
-    if Path(XSE_folder).exists():
+    if XSE_folder and Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
         if xse_crash_files:
             for crash_file in xse_crash_files:
@@ -46,7 +46,7 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
     for file in crash_files:
         with file.open("r", encoding="utf-8", errors="ignore") as crash_log:
             crash_data = crash_log.readlines()
-            truncated_lines = [line for line in crash_data if not any(string in line for string in remove_list)]
+            truncated_lines = [line for line in crash_data if remove_list and not any(string in line for string in remove_list)]
         with file.open("w", encoding="utf-8", errors="ignore") as crash_log:
             crash_log.writelines(truncated_lines)
 
@@ -63,7 +63,7 @@ def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old an
             crash_data = crash_log.readlines()
             index_plugins = 1
             for index, line in enumerate(crash_data):
-                if xse_acronym not in line and "PLUGINS:" in line:
+                if xse_acronym and xse_acronym not in line and "PLUGINS:" in line:
                     index_plugins = index
                     break
             for index, line in enumerate(crash_data):
@@ -158,7 +158,7 @@ def crashlogs_scan():
                     mod_found = True
                     continue
             if mod_found:
-                if gpu_rival in mod_warn.lower():
+                if gpu_rival and gpu_rival in mod_warn.lower():
                     autoscan_report.extend([f"❓ {mod_split[1]} is installed, BUT YOU DON'T HAVE AN {gpu_rival.upper()} GPU!\n",
                                             "THIS MOD IS NOT INTENDED FOR YOUR GPU, PLEASE REMOVE IT TO AVOID PROBLEMS!"])
                 else:
@@ -198,7 +198,7 @@ def crashlogs_scan():
         index_mainerror = 3
         index_lastline: int = len(crash_data) - 1
         for index, line in enumerate(crash_data):
-            if crashgen_logname.lower() in line.lower():
+            if crashgen_logname and crashgen_logname.lower() in line.lower():
                 index_crashgenver = index
             elif "unhandled exception" in line.lower():
                 index_mainerror = index
@@ -223,8 +223,8 @@ def crashlogs_scan():
         # ================================================
         # 2) GENERATE REQUIRED SEGMENTS FROM THE CRASH LOG
         # ================================================
-        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:")
-        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:")
+        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:") if xse_acronym else crashlog_generate_segment("modules:", "plugins:")
+        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:") if xse_acronym else crashlog_generate_segment("plugins:", "plugins:")
         segment_callstack = crashlog_generate_segment("probable call stack:", "modules:")
         segment_crashgen = crashlog_generate_segment("[compatibility]", "system specs:")
         segment_system = crashlog_generate_segment("system specs:", "probable call stack:")
@@ -335,36 +335,42 @@ def crashlogs_scan():
                                     "If that dll file belongs to a mod, that mod is a prime suspect for the crash. \n-----\n"])
         max_warn_length = 30
         trigger_suspect_found = False
-        for error in suspects_error_list:
-            error_split = error.split(" | ", 1)
-            if error_split[1] in crashlog_mainerror:
-                error_split[1] = error_split[1].ljust(max_warn_length, ".")
-                autoscan_report.append(f"# Checking for {error_split[1]} SUSPECT FOUND! > Severity : {error_split[0]} # \n-----\n")
-                trigger_suspect_found = True
-
-        for key in suspects_stack_list:
-            key_split = key.split(" | ", 1)
-            error_req_found = error_opt_found = stack_found = False
-            item_list = suspects_stack_list.get(key)
-            has_required_item = any("ME-REQ|" in elem for elem in item_list)
-            for item in item_list:
-                if "|" in item:
-                    item_split = item.split("|", 1)
-                    if item_split[0] == "ME-REQ":
-                        if item_split[1] in crashlog_mainerror:
-                            error_req_found = True
-                    elif item_split[0] == "ME-OPT":
-                        if item_split[1] in crashlog_mainerror:
-                            error_opt_found = True
-                    elif item_split[0].isdecimal():
-                        if segment_callstack_intact.count(item_split[1]) >= int(item_split[0]):
+        if suspects_error_list:
+            for error in suspects_error_list:
+                error_split = error.split(" | ", 1)
+                if error_split[1] in crashlog_mainerror:
+                    error_split[1] = error_split[1].ljust(max_warn_length, ".")
+                    autoscan_report.append(f"# Checking for {error_split[1]} SUSPECT FOUND! > Severity : {error_split[0]} # \n-----\n")
+                    trigger_suspect_found = True
+        has_required_item = []
+        error_req_found = False
+        key_split = []
+        error_opt_found = False
+        stack_found = False
+        if suspects_stack_list:
+            for key in suspects_stack_list:
+                key_split = key.split(" | ", 1)
+                error_req_found = error_opt_found = stack_found = False
+                item_list = suspects_stack_list.get(key)
+                has_required_item = any("ME-REQ|" in elem for elem in item_list)
+                for item in item_list:
+                    if "|" in item:
+                        item_split = item.split("|", 1)
+                        if item_split[0] == "ME-REQ":
+                            if item_split[1] in crashlog_mainerror:
+                                error_req_found = True
+                        elif item_split[0] == "ME-OPT":
+                            if item_split[1] in crashlog_mainerror:
+                                error_opt_found = True
+                        elif item_split[0].isdecimal():
+                            if segment_callstack_intact.count(item_split[1]) >= int(item_split[0]):
+                                stack_found = True
+                        elif item_split[0] == "NOT":
+                            if item_split[1] in segment_callstack_intact:
+                                break
+                    else:
+                        if item in segment_callstack_intact:
                             stack_found = True
-                    elif item_split[0] == "NOT":
-                        if item_split[1] in segment_callstack_intact:
-                            break
-                else:
-                    if item in segment_callstack_intact:
-                        stack_found = True
 
             # print(f"TEST: {error_req_found} | {error_opt_found} | {stack_found}")
             if has_required_item:
@@ -505,7 +511,7 @@ def crashlogs_scan():
         for line in segment_callstack:
             for plugin in crashlog_plugins:
                 if plugin.lower() in line.lower() and "modified by:" not in line.lower():
-                    if all(ignore.lower() not in plugin.lower() for ignore in game_ignore_plugins):
+                    if game_ignore_plugins and all(ignore.lower() not in plugin.lower() for ignore in game_ignore_plugins):
                         plugins_matches.append(plugin)
 
         if plugins_matches:
@@ -542,8 +548,8 @@ def crashlogs_scan():
         autoscan_report.append("# LIST OF DETECTED (NAMED) RECORDS #\n")
         records_matches = []
         for line in segment_callstack:
-            if any(item.lower() in line.lower() for item in classic_records_list):
-                if all(record.lower() not in line.lower() for record in game_ignore_records):
+            if classic_records_list and any(item.lower() in line.lower() for item in classic_records_list):
+                if game_ignore_records and all(record.lower() not in line.lower() for record in game_ignore_records):
                     if "[RSP+" in line:
                         line = line[30:].strip()
                         records_matches.append(line)
@@ -614,7 +620,7 @@ def crashlogs_scan():
     logging.info("- - - COMPLETED CRASH LOG FILE SCAN >>> ALL AVAILABLE LOGS SCANNED")
     print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
     print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md \n")
-    print(f"{random.choice(classic_game_hints)}\n-----")
+    print(f"{random.choice(classic_game_hints if classic_game_hints else '')}\n-----")
     print(f"Scanned all available logs in {str(time.perf_counter() - 0.5 - scan_start_time)[:5]} seconds.")
     print(f"Number of Scanned Logs (No Autoscan Errors): {stats_crashlog_scanned}")
     print(f"Number of Incomplete Logs (No Plugins List): {stats_crashlog_incomplete}")
