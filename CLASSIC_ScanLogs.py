@@ -620,7 +620,7 @@ def crashlogs_scan():
     logging.info("- - - COMPLETED CRASH LOG FILE SCAN >>> ALL AVAILABLE LOGS SCANNED")
     print("SCAN COMPLETE! (IT MIGHT TAKE SEVERAL SECONDS FOR SCAN RESULTS TO APPEAR)")
     print("SCAN RESULTS ARE AVAILABLE IN FILES NAMED crash-date-and-time-AUTOSCAN.md \n")
-    print(f"{random.choice(classic_game_hints if classic_game_hints else '')}\n-----")
+    print(f"{random.choice(classic_game_hints if classic_game_hints else '')}\n-----")  # Really need to find a better fix for this.
     print(f"Scanned all available logs in {str(time.perf_counter() - 0.5 - scan_start_time)[:5]} seconds.")
     print(f"Number of Scanned Logs (No Autoscan Errors): {stats_crashlog_scanned}")
     print(f"Number of Incomplete Logs (No Plugins List): {stats_crashlog_incomplete}")
