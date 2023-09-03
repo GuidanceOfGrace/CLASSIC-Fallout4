@@ -8,9 +8,6 @@ import ruamel.yaml
 import configparser
 from pathlib import Path
 
-if platform.system() == "Windows":
-    import ctypes.wintypes
-
 """ AUTHOR NOTES (POET):
     - Reminder: 'shadows x from outer scope' means the variable name repeats both in the func and outside all other func.
     - Comments marked as RESERVED in all scripts are intended for future updates or tests, do not edit / move / remove.
@@ -202,6 +199,7 @@ def docs_path_find():
     game_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs")
 
     def get_windows_docs_path():
+        import ctypes.wintypes
         CSIDL_PERSONAL = 5
         SHGFP_TYPE_CURRENT = 0
         win_buffer = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
