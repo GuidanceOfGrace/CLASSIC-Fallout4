@@ -12,13 +12,15 @@ if platform.system() == "Windows":
     import ctypes.wintypes
 
 """ AUTHOR NOTES (POET):
-    - Reminder: 'shadows x from outer scope' means the variable name repeats both in the func and outside all other func.
+    - REMINDER (JUST FOR ME): REMOVE ANY PERSONAL FOLDER AND FILE PATHS FROM YAML CONFIG FILES BEFORE UPDATING ON NEXUS!
+    - REMINDER: 'shadows x from outer scope' means the variable name repeats both in the func and outside all other func.
     - Comments marked as RESERVED in all scripts are intended for future updates or tests, do not edit / move / remove.
     - (..., encoding="utf-8", errors="ignore") needs to go with every opened file because unicode errors are a bitch.
     - If you get a 'charmap' error, you forgot to put encoding='utf-8'! (Required for every YAML file read / write).
     - message_output in a func should be self contained. Don't write to AUTOSCAN output directly, just call func.
     - import shelve if you want to store persistent data that you do not want regular users to access or modify.
-    - ALL EMOJI IN ONE PLACE: ❓ ❌ ✔️
+    - ALL USED EMOJI IN ONE PLACE: ❓ ❌ ✔️
+    -----
     CO-AUTHOR NOTES (NameHere):
     * You can write stuff here so I don't miss it. *
 """
@@ -199,14 +201,14 @@ CHECK FOR ANY CLASSIC UPDATES HERE: https://www.nexusmods.com/fallout4/mods/5625
 def docs_path_find():
     logging.debug("- - - INITIATED DOCS PATH CHECK")
     game_sid = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_SteamID")
-    game_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs")
+    game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
 
     def get_windows_docs_path():
         CSIDL_PERSONAL = 5
         SHGFP_TYPE_CURRENT = 0
         win_buffer = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
         ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, win_buffer)
-        win_docs = os.path.join(win_buffer.value, fr"My Games\{game_docs}")
+        win_docs = os.path.join(win_buffer.value, fr"My Games\{game_docs_name}")
         yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Root_Folder_Docs", win_docs)
         yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Root_Folder_Docs", f"{win_docs}VR")
 
@@ -221,13 +223,13 @@ def docs_path_find():
                     library_path = Path(library_line.split('"')[3])
                 if str(game_sid) in library_line:
                     library_path = library_path.joinpath("steamapps")
-                    linux_docs = library_path.joinpath("compatdata", str(game_sid), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", game_docs)
+                    linux_docs = library_path.joinpath("compatdata", str(game_sid), "pfx", "drive_c", "users", "steamuser", "My Documents", "My Games", game_docs_name)
                     yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Root_Folder_Docs", linux_docs)
                     yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Root_Folder_Docs", f"{linux_docs}VR")
 
     def get_manual_docs_path():
-        print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_docs}.ini IS LOCATED < <")
-        path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{game_docs} | Press ENTER to confirm.)\n> ")
+        print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_docs_name}.ini IS LOCATED < <")
+        path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{game_docs_name} | Press ENTER to confirm.)\n> ")
         print(f"You entered: {path_input} | This path will be automatically added to CLASSIC Settings.yaml")
         manual_docs = Path(path_input.strip())
         yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Root_Folder_Docs", manual_docs)
@@ -281,9 +283,9 @@ def game_path_find():
     logging.debug("- - - INITIATED GAME PATH CHECK")
     Docs_File_f4se = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_F4SE")
 
-    game_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Name")
+    game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Root_Name")
     if classic_settings("VR Mode"):
-        game_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Name")
+        game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Root_Name")
 
     if Path(Docs_File_f4se).is_file():
         with open(Docs_File_f4se, "r", encoding="utf-8", errors="ignore") as LOG_Check:
@@ -293,8 +295,8 @@ def game_path_find():
                     logline = logline[19:].replace("\\Data\\F4SE\\Plugins", "")
                     game_path = logline.replace("\n", "")
                     if not game_path or not Path(game_path).exists():
-                        print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_name} IS LOCATED < <")
-                        path_input = input(fr"(EXAMPLE: C:\Steam\steamapps\common\{game_name} | Press ENTER to confirm.)\n> ")
+                        print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_root_name} IS LOCATED < <")
+                        path_input = input(fr"(EXAMPLE: C:\Steam\steamapps\common\{game_root_name} | Press ENTER to confirm.)\n> ")
                         print(f"You entered: {path_input} | This path will be automatically added to CLASSIC Settings.yaml")
                         game_path = Path(path_input.strip())
                         yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Root_Folder_Game", str(game_path))
@@ -352,14 +354,14 @@ def game_check_integrity() -> str:
     exe_hash_old = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_HashedMain", "1.10.163")
     # exe_hash_new = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_HashedMain", "1.xx.xxx") | RESERVED FOR 2023 UPDATE
     game_exe_local = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_EXE")
-    game_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Name")
+    game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Root_Name")
 
     if classic_settings("VR Mode"):
         steam_ini_local = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_File_SteamINI")
         exe_hash_old = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_HashedMain", "1.10.163")
         # exe_hash_new = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_HashedMain", "1.xx.xxx") | RESERVED FOR 2023 UPDATE
         game_exe_local = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_File_EXE")
-        game_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Name")
+        game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Root_Name")
 
     game_exe_path = Path(game_exe_local)
     steam_ini_path = Path(steam_ini_local)
@@ -370,16 +372,16 @@ def game_check_integrity() -> str:
             exe_hash_local = hashlib.sha256(file_contents).hexdigest()
             # print(f"LOCAL: {exe_hash_local}\nDATABASE: {exe_hash_old}")
             if exe_hash_local == exe_hash_old and not steam_ini_path.exists():
-                message_list.append(f"✔️ You have the latest version of {game_name}! \n-----\n")
+                message_list.append(f"✔️ You have the latest version of {game_root_name}! \n-----\n")
             elif steam_ini_path.exists():
-                message_list.append(f"\U0001F480 CAUTION : YOUR {game_name} GAME / EXE VERSION IS OUT OF DATE \n-----\n")
+                message_list.append(f"\U0001F480 CAUTION : YOUR {game_root_name} GAME / EXE VERSION IS OUT OF DATE \n-----\n")
             else:
-                message_list.append(f"❌ CAUTION : YOUR {game_name} GAME / EXE VERSION IS OUT OF DATE \n-----\n")
+                message_list.append(f"❌ CAUTION : YOUR {game_root_name} GAME / EXE VERSION IS OUT OF DATE \n-----\n")
 
         if "Program Files" not in str(game_exe_path):
-            message_list.append(f"✔️ Your {game_name} game files are installed outside of the Program Files folder! \n-----\n")
+            message_list.append(f"✔️ Your {game_root_name} game files are installed outside of the Program Files folder! \n-----\n")
         else:
-            message_list.extend([f"❌ CAUTION : Your {game_name} game files are installed inside of the Program Files folder!",
+            message_list.extend([f"❌ CAUTION : Your {game_root_name} game files are installed inside of the Program Files folder!",
                                  "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
                                  "   To ensure that everything works, move your Game or entire Steam folder outside of Program Files.",
                                  "-----"])
@@ -434,114 +436,75 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
 # ================================================
 # CHECK DOCUMENTS GAME INI FILES & INI SETTINGS
 # ================================================
-
-# =========== CHECK DOCS MAIN INI -> CHECK EXISTENCE & CORRUPTION ===========
-def ini_check_gamemain() -> str:
-    logging.debug("- - - INITIATED GAME MAIN INI CHECK")
+def docs_check_folder():
     message_list = []
-    game_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs")
-    ini_main = Path(yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_GameMainINI"))
+    game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
     if classic_settings("VR Mode"):
-        game_docs = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs")
-        ini_main = Path(yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_GameMainINI"))
+        game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs_Name")
 
-    ini_name = ini_main.name
-    if ini_main.is_file():
-        try:
-            INI_config = configparser.ConfigParser()
-            INI_config.optionxform = str
-            INI_config.read(ini_main)
-            message_list.append(f"✔️ No obvious corruption detected in {ini_name}, file seems OK! \n-----\n")
-        except (configparser.MissingSectionHeaderError, configparser.ParsingError, ValueError, OSError):
-            message_list.extend([f"[!] CAUTION : {ini_name} FILE IS VERY LIKELY BROKEN, RESET YOUR GAME INIs \n",
-                                 f"Delete this file from your Documents/My Games/{game_docs} folder, then start \n",
-                                 f"the game with Fallout4Launcher.exe to generate a new {ini_name} file. \n",
-                                 "You can use BethINI to easily readjust your INI settings afterwards. \n-----\n"])
-    else:
-        message_list.extend([f"❌ CAUTION : {ini_name} FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
-                             f"   You need to run the game at least once with {game_docs}Launcher.exe \n",
-                             "    This will create files and INI settings required for the game to run. \n-----\n"])
-
-    if "onedrive" in game_docs.lower():
+    if "onedrive" in game_docs_name.lower():
         message_list.extend([f"❌ CAUTION : YOUR DOCUMENTS FOLDER IS BEING BACKED UP BY MICROSOFT ONEDRIVE! \n",
                              f"   This can sometimes cause various save file and file permissions problems. \n",
                              "    To avoid this, disable Documents folder backup in your OneDrive settings. \n-----\n"])
-
     message_output = "".join(message_list)
     return message_output
 
 
-# =========== CHECK DOCS PREFS INI -> CHECK EXISTENCE & CORRUPTION ===========
-def ini_check_gameprefs() -> str:
-    logging.debug("- - - INITIATED GAME PREFS INI CHECK")
+# =========== CHECK DOCS MAIN INI -> CHECK EXISTENCE & CORRUPTION ===========
+def docs_check_ini(ini_name) -> str:
+    logging.info(f"- - - INITIATED {ini_name} CHECK")
     message_list = []
-    game_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs")
-    ini_prefs = Path(yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_GamePrefsINI"))
-    if classic_settings("VR Mode"):
-        game_docs = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs")
-        ini_prefs = Path(yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_GamePrefsINI"))
 
-    ini_name = ini_prefs.name
-    if Path(ini_prefs).is_file():
+    root_folder_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
+    game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
+    if classic_settings("VR Mode"):
+        root_folder_docs = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Root_Folder_Docs")
+        game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs_Name")
+
+    ini_file_list = list(Path(root_folder_docs).glob("*.ini"))
+    ini_path = Path(root_folder_docs).joinpath(ini_name)
+    if any(ini_name.lower() in file.name.lower() for file in ini_file_list):
         try:
+            remove_readonly(ini_path)
+
             INI_config = configparser.ConfigParser()
             INI_config.optionxform = str
-            INI_config.read(ini_prefs)
+            INI_config.read(ini_path)
             message_list.append(f"✔️ No obvious corruption detected in {ini_name}, file seems OK! \n-----\n")
+
+            if ini_name.lower() == f"{game_docs_name.lower()}custom.ini":
+                if "Archive" not in INI_config.sections():
+                    message_list.append(yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Global_Warn", "Warn_SCAN_ArchInv"))
+                    INI_config.add_section("Archive")
+                else:
+                    message_list.append("✔️ Archive Invalidation / Loose Files setting is already enabled! \n-----\n")
+
+                INI_config.set("Archive", "bInvalidateOlderFiles", "1")
+                INI_config.set("Archive", "sResourceDataDirsFinal", "")
+
+                with open(ini_path, "w+", encoding="utf-8", errors="ignore") as ini_file:
+                    INI_config.write(ini_file, space_around_delimiters=False)
+
+        except PermissionError:
+            message_list.extend([f"[!] CAUTION : YOUR {ini_name} FILE IS SET TO READ ONLY. \n",
+                                 "     PLEASE REMOVE THE READ ONLY PROPERTY FROM THIS FILE, \n",
+                                 "     SO CLASSIC CAN MAKE THE REQUIRED CHANGES TO IT. \n-----\n"])
+
         except (configparser.MissingSectionHeaderError, configparser.ParsingError, ValueError, OSError):
-            message_list.extend([f"[!] CAUTION : {ini_name} FILE IS VERY LIKELY BROKEN, RESET YOUR GAME INIs \n",
-                                 f"Delete this file from your Documents/My Games/{game_docs} folder, then start \n",
-                                 f"the game with {game_docs}Launcher.exe to generate a new {ini_name} file. \n",
-                                 "You can use BethINI to easily readjust your INI settings afterwards. \n-----\n"])
+            message_list.extend([f"[!] CAUTION : YOUR {ini_name} FILE IS VERY LIKELY BROKEN, PLEASE CREATE A NEW ONE \n",
+                                 f"    Delete this file from your Documents/My Games/{game_docs_name} folder, then press \n",
+                                 f"    *Scan Game Files* in CLASSIC to generate a new {ini_name} file. \n-----\n"])
     else:
-        message_list.extend([f"❌ CAUTION : {ini_name} FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
-                             f"   You need to run the game at least once with {game_docs}Launcher.exe \n",
-                             "    This will create files and INI settings required for the game to run. \n-----\n"])
+        if ini_name.lower() == f"{game_docs_name.lower()}.ini":
+            message_list.extend([f"❌ CAUTION : {ini_name} FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
+                                 f"   You need to run the game at least once with {game_docs_name}Launcher.exe \n",
+                                 "    This will create files and INI settings required for the game to run. \n-----\n"])
 
-    message_output = "".join(message_list)
-    return message_output
-
-
-# =========== CHECK DOCS CUSTOM INI -> ENABLE ARCH. INV. & CHECK CORRUPTION ===========
-def ini_check_gamecustom() -> str:
-    logging.debug("- - - INITIATED GAME CUSTOM INI CHECK")
-    message_list = []
-    game_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs")
-    ini_custom = Path(yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_GameCustomINI"))
-    if classic_settings("VR Mode"):
-        game_docs = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs")
-        ini_custom = Path(yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_GameCustomINI"))
-
-    ini_name = ini_custom.name
-    if Path(ini_custom).is_file():
-        try:
-            remove_readonly(ini_custom)
-
-            INI_config = configparser.ConfigParser()
-            INI_config.optionxform = str
-            INI_config.read(ini_custom)
-
-            if "Archive" not in INI_config.sections():
+        if ini_name.lower() == f"{game_docs_name.lower()}custom.ini":
+            with open(ini_path, "a", encoding="utf-8", errors="ignore") as ini_file:
                 message_list.append(yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Global_Warn", "Warn_SCAN_ArchInv"))
-                INI_config.add_section("Archive")
-            else:
-                message_list.append("✔️ Archive Invalidation / Loose Files setting is already enabled! \n-----\n")
-
-            INI_config.set("Archive", "bInvalidateOlderFiles", "1")
-            INI_config.set("Archive", "sResourceDataDirsFinal", "")
-
-            with open(ini_custom, "w+", encoding="utf-8", errors="ignore") as ini_file:
-                INI_config.write(ini_file, space_around_delimiters=False)
-        except (configparser.MissingSectionHeaderError, configparser.ParsingError, ValueError, OSError):
-            message_list.extend([f"[!] CAUTION : YOUR {ini_name} FILE IS VERY LIKELY BROKEN, CREATE A NEW ONE",
-                                 f"    Delete this file from your Documents/My Games/{game_docs} folder, then press",
-                                 f"    *Scan Game Files* in CLASSIC to generate a new {ini_name} file.",
-                                 "-----"])
-    else:
-        with open(ini_custom, "a", encoding="utf-8", errors="ignore") as ini_file:
-            message_list.append(yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Global_Warn", "Warn_SCAN_ArchInv"))
-            INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
-            ini_file.write(INI_config)
+                INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
+                ini_file.write(INI_config)
 
     message_output = "".join(message_list)
     return message_output
@@ -549,7 +512,7 @@ def ini_check_gamecustom() -> str:
 
 # =========== OTHER ===========
 def func_combined_output():
-    combined_return = [game_check_integrity(), xse_check_integrity(), ini_check_gamemain(), ini_check_gameprefs(), ini_check_gamecustom()]
+    combined_return = [game_check_integrity(), xse_check_integrity(), docs_check_ini("Fallout4.ini"), docs_check_ini("Fallout4Custom.ini"), docs_check_ini("Fallout4Prefs.ini")]
     combined_output = "".join(combined_return)
     return combined_output
 

@@ -1,8 +1,8 @@
 # FALLOUT 4 DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.0+
 
 Game_Info:
-  Game_Name: Fallout 4
-  Game_Docs: Fallout4
+  Game_Root_Name: Fallout 4
+  Game_Docs_Name: Fallout4
   Game_SteamID: 377160
   Game_HashedMain: # SHA-256 | Fallout4.exe
     1.10.163: 55f57947db9e05575122fae1088f0b0247442f11e566b56036caa0ac93329c36
@@ -147,7 +147,7 @@ Warnings_XSE:
 
   Warn_Mismatch: |
     [!] CAUTION : SOME SCRIPT EXTENDER FILES MIGHT BE BROKEN OR OTHER MODS ARE OVERRDING THEM
-      You should reinstall F4SE and check if any installed mods contain duplicate F4SE files.
+      Reinstall F4SE or use 'Check Mod Files' to see if any installed mods contain F4SE scripts.
       FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
       Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 game folder.
     -----

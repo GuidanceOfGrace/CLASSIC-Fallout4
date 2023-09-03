@@ -1,8 +1,8 @@
 # FALLOUT 4 DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.0+
 
 GameVR_Info:
-  Game_Name: Fallout 4 VR
-  Game_Docs: Fallout4VR
+  Game_Root_Name: Fallout 4 VR
+  Game_Docs_Nmae: Fallout4VR
   Game_SteamID: 611660
   Game_HashedMain: # SHA-256 | Fallout4.exe
     1.10.163: 00000

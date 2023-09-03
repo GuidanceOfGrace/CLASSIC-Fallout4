@@ -10,7 +10,7 @@ from collections import Counter
 import CLASSIC_Main as CMain
 
 # Logging levels: debug | info | warning | error | critical | Level in basicConfig is minimum and must be UPPERCASE
-logging.basicConfig(level=logging.DEBUG, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
+logging.basicConfig(level=logging.INFO, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
 
 
 # ================================================
@@ -173,7 +173,7 @@ def crashlogs_scan():
     scan_failed_list = []
     scan_folder = Path.cwd()
     user_folder = Path.home()
-    scan_invalid_list = scan_folder.glob("crash-*.txt")
+    scan_invalid_list = list(scan_folder.glob("crash-*.txt"))
     stats_crashlog_scanned = stats_crashlog_incomplete = stats_crashlog_failed = 0
     logging.info(f"- - - INITIATED CRASH LOG FILE SCAN >>> CURRENTLY SCANNING {len(crashlog_list)} FILES")
     for crashlog_file in crashlog_list:
@@ -331,7 +331,7 @@ def crashlogs_scan():
                                 "====================================================\n"])
 
         if ".dll" in crashlog_mainerror.lower() and "tbbmalloc" not in crashlog_mainerror.lower():
-            autoscan_report.extend(["* NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *",
+            autoscan_report.extend(["* NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! * \n",
                                     "If that dll file belongs to a mod, that mod is a prime suspect for the crash. \n-----\n"])
         max_warn_length = 30
         trigger_suspect_found = False
