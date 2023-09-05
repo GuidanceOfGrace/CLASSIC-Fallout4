@@ -20,9 +20,9 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_F4SE")
+    XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
     if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_F4SE")
+        XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -110,7 +110,7 @@ def crashlogs_scan():
 
     # ================================================
     if CMain.classic_settings("FCX Mode"):
-        main_files_check = CMain.func_combined_output()
+        main_files_check = CMain.main_combined_output()
     else:
         main_files_check = "❌ FCX Mode is not enabled, skipping game files check... \n-----\n"
 
@@ -167,7 +167,7 @@ def crashlogs_scan():
                 if gpu_rival not in mod_warn.lower():
                     autoscan_report.extend([f"❌ {mod_split[1]} is not installed!\n", mod_warn, "\n"])
 
-    print("\nSCANNING LOGS, PLEASE WAIT...\n")
+    print("SCANNING LOGS, PLEASE WAIT...\n")
     scan_start_time = time.perf_counter()
     crashlog_list = crashlogs_get_files()
     scan_failed_list = []

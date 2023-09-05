@@ -19,10 +19,6 @@ CLASSIC_Info:
       
     # FCX - File Check Xtended | Set to true if you want CLASSIC to check the integrity of your game files and core mods.
       FCX Mode: true
-      
-    # IMI - Ignore Manual Installation | Set to true if you want CLASSIC to hide / ignore most manual installation warnings.
-    # I still highly recommend that you install all Buffout 4 files and requirements manually, WITHOUT using a mod manager.
-      IMI Mode: false
     
     # Set to true if you want CLASSIC to remove some unnecessary lines and redundant information from your crash log files.
     # CAUTION: Changes will be permanent for each crash log you scan after. May hide info useful for debugger programs.
@@ -36,16 +32,19 @@ CLASSIC_Info:
     # Unsolved logs are all crash logs that are incomplete or in the wrong format.
       Move Unsolved Logs: true
     
-    # Copy-paste your INI directory path below. Ex. INI Folder Path: INIFiles_Path = C:/Users/Zen/Documents/My Games/Fallout4
+    # Copy-paste your INI directory path below. Ex. INI Folder Path: C:/Users/Zen/Documents/My Games/Fallout4
     # If you are using MO2, I recommend disabling Profile Specific Game INI Files, located in Tools > Profiles
+    # This is only required if CLASSIC has problems detecting your game files or is scanning the wrong game.
       INI Folder Path:
     
-    # Copy-paste your mod directory path below. This can be either your Fallout 4 / Data folder or your
-    # deployed mods folder (Ex. Mod Organizer 2 / mods | deployed mods folder is required if using MO2).
+    # Copy-paste your staging mods folder path below. (Folder where your mod manager keeps all the extracted mod files). 
+    # MO2 Ex. MODS Folder Path: C:\Mod Organizer 2 FO4\mods | Vortex Ex. MODS Folder Path: C:\Vortex Mods\Fallout 4
+    # You can also set this path to your game's Data folder, but the scan results will be much less accurate.
       MODS Folder Path:
     
-    # Copy-paste your custom scan folder path below. Ex. SCAN Custom Path: C:/Users/Zen/Documents/My Games/Fallout4/F4SE
-    # If no path is set, CLASSIC will search for crash logs in the same folder from which you are running the executable.
+    # Copy-paste your custom crash logs folder path below. Ex. SCAN Custom Path: C:/Crash Logs/Fallout 4
+    # Crash logs are generated in Documents/My Games/Fallout 4/F4SE folder by default. If no path is set,
+    # CLASSIC will only search for crash logs inside that F4SE folder and where the CLASSIC executable is.
       SCAN Custom Path:
 
   default_ignorefile: |
@@ -129,25 +128,6 @@ Wrye_Warn:
   Cleaning With: |
     ❓ These plugins contain ITMs and/or UDRs which should be cleaned manually with
       Quick Auto Clean (QAC) or automatically with Plugin Auto Cleaning Tool (PACT).
-
-# =================== GLOBAL WARNINGS ==================
-
-Global_Warn:
-
-  Warn_SCAN_ArchInv: |
-    ❌ WARNING : Archive Invalidation / Loose Files setting is not enabled.
-      CLASSIC will now enable this setting automatically in the game INI files.
-    -----
-
-  Warn_SCAN_Log_Errors: |
-    [!] CAUTION : THE FOLLOWING LOG FILES REPORT ONE OR MORE ERRORS!
-    [ Errors do not necessarily mean that the mod is not working. ]
-    -----
-
-  Warn_SCAN_NOTE_DLL: |
-    * NOTICE : MAIN ERROR REPORTS THAT A DLL FILE WAS INVOLVED IN THIS CRASH! *
-    If that dll file belongs to a mod, that mod is a prime suspect for the crash.
-    -----
 
 # =============== INCLUDE & EXCLUDE LISTS ==============
 

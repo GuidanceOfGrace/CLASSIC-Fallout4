@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.DEBUG, filename="CLASSIC Journal.log", filemod
 
 
 # ================================================
-# DEFINE FILE / YAML / TOML / INI FUNCTIONS
+# DEFINE FILE / YAML FUNCTIONS
 # ================================================
 def remove_readonly(file_path):
     try:
@@ -91,27 +91,6 @@ def yaml_update(yaml_path, key_path, new_value):
 
     with open(yaml_path, 'w', encoding='utf-8') as yaml_file:
         yaml.dump(data, yaml_file)
-
-
-def mod_ini_config(ini_path, section, key, new_value=None):
-    mod_config = configparser.ConfigParser()
-    mod_config.optionxform = str
-    mod_config.read(ini_path)
-
-    if section not in mod_config:
-        raise configparser.Error(f"ERROR : Section '{section}' does not exist in '{ini_path}'")
-    if key not in mod_config[section]:
-        raise configparser.Error(f"ERROR : Key '{key}' does not exist in section '{section}'")
-
-    # If new_value is specified, update value in INI.
-    if new_value is not None:
-        mod_config[section][key] = new_value
-        with open(ini_path, 'w') as config_file:
-            mod_config.write(config_file)
-        return new_value
-
-    # Return current value of the key.
-    return mod_config[section][key]
 
 
 # ============ TERMINAL OUTPUT START =============
@@ -232,8 +211,9 @@ def docs_path_find():
         path_input = input(f"(EXAMPLE: C:/Users/Zen/Documents/My Games/{game_docs_name} | Press ENTER to confirm.)\n> ")
         print(f"You entered: {path_input} | This path will be automatically added to CLASSIC Settings.yaml")
         manual_docs = Path(path_input.strip())
-        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Root_Folder_Docs", manual_docs)
-        if classic_settings("VR Mode"):
+        if not classic_settings("VR Mode"):
+            yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Root_Folder_Docs", manual_docs)
+        else:
             yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Root_Folder_Docs", manual_docs)
 
     docs_path = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
@@ -255,19 +235,19 @@ def docs_generate_paths():
     logging.debug("- - - INITIATED DOCS PATH GENERATION")
     docs_path = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
 
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_Folder_F4SE", fr"{docs_path}\F4SE")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_Achieve", fr"{docs_path}\F4SE\achievements.log")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_BakaSH", fr"{docs_path}\F4SE\BakaScrapHeap.log")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_F4SE", fr"{docs_path}\F4SE\f4se.log")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_GameCustomINI", fr"{docs_path}\Fallout4Custom.ini")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_GameMainINI", fr"{docs_path}\Fallout4.ini")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_GamePrefsINI", fr"{docs_path}\Fallout4Prefs.ini")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_LooksMenu", fr"{docs_path}\F4SE\f4ee.log")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_WryeBashPC", fr"{docs_path}\ModChecker.html")
-
-    if classic_settings("VR Mode"):
+    if not classic_settings("VR Mode"):
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_Folder_XSE", fr"{docs_path}\F4SE")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_Achieve", fr"{docs_path}\F4SE\achievements.log")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_BakaSH", fr"{docs_path}\F4SE\BakaScrapHeap.log")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_F4SE", fr"{docs_path}\F4SE\f4se.log")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_GameCustomINI", fr"{docs_path}\Fallout4Custom.ini")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_GameMainINI", fr"{docs_path}\Fallout4.ini")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_GamePrefsINI", fr"{docs_path}\Fallout4Prefs.ini")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_LooksMenu", fr"{docs_path}\F4SE\f4ee.log")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Docs_File_WryeBashPC", fr"{docs_path}\ModChecker.html")
+    else:
         docs_path = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Root_Folder_Docs")
-        yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Docs_Folder_F4SE", fr"{docs_path}\F4SE")
+        yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Docs_Folder_XSE", fr"{docs_path}\F4SE")
         yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Docs_File_Achieve", fr"{docs_path}\F4SE\achievements.log")
         yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Docs_File_BakaSH", fr"{docs_path}\F4SE\BakaScrapHeap.log")
         yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Docs_File_GameCustomINI", fr"{docs_path}\Fallout4VRCustom.ini")
@@ -283,8 +263,9 @@ def game_path_find():
     logging.debug("- - - INITIATED GAME PATH CHECK")
     Docs_File_f4se = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_F4SE")
 
-    game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Root_Name")
-    if classic_settings("VR Mode"):
+    if not classic_settings("VR Mode"):
+        game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Root_Name")
+    else:
         game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Root_Name")
 
     if Path(Docs_File_f4se).is_file():
@@ -306,26 +287,26 @@ def game_path_find():
 
 def game_generate_paths():
     logging.debug("- - - INITIATED GAME PATH GENERATION")
-    game_path = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
-    # GAME FOLDERS
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_Folder_Data", fr"{game_path}Data")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_Folder_Scripts", fr"{game_path}Data\Scripts")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_Folder_CK_Fixes", fr"{game_path}Data\F4CKFixes")
-    # GAME FILES
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\F4SE\Plugins\version-1-10-163-0.bin")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_BuffoutDLL", fr"{game_path}Data\F4SE\Plugins\Buffout4.dll")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_BuffoutTOML", fr"{game_path}Data\F4SE\Plugins\Buffout4\config.toml")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_CK_EXE", fr"{game_path}CreationKit.exe")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_EXE", fr"{game_path}Fallout4.exe")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_PreloaderDLL", fr"{game_path}IpHlpAPI.dll")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_PreloaderXML", fr"{game_path}xSE PluginPreloader.xml")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
-    # GAME F4SE
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.XSE_File_DLL", fr"{game_path}f4se_1_10_163.dll")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.XSE_File_Loader", fr"{game_path}f4se_loader.exe")
-    yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.XSE_File_SteamDLL", fr"{game_path}f4se_steam_loader.dll")
-
-    if classic_settings("VR Mode"):
+    if not classic_settings("VR Mode"):
+        game_path = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
+        # GAME FOLDERS
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_Folder_Data", fr"{game_path}Data")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_Folder_Scripts", fr"{game_path}Data\Scripts")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_Folder_CK_Fixes", fr"{game_path}Data\F4CKFixes")
+        # GAME FILES
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\F4SE\Plugins\version-1-10-163-0.bin")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_BuffoutDLL", fr"{game_path}Data\F4SE\Plugins\Buffout4.dll")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_BuffoutTOML", fr"{game_path}Data\F4SE\Plugins\Buffout4\config.toml")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_CK_EXE", fr"{game_path}CreationKit.exe")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_EXE", fr"{game_path}Fallout4.exe")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_PreloaderDLL", fr"{game_path}IpHlpAPI.dll")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_PreloaderXML", fr"{game_path}xSE PluginPreloader.xml")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
+        # GAME F4SE
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.XSE_File_DLL", fr"{game_path}f4se_1_10_163.dll")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.XSE_File_Loader", fr"{game_path}f4se_loader.exe")
+        yaml_update("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info.XSE_File_SteamDLL", fr"{game_path}f4se_steam_loader.dll")
+    else:
         gamevr_path = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Root_Folder_Game")
         # VR FOLDERS
         yaml_update("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info.Game_Folder_Data", fr"{gamevr_path}Data")
@@ -350,13 +331,14 @@ def game_generate_paths():
 def game_check_integrity() -> str:
     logging.debug("- - - INITIATED GAME INTEGRITY CHECK")
     message_list = []
-    steam_ini_local = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_SteamINI")
-    exe_hash_old = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_HashedMain", "1.10.163")
-    # exe_hash_new = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_HashedMain", "1.xx.xxx") | RESERVED FOR 2023 UPDATE
-    game_exe_local = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_EXE")
-    game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Root_Name")
 
-    if classic_settings("VR Mode"):
+    if not classic_settings("VR Mode"):
+        steam_ini_local = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_SteamINI")
+        exe_hash_old = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_HashedMain", "1.10.163")
+        # exe_hash_new = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_HashedMain", "1.xx.xxx") | RESERVED FOR 2023 UPDATE
+        game_exe_local = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_EXE")
+        game_root_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Root_Name")
+    else:
         steam_ini_local = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_File_SteamINI")
         exe_hash_old = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_HashedMain", "1.10.163")
         # exe_hash_new = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_HashedMain", "1.xx.xxx") | RESERVED FOR 2023 UPDATE
@@ -394,10 +376,58 @@ def game_check_integrity() -> str:
 def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
     logging.debug("- - - INITIATED XSE INTEGRITY CHECK")
     message_list = []
-    xse_missing = False
-    xse_mismatch = False
-    xse_hashedscripts = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_HashedScripts")
-    game_folder_scripts = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Folder_Scripts")
+    failed_list = []
+    catch_errors = yaml_get("CLASSIC Config/CLASSIC Main.yaml", "catch_log_errors")
+    if not classic_settings("VR Mode"):
+        xse_log_file = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_XSE")
+        xse_full_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_FullName")
+        xse_ver_latest = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_Ver_Latest")
+        addlib_file = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_AddressLib")
+    else:
+        xse_log_file = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_XSE")
+        xse_full_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_FullName")
+        xse_ver_latest = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Ver_Latest")
+        addlib_file = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_File_AddressLib")
+
+    if addlib_file.isfile():
+        message_list.append(f"✔️ REQUIRED: *{addlib_file.name}* is installed! \n-----\n")
+    else:
+        message_list.append(yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Warnings_OTHER", "Warn_ADLIB_Missing"))
+
+    if xse_log_file.isfile():
+        message_list.append(f"✔️ REQUIRED: *{xse_full_name}* is installed! \n-----\n")
+        with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
+            xse_data = xse_log.readlines()
+        if str(xse_ver_latest) in xse_data[0]:
+            message_list.append(f"✔️ You have the latest version of *{xse_full_name}*! \n-----\n")
+        else:
+            message_list.append(yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Warnings_XSE", "Warn_Outdated"))
+        for line in xse_data:
+            if any(item.lower() in line.lower() for item in catch_errors):
+                failed_list.append(line)
+
+        if failed_list:
+            message_list.append(f"#❌ CAUTION : {xse_log_file.name} REPORTS THE FOLLOWING ERRORS #\n")
+            for elem in failed_list:
+                message_list.append(f"ERROR > {elem}")
+    else:
+        message_list.extend([f"❌ CAUTION : *{xse_log_file.name}* FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
+                             f"   You need to run the game at least once with {xse_log_file.name}_loader.exe \n",
+                             "    This will create log files required for CLASSIC to properly check your settings. \n-----\n"])
+    message_output = "".join(message_list)
+    return message_output
+
+
+def xse_check_hashes() -> str:
+    logging.debug("- - - INITIATED XSE FILE HASH CHECK")
+    message_list = []
+    xse_script_missing = xse_script_mismatch = False
+    if not classic_settings("VR Mode"):
+        xse_hashedscripts = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_HashedScripts")
+        game_folder_scripts = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Folder_Scripts")
+    else:
+        xse_hashedscripts = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_HashedScripts")
+        game_folder_scripts = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Folder_Scripts")
 
     xse_hashedscripts_local = {key: None for key in xse_hashedscripts.keys()}
     for key in xse_hashedscripts_local:
@@ -417,16 +447,16 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
                 pass
             elif hash2 is None:  # Can only be None if not hashed in the first place, meaning it is missing.
                 message_list.append(f"❌ CAUTION : {key} Script Extender file is missing from your game Scripts folder! \n-----\n")
-                xse_missing = True
+                xse_script_missing = True
             else:
                 message_list.append(f"[!] CAUTION : {key} Script Extender file is outdated or overriden by another mod! \n-----\n")
-                xse_mismatch = True
+                xse_script_mismatch = True
 
-    if xse_missing:
+    if xse_script_missing:
         message_list.append(yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Warnings_XSE", "Warn_Missing"))
-    if xse_mismatch:
+    if xse_script_mismatch:
         message_list.append(yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Warnings_XSE", "Warn_Mismatch"))
-    if not xse_missing and not xse_mismatch:
+    if not xse_script_missing and not xse_script_mismatch:
         message_list.append("✔️ All Script Extender files have been found and accounted for! \n-----\n")
 
     message_output = "".join(message_list)
@@ -438,8 +468,9 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
 # ================================================
 def docs_check_folder():
     message_list = []
-    game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
-    if classic_settings("VR Mode"):
+    if not classic_settings("VR Mode"):
+        game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
+    else:
         game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs_Name")
 
     if "onedrive" in game_docs_name.lower():
@@ -455,9 +486,10 @@ def docs_check_ini(ini_name) -> str:
     logging.info(f"- - - INITIATED {ini_name} CHECK")
     message_list = []
 
-    root_folder_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
-    game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
-    if classic_settings("VR Mode"):
+    if not classic_settings("VR Mode"):
+        root_folder_docs = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
+        game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
+    else:
         root_folder_docs = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Root_Folder_Docs")
         game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs_Name")
 
@@ -474,7 +506,8 @@ def docs_check_ini(ini_name) -> str:
 
             if ini_name.lower() == f"{game_docs_name.lower()}custom.ini":
                 if "Archive" not in INI_config.sections():
-                    message_list.append(yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Global_Warn", "Warn_SCAN_ArchInv"))
+                    message_list.extend(["❌ WARNING : Archive Invalidation / Loose Files setting is not enabled. \n",
+                                         "  CLASSIC will now enable this setting automatically in the game INI files. \n-----\n"])
                     INI_config.add_section("Archive")
                 else:
                     message_list.append("✔️ Archive Invalidation / Loose Files setting is already enabled! \n-----\n")
@@ -502,7 +535,8 @@ def docs_check_ini(ini_name) -> str:
 
         if ini_name.lower() == f"{game_docs_name.lower()}custom.ini":
             with open(ini_path, "a", encoding="utf-8", errors="ignore") as ini_file:
-                message_list.append(yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Global_Warn", "Warn_SCAN_ArchInv"))
+                message_list.extend(["❌ WARNING : Archive Invalidation / Loose Files setting is not enabled. \n",
+                                     "  CLASSIC will now enable this setting automatically in the game INI files. \n-----\n"])
                 INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
                 ini_file.write(INI_config)
 
@@ -511,8 +545,9 @@ def docs_check_ini(ini_name) -> str:
 
 
 # =========== OTHER ===========
-def func_combined_output():
-    combined_return = [game_check_integrity(), xse_check_integrity(), docs_check_ini("Fallout4.ini"), docs_check_ini("Fallout4Custom.ini"), docs_check_ini("Fallout4Prefs.ini")]
+def main_combined_output():
+    combined_return = [game_check_integrity(), xse_check_integrity(), xse_check_hashes(),
+                       docs_check_ini("Fallout4.ini"), docs_check_ini("Fallout4Custom.ini"), docs_check_ini("Fallout4Prefs.ini")]
     combined_output = "".join(combined_return)
     return combined_output
 
@@ -527,7 +562,7 @@ if yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs") 
     game_generate_paths()
 
 print("✔️ ALL CLASSIC AND GAME SETTINGS CHECKS HAVE BEEN PERFORMED!")
-print("    YOU CAN NOW SCAN YOUR CRASH LOGS, GAME AND/OR MOD FILES")
+print("    YOU CAN NOW SCAN YOUR CRASH LOGS, GAME AND/OR MOD FILES \n")
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     classic_update_version()

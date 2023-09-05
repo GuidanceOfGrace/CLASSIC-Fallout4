@@ -74,11 +74,8 @@ Game_Info:
   XSE_File_SteamDLL: E:\Steam\steamapps\common\Fallout 4\f4se_steam_loader.dll
 
   # FO4 DOCS
-  Docs_Folder_F4SE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE
-  Docs_File_F4SE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\f4se.log
-  Docs_File_BakaSH: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\BakaScrapHeap.log
-  Docs_File_Achieve: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\achievements.log
-  Docs_File_LooksMenu: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\f4ee.log
+  Docs_Folder_XSE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE
+  Docs_File_XSE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\f4se.log
   Docs_File_GameMainINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4.ini
   Docs_File_GameCustomINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4Custom.ini
   Docs_File_GamePrefsINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4Prefs.ini
@@ -89,14 +86,13 @@ Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
   - 'Random Hint: Buffout crash logs are generated in your Documents/My Games/Fallout4/F4SE folder by default.'
-  - "Random Hint: You have a crash log where the autoscan couldn't find any solutions? Feel free to send it to me."
+  - 'Random Hint: You have a crash log where the auto scan could not find any solutions? Feel free to send it to me.'
   - 'Random Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.'
-  - "Random Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google."
-  - "Random Hint: If you don't use Profile Specific INIs, consider disabling this option in your MO2 Profile settings."
+  - 'Random Hint: If you do not use Profile Specific INIs, consider disabling this option in your MO2 Profile settings.'
   - 'Random Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.'
-  - "Random Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't."
+  - 'Random Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they are not.'
   - 'Random Hint: Revisit both Buffout 4 Crash Article and CLASSIC Nexus Page from time to time in case there are updates.'
-  - "Random Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened."
+  - 'Random Hint: When posting crash logs, it is helpful to mention the last thing you were doing before the crash happened.'
 
 Warnings_CRASHGEN:
   Warn_TOML_Achievements: |
@@ -135,26 +131,26 @@ Warnings_XSE:
   Warn_Outdated: |
     [!] CAUTION : YOUR F4SE VERSION MIGHT BE OUT OF DATE, UPDATE F4SE IF NECESSARY
       FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
-      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 game folder.
+      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 root game folder.
     -----
 
   Warn_Missing: |
     [!] CAUTION : SOME SCRIPT EXTENDER FILES MIGHT BE MISSING OR HAVE BEEN INCORRECTLY INSTALLED
       You should reinstall F4SE, manual installation without a mod manager is highly advised.
       FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
-      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 game folder.
+      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 root game folder.
     -----
 
   Warn_Mismatch: |
     [!] CAUTION : SOME SCRIPT EXTENDER FILES MIGHT BE BROKEN OR OTHER MODS ARE OVERRDING THEM
       Reinstall F4SE or use 'Check Mod Files' to see if any installed mods contain F4SE scripts.
       FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
-      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 game folder.
+      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 root game folder.
     -----
 
 Warnings_OTHER:
   Warn_ADLIB_Missing: |
-    [!] CAUTION : CANNOT FIND THE REQUIRED ADDRESS LIBRARY FILE, IT NEEDS TO BE INSTALLED!
+    [!] CAUTION : CANNOT FIND REQUIRED ADDRESS LIBRARY FILE, IT SHOULD BE MANUALLY INSTALLED!
       ADDRESS LIBRARY: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/47327
       ADDRESS LIBRARY VR: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/64879
       Manually extract either *version.bin* or *version.csv* into Fallout 4/Data/F4SE/Plugins
@@ -167,7 +163,7 @@ Warnings_OTHER:
       IF FALLOUT 4 STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR GAME FOLDER
     -----
     
-  Warn_WRYE_HTMLNotFound: |
+  Warn_WRYE_MissingHTML: |
     * NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
     To check your load order and detect additional problems; install and run Wrye Bash,
     then select View > Plugin Checker from the top bar in the main Wrye Bash window.
@@ -287,7 +283,7 @@ Crashlog_Stack_Check:
 
   "5 | Nvidia Debris Crash": [ME-OPT|03EE452, ME-OPT|flexRelease_x64, flexRelease_x64.dll, CheckRefAgainstConditionsFunc]
 
-  "5 | Nvidia Driver Crash": [ME-OPT|nvwgf2umx, ME-OPT|USER32, nvwgf2umx.dll, USER32.dll]
+  "5 | Nvidia Driver Crash": [ME-OPT|nvwgf2umx, ME-OPT|USER32, 3|nvwgf2umx.dll, 3|USER32.dll]
 
   "4 | Nvidia Reflex Crash": [ME-OPT|3A0000, ME-OPT|AD0000, ME-OPT|8E0000, ME-OPT|NVIDIA_Reflex, ME-OPT|Buffout4, NVIDIA_Reflex.dll]
 
