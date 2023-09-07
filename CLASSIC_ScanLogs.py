@@ -5,6 +5,8 @@ import time
 import shutil
 import random
 import logging
+import requests
+from urllib.parse import urlparse
 from pathlib import Path
 from collections import Counter
 import CLASSIC_Main as CMain
@@ -50,6 +52,18 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
         with file.open("w", encoding="utf-8", errors="ignore") as crash_log:
             crash_log.writelines(truncated_lines)
 
+def pastebin_fetch(url):
+    if urlparse(url).netloc == "pastebin.com":
+        if "/raw" not in url.path:
+            url = url.replace("pastebin.com", "pastebin.com/raw")
+    response = requests.get(url)
+    if response.status_code in requests.codes.ok:
+        if not os.path.exists("CLASSIC Pastebin"):
+            os.mkdir("CLASSIC Pastebin")
+        outfile = Path(f"CLASSIC Pastebin/crash-{urlparse(url).path.split('/')[-1]}.log")
+        outfile.write_text(response.text, encoding="utf-8", errors="ignore")
+    else:
+        response.raise_for_status()
 
 def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old and new CRASHGEN formats match.
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
