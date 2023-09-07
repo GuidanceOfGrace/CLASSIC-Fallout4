@@ -52,6 +52,7 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
         with file.open("w", encoding="utf-8", errors="ignore") as crash_log:
             crash_log.writelines(truncated_lines)
 
+
 def pastebin_fetch(url):
     if urlparse(url).netloc == "pastebin.com":
         if "/raw" not in url.path:
@@ -64,6 +65,7 @@ def pastebin_fetch(url):
         outfile.write_text(response.text, encoding="utf-8", errors="ignore")
     else:
         response.raise_for_status()
+
 
 def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old and new CRASHGEN formats match.
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
@@ -237,8 +239,8 @@ def crashlogs_scan():
         # ================================================
         # 2) GENERATE REQUIRED SEGMENTS FROM THE CRASH LOG
         # ================================================
-        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:") if xse_acronym else ["modules:", "plugins:"]  # I need a better fix for this.
-        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:") if xse_acronym else ["plugins:", "plugins:"]
+        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:")  # type: ignore
+        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:")  # type: ignore
         segment_callstack = crashlog_generate_segment("probable call stack:", "modules:")
         segment_crashgen = crashlog_generate_segment("[compatibility]", "system specs:")
         segment_system = crashlog_generate_segment("system specs:", "probable call stack:")
