@@ -4,8 +4,8 @@ CLASSIC_Info:
   # ========================================================================================
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
-  version: CLASSIC v7.00
-  version_date: 23.09.01 #YY/MM/DD
+  version: CLASSIC v7.05
+  version_date: 23.09.07 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
@@ -68,66 +68,130 @@ CLASSIC_Info:
 
 Wrye_Warn:
   Corrupted: |
+    
     ❓ Wrye Bash could not read these plugins, there's a high chance they are corrupted.
       Resave them in Creation Kit and run Plugin Checker again to see if anything changed.
       If corruption persists, consider completely removing these plugins and their mod files.
+      -----
 
   Incorrect ESL Flag: |
+    
     ❓ These plugins have an incorrectly assigned ESL flag or extension.
       To fix, remove the ESL flag with xEdit or rename the extension to .esp.
       They can frequently cause the game to crash if you don't fix these plugins.
-
+      -----
+    
   Missing Masters: |
+    
     ❓ These plugins have missing requirements (required mods cannot be found).
       Either install all missing requirements or completely remove these plugins.
       Plugins with missing requirements won't work correctly and can crash the game.
-
+      -----
+    
   Delinquent Masters: |
+    
     ❓ These plugins are not in the correct load order. You should run Wrye Bash
       and reorder plugins with orange checkboxes until they turn green or yellow.
       Incorrect load order will either crash the game or break some ingame items.
-
+      -----
+    
   Old Header Form Versions: |
+    
     ❓ These plugins have a header that is older than the valid Creation Kit version.
       Such plugins need to be resaved in Creation Kit to fix the incorrect header.
-
+      -----
+    
   Deleted Navmeshes: |
+    
     ❓ These plugins have deleted navmeshes. These can often cause a crash
       in specific areas. Try to find a patch that fixes their navmeshes
       or disable these plugins first if you ever get a navmesh crash.
-
+      -----
+    
   Deleted Base Records: |
+    
     ❓ These plugins have deleted base records. These might cause a crash
       and deleted records can only be manually restored with xEdit.
-
+      -----
+    
   HITMEs: |
+    
     ❓ These plugins contain Higher Index Than Master-list Entries, which are mainly
       caused by improper xEdit or CK edits. Resave these plugins with Creation Kit.
       If HITMEs persist, such plugins may not work correctly and can crash the game.
-
+      -----
+    
   Duplicate FormIDs: |
+    
     ❓ These Form IDs occur at least twice in the listed plugins. This is undefined behavior
       that may result in crashes or unpredictable issues and this can only be fixed with xEdit.
       Contact the mod authors and consider uninstalling these plugins if you encounter problems.
-
+      -----
+    
   Record Type Collisions: |
+    
     ❓ These Records are overriding each other, but have different record types. This behavior
       can often lead to crashes or cause various issues and this can only be fixed with xEdit.
       Contact the mod authors and consider uninstalling these plugins if you encounter problems.
-
+      -----
+    
   Probable Injected Collisions: |
+    
     ❓ These Injected Records are overriding each other, but have different Editor IDs.
       This can cause some problems and their Editor IDs should be renamed to match each other.
       Contact the mod authors and consider uninstalling these plugins if you encounter problems.
+      -----
 
 # ================= WN SEARCH IN TITLE =================
   Invalid: |
+    
     ❓ These plugins were made with a non-standard or invalid Creation Kit version.
       Resave these plugins in Creation Kit and check if problems or errors persist.
+      -----
 
   Cleaning With: |
+    
     ❓ These plugins contain ITMs and/or UDRs which should be cleaned manually with
       Quick Auto Clean (QAC) or automatically with Plugin Auto Cleaning Tool (PACT).
+      -----
+  
+# =================== MODS SCAN WARNINGS ==================
+
+Mods_Warn:
+  Mods_Reminders: |
+    
+    REMINDERS ==========================================
+    ❓ (-PREVIS-) -> Any mods that contain custom precombine/previs files
+      should load after the PRP.esp plugin from Previs Repair Pack (PRP).
+      Otherwise, see if there is a PRP patch available for these mods.
+       
+    ❓ (ANIMDATA) -> Any mods that have their own custom Animation File Data
+      may rarely cause an *Animation Corruption Crash*. For further details,
+      read the *How To Read Crash Logs.pdf* included with CLASSIC files.
+      
+    ❓ (DDS-DIMS) -> Any mods that have texture files with incorrect dimensions
+      are very likely to cause a *Texture (DDS) Crash*. For further details,
+      read the *How To Read Crash Logs.pdf* included with CLASSIC files.
+      
+    ❓ (XSE-COPY) -> Any mods with copies of original Script Extender files
+      may cause script related problems or crashes. For further details,
+      read your AUTOSCAN report files after scanning your crash logs.
+    -----
+
+  Mods_Path_Invalid: |
+    ❌ ERROR : YOUR MODS FOLDER PATH IS INVALID! PLEASE OPEN *CLASSIC Settings.yaml*
+    AND ENTER A VALID FOLDER PATH FOR *MODS Folder Path* FROM YOUR MOD MANAGER.
+    -----
+  
+  Mods_Path_Missing: |
+    ❌ MODS FOLDER PATH NOT PROVIDED! TO SCAN ALL YOUR MOD FILES, PLEASE OPEN
+    *CLASSIC Settings.yaml* AND ENTER A FOLDER PATH FOR *MODS Folder Path*.
+    -----
+  
+  Mods_BSArch_Missing: |
+    ❌ BSARCH EXECUTABLE CANNOT BE FOUND. TO SCAN ALL YOUR MOD ARCHIVES, PLEASE DOWNLOAD
+    THE LATEST VERSION OF BSARCH AND EXTRACT ITS EXE INTO THE *CLASSIC Config* FOLDER
+    BSArch Link: https://www.nexusmods.com/newvegas/mods/64745?tab=files
 
 # =============== INCLUDE & EXCLUDE LISTS ==============
 

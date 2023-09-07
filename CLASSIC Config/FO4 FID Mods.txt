@@ -1,0 +1,25 @@
+>>> THIS IS ONLY A PLACEHOLDER | YOU NEED TO GENERATE THIS FILE WITH FO4EDIT!
+
+- CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
+
+- To generate the FormID List:
+  1) Place the *Generate FormID List.pas* from the CLASSIC Config folder into your FO4Edit/Edit Scripts folder.
+  2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
+  3) Press OK while holding [Shift] to load your plugins in FO4Edit. Once all plugins are loaded, right click on any plugin and select *Apply Script...*
+  4) From the dropdown menu, select *Generate FormID List* and press OK. Depending on how many plugins you have, this will take some time (5-25 mins).
+  5) Once the full FormID List is generated, FO4Edit will ask you to save this list. Save it as a text file with the name: FO4 FID Mods.txt
+  6) Now place your own generated *FO4 FID Mods.txt* file into the CLASSIC Config folder and overwrite the existing *FO4 FID Mods* file.
+     (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
+  7) That's it! Run CLASSIC and scan your crash logs. The autoscan will do the rest.
+  
+[!] REMINDERS
+
+  - Once you overwrite the original *FO4 FID Mods.txt* (this file), crash log file scan will take (much) longer.
+  To make sure the scan isn't as slow, only scan a few crash logs (less than 10) at any time.
+  [ Delete or move any extra crash log files to another folder so CLASSIC can't find them. ]
+  
+  - The script will not be able to generate values for ALL FormIDs, around 10% don't have usable names that CLASSIC can display.
+  You will see [CHECK MANUALLY WITH XEDIT] for these FormIDs. These are usually NavMesh records, but check with FO4Edit anyway.
+  
+  - To stop CLASSIC from checking the FormID List, either delete, rename or move your generated *FO4 FID Mods.txt* file somewhere else.
+  CLASSIC will simply create this placeholder file again if needed and stop checking FormID values until a new FormID List is provided.

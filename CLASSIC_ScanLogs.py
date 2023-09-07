@@ -5,12 +5,39 @@ import time
 import shutil
 import random
 import logging
-from pathlib import Path
-from collections import Counter
+import requests
 import CLASSIC_Main as CMain
+import CLASSIC_ScanGame as CGame
+from urllib.parse import urlparse
+from collections import Counter
+from pathlib import Path
 
 # Logging levels: debug | info | warning | error | critical | Level in basicConfig is minimum and must be UPPERCASE
 logging.basicConfig(level=logging.INFO, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
+
+
+# ================================================
+# ASSORTED FUNCTIONS
+# ================================================
+def generate_fidfile():
+    if not os.path.exists("CLASSIC Config/FO4 FID Mods.txt"):
+        default_fidfile = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Default_FIDMods")
+        with open("CLASSIC Config/FO4 FID Mods.txt", "w", encoding="utf-8") as file:
+            file.write(default_fidfile)
+
+
+def pastebin_fetch(url):
+    if urlparse(url).netloc == "pastebin.com":
+        if "/raw" not in url.path:
+            url = url.replace("pastebin.com", "pastebin.com/raw")
+    response = requests.get(url)
+    if response.status_code in requests.codes.ok:
+        if not os.path.exists("CLASSIC Pastebin"):
+            os.mkdir("CLASSIC Pastebin")
+        outfile = Path(f"CLASSIC Pastebin/crash-{urlparse(url).path.split('/')[-1]}.log")
+        outfile.write_text(response.text, encoding="utf-8", errors="ignore")
+    else:
+        response.raise_for_status()
 
 
 # ================================================
@@ -63,7 +90,7 @@ def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old an
             crash_data = crash_log.readlines()
             index_plugins = 1
             for index, line in enumerate(crash_data):
-                if xse_acronym not in line and "PLUGINS:" in line:
+                if xse_acronym and xse_acronym not in line and "PLUGINS:" in line:
                     index_plugins = index
                     break
             for index, line in enumerate(crash_data):
@@ -82,6 +109,8 @@ def crashlogs_scan():
     if CMain.classic_settings("Simplify Logs"):
         crashlogs_truncate()
 
+    print("SCANNING LOGS, PLEASE WAIT...\n")
+    scan_start_time = time.perf_counter()
     # ================================================
     # Grabbing YAML values are time expensive, so keep these out of the main file loop.
     classic_game_hints = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Hints")
@@ -110,9 +139,11 @@ def crashlogs_scan():
 
     # ================================================
     if CMain.classic_settings("FCX Mode"):
-        main_files_check = CMain.main_combined_output()
+        main_files_check = CMain.main_combined_result()
+        game_files_check = CGame.game_combined_result()
     else:
-        main_files_check = "❌ FCX Mode is not enabled, skipping game files check... \n-----\n"
+        main_files_check = "❌ FCX Mode is disabled, skipping core files check... \n-----\n"
+        game_files_check = "❌ FCX Mode is disabled, skipping game files check... \n-----\n"
 
     # DETECT ONE WHOLE KEY (1 MOD) PER LOOP IN YAML DICT
     def detect_mods_single(yaml_dict):
@@ -158,7 +189,7 @@ def crashlogs_scan():
                     mod_found = True
                     continue
             if mod_found:
-                if gpu_rival in mod_warn.lower():
+                if gpu_rival and gpu_rival in mod_warn.lower():
                     autoscan_report.extend([f"❓ {mod_split[1]} is installed, BUT YOU DON'T HAVE AN {gpu_rival.upper()} GPU!\n",
                                             "THIS MOD IS NOT INTENDED FOR YOUR GPU, PLEASE REMOVE IT TO AVOID PROBLEMS!"])
                 else:
@@ -167,8 +198,6 @@ def crashlogs_scan():
                 if gpu_rival not in mod_warn.lower():
                     autoscan_report.extend([f"❌ {mod_split[1]} is not installed!\n", mod_warn, "\n"])
 
-    print("SCANNING LOGS, PLEASE WAIT...\n")
-    scan_start_time = time.perf_counter()
     crashlog_list = crashlogs_get_files()
     scan_failed_list = []
     scan_folder = Path.cwd()
@@ -198,7 +227,7 @@ def crashlogs_scan():
         index_mainerror = 3
         index_lastline: int = len(crash_data) - 1
         for index, line in enumerate(crash_data):
-            if crashgen_logname.lower() in line.lower():
+            if crashgen_logname and crashgen_logname.lower() in line.lower():
                 index_crashgenver = index
             elif "unhandled exception" in line.lower():
                 index_mainerror = index
@@ -223,8 +252,8 @@ def crashlogs_scan():
         # ================================================
         # 2) GENERATE REQUIRED SEGMENTS FROM THE CRASH LOG
         # ================================================
-        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:")
-        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:")
+        segment_allmodules = crashlog_generate_segment("modules:", f"{xse_acronym.lower()} plugins:")  # type: ignore
+        segment_xsemodules = crashlog_generate_segment(f"{xse_acronym.lower()} plugins:", "plugins:")  # type: ignore
         segment_callstack = crashlog_generate_segment("probable call stack:", "modules:")
         segment_crashgen = crashlog_generate_segment("[compatibility]", "system specs:")
         segment_system = crashlog_generate_segment("system specs:", "probable call stack:")
@@ -393,7 +422,7 @@ def crashlogs_scan():
             autoscan_report.extend(["* NOTICE: FCX MODE IS DISABLED. YOU CAN ENABLE IT TO DETECT PROBLEMS IN YOUR MOD & GAME FILES * \n",
                                     "[ FCX Mode can be enabled in the exe or CLASSIC Settings.yaml located in your CLASSIC folder. ] \n\n"])
 
-            crashgen_ignore = ["F4EE", "WaitForDebugger", "Achievements", "InputSwitch", "MemoryManager", "MemoryManagerDebug"]
+            crashgen_ignore = ["F4EE", "WaitForDebugger", "Achievements", "InputSwitch", "MemoryManager", "MemoryManagerDebug", "BSTextureStreamerLocalHeap"]
             for line in segment_crashgen:
                 if "false" in line.lower() and all(elem.lower() not in line.lower() for elem in crashgen_ignore):
                     line_split = line.split(":", 1)
@@ -423,7 +452,8 @@ def crashlogs_scan():
             autoscan_report.extend(["* NOTICE: FCX MODE IS ENABLED. CLASSIC MUST BE RUN BY THE ORIGINAL USER FOR CORRECT DETECTION * \n",
                                     "[ To disable mod & game files detection, disable FCX Mode in the exe or CLASSIC Settings.yaml ] \n\n"])
 
-            autoscan_report.append(main_files_check)
+        autoscan_report.append(main_files_check)
+        autoscan_report.append(game_files_check)
 
         autoscan_report.extend(["====================================================\n",
                                 "CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...\n",
@@ -586,7 +616,7 @@ def crashlogs_scan():
             autoscan_file.write(autoscan_output)
 
         if trigger_scan_failed and CMain.classic_settings("Move Unsolved"):
-            unsolved_folder = "CLASSIC UNSOLVED"
+            unsolved_folder = "CLASSIC Misc"
             Path(unsolved_folder).mkdir(exist_ok=True)
             autoscan_file = crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md")
             crash_move = Path(unsolved_folder, crashlog_file.name)
@@ -632,8 +662,8 @@ def crashlogs_scan():
 
 
 if __name__ == "__main__":
+    
     import argparse
-
     parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC)", description="All terminal options are saved to the YAML file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
@@ -665,6 +695,7 @@ if __name__ == "__main__":
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CMain.classic_settings("SCAN Custom Path"):
         CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
 
+    generate_fidfile()
     crashlogs_scan()
     # execution_time = timeit.timeit(crashlogs_scan, number=1)
     # print(f"Execution time: {execution_time} seconds")
