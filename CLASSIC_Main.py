@@ -90,19 +90,9 @@ def yaml_update(yaml_path, key_path, new_value):
         yaml.dump(data, yaml_file)
 
 
-# ============ TERMINAL OUTPUT START =============
-classic_ver = yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Info", "version")
-print(f"Hello World! | Crash Log Auto Scanner & Setup Integrity Checker | {classic_ver} | Fallout 4")
-print("REMINDER: COMPATIBLE CRASH LOGS MUST START WITH 'crash-' AND MUST HAVE .log EXTENSION \n")
-print("❓ PLEASE WAIT WHILE CLASSIC CHECKS YOUR SETTINGS AND GAME SETUP...")
-logging.debug(f"> > > STARTED {classic_ver}")
-
-
 # ================================================
 # CREATE REQUIRED FILES, SETTINGS & UPDATE CHECK
 # ================================================
-
-
 def classic_logging():
     logging.debug("- - - INITIATED LOGGING CHECK")
     if os.path.exists("CLASSIC Journal.log"):
@@ -546,18 +536,27 @@ def main_combined_result():
     return combined_result
 
 
-classic_logging()
-classic_settings()
-classic_ignorefile()
-if not yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs"):
-    docs_path_find()
-    docs_generate_paths()
-    game_path_find()
-    game_generate_paths()
+def main_generate_required():
+    classic_ver = yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Info", "version")
+    print(f"Hello World! | Crash Log Auto Scanner & Setup Integrity Checker | {classic_ver} | Fallout 4")
+    print("REMINDER: COMPATIBLE CRASH LOGS MUST START WITH 'crash-' AND MUST HAVE .log EXTENSION \n")
+    print("❓ PLEASE WAIT WHILE CLASSIC CHECKS YOUR SETTINGS AND GAME SETUP...")
+    logging.debug(f"> > > STARTED {classic_ver}")
 
-print("✔️ ALL CLASSIC AND GAME SETTINGS CHECKS HAVE BEEN PERFORMED!")
-print("    YOU CAN NOW SCAN YOUR CRASH LOGS, GAME AND/OR MOD FILES \n")
+    classic_logging()
+    classic_settings()
+    classic_ignorefile()
+    if not yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs"):
+        docs_path_find()
+        docs_generate_paths()
+        game_path_find()
+        game_generate_paths()
+
+    print("✔️ ALL CLASSIC AND GAME SETTINGS CHECKS HAVE BEEN PERFORMED!")
+    print("    YOU CAN NOW SCAN YOUR CRASH LOGS, GAME AND/OR MOD FILES \n")
+
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
+    main_generate_required()
     classic_update_version()
-    os.system("pause")
+    # os.system("pause")

@@ -137,8 +137,10 @@ def detect_log_errors(folder_path):
                     for elem in errors_list:
                         message_list.append(elem)
 
-            except (PermissionError, OSError):  # SPECIAL CASE | Do not write to message_output.
-                print(f"❌ [!] NOTICE : Unable to scan this log file :\n  {file}")
+                    message_list.append(f"\n* TOTAL NUMBER OF DETECTED LOG ERRORS * : {len(errors_list)} \n")
+
+            except (PermissionError, OSError):
+                message_list.append(f"❌ ERROR : Unable to scan this log file :\n  {file}")
                 logging.warning(f"> ! > DETECT LOG ERRORS > UNABLE TO SCAN : {file}")
                 continue
 
@@ -149,7 +151,7 @@ def detect_log_errors(folder_path):
 # ================================================
 # PAPYRUS MONITORING / LOGGING
 # ================================================
-def papyrus_monitoring():
+def papyrus_logging():
     message_list = []
     if not CMain.classic_settings("VR Mode"):
         papyrus_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_PapyrusLog")
@@ -186,7 +188,7 @@ def papyrus_monitoring():
                              "BethINI Link | Standalone Version : https://www.nexusmods.com/fallout4/mods/67?tab=files"])
 
     message_output = "".join(message_list)
-    return message_output
+    return message_output, count_dumps
 
 
 # ================================================
@@ -202,8 +204,8 @@ def scan_wryecheck():
 
     if Path(wrye_plugincheck).is_file():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",
-                             "   [This report is located in your Documents/My Games/Fallout4 folder.] \n",
-                             "   [To hide this report, remove *ModChecker.html* from the same folder.] \n"])
+                             "  [This report is located in your Documents/My Games/Fallout4 folder.] \n",
+                             "  [To hide this report, remove *ModChecker.html* from the same folder.] \n"])
         with open(wrye_plugincheck, "r", encoding="utf-8", errors="ignore") as WB_Check:
             WB_HTML = WB_Check.read()
 
@@ -232,8 +234,9 @@ def scan_wryecheck():
 
             if title == "ESL Capable":
                 esl_count = sum(1 for _ in plugin_list)
-                message_list.extend([f"❓ There are {esl_count} plugins that can be given the ESL flag. This can be done \n",
-                                     "   with SimpleESLify script to avoid reaching the plugin limit (254 esm/esp). \n-----\n"])
+                message_list.extend([f"❓ There are {esl_count} plugins that can be given the ESL flag. This can be done with \n",
+                                     "  the SimpleESLify script to avoid reaching the plugin limit (254 esm/esp). \n",
+                                     "  SimpleESLify: https://www.nexusmods.com/skyrimspecialedition/mods/27568 \n  -----\n"])
 
             for warn_name, warn_desc in wrye_warnings.items():
                 if warn_name == title:
@@ -245,10 +248,11 @@ def scan_wryecheck():
                 for elem in plugin_list:
                     message_list.append(f"    > {elem} \n")
 
-        message_list.extend(["\n  ❔ For more info about the above detected problems, see the WB Advanced Readme \n",
-                             "     For more details about solutions, read the Advanced Troubleshooting Article \n",
-                             "     Advanced Troubleshooting: https://www.nexusmods.com/fallout4/articles/4141 \n",
-                             "     Wrye Bash Advanced Readme Documentation: https://wrye-bash.github.io/docs/ \n\n"])
+        message_list.extend(["\n❔ For more info about the above detected problems, see the WB Advanced Readme \n",
+                             "  For more details about solutions, read the Advanced Troubleshooting Article \n",
+                             "  Advanced Troubleshooting: https://www.nexusmods.com/fallout4/articles/4141 \n",
+                             "  Wrye Bash Advanced Readme Documentation: https://wrye-bash.github.io/docs/ \n",
+                             "  [ After resolving any problems, run Plugin Checker in Wrye Bash again! ] \n\n"])
     else:
         message_list.append(wrye_missinghtml)
 
@@ -354,7 +358,7 @@ def scan_mods_unpacked():
     if mod_path:
         if Path(mod_path).exists():
             filter_names = ["readme", "changes", "changelog", "change log"]
-            print("✔️ MODS FOLDER PATH FOUND! PERFORMING INITIAL MOD FILES CLEANUP... \n")
+            print("✔️ MODS FOLDER PATH FOUND! PERFORMING INITIAL MOD FILES CLEANUP...")
             for root, dirs, files in os.walk(mod_path, topdown=False):
                 for dirname in dirs:
                     main_path = root.replace(mod_path, "")
@@ -365,7 +369,7 @@ def scan_mods_unpacked():
                         modscan_list.append(f"[!] NOTICE (ANIMDATA) : {root_main} > CONTAINS CUSTOM ANIMATION FILE DATA \n")
                     # ================================================
                     # (RE)MOVE REDUNDANT FOMOD FOLDERS
-                    if dirname.lower() == "fomod":
+                    elif dirname.lower() == "fomod":
                         fomod_folder_path = os.path.join(root, dirname)
                         relative_path = os.path.relpath(fomod_folder_path, mod_path)
                         new_folder_path = os.path.join(misc_path, relative_path)
@@ -386,20 +390,29 @@ def scan_mods_unpacked():
                             height = struct.unpack('<I', dds_data[16:20])[0]
                             if width % 2 != 0 or height % 2 != 0:
                                 modscan_list.append(f"[!] CAUTION (DDS-DIMS) : {dds_file_path} > DDS TEXTURE FILE DIMENSIONS ARE NOT DIVISIBLE BY 2 \n")
-
+                    # ================================================
+                    # DETECT INVALID TEXTURE FILE FORMATS
+                    elif (".tga" or ".png") in filename.lower():
+                        inv_file_path = os.path.join(root, filename)
+                        modscan_list.append(f"[!] NOTICE (-FORMAT-) : {inv_file_path} > HAS THE WRONG TEXTURE FORMAT, SHOULD BE DDS \n")
+                    # ================================================
+                    # DETECT INVALID SOUND FILE FORMATS
+                    elif (".mp3" or ".m4a") in filename.lower():
+                        inv_file_path = os.path.join(root, filename)
+                        modscan_list.append(f"[!] NOTICE (-FORMAT-) : {inv_file_path} > HAS THE WRONG SOUND FORMAT, SHOULD BE XWM OR WAV \n")
                     # ================================================
                     # DETECT MODS WITH SCRIPT EXTENDER FILE COPIES
-                    if any(filename.lower() == key.lower() for key in xse_scriptfiles) and "workshop framework" not in root.lower():
+                    elif any(filename.lower() == key.lower() for key in xse_scriptfiles) and "workshop framework" not in root.lower():
                         root_main = main_path.split(os.path.sep)[1]
                         modscan_list.append(f"[!] CAUTION (XSE-COPY) : {root_main} > CONTAINS ONE OR SEVERAL COPIES OF *{xse_acronym}* SCRIPT FILES \n")
                     # ================================================
                     # DETECT MODS WITH PRECOMBINE / PREVIS FILES
-                    if (".csg" or ".cdx" or ".uvd" or "_oc.nif") in filename.lower() and "previs repair pack" not in root.lower():
+                    elif (".csg" or ".cdx" or ".uvd" or "_oc.nif") in filename.lower() and "previs repair pack" not in root.lower():
                         root_main = main_path.split(os.path.sep)[1]
                         modscan_list.append(f"[!] NOTICE (-PREVIS-) : {root_main} > CONTAINS CUSTOM PRECOMBINE / PREVIS FILES \n")
                     # ================================================
                     # (RE)MOVE REDUNDANT README / CHANGELOG FILES
-                    if any(names.lower() in filename.lower() for names in filter_names) and filename.lower().endswith(".txt"):
+                    elif any(names.lower() in filename.lower() for names in filter_names) and filename.lower().endswith(".txt"):
                         readme_file_path = os.path.join(root, filename)
                         relative_path = os.path.relpath(readme_file_path, mod_path)
                         new_file_path = os.path.join(misc_path, relative_path)
@@ -409,9 +422,9 @@ def scan_mods_unpacked():
                         cleanup_list.append(f"MOVED > {readme_file_path} FILE TO > {misc_path} \n")
                         shutil.move(readme_file_path, new_file_path)
 
-            print("\n✔️ CLEANUP COMPLETE! NOW ANALYZING ALL UNPACKED/LOOSE MOD FILES... \n")
-            cleanup_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Reminders"))
-
+            print("✔️ CLEANUP COMPLETE! NOW ANALYZING ALL UNPACKED/LOOSE MOD FILES...")
+            message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Reminders"))
+            message_list.append("========= RESULTS FROM UNPACKED / LOOSE FILES =========\n")
         else:
             message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Invalid"))
     else:
@@ -438,12 +451,12 @@ def scan_mods_archived():
     CLASSIC_folder = Path.cwd()
     bsarch_path = r"CLASSIC Config\BSArch.exe"
     bsarch_path_full = fr"{CLASSIC_folder}\{bsarch_path}"
-    print(bsarch_path_full)
     mod_path = CMain.classic_settings("MODS Folder Path")
     if mod_path:
         if Path(mod_path).exists():
             if Path(bsarch_path).exists():
-                print("\n✔️ ALL REQUIREMENTS SATISFIED! NOW ANALYZING ALL BA2 MOD ARCHIVES... \n")
+                print("✔️ ALL REQUIREMENTS SATISFIED! NOW ANALYZING ALL BA2 MOD ARCHIVES...")
+                message_list.append("\n========== RESULTS FROM ARCHIVED / BA2 FILES ==========\n")
                 for root, dirs, files in os.walk(mod_path, topdown=False):
                     for filename in files:
                         if "textures.ba2" in filename.lower():
@@ -459,7 +472,7 @@ def scan_mods_archived():
                                 output_split = archived_output.split("\n")
                                 output_list = [item for item in output_split if item]
                                 for index, line in enumerate(output_list):
-                                    if ".dds" in line:
+                                    if ".dds" in line.lower():
                                         dds_meta = output_list[index + 2]
                                         dds_meta_split = dds_meta.split(":")
                                         width = dds_meta_split[1].replace("  Height", "").strip()
@@ -468,6 +481,11 @@ def scan_mods_archived():
                                             if int(width) % 2 != 0 or int(height) % 2 != 0:
                                                 root_main = main_path.split(os.path.sep)[1]
                                                 modscan_list.append(f"[!] CAUTION (DDS-DIMS) : ({root_main}) {line} > DDS TEXTURE FILE DIMENSIONS ARE NOT DIVISIBLE BY 2 \n")
+                                    # ================================================
+                                    # DETECT INVALID TEXTURE FILE FORMATS
+                                    elif (".tga" or ".png") in line.lower():
+                                        root_main = main_path.split(os.path.sep)[1]
+                                        modscan_list.append(f"[!] NOTICE (-FORMAT-) : ({root_main}) {line} > HAS THE WRONG TEXTURE FORMAT, SHOULD BE DDS \n")
                             else:
                                 error_message = archived_dump.stderr
                                 print("Command failed with error:\n", error_message)
@@ -479,6 +497,11 @@ def scan_mods_archived():
                             archived_list = subprocess.run(command_list, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                             if archived_list.returncode == 0:
                                 archived_output = archived_list.stdout
+                                # ================================================
+                                # DETECT INVALID SOUND FILE FORMATS
+                                if (".mp3" or ".m4a") in archived_output.lower():
+                                    root_main = main_path.split(os.path.sep)[1]
+                                    modscan_list.append(f"[!] NOTICE (-FORMAT-) : {root_main} > CONTAINS SOUND FILES IN THE WRONG FORMAT \n")
                                 # ================================================
                                 # DETECT MODS WITH AnimationFileData
                                 if "animationfiledata" in archived_output.lower():
@@ -497,8 +520,6 @@ def scan_mods_archived():
                             else:
                                 error_message = archived_list.stderr
                                 print("Command failed with error:\n", error_message)
-
-                message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Reminders"))
             else:
                 message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_BSArch_Missing"))
         else:
@@ -514,11 +535,13 @@ def scan_mods_archived():
 def game_combined_result():
     docs_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
     game_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
-    combined_return = [check_crashgen_settings(), detect_log_errors(docs_path), detect_log_errors(game_path), scan_wryecheck(), scan_mod_inis()]
+    combined_return = [check_crashgen_settings(), detect_log_errors(docs_path), detect_log_errors(game_path),
+                       scan_wryecheck(), scan_mod_inis(), scan_mods_unpacked(), scan_mods_archived()]
     combined_result = "".join(combined_return)
     return combined_result
 
 
 if __name__ == "__main__":
+    CMain.main_generate_required()
     print(game_combined_result())
     # os.system("pause")

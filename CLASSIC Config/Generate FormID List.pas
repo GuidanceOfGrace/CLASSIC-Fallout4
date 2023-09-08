@@ -24,14 +24,14 @@ begin
     EDIDValue := GetElementEditValues(e, 'EDID');
     NAMEValue := GetElementEditValues(e, 'NAME');
     if FULLValue <> '' then
-      FormID := PluginName + ' | ' + FormID + ' | ' + FULLValue
+      FormID := PluginName + ' | ' + Copy(FormID, 3, Length(FormID)) + ' | ' + FULLValue
     else if EDIDValue <> '' then
-      FormID := PluginName + ' | ' + FormID + ' | ' + EDIDValue
-	else if NAMEValue <> '' then
-      FormID := PluginName + ' | ' + FormID + ' | ' + NAMEValue
+      FormID := PluginName + ' | ' + Copy(FormID, 3, Length(FormID)) + ' | ' + EDIDValue
+    else if NAMEValue <> '' then
+      FormID := PluginName + ' | ' + Copy(FormID, 3, Length(FormID)) + ' | ' + NAMEValue
     else
-      FormID := PluginName + ' | ' + FormID + ' | ' + '[CHECK MANUALLY WITH XEDIT]';
-    sl.Add(FormID);
+      FormID := PluginName + ' | ' + Copy(FormID, 3, Length(FormID)) + ' | ' + '[CHECK MANUALLY WITH XEDIT]';
+  sl.Add(FormID);
   end
   else if ElementType(e) = etGroupRecord then
   begin
@@ -95,11 +95,10 @@ begin
     dlgSave.Options := dlgSave.Options + [ofOverwritePrompt];
     dlgSave.Filter := 'Text files (*.txt)|*.txt';
     dlgSave.InitialDir := ProgramPath;
-    dlgSave.FileName := 'Plugins_FormIDs.txt';
+    dlgSave.FileName := 'FormID_List.txt';
     if dlgSave.Execute then
     begin
       sl.SaveToFile(dlgSave.FileName);
-      AddMessage('FormIDs and their values have been exported to: ' + dlgSave.FileName);
     end
     else
         AddMessage('Save aborted.');
@@ -107,7 +106,6 @@ begin
   end
   else
     AddMessage('Nothing to export.');
-
 
   // Free the string list and display a message.
   sl.Free;

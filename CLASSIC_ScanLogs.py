@@ -5,6 +5,7 @@ import time
 import shutil
 import random
 import logging
+import zipfile
 import requests
 import CLASSIC_Main as CMain
 import CLASSIC_ScanGame as CGame
@@ -19,11 +20,17 @@ logging.basicConfig(level=logging.INFO, filename="CLASSIC Journal.log", filemode
 # ================================================
 # ASSORTED FUNCTIONS
 # ================================================
-def generate_fidfile():
+def fidfile_generate():
     if not os.path.exists("CLASSIC Config/FO4 FID Mods.txt"):
         default_fidfile = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Default_FIDMods")
         with open("CLASSIC Config/FO4 FID Mods.txt", "w", encoding="utf-8") as file:
             file.write(default_fidfile)
+
+
+def fidfile_extract():
+    if not os.path.exists("CLASSIC Config/FO4 FID Main.txt"):
+        with zipfile.ZipFile("CLASSIC Config/CLASSIC Data.zip", "r") as zip_ref:
+            zip_ref.extract("FO4 FID Main.txt", "CLASSIC Config")
 
 
 def pastebin_fetch(url):
@@ -150,8 +157,7 @@ def crashlogs_scan():
         trigger_mod_found = False
         for mod_name in yaml_dict:
             mod_warn = yaml_dict.get(mod_name)
-            for plugin_name in crashlog_plugins:
-                plugin_fid = crashlog_plugins.get(plugin_name)
+            for plugin_name, plugin_fid in crashlog_plugins.items():
                 if mod_name.lower() in plugin_name.lower():
                     autoscan_report.extend([f"[!] FOUND : [{plugin_fid}] ", mod_warn])
                     trigger_mod_found = True
@@ -268,8 +274,8 @@ def crashlogs_scan():
 
         # ================== MAIN ERROR ==================
         crashlog_mainerror = crash_data[index_mainerror]
-        if "," in crashlog_mainerror:
-            crashlog_errorsplit = crashlog_mainerror.split(",", 1)
+        if "|" in crashlog_mainerror:
+            crashlog_errorsplit = crashlog_mainerror.split("|", 1)
             autoscan_report.append(f"\nMain Error: {crashlog_errorsplit[0]}\n{crashlog_errorsplit[1]}\n")
         else:
             autoscan_report.append(f"\nMain Error: {crashlog_mainerror}\n")
@@ -555,11 +561,29 @@ def crashlogs_scan():
         formids_matches = [line.replace('0x', '').strip() for line in segment_callstack if "formid:" in line.lower() and "0xFF" not in line]
         if formids_matches:
             formids_found = dict(Counter(formids_matches))
-            for form_id, count in formids_found.items():
-                formid_split = form_id.split(": ", 1)
+            for formid_full, count in formids_found.items():
+                formid_split = formid_full.split(": ", 1)
                 for plugin, plugin_id in crashlog_plugins.items():
                     if str(plugin_id) == str(formid_split[1][:2]):
-                        autoscan_report.append(f"- {form_id} | [{plugin}] | {count}\n")
+                        if CMain.classic_settings("Show FormID Values"):
+                            with open("CLASSIC Config/FO4 FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
+                                with open("CLASSIC Config/FO4 FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
+                                    line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
+                                    line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
+                                    if line_match_main:
+                                        line_split = line_match_main.split(" | ")
+                                        fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
+                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
+                                    elif line_match_mods:
+                                        line_split = line_match_mods.split(" | ")
+                                        fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
+                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
+                                    else:
+                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                                        break
+                        else:
+                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                            break
 
             autoscan_report.extend(["\n[Last number counts how many times each Form ID shows up in the crash log.]\n",
                                     f"These Form IDs were caught by {crashgen_logname} and some of them might be related to this crash.\n",
@@ -662,7 +686,7 @@ def crashlogs_scan():
 
 
 if __name__ == "__main__":
-    
+    CMain.main_generate_required()
     import argparse
     parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC)", description="All terminal options are saved to the YAML file.")
     # Argument values will simply change INI values since that requires the least refactoring
@@ -695,7 +719,8 @@ if __name__ == "__main__":
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CMain.classic_settings("SCAN Custom Path"):
         CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
 
-    generate_fidfile()
+    fidfile_generate()
+    fidfile_extract()
     crashlogs_scan()
     # execution_time = timeit.timeit(crashlogs_scan, number=1)
     # print(f"Execution time: {execution_time} seconds")

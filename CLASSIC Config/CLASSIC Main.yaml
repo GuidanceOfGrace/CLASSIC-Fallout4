@@ -4,8 +4,8 @@ CLASSIC_Info:
   # ========================================================================================
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
-  version: CLASSIC v7.05
-  version_date: 23.09.07 #YY/MM/DD
+  version: CLASSIC v7.06
+  version_date: 23.09.08 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
@@ -27,6 +27,10 @@ CLASSIC_Info:
     # Set to true if you want CLASSIC to show extra stats about scanned logs in the command line / terminal window.
     # NOTICE: This setting currently has no effect, crash log stats will be fully implemented in a future update. 
       Show Statistics: false
+    
+    # Set to true if you want CLASSIC to look up FormID values (names) automatically while scanning crash logs.
+    # This will show some extra details for Possible FormID Suspects at the expense of longer scanning times.
+      Show FormID Values: false
     
     # Set to true if you want CLASSIC to move all unsolved crash logs and their autoscans to CLASSIC UNSOLVED folder.
     # Unsolved logs are all crash logs that are incomplete or in the wrong format.
@@ -63,6 +67,18 @@ CLASSIC_Info:
       - Example Plugin.esp
       - Another Example.esl
       - Example_DLL.dll
+
+# =================== CLASSIC INTERFACE ===================
+
+CLASSIC_Interface: # === EACH TEXT LINE BELOW MUST BE SHORTER THAN THIS LINE ===
+  help_popup_text: |
+    If you have trouble running this program or wish to submit your crash logs
+    for help from our support team, join the Collective Modding Discord server.
+    Press OK to open the server link in your browser.
+  
+  update_popup_text: |
+    New CLASSIC version available! Press OK to open the CLASSIC Nexus Page.
+    REMINDER: CLASSIC should automatically check for updates every 7 days.
 
 # =================== WRYE BASH WARNINGS ==================
 
@@ -159,19 +175,23 @@ Wrye_Warn:
 
 Mods_Warn:
   Mods_Reminders: |
+    =================== MOD FILES SCAN ===================
+    -- REMINDERS --
+    ❓ (-FORMAT-) -> Any files with an incorrect file format will not work.
+      Mod authors should convert these files to their proper game format.
+      If possible, notify the original mod authors about these problems.
     
-    REMINDERS ==========================================
     ❓ (-PREVIS-) -> Any mods that contain custom precombine/previs files
       should load after the PRP.esp plugin from Previs Repair Pack (PRP).
       Otherwise, see if there is a PRP patch available for these mods.
        
     ❓ (ANIMDATA) -> Any mods that have their own custom Animation File Data
       may rarely cause an *Animation Corruption Crash*. For further details,
-      read the *How To Read Crash Logs.pdf* included with CLASSIC files.
+      read the *How To Read Crash Logs.pdf* included with the CLASSIC exe.
       
     ❓ (DDS-DIMS) -> Any mods that have texture files with incorrect dimensions
       are very likely to cause a *Texture (DDS) Crash*. For further details,
-      read the *How To Read Crash Logs.pdf* included with CLASSIC files.
+      read the *How To Read Crash Logs.pdf* included with the CLASSIC exe.
       
     ❓ (XSE-COPY) -> Any mods with copies of original Script Extender files
       may cause script related problems or crashes. For further details,
