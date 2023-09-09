@@ -400,12 +400,12 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
                 failed_list.append(line)
 
         if failed_list:
-            message_list.append(f"#❌ CAUTION : {xse_log_file.name} REPORTS THE FOLLOWING ERRORS #\n")
+            message_list.append(f"#❌ CAUTION : {Path(xse_log_file).name} REPORTS THE FOLLOWING ERRORS #\n")
             for elem in failed_list:
-                message_list.append(f"ERROR > {elem}")
+                message_list.append(f"ERROR > {elem.strip()} \n-----\n")
     else:
-        message_list.extend([f"❌ CAUTION : *{xse_log_file.name}* FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
-                             f"   You need to run the game at least once with {xse_log_file.name}_loader.exe \n",
+        message_list.extend([f"❌ CAUTION : *{Path(xse_log_file).name}* FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
+                             f"   You need to run the game at least once with {Path(xse_log_file).name}_loader.exe \n",
                              "    This will create log files required for CLASSIC to properly check your settings. \n-----\n"])
     message_output = "".join(message_list)
     return message_output
