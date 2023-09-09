@@ -635,8 +635,8 @@ def crashlogs_scan():
                 line.replace(f"{user_folder.parent}\\{user_folder.name}", "******").replace(f"{user_folder.parent}/{user_folder.name}", "******")
 
         # WRITE AUTOSCAN REPORT TO FILE
-        autoscan_name = crashlog_file.name.replace(".log", "")
-        with open(f"{autoscan_name}-AUTOSCAN.md", "w", encoding="utf-8", errors="ignore") as autoscan_file:
+        autoscan_name = str(crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md"))
+        with open(autoscan_name, "w", encoding="utf-8", errors="ignore") as autoscan_file:
             logging.info(f"- - -> RUNNING CRASH LOG FILE SCAN >>> SCANNED {crashlog_file.name}")
             autoscan_output = "".join(autoscan_report)
             autoscan_file.write(autoscan_output)
