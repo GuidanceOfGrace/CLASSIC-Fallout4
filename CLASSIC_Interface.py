@@ -346,7 +346,7 @@ class UiCLASSICMainWin(object):
     @staticmethod
     def update_popup():
         update_popup_text = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Interface", "update_popup_text")
-        if CMain.classic_update_version():
+        if CMain.classic_update_check():
             QtWidgets.QMessageBox.information(CLASSIC_MainWin, "CLASSIC Update", "You have the latest version of CLASSIC!")
         else:
             QtWidgets.QMessageBox.warning(CLASSIC_MainWin, "CLASSIC Update", update_popup_text)

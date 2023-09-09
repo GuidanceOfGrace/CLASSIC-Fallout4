@@ -61,7 +61,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
         if xse_crash_files:
             for crash_file in xse_crash_files:
                 destination_file = fr"{CLASSIC_folder}/{crash_file.name}"
-                shutil.move(crash_file, destination_file)
+                shutil.copy2(crash_file, destination_file)
 
     crash_files = list(CLASSIC_folder.glob("crash-*.log"))
     if CUSTOM_folder:
@@ -645,9 +645,9 @@ def crashlogs_scan():
             scan_move = Path(unsolved_folder, autoscan_file.name)
 
             if crashlog_file.exists():
-                shutil.move(crashlog_file, crash_move)
+                shutil.copy2(crashlog_file, crash_move)
             if autoscan_file.exists():
-                shutil.move(autoscan_file, scan_move)
+                shutil.copy2(autoscan_file, scan_move)
 
     # CHECK FOR FAILED OR INVALID CRASH LOGS
     if scan_failed_list or scan_invalid_list:

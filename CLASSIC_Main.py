@@ -108,7 +108,7 @@ def classic_logging():
         log_age = current_time - log_time
         if log_age.days > 7:
             try:
-                classic_update_version()
+                classic_update_check()
                 os.remove("CLASSIC Journal.log")  # We do this to trigger an auto update check every X days.
                 print("CLASSIC Journal.log has been deleted and regenerated due to being older than 7 days.")
                 logging.basicConfig(level=logging.INFO, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
@@ -133,7 +133,7 @@ def classic_ignorefile():
             file.write(default_ignorefile)
 
 
-def classic_update_version():
+def classic_update_check():
     classic_outdated = """\
 ❌ WARNING : YOUR CLASSIC VERSION IS OUT OF DATE!
 Please download the latest version from here:
@@ -146,6 +146,7 @@ CHECK FOR ANY CLASSIC UPDATES HERE: https://www.nexusmods.com/fallout4/mods/5625
 
     logging.debug("- - - INITIATED UPDATE CHECK")
     if classic_settings("Update Check"):
+        classic_local = yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Info", "version")
         print("❓ (Needs internet connection) CHECKING FOR NEW CLASSIC VERSIONS...")
         print("   (You can disable this check in the EXE or CLASSIC Settings.yaml) \n")
         try:  # DON'T FORGET TO UPDATE GITHUB AND NEXUS LINKS FOR SPECIFIC GAME VERSIONS!
@@ -153,8 +154,9 @@ CHECK FOR ANY CLASSIC UPDATES HERE: https://www.nexusmods.com/fallout4/mods/5625
             if not response.status_code == requests.codes.ok:
                 response.raise_for_status()
             classic_ver_received = response.json()["name"]
-            if classic_ver_received == yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Info.version"):
-                print("\n ✔️ You have the latest version of CLASSIC! \n")
+            print(f"Your CLASSIC Version: {classic_local}\nNewest CLASSIC Version: {classic_ver_received}\n")
+            if classic_ver_received == classic_local:
+                print("✔️ You have the latest version of CLASSIC! \n")
                 return True
             else:
                 print(classic_outdated)
@@ -566,5 +568,5 @@ def main_generate_required():
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
     configure_logging()
     main_generate_required()
-    classic_update_version()
+    classic_update_check()
     os.system("pause")

@@ -13,7 +13,7 @@
 - Extended scan support for crash logs from new and old Buffout 4 versions.
 - Extended compatibility and features for Virtual Reality (VR) version of the game.
 - *VR Mode* setting that will prioritize scanning files from the VR version of the game.
-- *Simlify Logs* setting that removes some useless and redundant lines from crash log files.
+- *Simplify Logs* setting that removes some useless and redundant lines from crash log files.
 - *Show FID Values* setting that will look up FormID values for Possible FormID Suspects.
 - Papyrus Log monitoring built into the GUI. Also plays a warning sound when things go bad.
 - Buttons for quick access to the DDS Texture Scanner, Wrye Bash and BethINI Nexus pages.
