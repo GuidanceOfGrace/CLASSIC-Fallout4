@@ -271,11 +271,15 @@ def crashlogs_scan():
             trigger_scan_failed = True
 
         # ================== MAIN ERROR ==================
-        crashlog_mainerror = crash_data[index_mainerror]
-        if "|" in crashlog_mainerror:
-            crashlog_errorsplit = crashlog_mainerror.split("|", 1)
-            autoscan_report.append(f"\nMain Error: {crashlog_errorsplit[0]}\n{crashlog_errorsplit[1]}\n")
-        else:
+        try:
+            crashlog_mainerror = crash_data[index_mainerror]
+            if "|" in crashlog_mainerror:
+                crashlog_errorsplit = crashlog_mainerror.split("|", 1)
+                autoscan_report.append(f"\nMain Error: {crashlog_errorsplit[0]}\n{crashlog_errorsplit[1]}\n")
+            else:
+                autoscan_report.append(f"\nMain Error: {crashlog_mainerror}\n")
+        except IndexError:
+            crashlog_mainerror = "UNKNOWN"
             autoscan_report.append(f"\nMain Error: {crashlog_mainerror}\n")
 
         # =============== CRASHGEN VERSION ===============
