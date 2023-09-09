@@ -1,4 +1,4 @@
-# FALLOUT 4 DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.0+
+# FALLOUT 4 VR DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.00+
 
 GameVR_Info:
   Game_Root_Name: Fallout 4 VR
@@ -54,35 +54,35 @@ GameVR_Info:
   # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
 
   # FO4 MAIN
-  Root_Folder_Docs: C:\Users\Zen\Documents\My Games\Fallout4
-  Root_Folder_Game: E:\Steam\steamapps\common\Fallout 4\
+  Root_Folder_Docs:
+  Root_Folder_Game:
   # FO4 GAME
-  Game_Folder_Data: E:\Steam\steamapps\common\Fallout 4\Data
-  Game_Folder_Scripts: E:\Steam\steamapps\common\Fallout 4\Data\Scripts
-  Game_Folder_CK_Fixes: E:\Steam\steamapps\common\Fallout 4\Data\F4CKFixes
-  Game_File_AddressLib: E:\Steam\steamapps\common\Fallout 4\Data\F4SE\Plugins\version-1-10-163-0.bin
-  Game_File_BuffoutDLL: E:\Steam\steamapps\common\Fallout 4\Data\F4SE\Plugins\Buffout4.dll
-  Game_File_BuffoutTOML: E:\Steam\steamapps\common\Fallout 4\Data\F4SE\Plugins\Buffout4\config.toml
-  Game_File_CK_EXE: E:\Steam\steamapps\common\Fallout 4\CreationKit.exe
-  Game_File_EXE: E:\Steam\steamapps\common\Fallout 4\Fallout4.exe
-  Game_File_PreloaderDLL: E:\Steam\steamapps\common\Fallout 4\IpHlpAPI.dll
-  Game_File_PreloaderXML: E:\Steam\steamapps\common\Fallout 4\xSE PluginPreloader.xml
-  Game_File_SteamINI: E:\Steam\steamapps\common\Fallout 4\steam_api.ini
+  Game_Folder_Data:
+  Game_Folder_Scripts:
+  Game_Folder_CK_Fixes:
+  Game_File_AddressLib:
+  Game_File_BuffoutDLL:
+  Game_File_BuffoutTOML:
+  Game_File_CK_EXE:
+  Game_File_EXE:
+  Game_File_PreloaderDLL:
+  Game_File_PreloaderXML:
+  Game_File_SteamINI:
   # FO4 GAME F4SE
-  XSE_File_DLL: E:\Steam\steamapps\common\Fallout 4\f4se_1_10_163.dll
-  XSE_File_Loader: E:\Steam\steamapps\common\Fallout 4\f4se_loader.exe
-  XSE_File_SteamDLL: E:\Steam\steamapps\common\Fallout 4\f4se_steam_loader.dll
+  XSE_File_DLL:
+  XSE_File_Loader:
+  XSE_File_SteamDLL:
 
   # FO4 DOCS
-  Docs_Folder_F4SE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE
-  Docs_File_F4SE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\f4se.log
-  Docs_File_BakaSH: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\BakaScrapHeap.log
-  Docs_File_Achieve: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\achievements.log
-  Docs_File_LooksMenu: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\f4ee.log
+  Docs_Folder_F4SE:
+  Docs_File_F4SE:
+  Docs_File_BakaSH:
+  Docs_File_Achieve:
+  Docs_File_LooksMenu:
   Docs_File_GameMainINI:
-  Docs_File_GameCustomINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4Custom.ini
+  Docs_File_GameCustomINI:
   Docs_File_GamePrefsINI:
-  Docs_File_WryeBashPC: C:\Users\Zen\Documents\My Games\Fallout4\ModChecker.html
+  Docs_File_WryeBashPC:
 
 
 GameVR_Hints:
@@ -97,6 +97,5 @@ GameVR_Hints:
   - "Random Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't."
   - 'Random Hint: Revisit both Buffout 4 Crash Article and CLASSIC Nexus Page from time to time in case there are updates.'
   - "Random Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened."
-
 
 GameVR_Warn:  # RESERVED | Warnings specific to the VR version. Add warns if necessary.

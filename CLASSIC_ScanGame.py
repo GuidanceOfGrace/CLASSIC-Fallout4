@@ -8,9 +8,7 @@ import configparser
 import CLASSIC_Main as CMain
 from bs4 import BeautifulSoup
 from pathlib import Path
-
-# Logging levels: debug | info | warning | error | critical | Level in basicConfig is minimum and must be UPPERCASE
-logging.basicConfig(level=logging.INFO, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
+CMain.configure_logging()
 
 
 # ================================================
@@ -389,7 +387,7 @@ def scan_mods_unpacked():
                             width = struct.unpack('<I', dds_data[12:16])[0]
                             height = struct.unpack('<I', dds_data[16:20])[0]
                             if width % 2 != 0 or height % 2 != 0:
-                                modscan_list.append(f"[!] CAUTION (DDS-DIMS) : {dds_file_path} > DDS TEXTURE FILE DIMENSIONS ARE NOT DIVISIBLE BY 2 \n")
+                                modscan_list.append(f"[!] CAUTION (DDS-DIMS) : {dds_file_path} > {width}x{height} DDS DIMENSIONS ARE NOT DIVISIBLE BY 2 \n")
                     # ================================================
                     # DETECT INVALID TEXTURE FILE FORMATS
                     elif (".tga" or ".png") in filename.lower():
@@ -480,7 +478,7 @@ def scan_mods_archived():
                                         if width.isdecimal() and height.isdecimal():
                                             if int(width) % 2 != 0 or int(height) % 2 != 0:
                                                 root_main = main_path.split(os.path.sep)[1]
-                                                modscan_list.append(f"[!] CAUTION (DDS-DIMS) : ({root_main}) {line} > DDS TEXTURE FILE DIMENSIONS ARE NOT DIVISIBLE BY 2 \n")
+                                                modscan_list.append(f"[!] CAUTION (DDS-DIMS) : ({root_main}) {line} > {width}x{height} DDS DIMENSIONS ARE NOT DIVISIBLE BY 2 \n")
                                     # ================================================
                                     # DETECT INVALID TEXTURE FILE FORMATS
                                     elif (".tga" or ".png") in line.lower():
@@ -535,8 +533,13 @@ def scan_mods_archived():
 def game_combined_result():
     docs_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
     game_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
-    combined_return = [check_crashgen_settings(), detect_log_errors(docs_path), detect_log_errors(game_path),
-                       scan_wryecheck(), scan_mod_inis(), scan_mods_unpacked(), scan_mods_archived()]
+    combined_return = [check_crashgen_settings(), detect_log_errors(docs_path), detect_log_errors(game_path), scan_wryecheck(), scan_mod_inis()]
+    combined_result = "".join(combined_return)
+    return combined_result
+
+
+def mods_combined_result():  # KEEP THESE SEPARATE SO THEY ARE NOT INCLUDED IN AUTOSCAN REPORTS
+    combined_return = [scan_mods_unpacked(), scan_mods_archived()]
     combined_result = "".join(combined_return)
     return combined_result
 
@@ -544,4 +547,5 @@ def game_combined_result():
 if __name__ == "__main__":
     CMain.main_generate_required()
     print(game_combined_result())
-    # os.system("pause")
+    print(mods_combined_result())
+    os.system("pause")

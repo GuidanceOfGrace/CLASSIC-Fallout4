@@ -21,8 +21,15 @@ from pathlib import Path
     CO-AUTHOR NOTES (NameHere):
     * You can write stuff here so I don't miss it. *
 """
+
+
 # Logging levels: debug | info | warning | error | critical | Level in basicConfig is minimum and must be UPPERCASE
-logging.basicConfig(level=logging.DEBUG, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
+def configure_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        filename="CLASSIC Journal.log",
+        filemode="a",
+        format="%(asctime)s | %(levelname)s | %(message)s")
 
 
 # ================================================
@@ -128,7 +135,7 @@ def classic_ignorefile():
 
 def classic_update_version():
     classic_outdated = """\
-❌ WARNING : YOUR CLASSIC VERSION IS OUT OF DATE!"
+❌ WARNING : YOUR CLASSIC VERSION IS OUT OF DATE!
 Please download the latest version from here:
 https://www.nexusmods.com/fallout4/mods/56255
 """
@@ -458,7 +465,7 @@ def docs_check_folder():
         game_docs_name = yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs_Name")
 
     if "onedrive" in game_docs_name.lower():
-        message_list.extend([f"❌ CAUTION : YOUR DOCUMENTS FOLDER IS BEING BACKED UP BY MICROSOFT ONEDRIVE! \n",
+        message_list.extend([f"❌ CAUTION : MICROSOFT ONEDRIVE IS OVERRIDING YOUR DOCUMENTS FOLDER PATH! \n",
                              f"   This can sometimes cause various save file and file permissions problems. \n",
                              "    To avoid this, disable Documents folder backup in your OneDrive settings. \n-----\n"])
     message_output = "".join(message_list)
@@ -546,7 +553,7 @@ def main_generate_required():
     classic_logging()
     classic_settings()
     classic_ignorefile()
-    if not yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs"):
+    if not yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game"):
         docs_path_find()
         docs_generate_paths()
         game_path_find()
@@ -557,6 +564,7 @@ def main_generate_required():
 
 
 if __name__ == "__main__":  # AKA only autorun / do the following when NOT imported.
+    configure_logging()
     main_generate_required()
     classic_update_version()
-    # os.system("pause")
+    os.system("pause")

@@ -12,9 +12,7 @@ import CLASSIC_ScanGame as CGame
 from urllib.parse import urlparse
 from collections import Counter
 from pathlib import Path
-
-# Logging levels: debug | info | warning | error | critical | Level in basicConfig is minimum and must be UPPERCASE
-logging.basicConfig(level=logging.INFO, filename="CLASSIC Journal.log", filemode="a", format="%(asctime)s | %(levelname)s | %(message)s")
+CMain.configure_logging()
 
 
 # ================================================
@@ -29,8 +27,8 @@ def fidfile_generate():
 
 def fidfile_extract():
     if not os.path.exists("CLASSIC Config/FO4 FID Main.txt"):
-        with zipfile.ZipFile("CLASSIC Config/CLASSIC Data.zip", "r") as zip_ref:
-            zip_ref.extract("FO4 FID Main.txt", "CLASSIC Config")
+        with zipfile.ZipFile("CLASSIC Config/CLASSIC Data.zip", "r") as zip_data:
+            zip_data.extract("FO4 FID Main.txt", "CLASSIC Config")
 
 
 def pastebin_fetch(url):
@@ -618,7 +616,7 @@ def crashlogs_scan():
         autoscan_report.extend(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n",
                                 "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n",
                                 "===============================================================================\n",
-                                f"END OF AUTOSCAN | Author / Made By: Poet#9800 (DISCORD) | {classic_version_date}\n",
+                                f"END OF AUTOSCAN | Author / Made By: Poet | {classic_version_date}\n",
                                 "CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757\n",
                                 "CLASSIC | https://www.nexusmods.com/fallout4/mods/56255"])
 
@@ -688,6 +686,7 @@ def crashlogs_scan():
 if __name__ == "__main__":
     CMain.main_generate_required()
     import argparse
+
     parser = argparse.ArgumentParser(prog="Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC)", description="All terminal options are saved to the YAML file.")
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
@@ -724,4 +723,4 @@ if __name__ == "__main__":
     crashlogs_scan()
     # execution_time = timeit.timeit(crashlogs_scan, number=1)
     # print(f"Execution time: {execution_time} seconds")
-    # os.system("pause")
+    os.system("pause")

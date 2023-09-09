@@ -1,6 +1,10 @@
-# CRASH LOG AUTO SCANNER GUI WITH PySide6 (PYTHON 3.9 COMPLIANT)
+# CLASSIC GUI WITH PySide6 (NOW WORKS WITH 3.11!)
 import sys
+import time
 import multiprocessing
+import soundfile as sfile
+import sounddevice as sdev
+# sfile and sdev need Numpy
 import CLASSIC_Main as CMain
 import CLASSIC_ScanGame as CGame
 import CLASSIC_ScanLogs as CLogs
@@ -9,6 +13,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt, QUrl, QTimer, Slot
 from PySide6.QtGui import QColor, QDesktopServices, QPalette
 from PySide6.QtWidgets import QFileDialog
+CMain.configure_logging()
 '''import platform  # RESERVED FOR FUTURE UPDATE
 current_platform = platform.system()
 if current_platform == 'Windows':
@@ -106,8 +111,15 @@ def create_text_browser(parent, geometry, text):
 
 def papyrus_worker(q, stop_event):
     while not stop_event.is_set():
-        result = CGame.papyrus_logging()
-        q.put(result[0])
+        papyrus_result = CGame.papyrus_logging()
+        q.put(papyrus_result)
+        time.sleep(3)
+
+
+def play_sound(sound_file):
+    sound, samplerate = sfile.read(f"CLASSIC Config/{sound_file}")
+    sdev.play(sound, samplerate)
+    sdev.wait()
 
 
 # ================================================
@@ -168,7 +180,7 @@ class UiCLASSICMainWin(object):
         MODS_folder = CMain.classic_settings("MODS Folder Path")
         if MODS_folder:
             self.Box_SelectedMods.setText(MODS_folder.strip())
-            palette = self.Box_SelectedScan.palette()
+            palette = self.Box_SelectedMods.palette()
             palette.setColor(QPalette.Text, QColor(Qt.black))
             self.Box_SelectedMods.setPalette(palette)
 
@@ -264,10 +276,13 @@ class UiCLASSICMainWin(object):
     @staticmethod
     def crash_logs_scan():
         CLogs.crashlogs_scan()
+        play_sound("classic_notify.wav")
 
     @staticmethod
     def game_files_scan():
         print(CGame.game_combined_result())
+        print(CGame.mods_combined_result())
+        play_sound("classic_notify.wav")
 
     @Slot()
     def toggle_papyrus_worker(self):
@@ -286,28 +301,32 @@ class UiCLASSICMainWin(object):
 
     def update_text_window(self):
         while not self.result_queue.empty():
-            result = self.result_queue.get()
-            self.TXT_Window.setPlainText(result)
+            queue_result = self.result_queue.get()  # papyrus_result
+            old_papyrus_text = self.TXT_Window.toPlainText()
+            new_papyrus_text, new_dump_count = queue_result[:2]
+            old_dump_count = next((line for line in old_papyrus_text.split("\n") if "DUMPS" in line), None)
+            if old_dump_count and new_dump_count > int(old_dump_count.split(" : ")[1]):
+                play_sound("classic_error.wav")
+                time.sleep(3)
+            self.TXT_Window.setPlainText(new_papyrus_text)
 
     def select_folder_scan(self):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
             self.Box_SelectedScan.setText(SCAN_folder)
             CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.SCAN Custom Path", SCAN_folder)
-            # Change text color back to black.
-            LSF_palette = self.Box_SelectedScan.palette()
-            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
-            self.Box_SelectedScan.setPalette(LSF_palette)
+            TXT_palette = self.Box_SelectedScan.palette()
+            TXT_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
+            self.Box_SelectedScan.setPalette(TXT_palette)
 
     def select_folder_mods(self):
         MODS_folder = QFileDialog.getExistingDirectory()
         if MODS_folder:
-            self.Box_SelectedScan.setText(MODS_folder)
+            self.Box_SelectedMods.setText(MODS_folder)
             CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.MODS Folder Path", MODS_folder)
-            # Change text color back to black.
-            LSF_palette = self.Box_SelectedScan.palette()
-            LSF_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
-            self.Box_SelectedScan.setPalette(LSF_palette)
+            TXT_palette = self.Box_SelectedMods.palette()
+            TXT_palette.setColor(QPalette.ColorRole.Text, QColor("black"))
+            self.Box_SelectedMods.setPalette(TXT_palette)
 
     @staticmethod
     def select_folder_ini():
@@ -336,7 +355,7 @@ class UiCLASSICMainWin(object):
 
 if __name__ == "__main__":
     CMain.main_generate_required()
-    gui_prompt = """\
+    gui_message = """\
 PRESS *SCAN CRASH LOGS* BUTTON TO SCAN ALL AVAILABLE BUFFOUT 4 CRASH LOGS
 
 PRESS *SCAN GAME FILES* BUTTON TO CHECK YOUR FALLOUT 4 GAME & MOD FILES
@@ -344,7 +363,7 @@ PRESS *SCAN GAME FILES* BUTTON TO CHECK YOUR FALLOUT 4 GAME & MOD FILES
 IF YOU ARE USING MOD ORGANIZER 2, YOU NEED TO RUN CLASSIC WITH THE MO2 SHORTCUT
 CHECK THE INCLUDED CLASSIC Readme.md FILE FOR MORE DETAILS AND INSTRUCTIONS
 """
-    print(gui_prompt)
+    print(gui_message)
     app = QtWidgets.QApplication(sys.argv)
     CLASSIC_MainWin = QtWidgets.QDialog()
     ui = UiCLASSICMainWin(CLASSIC_MainWin)
