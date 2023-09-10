@@ -93,7 +93,26 @@ Game_Hints:
   - 'Random Hint: Revisit both Buffout 4 Crash Article and CLASSIC Nexus Page from time to time in case there are updates.'
   - 'Random Hint: When posting crash logs, it is helpful to mention the last thing you were doing before the crash happened.'
 
-Default_FIDMods: |
+Default_FO4Custom: |  # Default settings for *Fallout4Custom.ini* if that file doesn't already exist.
+  [Archive]
+  ; Enable Archive Invalidation
+  bInvalidateOlderFiles=1
+  sResourceDataDirsFinal=
+  
+  [Display]
+  ; Increase Pip-Boy Resolution
+  uPipboyTargetHeight=1400
+  uPipboyTargetWidth=1752
+  ; Lower PA Screen Brightness
+  fPipboyScreenEmitIntensityPA=1.25
+  fPipboyScreenDiffuseIntensityPA=0.15
+  ; Center The Game Window
+  iLocation X=0
+  iLocation Y=0
+  ; Increase Shadow Quality Transition Distance
+  fBlendSplitDirShadow=256
+
+Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't already exist.
   >>> THIS IS ONLY A PLACEHOLDER | YOU NEED TO GENERATE THIS FILE WITH FO4EDIT!
   
   - CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
@@ -106,7 +125,7 @@ Default_FIDMods: |
     5) Once the full FormID List is generated, FO4Edit will ask you to save this list. Save it as a text file, then rename it to: FO4 FID Mods.txt
     6) Now place your own generated *FO4 FID Mods.txt* file into the CLASSIC Config folder and overwrite the existing *FO4 FID Mods* file.
        (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
-    7) Set *Show FormID Values* to true in CLASSIC Settings.yaml and that's it! Scan your crash logs, the autoscan will do the rest.
+    7) Run CLASSIC, enable *Show FID Values* under CLASSIC Settings and that's it! Scan your crash logs, the autoscan will do the rest.
   
     [!] REMINDERS
     

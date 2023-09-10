@@ -1,8 +1,15 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
-7.07 | "Everything Everywhere All At Once" Update
+7.08 | # UPCOMING #
+*NEW FEATURES*
+- Default *Fallout4Custom.ini* settings are now accessible through *CLASSIC FO4.yaml*
+[These settings will be auto generated if Fallout4Custom.ini doesn't already exist.]
 
+*CHANGES*
+- CLASSIC now keeps AUTOSCAN report files in the same folder with their crash logs.
+
+7.07 | "Everything Everywhere All At Once" Update
 *NEW FEATURES*
 - CLASSIC will automatically check for its own updates every 7 days.
 - CLASSIC will warn you if MS OneDrive is overriding your Documents folder location.

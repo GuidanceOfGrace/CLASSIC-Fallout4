@@ -93,6 +93,17 @@ def create_custom_check_box(parent, geometry, text, tooltip, checked, object_nam
     return check_box
 
 
+def create_custom_popup_box(parent, title, text, open_url):
+    popup_box = QtWidgets.QMessageBox(parent)
+    popup_box.setIcon(QtWidgets.QMessageBox.Question)
+    popup_box.setWindowTitle(title)
+    popup_box.setText(text)  # RESERVED | popup_box.setInformativeText("...")
+    popup_box.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+    if popup_box.exec() != QtWidgets.QMessageBox.Cancel:
+        QDesktopServices.openUrl(QUrl(open_url))
+    return popup_box
+
+
 def create_label(parent, text, geometry):
     label = QtWidgets.QLabel(parent)
     label.setGeometry(geometry)
@@ -340,8 +351,7 @@ class UiCLASSICMainWin(object):
     @staticmethod
     def help_popup():
         help_popup_text = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Interface", "help_popup_text")
-        QtWidgets.QMessageBox.information(CLASSIC_MainWin, "Need Help?", help_popup_text)
-        QDesktopServices.openUrl(QUrl("https://discord.com/invite/7ZZbrsGQh4"))
+        create_custom_popup_box(CLASSIC_MainWin, "Need Help?", help_popup_text, "https://discord.com/invite/7ZZbrsGQh4")
 
     @staticmethod
     def update_popup():

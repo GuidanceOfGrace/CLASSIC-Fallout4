@@ -530,8 +530,8 @@ def docs_check_ini(ini_name) -> str:
             with open(ini_path, "a", encoding="utf-8", errors="ignore") as ini_file:
                 message_list.extend(["❌ WARNING : Archive Invalidation / Loose Files setting is not enabled. \n",
                                      "  CLASSIC will now enable this setting automatically in the game INI files. \n-----\n"])
-                INI_config = "[Archive]\nbInvalidateOlderFiles=1\nsResourceDataDirsFinal="
-                ini_file.write(INI_config)
+                customini_config = yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Default_FO4Custom")
+                ini_file.write(customini_config)
 
     message_output = "".join(message_list)
     return message_output
