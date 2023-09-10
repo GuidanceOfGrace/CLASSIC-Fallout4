@@ -271,11 +271,15 @@ def crashlogs_scan():
             trigger_scan_failed = True
 
         # ================== MAIN ERROR ==================
-        crashlog_mainerror = crash_data[index_mainerror]
-        if "|" in crashlog_mainerror:
-            crashlog_errorsplit = crashlog_mainerror.split("|", 1)
-            autoscan_report.append(f"\nMain Error: {crashlog_errorsplit[0]}\n{crashlog_errorsplit[1]}\n")
-        else:
+        try:
+            crashlog_mainerror = crash_data[index_mainerror]
+            if "|" in crashlog_mainerror:
+                crashlog_errorsplit = crashlog_mainerror.split("|", 1)
+                autoscan_report.append(f"\nMain Error: {crashlog_errorsplit[0]}\n{crashlog_errorsplit[1]}\n")
+            else:
+                autoscan_report.append(f"\nMain Error: {crashlog_mainerror}\n")
+        except IndexError:
+            crashlog_mainerror = "UNKNOWN"
             autoscan_report.append(f"\nMain Error: {crashlog_mainerror}\n")
 
         # =============== CRASHGEN VERSION ===============
@@ -631,8 +635,8 @@ def crashlogs_scan():
                 line.replace(f"{user_folder.parent}\\{user_folder.name}", "******").replace(f"{user_folder.parent}/{user_folder.name}", "******")
 
         # WRITE AUTOSCAN REPORT TO FILE
-        autoscan_name = crashlog_file.name.replace(".log", "")
-        with open(f"{autoscan_name}-AUTOSCAN.md", "w", encoding="utf-8", errors="ignore") as autoscan_file:
+        autoscan_name = str(crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md"))
+        with open(autoscan_name, "w", encoding="utf-8", errors="ignore") as autoscan_file:
             logging.info(f"- - -> RUNNING CRASH LOG FILE SCAN >>> SCANNED {crashlog_file.name}")
             autoscan_output = "".join(autoscan_report)
             autoscan_file.write(autoscan_output)
