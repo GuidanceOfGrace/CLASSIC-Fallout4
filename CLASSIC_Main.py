@@ -501,7 +501,10 @@ def docs_check_ini(ini_name) -> str:
                 if "Archive" not in INI_config.sections():
                     message_list.extend(["❌ WARNING : Archive Invalidation / Loose Files setting is not enabled. \n",
                                          "  CLASSIC will now enable this setting automatically in the game INI files. \n-----\n"])
-                    INI_config.add_section("Archive")
+                    try:
+                        INI_config.add_section("Archive")
+                    except configparser.DuplicateSectionError:
+                        pass
                 else:
                     message_list.append("✔️ Archive Invalidation / Loose Files setting is already enabled! \n-----\n")
 
