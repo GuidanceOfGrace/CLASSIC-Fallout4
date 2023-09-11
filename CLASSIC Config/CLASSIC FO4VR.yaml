@@ -54,7 +54,7 @@ GameVR_Info:
   # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
 
   # FO4 MAIN
-  Root_Folder_Docs:
+  Root_Folder_Docs: C:\Users\evild\OneDrive\Documents\My Games\Fallout4VR
   Root_Folder_Game:
   # FO4 GAME
   Game_Folder_Data:
