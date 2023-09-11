@@ -54,32 +54,33 @@ Game_Info:
   # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
 
   # FO4 MAIN
-  Root_Folder_Docs: C:\Users\evild\OneDrive\Documents\My Games\Fallout4
-  Root_Folder_Game: D:\SteamLibrary\steamapps\common\Fallout 4\
+  Root_Folder_Docs:
+  Root_Folder_Game:
   # FO4 GAME
-  Game_Folder_Data: D:\SteamLibrary\steamapps\common\Fallout 4\Data
-  Game_Folder_Scripts: D:\SteamLibrary\steamapps\common\Fallout 4\Data\Scripts
-  Game_Folder_CK_Fixes: D:\SteamLibrary\steamapps\common\Fallout 4\Data\F4CKFixes
-  Game_File_AddressLib: D:\SteamLibrary\steamapps\common\Fallout 4\Data\F4SE\Plugins\version-1-10-163-0.bin
-  Game_File_BuffoutDLL: D:\SteamLibrary\steamapps\common\Fallout 4\Data\F4SE\Plugins\Buffout4.dll
-  Game_File_BuffoutTOML: D:\SteamLibrary\steamapps\common\Fallout 4\Data\F4SE\Plugins\Buffout4\config.toml
-  Game_File_CK_EXE: D:\SteamLibrary\steamapps\common\Fallout 4\CreationKit.exe
-  Game_File_EXE: D:\SteamLibrary\steamapps\common\Fallout 4\Fallout4.exe
-  Game_File_PreloaderDLL: D:\SteamLibrary\steamapps\common\Fallout 4\IpHlpAPI.dll
-  Game_File_PreloaderXML: D:\SteamLibrary\steamapps\common\Fallout 4\xSE PluginPreloader.xml
-  Game_File_SteamINI: D:\SteamLibrary\steamapps\common\Fallout 4\steam_api.ini
+  Game_Folder_Data:
+  Game_Folder_Scripts:
+  Game_Folder_CK_Fixes:
+  Game_File_AddressLib:
+  Game_File_BuffoutDLL:
+  Game_File_BuffoutTOML:
+  Game_File_CK_EXE:
+  Game_File_EXE:
+  Game_File_PreloaderDLL:
+  Game_File_PreloaderXML:
+  Game_File_SteamINI:
   # FO4 GAME F4SE
-  XSE_File_DLL: D:\SteamLibrary\steamapps\common\Fallout 4\f4se_1_10_163.dll
-  XSE_File_Loader: D:\SteamLibrary\steamapps\common\Fallout 4\f4se_loader.exe
-  XSE_File_SteamDLL: D:\SteamLibrary\steamapps\common\Fallout 4\f4se_steam_loader.dll
+  XSE_File_DLL:
+  XSE_File_Loader:
+  XSE_File_SteamDLL:
   # FO4 DOCS
-  Docs_Folder_XSE: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\F4SE
-  Docs_File_XSE: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\F4SE\f4se.log
-  Docs_File_GameMainINI: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\Fallout4.ini
-  Docs_File_GameCustomINI: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\Fallout4Custom.ini
-  Docs_File_GamePrefsINI: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\Fallout4Prefs.ini
-  Docs_File_PapyrusLog: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\Logs\Script\Papyrus.0.log
-  Docs_File_WryeBashPC: C:\Users\evild\OneDrive\Documents\My Games\Fallout4\ModChecker.html
+  Docs_Folder_XSE:
+  Docs_File_XSE:
+  Docs_File_GameMainINI:
+  Docs_File_GameCustomINI:
+  Docs_File_GamePrefsINI:
+  Docs_File_PapyrusLog:
+  Docs_File_WryeBashPC:
+  
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
@@ -97,7 +98,7 @@ Default_FO4Custom: |  # Default settings for *Fallout4Custom.ini* if that file d
   ; Enable Archive Invalidation
   bInvalidateOlderFiles=1
   sResourceDataDirsFinal=
-
+  
   [Display]
   ; Increase Pip-Boy Resolution
   uPipboyTargetHeight=1400
@@ -113,9 +114,9 @@ Default_FO4Custom: |  # Default settings for *Fallout4Custom.ini* if that file d
 
 Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't already exist.
   >>> THIS IS ONLY A PLACEHOLDER | YOU NEED TO GENERATE THIS FILE WITH FO4EDIT!
-
+  
   - CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
-
+  
   - To generate the FormID List:
     1) Place the *Generate FormID List.pas* from the CLASSIC Config folder into your FO4Edit/Edit Scripts folder.
     2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
@@ -125,7 +126,7 @@ Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't 
     6) Now place your own generated *FO4 FID Mods.txt* file into the CLASSIC Config folder and overwrite the existing *FO4 FID Mods* file.
        (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
     7) Run CLASSIC, enable *Show FID Values* under CLASSIC Settings and that's it! Scan your crash logs, the autoscan will do the rest.
-
+  
     [!] REMINDERS
     
       - Once you overwrite the original *FO4 FID Mods.txt* (this file), crash log file scan will take (much) longer.
@@ -208,14 +209,14 @@ Warnings_MODS:
       IF FALLOUT 4 STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR GAME FOLDER
     -----
 
-  Warn_WRYE_MissingHTML: |2
-
+  Warn_WRYE_MissingHTML: |
+    
     * NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
     To check your load order and detect additional problems; install and run Wrye Bash,
     then select View > Plugin Checker from the top bar in the main Wrye Bash window.
     WB Link (Use MANUAL DOWNLOAD): https://www.nexusmods.com/fallout4/mods/20032
     -----
-
+  
 
 Crashlog_Records_Exclude:  # EXCLUDE lines that contain *these* strings from the Call Stack in Crash Logs.
   - '""'
@@ -302,6 +303,7 @@ Crashlog_Stack_Check:
   5 | Grid Scrap Crash: [GridAdjacencyMapNode, PowerUtils]
 
   5 | Map Marker Crash: [HUDCompass, HUDCompassMarker, attachMovie()]
+  
   4 | Mesh (NIF) Crash: [NOT|LooseFileAsyncStream, LooseFileStream, BSFadeNode, BSMultiBoundNode]
 
   4 | Texture (DDS) Crash: [Create2DTexture, DefaultTexture]
@@ -349,11 +351,13 @@ Crashlog_Stack_Check:
   5 | Animation / Physics Crash: [ME-OPT|1FCC07E, BSAnimationGraphManager, hkbVariableBindingSet, hkbHandIkControlsModifier, hkbBehaviorGraph, hkbModifierList]
 
   5 | Animation Corruption Crash: [ME-OPT|1B938F0, AnimTextData\\AnimationFileData, AnimationFileLookupSingletonHelper]
+  
   5 | Archive Invalidation Crash: [DLCBanner05.dds]
 
   1 | *[Item Crash]: [ME-OPT|0B2C44B, TESObjectARMO, TESObjectWEAP, BGSMod::Attachment, BGSMod::Template, BGSMod::Template::Item]
 
   1 | *[Save Crash]: [ME-OPT|0CDAD30, BGSSaveLoadManager, BGSSaveLoadThread, BGSSaveFormBuffer]
+  
   1 | *[Input Crash]: [ButtonEvent, MenuControls, MenuOpenCloseHandler, PlayerControls, DXGISwapChain]
 
   1 | *[SS2 / WF Crash]: [ME-OPT|01F498D, ME-OPT|03F89A3, StartWorkshop, IsWithinBuildableArea, PlayerControls, DXGISwapChain]
@@ -841,5 +845,5 @@ Mods_OPC2:  # 4) MODS PATCHED THROUGH OPC INSTALLER
     Sector V
   subwayrunnerdynamiclighting: |
     Subway Runner (Dynamic Lights)
-  zxcMicroAdditions: |-
+  zxcMicroAdditions: |
     ZXC Micro Additions
