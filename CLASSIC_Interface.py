@@ -93,7 +93,6 @@ def create_custom_check_box(parent, geometry, text, tooltip, checked, object_nam
     return check_box
 
 
-# noinspection PyUnresolvedReferences
 def create_custom_popup_box(parent, title, text, open_url):
     popup_box = QtWidgets.QMessageBox(parent)
     popup_box.setIcon(QtWidgets.QMessageBox.Question)
