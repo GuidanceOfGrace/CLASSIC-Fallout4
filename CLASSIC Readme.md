@@ -16,18 +16,18 @@ HOW TO READ CRASH LOGS Online Doc: https://docs.google.com/document/d/17FzeIMJ25
 ===========================================================================
 # CONTENTS & FILES #
 
-*CLASSIC Readme.md* - The file that you're reading right now.
+**CLASSIC Readme.md** - The file that you're reading right now.
 
-*CLASSIC Config* - Folder with all files required for *CLASSIC.exe* to run. 
+**CLASSIC Data** - Folder with all files and data required for *CLASSIC.exe* to run. Needs to be in the same folder with *CLASSIC.exe*.
 
-*CLASSIC.exe* - Main exe for scanning your crash logs and game files. CLASSIC will automatically grab crash log files from your Script Extender folder
+**CLASSIC.exe** - Main exe for scanning your crash logs and game files. CLASSIC will automatically grab crash log files from your Script Extender folder
 and generate AUTOSCAN report files for them. After scanning completes, open any *-AUTOSCAN.md* file with a text editor (Notepad++ or similar) and read it.
 
-*CLASSIC Ignore.txt* - Configuration file for source scripts and the executable where you can add plugin names that you want CLAS to ignore.
+**CLASSIC Ignore.txt** - Configuration file for source scripts and the executable where you can add plugin names that you want CLASSIC to ignore.
 
-*CLASSIC Settings.yaml* - Configuration file for source scripts and the executable where various CLAS settings can be adjusted.
+**CLASSIC Settings.yaml** - Configuration file for source scripts and the executable where various CLASSIC settings can be adjusted.
 
-*HOW TO READ CRASH LOGS.pdf* - Document that lists most common Buffout 4 crash log messages and errors, and ways to prevent or fix them.
+**HOW TO READ CRASH LOGS.pdf** - Document that lists most common Buffout 4 crash log messages and errors, and ways to prevent or fix them.
 
 ===========================================================================
 # HOW TO RUN CLAS FROM MO2 SHORTCUT #
@@ -90,12 +90,12 @@ or disable any Plugins listed in this segment to further confirm if they caused 
 - CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
 
 - To generate the FormID List:
-1) Place the *Generate FormID List.pas* from the CLASSIC Config folder into your FO4Edit/Edit Scripts folder.
+1) Place the *Generate FormID List.pas* from the *CLASSIC Data* folder into your FO4Edit/Edit Scripts folder.
 2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
 3) Press OK while holding [Shift] to load your plugins in FO4Edit. Once all plugins are loaded, right click on any plugin and select *Apply Script...*
 4) From the dropdown menu, select *Generate FormID List* and press OK. Depending on how many plugins you have, this will take some time (5-25 mins).
 5) Once the full FormID List is generated, FO4Edit will ask you to save this list. Save it as a text file, then rename it to: FO4 FID Mods.txt
-6) Now place your own generated *FO4 FID Mods.txt* file into the CLASSIC Config folder and overwrite the existing *FO4 FID Mods* file.
+6) Now place your own generated *FO4 FID Mods.txt* file into the *CLASSIC Data* folder and overwrite the existing *FO4 FID Mods* file.
    (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
 7) Run CLASSIC, enable *Show FID Values* under CLASSIC Settings and that's it! Scan your crash logs, the autoscan will do the rest.
 
