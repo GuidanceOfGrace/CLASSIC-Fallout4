@@ -120,7 +120,7 @@ def play_sound(sound_file):
 class CustomCheckBoxWidget(QWidget):
     def __init__(self, parent=None, pos_x=350, pos_y=400, size=25, label_text="TEST LABEL", image_o="CLASSIC Data/graphics/unchecked.png", image_x="CLASSIC Data/graphics/checked.png"):
         super().__init__(parent)
-        self.setGeometry(pos_x, pos_y, 150, 50)
+        self.setGeometry(pos_x, pos_y, 150, 25)
 
         layout = QHBoxLayout(self)
 
@@ -138,11 +138,14 @@ class CustomCheckBoxWidget(QWidget):
         layout.addWidget(self.text_label)
         self.setLayout(layout)
 
+        # Track the current state (checked or unchecked).
+        self.checked = False  # RESERVED, assign yaml check to this.
         self.image_label.mousePressEvent = self.toggle_pixmap
 
     def toggle_pixmap(self, event):
-        # Toggle between two images when label is clicked.
-        if self.image_label.pixmap() == self.pixmap1:
+        # Toggle between images when label is clicked.
+        self.checked = not self.checked
+        if self.checked:
             self.image_label.setPixmap(self.pixmap2)
         else:
             self.image_label.setPixmap(self.pixmap1)
@@ -194,8 +197,9 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
 
         # ==================== MAIN WINDOW ITEMS =====================
         # TOP
-        # self.custom_checkbox = CustomCheckBoxWidget(pos_x=50, pos_y=50, size=25, label_text="TEST LABEL", image_o="CLASSIC Data/graphics/unchecked.png", image_x="CLASSIC Data/graphics/checked.png")
-        # self.setCentralWidget(self.custom_checkbox)
+        self.custom_checkbox = CustomCheckBoxWidget(pos_x=0, pos_y=0, size=25, label_text="TEST LABEL", image_o="CLASSIC Data/graphics/unchecked.png", image_x="CLASSIC Data/graphics/checked.png")
+        self.custom_checkbox.setGeometry(250, 250, 150, 25)
+        self.setCentralWidget(self.custom_checkbox)
 
         # SEPARATOR STAGING MODS FOLDER
         self.LBL_ModsFolder = custom_label(self, QtCore.QRect(20, 30, 260, 16), "STAGING MODS FOLDER", bold_11, "LBL_ModsFolder")
