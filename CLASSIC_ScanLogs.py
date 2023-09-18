@@ -45,9 +45,9 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
     if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_XSE")
+        XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -141,7 +141,7 @@ def crashlogs_scan():
         game_files_check = CGame.game_combined_result()
     else:
         main_files_check = "❌ FCX Mode is disabled, skipping core files check... \n-----\n"
-        game_files_check = "❌ FCX Mode is disabled, skipping game files check... \n-----\n"
+        game_files_check = ""
 
     # DETECT ONE WHOLE KEY (1 MOD) PER LOOP IN YAML DICT
     def detect_mods_single(yaml_dict):
@@ -456,7 +456,8 @@ def crashlogs_scan():
                                     "[ To disable mod & game files detection, disable FCX Mode in the exe or CLASSIC Settings.yaml ] \n\n"])
 
         autoscan_report.append(main_files_check)
-        autoscan_report.append(game_files_check)
+        if game_files_check:
+            autoscan_report.append(game_files_check)
 
         autoscan_report.extend(["====================================================\n",
                                 "CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...\n",
