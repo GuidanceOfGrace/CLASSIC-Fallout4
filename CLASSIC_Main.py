@@ -378,7 +378,7 @@ def game_path_find():
                         path_input = input(fr"(EXAMPLE: C:\Steam\steamapps\common\{game_root_name} | Press ENTER to confirm.)\n> ")
                         print(f"You entered: {path_input} | This path will be automatically added to CLASSIC Settings.yaml")
                         game_path = Path(path_input.strip())
-                    
+
                     if not classic_settings("VR Mode"):
                         yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.Root_Folder_Game", str(game_path))
                     else:
@@ -595,10 +595,10 @@ def docs_check_ini(ini_name) -> str:
 
     if not classic_settings("VR Mode"):
         root_folder_docs = yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Docs")
-        game_docs_name = yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Game_Docs_Name")
+        game_docs_name = yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Game_Docs_Name")
     else:
         root_folder_docs = yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Root_Folder_Docs")
-        game_docs_name = yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Game_Docs_Name")
+        game_docs_name = yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_Docs_Name")
 
     ini_file_list = list(Path(root_folder_docs).glob("*.ini"))
     ini_path = Path(root_folder_docs).joinpath(ini_name)
