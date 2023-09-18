@@ -97,7 +97,63 @@ def yaml_update(yaml_path, key_path, new_value):
     with open(yaml_path, 'w', encoding='utf-8') as yaml_file:
         yaml.dump(data, yaml_file)
 
-
+def local_oobe():
+    yaml = ruamel.yaml.YAML()
+    yaml.indent(offset=2)
+    yaml.width = 300
+    if not os.path.exists("CLASSIC Data/databases/CLASSIC FO4 Local.yaml"):
+        FO4_Local = {"Game_Info": {"Root_Folder_Docs": None,
+                                   "Root_Folder_Game": None,
+                                   "Game_Folder_Data": None,
+                                   "Game_Folder_Scripts": None,
+                                   "Game_Folder_CK_Fixes": None,
+                                   "Game_File_AddressLib": None,
+                                   "Game_File_BuffoutDLL": None,
+                                   "Game_File_BuffoutTOML": None,
+                                   "Game_File_CK_EXE": None,
+                                   "Game_File_EXE": None,
+                                   "Game_File_PreloaderDLL": None,
+                                   "Game_File_PreloaderXML": None,
+                                   "Game_File_SteamINI": None,
+                                   "XSE_File_DLL": None,
+                                   "XSE_File_Loader": None,
+                                   "XSE_File_SteamDLL": None,
+                                   "Docs_Folder_XSE": None,
+                                   "Docs_File_XSE": None,
+                                   "Docs_File_GameMainINI": None,
+                                   "Docs_File_GameCustomINI": None,
+                                   "Docs_File_GamePrefsINI": None,
+                                   "Docs_File_PapyrusLog": None,
+                                   "Docs_File_WryeBashPC": None}}
+        with open("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "w", encoding="utf-8", errors="ignore") as file:
+            yaml.dump(FO4_Local, file)
+    if not os.path.exists("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml"):
+        FO4VR_Local = {"GameVR_Info": {"Root_Folder_Docs": None,
+                                        "Root_Folder_Game": None,
+                                        "Game_Folder_Data": None,
+                                        "Game_Folder_Scripts": None,
+                                        "Game_Folder_CK_Fixes": None,
+                                        "Game_File_AddressLib": None,
+                                        "Game_File_BuffoutDLL": None,
+                                        "Game_File_BuffoutTOML": None,
+                                        "Game_File_CK_EXE": None,
+                                        "Game_File_EXE": None,
+                                        "Game_File_PreloaderDLL": None,
+                                        "Game_File_PreloaderXML": None,
+                                        "Game_File_SteamINI": None,
+                                        "XSE_File_DLL": None,
+                                        "XSE_File_Loader": None,
+                                        "XSE_File_SteamDLL": None,
+                                        "Docs_Folder_XSE": None,
+                                        "Docs_File_XSE": None,
+                                        "Docs_File_GameMainINI": None,
+                                        "Docs_File_GameCustomINI": None,
+                                        "Docs_File_GamePrefsINI": None,
+                                        "Docs_File_PapyrusLog": None,
+                                        "Docs_File_WryeBashPC": None}}
+        with open("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "w", encoding="utf-8", errors="ignore") as file:
+            yaml.dump(FO4VR_Local, file)
+local_oobe()
 # ================================================
 # CREATE REQUIRED FILES, SETTINGS & UPDATE CHECK
 # ================================================
