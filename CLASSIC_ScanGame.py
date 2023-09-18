@@ -23,7 +23,7 @@ def mod_ini_config(ini_path, section, key, new_value=None):
         raise FileNotFoundError(f"ERROR: File '{ini_path}' not found")
 
     if section not in mod_config:
-        raise configparser.Error(f"ERROR : Section '{section}' does not exist in '{ini_path.name}'")
+        raise configparser.Error(f"ERROR : Section '{section}' does not exist in '{ini_path}'")
     if key not in mod_config[section]:
         raise configparser.Error(f"ERROR : Key '{key}' does not exist in section '{section}'")
 
@@ -70,13 +70,13 @@ def mod_toml_config(toml_path, section, key, new_value=None):
 # ================================================
 def check_crashgen_settings():
     message_list = []
-    crashgen_toml_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Game_File_BuffoutTOML")
-    crashgen_logname = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
-    docs_folder_xse = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
+    crashgen_toml_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Game_File_BuffoutTOML")
+    crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
+    docs_folder_xse = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
     if Path(crashgen_toml_path).exists():
         if CMain.classic_settings("VR Mode"):
-            crashgen_toml_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_File_BuffoutTOML")
-            crashgen_logname = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "CRASHGEN_LogName")
+            crashgen_toml_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Game_File_BuffoutTOML")
+            crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "CRASHGEN_LogName")
 
         if mod_toml_config(crashgen_toml_path, "Patches", "Achievements") and any("achievements" in file.lower() for file in docs_folder_xse):
             message_list.extend(["# ❌ CAUTION : The Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements is set to TRUE # \n",
@@ -113,13 +113,13 @@ def check_crashgen_settings():
 def detect_log_errors(folder_path):
     message_list = []
     errors_list = []
-    catch_errors = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "catch_log_errors")
-    ignore_logs_list = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "exclude_log_files")
-    ignore_logs_errors = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "exclude_log_errors")
+    catch_errors = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "catch_log_errors")
+    ignore_logs_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_files")
+    ignore_logs_errors = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_errors")
 
     valid_log_files = [file for file in Path(folder_path).glob("*.log")]
     for file in valid_log_files:
-        if all(part.lower() not in file.name.lower() for part in ignore_logs_list):
+        if all(part.lower() not in str(file).lower() for part in ignore_logs_list):
             try:
                 with open(file, "r", encoding="utf-8", errors="ignore") as log_file:
                     log_data = log_file.readlines()
@@ -152,9 +152,9 @@ def detect_log_errors(folder_path):
 def papyrus_logging():
     message_list = []
     if not CMain.classic_settings("VR Mode"):
-        papyrus_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_PapyrusLog")
+        papyrus_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Docs_File_PapyrusLog")
     else:
-        papyrus_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_PapyrusLog")
+        papyrus_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_PapyrusLog")
 
     count_dumps = count_stacks = count_warnings = count_errors = 0
     if Path(papyrus_path).exists():
@@ -175,8 +175,8 @@ def papyrus_logging():
         else:
             ratio = 0
 
-        message_list.extend([f"NUMBER OF DUMPS    : {count_dumps} \n",
-                             f"NUMBER OF STACKS   : {count_stacks} \n",
+        message_list.extend([f"NUMBER OF DUMPS     : {count_dumps} \n",
+                             f"NUMBER OF STACKS     : {count_stacks} \n",
                              f"DUMPS/STACKS RATIO : {round(ratio, 3)} \n",
                              f"NUMBER OF WARNINGS : {count_warnings} \n",
                              f"NUMBER OF ERRORS   : {count_errors}"])
@@ -194,11 +194,11 @@ def papyrus_logging():
 # ================================================
 def scan_wryecheck():
     message_list = []
-    wrye_missinghtml = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Warnings_MODS", "Warn_WRYE_MissingHTML")
-    wrye_plugincheck = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_File_WryeBashPC")
-    wrye_warnings = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Wrye_Warn")
+    wrye_missinghtml = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_MODS", "Warn_WRYE_MissingHTML")
+    wrye_plugincheck = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Docs_File_WryeBashPC")
+    wrye_warnings = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Wrye_Warn")
     if CMain.classic_settings("VR Mode"):
-        CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_WryeBashPC")
+        CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_File_WryeBashPC")
 
     if Path(wrye_plugincheck).is_file():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",
@@ -264,9 +264,9 @@ def scan_wryecheck():
 def scan_mod_inis():  # Mod INI files check.
     message_list = []
     vsync_list = []
-    game_root = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
+    game_root = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
     if CMain.classic_settings("VR Mode"):
-        game_root = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Root_Folder_Game")
+        game_root = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Root_Folder_Game")
 
     for root, dirs, files in os.walk(game_root):
         for file in files:
@@ -345,11 +345,11 @@ def scan_mods_unpacked():
     cleanup_list = []
     modscan_list = []
     if not CMain.classic_settings("VR Mode"):
-        xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
-        xse_scriptfiles = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_HashedScripts")
+        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
+        xse_scriptfiles = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_HashedScripts")
     else:
-        xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
-        xse_scriptfiles = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_HashedScripts")
+        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
+        xse_scriptfiles = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_HashedScripts")
 
     misc_path = "CLASSIC Misc"
     mod_path = CMain.classic_settings("MODS Folder Path")
@@ -421,12 +421,12 @@ def scan_mods_unpacked():
                         shutil.move(readme_file_path, new_file_path)
 
             print("✔️ CLEANUP COMPLETE! NOW ANALYZING ALL UNPACKED/LOOSE MOD FILES...")
-            message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Reminders"))
+            message_list.append(CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn", "Mods_Reminders"))
             message_list.append("========= RESULTS FROM UNPACKED / LOOSE FILES =========\n")
         else:
-            message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Invalid"))
+            message_list.append(CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Invalid"))
     else:
-        message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Missing"))
+        message_list.append(CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Missing"))
 
     modscan_unique_list = list(sorted(set(modscan_list)))
     message_output = "".join(message_list) + "".join(cleanup_list) + "".join(modscan_unique_list)
@@ -440,14 +440,14 @@ def scan_mods_archived():
     message_list = []
     modscan_list = []
     if not CMain.classic_settings("VR Mode"):
-        xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
-        xse_scriptfiles = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_HashedScripts")
+        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
+        xse_scriptfiles = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_HashedScripts")
     else:
-        xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
-        xse_scriptfiles = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_HashedScripts")
+        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
+        xse_scriptfiles = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_HashedScripts")
 
     CLASSIC_folder = Path.cwd()
-    bsarch_path = r"CLASSIC Config\BSArch.exe"
+    bsarch_path = r"CLASSIC Data\BSArch.exe"
     bsarch_path_full = fr"{CLASSIC_folder}\{bsarch_path}"
     mod_path = CMain.classic_settings("MODS Folder Path")
     if mod_path:
@@ -519,11 +519,11 @@ def scan_mods_archived():
                                 error_message = archived_list.stderr
                                 print("Command failed with error:\n", error_message)
             else:
-                message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_BSArch_Missing"))
+                message_list.append(CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn", "Mods_BSArch_Missing"))
         else:
-            message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Invalid"))
+            message_list.append(CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Invalid"))
     else:
-        message_list.append(CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Missing"))
+        message_list.append(CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn", "Mods_Path_Missing"))
 
     modscan_unique_list = list(sorted(set(modscan_list)))
     message_output = "".join(message_list) + "".join(modscan_unique_list)
@@ -531,8 +531,8 @@ def scan_mods_archived():
 
 
 def game_combined_result():
-    docs_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
-    game_path = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
+    docs_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Docs")
+    game_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Root_Folder_Game")
     combined_return = [check_crashgen_settings(), detect_log_errors(docs_path), detect_log_errors(game_path), scan_wryecheck(), scan_mod_inis()]
     combined_result = "".join(combined_return)
     return combined_result

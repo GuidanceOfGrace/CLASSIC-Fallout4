@@ -5,7 +5,6 @@ import time
 import shutil
 import random
 import logging
-import zipfile
 import requests
 import CLASSIC_Main as CMain
 import CLASSIC_ScanGame as CGame
@@ -19,16 +18,10 @@ CMain.configure_logging()
 # ASSORTED FUNCTIONS
 # ================================================
 def fidfile_generate():
-    if not os.path.exists("CLASSIC Config/FO4 FID Mods.txt"):
-        default_fidfile = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Default_FIDMods")
-        with open("CLASSIC Config/FO4 FID Mods.txt", "w", encoding="utf-8") as file:
-            file.write(default_fidfile)
-
-
-def fidfile_extract():
-    if not os.path.exists("CLASSIC Config/FO4 FID Main.txt"):
-        with zipfile.ZipFile("CLASSIC Config/CLASSIC Data.zip", "r") as zip_data:
-            zip_data.extract("FO4 FID Main.txt", "CLASSIC Config")
+    if not os.path.exists("CLASSIC Data/databases/FO4 FID Mods.txt"):
+        default_fidfile = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Default_FIDMods")
+        with open("CLASSIC Data/databases/FO4 FID Mods.txt", "w", encoding="utf-8") as fidfile:
+            fidfile.write(default_fidfile)
 
 
 def pastebin_fetch(url):
@@ -52,9 +45,9 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
     if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_XSE")
+        XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -74,7 +67,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
 def crashlogs_truncate():  # Remove *useless* lines from all available crash logs.
     logging.info("- - - SIMPLIFY LOGS IS ENABLED -> TRUNCATING ALL AVAILABLE CRASH LOGS")
     crash_files = crashlogs_get_files()
-    remove_list = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "exclude_log_records")
+    remove_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
     for file in crash_files:
         with file.open("r", encoding="utf-8", errors="ignore") as crash_log:
             crash_data = crash_log.readlines()
@@ -85,9 +78,9 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
 
 def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old and new CRASHGEN formats match.
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
-    xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
+    xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
     if CMain.classic_settings("VR Mode"):
-        xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
+        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
 
     crash_files = crashlogs_get_files()
     for file in crash_files:
@@ -118,29 +111,29 @@ def crashlogs_scan():
     scan_start_time = time.perf_counter()
     # ================================================
     # Grabbing YAML values are time expensive, so keep these out of the main file loop.
-    classic_game_hints = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Hints")
-    classic_records_list = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "catch_log_records")
-    classic_version = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Info", "version")
-    classic_version_date = CMain.yaml_get("CLASSIC Config/CLASSIC Main.yaml", "CLASSIC_Info", "version_date")
+    classic_game_hints = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Hints")
+    classic_records_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "catch_log_records")
+    classic_version = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info", "version")
+    classic_version_date = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info", "version_date")
 
-    crashgen_latestver = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LatestVer")
-    crashgen_logname = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
-    crashgen_vrlatestver = CMain.yaml_get("CLASSIC Config/CLASSIC FO4VR.yaml", "GameVR_Info", "CRASHGEN_LatestVer")
+    crashgen_latestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LatestVer")
+    crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
+    crashgen_vrlatestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "CRASHGEN_LatestVer")
 
-    warn_noplugins = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_NOPlugins")
-    warn_outdated = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_Outdated")
-    xse_acronym = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
+    warn_noplugins = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_NOPlugins")
+    warn_outdated = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_Outdated")
+    xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
 
     custom_ignore_plugins = CMain.yaml_get("CLASSIC Ignore.yaml", "CLASSIC_Ignore_Fallout4")
-    game_ignore_plugins = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Crashlog_Plugins_Exclude")
-    game_ignore_records = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Crashlog_Records_Exclude")
-    suspects_error_list = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Crashlog_Error_Check")
-    suspects_stack_list = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Crashlog_Stack_Check")
-    game_mods_conf = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Mods_CONF")
-    game_mods_core = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Mods_CORE")
-    game_mods_freq = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Mods_FREQ")
-    game_mods_opc2 = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Mods_OPC2")
-    game_mods_solu = CMain.yaml_get("CLASSIC Config/CLASSIC FO4.yaml", "Mods_SOLU")
+    game_ignore_plugins = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Plugins_Exclude")
+    game_ignore_records = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Records_Exclude")
+    suspects_error_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Error_Check")
+    suspects_stack_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Stack_Check")
+    game_mods_conf = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CONF")
+    game_mods_core = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CORE")
+    game_mods_freq = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_FREQ")
+    game_mods_opc2 = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_OPC2")
+    game_mods_solu = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_SOLU")
 
     # ================================================
     if CMain.classic_settings("FCX Mode"):
@@ -430,29 +423,31 @@ def crashlogs_scan():
             autoscan_report.extend(["* NOTICE: FCX MODE IS DISABLED. YOU CAN ENABLE IT TO DETECT PROBLEMS IN YOUR MOD & GAME FILES * \n",
                                     "[ FCX Mode can be enabled in the exe or CLASSIC Settings.yaml located in your CLASSIC folder. ] \n\n"])
 
-            crashgen_ignore = ["F4EE", "WaitForDebugger", "Achievements", "InputSwitch", "MemoryManager", "MemoryManagerDebug", "BSTextureStreamerLocalHeap"]
+            crashgen_ignore = ["F4EE", "WaitForDebugger", "Achievements", "InputSwitch", "MemoryManager",
+                               "AutoOpen", "PromptUpload", "MemoryManagerDebug", "BSTextureStreamerLocalHeap"]
             for line in segment_crashgen:
+
                 if "false" in line.lower() and all(elem.lower() not in line.lower() for elem in crashgen_ignore):
                     line_split = line.split(":", 1)
                     autoscan_report.append(f"* NOTICE : {line_split[0].strip()} is disabled in your {crashgen_logname} settings, is this intentional? * \n-----\n")
 
                 if "achievements:" in line.lower():
                     if "true" in line.lower() and any(("achievements.dll" or "unlimitedsurvivalmode.dll") in elem.lower() for elem in segment_xsemodules):
-                        autoscan_report.extend(["# ❌ CAUTION : The Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements is set to TRUE #",
+                        autoscan_report.extend(["# ❌ CAUTION : The Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements is set to TRUE # \n",
                                                 f" FIX: Open {crashgen_logname}'s TOML file and change Achievements to FALSE, this prevents conflicts with Buffout 4.\n-----\n"])
                     else:
                         autoscan_report.append(f"✔️ Achievements parameter is correctly configured in your {crashgen_logname} settings! \n-----\n")
 
                 if "memorymanager:" in line.lower():
                     if "true" in line.lower() and any("bakascrapheap.dll" in elem.lower() for elem in segment_xsemodules):
-                        autoscan_report.extend(["# ❌ CAUTION : The Baka ScrapHeap Mod is installed, but MemoryManager parameter is set to TRUE #",
+                        autoscan_report.extend(["# ❌ CAUTION : The Baka ScrapHeap Mod is installed, but MemoryManager parameter is set to TRUE # \n",
                                                 f" FIX: Open {crashgen_logname}'s TOML file and change MemoryManager to FALSE, this prevents conflicts with Buffout 4.\n-----\n"])
                     else:
                         autoscan_report.append(f"✔️ Memory Manager parameter is correctly configured in your {crashgen_logname} settings! \n-----\n")
 
                 if "f4ee:" in line.lower():
                     if "false" in line.lower() and any("f4ee.dll" in elem.lower() for elem in segment_xsemodules):
-                        autoscan_report.extend(["# ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE #",
+                        autoscan_report.extend(["# ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE # \n",
                                                 f" FIX: Open {crashgen_logname}'s TOML file and change F4EE to TRUE, this prevents bugs and crashes from Looks Menu.\n-----\n"])
                     else:
                         autoscan_report.append(f"✔️ F4EE (Looks Menu) parameter is correctly configured in your {crashgen_logname} settings! \n-----\n")
@@ -568,8 +563,8 @@ def crashlogs_scan():
                 for plugin, plugin_id in crashlog_plugins.items():
                     if str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
-                            with open("CLASSIC Config/FO4 FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
-                                with open("CLASSIC Config/FO4 FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
+                            with open("CLASSIC Data/databases/FO4 FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
+                                with open("CLASSIC Data/databases/FO4 FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
                                     line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
                                     line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
                                     if line_match_main:
@@ -723,7 +718,6 @@ if __name__ == "__main__":
         CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
 
     fidfile_generate()
-    fidfile_extract()
     crashlogs_scan()
     # execution_time = timeit.timeit(crashlogs_scan, number=1)
     # print(f"Execution time: {execution_time} seconds")

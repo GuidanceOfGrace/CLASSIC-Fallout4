@@ -1,13 +1,18 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
-7.08 | # UPCOMING #
+7.09 | # UPCOMING #
 *NEW FEATURES*
 - Default *Fallout4Custom.ini* settings are now accessible through *CLASSIC FO4.yaml*
 [These settings will be auto generated if Fallout4Custom.ini doesn't already exist.]
 
 *CHANGES*
+- Fixed some minor formatting problems.
+- Various bugfixes and QOL code changes.
+- Fixed *AttributeError* for mod_ini_config().
+- Updated *CLASSIC Readme* with explanations for all of the new features.
 - CLASSIC now keeps AUTOSCAN report files in the same folder with their crash logs.
+- Changed the file structure, now all required files are organized inside *CLASSIC Data* folder.
 
 7.07 | "Everything Everywhere All At Once" Update
 *NEW FEATURES*

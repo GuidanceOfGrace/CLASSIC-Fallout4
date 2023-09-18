@@ -1,0 +1,99 @@
+# FALLOUT 4 VR DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.00+
+
+GameVR_Info:
+  Game_Root_Name: Fallout 4 VR
+  Game_Docs_Name: Fallout4VR
+  Game_SteamID: 611660
+  Game_HashedMain: # SHA-256 | Fallout4.exe
+    1.10.163: 00000
+
+  CRASHGEN_Acronym: BO4 NG
+  CRASHGEN_LogName: Buffout 4
+  CRASHGEN_DLL_File: buffout4.dll
+  CRASHGEN_LatestVer: Buffout 4 v1.31.1 Feb 28 2023 00:32:02
+
+  XSE_Acronym: F4SEVR
+  XSE_FullName: Fallout 4 Script Extender VR (F4SEVR)
+  XSE_Ver_Latest: 0.6.20
+  XSE_FileCount: 29
+
+  XSE_HashedScripts:  # SHA-256 from https://f4se.silverlock.org/
+    Actor.pex: 00000
+    ActorBase.pex: 00000
+    Armor.pex: 00000
+    ArmorAddon.pex: 00000
+    Cell.pex: 00000
+    Component.pex: 00000
+    ConstructibleObject.pex: 00000
+    DefaultObject.pex: 00000
+    EncounterZone.pex: 00000
+    EquipSlot.pex: 00000
+    F4SE.pex: 00000
+    FavoritesManager.pex: 00000
+    Form.pex: 00000
+    Game.pex: 00000
+    HeadPart.pex: 00000
+    Input.pex: 00000
+    InstanceData.pex: 00000
+    Location.pex: 00000
+    Math.pex: 00000
+    MatSwap.pex: 00000
+    MiscObject.pex: 00000
+    ObjectMod.pex: 00000
+    ObjectReference.pex: 00000
+    Perk.pex: 00000
+    ScriptObject.pex: 00000
+    UI.pex: 00000
+    Utility.pex: 00000
+    WaterType.pex: 00000
+    Weapon.pex: 00000
+
+  # BELOW ARE LISTED ALL FILE AND FOLDER PATHS THAT CLASSIC NEEDS TO LOOK UP
+  # THESE WILL BE AUTOMATICALLY GENERATED ONCE YOU RUN CLASSIC FOR THE FIRST TIME
+  # DO NOT MANUALLY CHANGE THESE PATHS UNLESS YOU KNOW THEY ARE INCORRECTLY DETECTED
+  # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
+
+  # FO4 MAIN
+  Root_Folder_Docs: 
+  Root_Folder_Game: E:\Steam\steamapps\common\Fallout 4\ VR
+  # FO4 GAME
+  Game_Folder_Data: E:\Steam\steamapps\common\Fallout 4\ VRData
+  Game_Folder_Scripts: E:\Steam\steamapps\common\Fallout 4\ VRData\Scripts
+  Game_Folder_CK_Fixes: E:\Steam\steamapps\common\Fallout 4\ VRData\F4CKFixes
+  Game_File_AddressLib: E:\Steam\steamapps\common\Fallout 4\ VR\Data\F4SE\Plugins\version-1-2-72-0.csv
+  Game_File_BuffoutDLL: E:\Steam\steamapps\common\Fallout 4\ VR\Data\F4SE\Plugins\msdia140.dll
+  Game_File_BuffoutTOML: E:\Steam\steamapps\common\Fallout 4\ VR\Data\F4SE\Plugins\Buffout4.toml
+  Game_File_CK_EXE: E:\Steam\steamapps\common\Fallout 4\ VRCreationKit.exe
+  Game_File_EXE: E:\Steam\steamapps\common\Fallout 4\ VR\Fallout4VR.exe
+  Game_File_PreloaderDLL: E:\Steam\steamapps\common\Fallout 4\ VRIpHlpAPI.dll
+  Game_File_PreloaderXML: E:\Steam\steamapps\common\Fallout 4\ VRxSE PluginPreloader.xml
+  Game_File_SteamINI: E:\Steam\steamapps\common\Fallout 4\ VRsteam_api.ini
+  # FO4 GAME F4SE
+  XSE_File_DLL: E:\Steam\steamapps\common\Fallout 4\ VR\f4sevr_1_2_72.dll
+  XSE_File_Loader: E:\Steam\steamapps\common\Fallout 4\ VR\f4sevr_loader.exe.exe
+  XSE_File_SteamDLL: E:\Steam\steamapps\common\Fallout 4\ VR\f4sevr_steam_loader.dll
+
+  # FO4 DOCS
+  Docs_Folder_XSE: None\F4SE
+  Docs_File_XSE: None\F4SE\f4sevr.log
+  Docs_File_PapyrusLog: None\Logs\Script\Papyrus.0.log
+  Docs_File_GameMainINI: None\Fallout4VR.ini
+  Docs_File_GameCustomINI: None\Fallout4VRCustom.ini
+  Docs_File_GamePrefsINI: None\Fallout4VRPrefs.ini
+  Docs_File_WryeBashPC: None\ModChecker.html
+
+
+GameVR_Hints:
+  - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
+  - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
+  - 'Random Hint: Buffout crash logs are generated in your Documents/My Games/Fallout4VR/F4SE folder by default.'
+  - "Random Hint: You have a crash log where the autoscan couldn't find any solutions? Feel free to send it to me."
+  - 'Random Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.'
+  - "Random Hint: No, I don't know why your game froze instead of crashed. But I know someone who might know; Google."
+  - "Random Hint: If you don't use Profile Specific INIs, consider disabling this option in your MO2 Profile settings."
+  - 'Random Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.'
+  - "Random Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they aren't."
+  - 'Random Hint: Revisit both Buffout 4 Crash Article and CLASSIC Nexus Page from time to time in case there are updates.'
+  - "Random Hint: When posting crash logs, it's helpful to mention the last thing you were doing before the crash happened."
+
+GameVR_Warn:  # RESERVED | Warnings specific to the VR version. Add warns if necessary.
