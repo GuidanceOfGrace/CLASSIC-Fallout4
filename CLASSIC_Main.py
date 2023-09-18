@@ -61,14 +61,18 @@ def remove_readonly(file_path):
     except (ValueError, OSError) as err:
         logging.error(f"ERROR : {err}")
 
-
-def yaml_get(yaml_path, *key_path):
+def init_yaml(yaml_path):
     yaml = ruamel.yaml.YAML()
     yaml.indent(offset=2)
     yaml.width = 300
 
     with open(yaml_path, 'r', encoding='utf-8') as file:
         data = yaml.load(file)
+    
+    return yaml, data
+
+def yaml_get(yaml_path, *key_path):
+    _, data = init_yaml(yaml_path)
 
     value = data
     for key in key_path:
@@ -80,12 +84,7 @@ def yaml_get(yaml_path, *key_path):
 
 
 def yaml_update(yaml_path, key_path, new_value):
-    yaml = ruamel.yaml.YAML()
-    yaml.indent(offset=2)
-    yaml.width = 300
-
-    with open(yaml_path, 'r', encoding='utf-8') as yaml_file:
-        data = yaml.load(yaml_file)
+    yaml, data = init_yaml(yaml_path)
 
     keys = key_path.split('.') if isinstance(key_path, str) else key_path
     current = data
