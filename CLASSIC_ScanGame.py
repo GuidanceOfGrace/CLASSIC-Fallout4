@@ -70,12 +70,12 @@ def mod_toml_config(toml_path, section, key, new_value=None):
 # ================================================
 def check_crashgen_settings():
     message_list = []
-    crashgen_toml_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Game_File_BuffoutTOML")
+    crashgen_toml_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Game_File_BuffoutTOML")
     crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
-    docs_folder_xse = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
+    docs_folder_xse = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
     if Path(crashgen_toml_path).exists():
         if CMain.classic_settings("VR Mode"):
-            crashgen_toml_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Game_File_BuffoutTOML")
+            crashgen_toml_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Game_File_BuffoutTOML")
             crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "CRASHGEN_LogName")
 
         if mod_toml_config(crashgen_toml_path, "Patches", "Achievements") and any("achievements" in file.lower() for file in docs_folder_xse):
@@ -152,9 +152,9 @@ def detect_log_errors(folder_path):
 def papyrus_logging():
     message_list = []
     if not CMain.classic_settings("VR Mode"):
-        papyrus_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_File_PapyrusLog")
+        papyrus_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_File_PapyrusLog")
     else:
-        papyrus_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_File_PapyrusLog")
+        papyrus_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_File_PapyrusLog")
 
     count_dumps = count_stacks = count_warnings = count_errors = 0
     if Path(papyrus_path).exists():
@@ -195,10 +195,10 @@ def papyrus_logging():
 def scan_wryecheck():
     message_list = []
     wrye_missinghtml = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_MODS", "Warn_WRYE_MissingHTML")
-    wrye_plugincheck = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_File_WryeBashPC")
+    wrye_plugincheck = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_File_WryeBashPC")
     wrye_warnings = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "Wrye_Warn")
     if CMain.classic_settings("VR Mode"):
-        CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_File_WryeBashPC")
+        CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_File_WryeBashPC")
 
     if Path(wrye_plugincheck).is_file():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",
@@ -264,9 +264,9 @@ def scan_wryecheck():
 def scan_mod_inis():  # Mod INI files check.
     message_list = []
     vsync_list = []
-    game_root = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Game")
+    game_root = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Game")
     if CMain.classic_settings("VR Mode"):
-        game_root = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Root_Folder_Game")
+        game_root = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Root_Folder_Game")
 
     for root, dirs, files in os.walk(game_root):
         for file in files:
@@ -531,8 +531,12 @@ def scan_mods_archived():
 
 
 def game_combined_result():
-    docs_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Docs")
-    game_path = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Game")
+    if not CMain.classic_settings("VR Mode"):
+        docs_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Docs")
+        game_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Root_Folder_Game")
+    else:
+        docs_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "Game_Info", "Root_Folder_Docs")
+        game_path = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "Game_Info", "Root_Folder_Game")
     combined_return = [check_crashgen_settings(), detect_log_errors(docs_path), detect_log_errors(game_path), scan_wryecheck(), scan_mod_inis()]
     combined_result = "".join(combined_return)
     return combined_result

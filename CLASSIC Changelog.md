@@ -1,18 +1,21 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
-7.09 | # UPCOMING #
+7.10
 *NEW FEATURES*
+- CLASSIC will now extract required files from *CLASSIC Data.zip* if they are not found.
 - Default *Fallout4Custom.ini* settings are now accessible through *CLASSIC FO4.yaml*
 [These settings will be auto generated if Fallout4Custom.ini doesn't already exist.]
 
 *CHANGES*
-- Fixed some minor formatting problems.
-- Various bugfixes and QOL code changes.
-- Fixed *AttributeError* for mod_ini_config().
+- The CLASSIC interface has a brand new look.
+- Fixed *AttributeError* in the mod_ini_config().
+- Fixed some minor formatting bugs for *-AUTOSCAN.md* files.
+- Fixed incorrect generation of Fallout 4 VR file and folder paths.
 - Updated *CLASSIC Readme* with explanations for all of the new features.
 - CLASSIC now keeps AUTOSCAN report files in the same folder with their crash logs.
 - Changed the file structure, now all required files are organized inside *CLASSIC Data* folder.
+[Please report if it still fails to generate your Fallout 4 VR file and folder paths in CLASSIC FO4VR.yaml]
 
 7.07 | "Everything Everywhere All At Once" Update
 *NEW FEATURES*

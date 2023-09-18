@@ -1,3 +1,5 @@
+# For PyInstaller: PyInstaller --onefile -i=".\CLASSIC Data\graphics\CLASSIC.ico" --upx-dir="D:\Game Tools\UPX Compressor" CLASSIC_Interface.py
+
 altgraph==0.17.3
 beautifulsoup4==4.12.2
 certifi==2023.7.22

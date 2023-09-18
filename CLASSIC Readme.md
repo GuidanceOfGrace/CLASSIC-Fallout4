@@ -3,13 +3,13 @@
 
 How To Install Buffout 4 : https://www.nexusmods.com/fallout4/articles/3115
 
-Important Patches & Fixes : https://www.nexusmods.com/fallout4/articles/3769
+Fallout 4 Important Patches & Fixes : https://www.nexusmods.com/fallout4/articles/3769
 
-Advanced Troubleshooting: https://www.nexusmods.com/fallout4/articles/4141
+Fallout 4 Advanced Troubleshooting: https://www.nexusmods.com/fallout4/articles/4141
 
-Crash Log Auto-Scanner: https://www.nexusmods.com/fallout4/mods/56255
+Crash Log Auto-Scanner & Setup Integrity Checker: https://www.nexusmods.com/fallout4/mods/56255
 
-Plugin Auto Cleaning Tool - https://www.nexusmods.com/fallout4/mods/69413
+XEDIT Plugin Auto Cleaning Tool - https://www.nexusmods.com/fallout4/mods/69413
 
 HOW TO READ CRASH LOGS Online Doc: https://docs.google.com/document/d/17FzeIMJ256xE85XdjoPvv_Zi3C5uHeSTQh6wOZugs4c
 
@@ -18,9 +18,9 @@ HOW TO READ CRASH LOGS Online Doc: https://docs.google.com/document/d/17FzeIMJ25
 
 **CLASSIC Readme.md** - The file that you're reading right now.
 
-**CLASSIC Data** - Folder with all files and data required for *CLASSIC.exe* to run. Needs to be in the same folder with *CLASSIC.exe*.
+**CLASSIC Data** - Folder with all files and data required for *CLASSIC.exe* to run. Needs to be in the same folder with *CLASSIC.exe* OR in *CLASSIC Data* folder.
 
-**CLASSIC.exe** - Main exe for scanning your crash logs and game files. CLASSIC will automatically grab crash log files from your Script Extender folder
+**CLASSIC.exe** - Main executable for scanning your crash logs and game/mod files. CLASSIC will automatically grab crash log files from your Script Extender folder
 and generate AUTOSCAN report files for them. After scanning completes, open any *-AUTOSCAN.md* file with a text editor (Notepad++ or similar) and read it.
 
 **CLASSIC Ignore.txt** - Configuration file for source scripts and the executable where you can add plugin names that you want CLASSIC to ignore.
@@ -30,27 +30,28 @@ and generate AUTOSCAN report files for them. After scanning completes, open any 
 **HOW TO READ CRASH LOGS.pdf** - Document that lists most common Buffout 4 crash log messages and errors, and ways to prevent or fix them.
 
 ===========================================================================
-# HOW TO RUN CLAS FROM MO2 SHORTCUT #
+# HOW TO RUN CLASSIC FROM THE MO2 SHORTCUT #
 
 If you are using Mod Organizer 2, you should create a shortcut for *CLASSIC.exe* in MO2.
-To do this, run MO2 and select *<Edit...>* from the dropdown menu located next to the Run button.
+To do this, run MO2 and select *<Edit...>* from the dropdown menu located next to the *Run* button.
 
-This will allow you to add / remove specific Executables to MO2. This is required so CLASSIC can correctly locate game and mod files.
-Simply press the Plus Icon > Add From File... and select your *CLASSIC.exe* file from the new window.
-Press OK to save this Executable and make sure it's selected in the MO2 dropdown menu, then press Run.
+This allows you to remove from or add executables to MO2.
+This is required so CLASSIC can correctly locate game and mod files.
+> Simply press the Plus Icon > Add From File... and select your *CLASSIC.exe* file from the new window.
+> Press OK to save this Executable and make sure it's selected in the MO2 dropdown menu, then press Run.
 
 ===========================================================================
 # HOW TO READ AUTOSCAN FILES #
 
-AFTER RUNNING THE EXE, YOU'LL SEE THE FOLLOWING IN ANY GENERATED *crash-time-and-date-AUTOSCAN.md* REPORT FILE:
+AFTER RUNNING THE EXE, YOU'LL SEE THIS IN ANY GENERATED *crash-time-and-date-AUTOSCAN.md* REPORT FILE:
 
 ==========
-[The part above the Main Error shows the name of the scanned crash log and the Auto-Scanner version that was used.]
+[The part above the Main Error shows the name of the scanned crash log and the CLASSIC version that was used.]
 
 * Main Error * segment shows the main error message type and call stack address where the crash likely originates from.
 In 99% of cases, the main error will be "EXCEPTION_ACCESS_VIOLATION", meaning the game couldn't access some required data for one reason or another.
 The next part is the program or file where the crash originates from and lastly the call stack address that was last accessed before the crash occurred.
-NOTE: The call stack address and its values have NOTHING to do with any Plugin or Game IDs. Don't bother trying to match these numbers with your load order.
+* NOTE: THE CALL STACK ADDRESS AND ITS VALUES HAVE NOTHING TO DO WITH ANY PLUGIN OR GAME IDs. DON'T BOTHER TRYING TO MATCH THESE NUMBERS WITH YOUR LOAD ORDER. *
 
 [The part below the Main Error shows the Buffout 4 version that was installed when this crash log was generated.]
 ==========
@@ -91,12 +92,12 @@ or disable any Plugins listed in this segment to further confirm if they caused 
 
 - To generate the FormID List:
 1) Place the *Generate FormID List.pas* from the *CLASSIC Data* folder into your FO4Edit/Edit Scripts folder.
-2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
+2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK / ENABLE ALL PLUGINS).
 3) Press OK while holding [Shift] to load your plugins in FO4Edit. Once all plugins are loaded, right click on any plugin and select *Apply Script...*
 4) From the dropdown menu, select *Generate FormID List* and press OK. Depending on how many plugins you have, this will take some time (5-25 mins).
 5) Once the full FormID List is generated, FO4Edit will ask you to save this list. Save it as a text file, then rename it to: FO4 FID Mods.txt
-6) Now place your own generated *FO4 FID Mods.txt* file into the *CLASSIC Data* folder and overwrite the existing *FO4 FID Mods* file.
-   (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
+6) Now place your own generated *FO4 FID Mods.txt* file into the *CLASSIC Data/databases* folder and overwrite existing *FO4 FID Mods* file.
+   (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name and make sure the extension is set to .txt)
 7) Run CLASSIC, enable *Show FID Values* under CLASSIC Settings and that's it! Scan your crash logs, the autoscan will do the rest.
 
 [!] REMINDERS
@@ -106,28 +107,28 @@ To ensure the scan doesn't take as long, only scan a few crash logs (less than 1
 [ Delete or move any extra crash log files to another folder so CLASSIC can't find them. ]
 
 - The script will not be able to generate values for ALL FormIDs, around 12% don't have usable names that CLASSIC can display.
-You will see [CHECK MANUALLY WITH XEDIT] for these FormIDs. These are usually NavMesh records, but check with FO4Edit anyway.
+You will see [CHECK MANUALLY WITH XEDIT] for these FormIDs. These are usually NavMesh records, but you can check with FO4Edit anyway.
 
 - To stop CLASSIC from checking the FormID List, either delete, rename or move your generated *FO4 FID Mods.txt* file somewhere else.
-CLASSIC will simply create this placeholder file again if needed and stop checking FormID values until a new FormID List is provided.
+CLASSIC will simply create a placeholder file again if needed and stop checking FormID values until a new FormID List is provided.
 
 ===========================================================================
 # BINARY SEARCH 101 #
 
 This is an algorithm (method) for tracking down the exact crash suspect as fast as possible when crash logs aren't helpful. Here's a clear example on how to do it.
-Of course, this method can (very) rarely backfire since the game could crash due to missing scripts from deactivated content, but it is what it is.
-Let's say you have 200 activated plugins in total, and let's give all those plugins arbitrary names. (Plugin1, Plugin2, Plugin3... all the way to Plugin200).
+Of course, this method can (very) rarely backfire since the game could crash due to missing scripts or files from deactivated content, but it is what it is.
+Let's say you have 200 activated plugins in total, and let's give them arbitrary names. (Plugin1, Plugin2, Plugin3... all the way to Plugin200).
 
 First, backup your latest save before doing this! Saves are located in your Documents\My Games\Fallout4\Saves folder.
-Your goal is to disable half, only leave all plugins from Plugin1 to Plugin100 enabled. After that:
+Your goal is to disable half of your plugins, only leave plugins from Plugin1 to Plugin100 enabled. After that:
 
--> If the game crashes again, then you know the suspect is somewhere between Plugin1 and Plugin100.  Now you disable half of those, so you only leave plugins from
-Plugin1 to Plugin50 enabled and test again. Each time you crash, disable half of the plugin range from which you deduced it must contain the crashing mod.
+-> If the game crashes again, then you know the suspect is somewhere between Plugin1 and Plugin100. Now disable half of those, so you only leave plugins from
+Plugin1 to Plugin50 enabled and test again. Each time you crash, *disable* half of the plugin range from which you deduced it must contain the crashing mod.
 
--> If the game doesn't crash, then you know the suspect is somewhere between Plugin101 and Plugin200. Now enable half of the ones you disabled, so you leave plugins from
-Plugin101 to Plugin150 enabled and test again. Each time you don't crash, enable half of the plugin range from which you deduced it must contain the crashing mod.
+-> If the game doesn't crash, then you know the suspect is somewhere between Plugin101 and Plugin200. Now enable half of the plugins you disabled, so all plugins from
+Plugin101 to Plugin150 are enabled and test again. Each time you don't crash, *enable* half of the plugin range from which you deduced it must contain the crashing mod.
 
-Repeat this logic until you're (hopefully) left with one mod that you had to leave disabled for the game not to crash, and that's your suspect.
+Repeat this logic until you're (hopefully) left with one mod that you had to leave disabled for the game not to crash, and that's your culprit.
 Basically, for each group of mods you disable, whichever half crashes is the one that contains the Impostor. Use your sussy brain to vote him out. ඞ
 After that, enable all other mods and continue from the save before you stared the binary search (in case you kept making exit saves while testing it out).
 

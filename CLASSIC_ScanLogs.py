@@ -45,9 +45,9 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
     if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
+        XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -140,7 +140,7 @@ def crashlogs_scan():
         main_files_check = CMain.main_combined_result()
         game_files_check = CGame.game_combined_result()
     else:
-        main_files_check = "❌ FCX Mode is disabled, skipping core files check... \n-----\n"
+        main_files_check = "❌ FCX Mode is disabled, skipping game files check... \n-----\n"
         game_files_check = ""
 
     # DETECT ONE WHOLE KEY (1 MOD) PER LOOP IN YAML DICT
@@ -633,7 +633,7 @@ def crashlogs_scan():
         # WRITE AUTOSCAN REPORT TO FILE
         autoscan_name = str(crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md"))
         with open(autoscan_name, "w", encoding="utf-8", errors="ignore") as autoscan_file:
-            logging.info(f"- - -> RUNNING CRASH LOG FILE SCAN >>> SCANNED {crashlog_file.name}")
+            logging.debug(f"- - -> RUNNING CRASH LOG FILE SCAN >>> SCANNED {crashlog_file.name}")
             autoscan_output = "".join(autoscan_report)
             autoscan_file.write(autoscan_output)
 

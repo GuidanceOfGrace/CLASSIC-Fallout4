@@ -48,11 +48,6 @@ Game_Info:
     WaterType.pex: c4f8589ed33f72265e95a6bec2c9cab58667795e972bcf5f7d17c40deed43207
     Weapon.pex: f39cf899d90d47d694873ccaa2a72308c6717f5e36a302d6f95243e53672d77d
 
-  # BELOW ARE LISTED ALL FILE AND FOLDER PATHS THAT CLASSIC NEEDS TO LOOK UP
-  # THESE WILL BE AUTOMATICALLY GENERATED ONCE YOU RUN CLASSIC FOR THE FIRST TIME
-  # DO NOT MANUALLY CHANGE THESE PATHS UNLESS YOU KNOW THEY ARE INCORRECTLY DETECTED
-  # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
-
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
@@ -86,9 +81,9 @@ Default_FO4Custom: |  # Default settings for *Fallout4Custom.ini* if that file d
 
 Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't already exist.
   >>> THIS IS ONLY A PLACEHOLDER | YOU NEED TO GENERATE THIS FILE WITH FO4EDIT!
-
+  
   - CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
-
+  
   - To generate the FormID List:
     1) Place the *Generate FormID List.pas* from the CLASSIC Config folder into your FO4Edit/Edit Scripts folder.
     2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
@@ -98,16 +93,16 @@ Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't 
     6) Now place your own generated *FO4 FID Mods.txt* file into the CLASSIC Config folder and overwrite the existing *FO4 FID Mods* file.
        (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
     7) Run CLASSIC, enable *Show FID Values* under CLASSIC Settings and that's it! Scan your crash logs, the autoscan will do the rest.
-
+    
     [!] REMINDERS
     
       - Once you overwrite the original *FO4 FID Mods.txt* (this file), crash log file scan will take (much) longer.
       To ensure the scan doesn't take as long, only scan a few crash logs (less than 10) at any given time.
       [ Delete or move any extra crash log files to another folder so CLASSIC can't find them. ]
-      
+    
       - The script will not be able to generate values for ALL FormIDs, around 12% don't have usable names that CLASSIC can display.
       You will see [CHECK MANUALLY WITH XEDIT] for these FormIDs. These are usually NavMesh records, but check with FO4Edit anyway.
-      
+    
       - To stop CLASSIC from checking the FormID List, either delete, rename or move your generated *FO4 FID Mods.txt* file somewhere else.
       CLASSIC will simply create this placeholder file again if needed and stop checking FormID values until a new FormID List is provided.
     
@@ -388,7 +383,7 @@ Mods_FREQ:  # 1) MODS THAT CAN CAUSE FREQUENT CRASHES
         - Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding.
         -----
 
-  EPO: |
+  EPO.esp: |
     Extreme Particles Overhaul
         - Can cause particle effects related crashes, consider switching to Burst Impact Blast FX.
           Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789?tab=files

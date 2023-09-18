@@ -4,8 +4,8 @@ CLASSIC_Info:
   # ========================================================================================
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
-  version: CLASSIC v7.07
-  version_date: 23.09.09 #YY/MM/DD
+  version: CLASSIC v7.10
+  version_date: 23.09.18 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
@@ -48,7 +48,7 @@ CLASSIC_Info:
     
     # Copy-paste your custom crash logs folder path below. Ex. SCAN Custom Path: C:/Crash Logs/Fallout 4
     # Crash logs are generated in Documents/My Games/Fallout 4/F4SE folder by default. If no path is set,
-    # CLASSIC will only search for crash logs inside that F4SE folder and where the CLASSIC executable is.
+    # CLASSIC will only scan crash logs from your F4SE folder and where the CLASSIC exe is by default.
       SCAN Custom Path:
 
   default_ignorefile: |
@@ -70,11 +70,33 @@ CLASSIC_Info:
 
 # =================== CLASSIC INTERFACE ===================
 
-CLASSIC_Interface: # === EACH TEXT LINE BELOW MUST BE SHORTER THAN THIS LINE ===
+CLASSIC_Interface:
+  start_message: |
+    PRESS THE *SCAN CRASH LOGS* BUTTON TO SCAN ALL AVAILABLE CRASH LOGS
+
+    PRESS THE *SCAN GAME FILES* BUTTON TO SCAN YOUR GAME & MOD FILES
+
+    IF YOU ARE USING MOD ORGANIZER 2, RUN CLASSIC WITH THE MO2 SHORTCUT
+    READ THE *CLASSIC Readme.md* FILE FOR MORE DETAILS AND INSTRUCTIONS
+
   help_popup_text: |
-    If you have trouble running this program or wish to submit your crash logs
+    PRESS THE *SCAN CRASH LOGS* BUTTON TO SCAN ALL AVAILABLE CRASH LOGS
+    PRESS THE *SCAN GAME FILES* BUTTON TO SCAN YOUR GAME & MOD FILES
+
+    IF YOU ARE USING MOD ORGANIZER 2, RUN CLASSIC WITH THE MO2 SHORTCUT
+    READ THE *CLASSIC Readme.md* FILE FOR MORE DETAILS AND INSTRUCTIONS
+    
+    CUSTOM SCAN FOLDER
+    > You can set your custom scan folder that contains your crash log files.
+      CLASSIC will already scan crash logs from your Documents folder by default.
+    
+    STAGING MODS FOLDER
+    > To scan all mod files, select your staging mods folder from your mod manager.
+      This is the folder where your mod manager keeps copies of all extracted mod files.
+    
+    If you have trouble running this program or wish to submit your crash log files
     for help from our support team, join the Collective Modding Discord server.
-    Press OK to open the server link in your browser.
+    Press OK to open the server link in your dafult browser.
   
   update_popup_text: |
     New CLASSIC version available! Press OK to open the CLASSIC Nexus Page.
