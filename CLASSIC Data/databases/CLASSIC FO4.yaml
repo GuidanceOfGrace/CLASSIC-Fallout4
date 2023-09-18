@@ -53,34 +53,6 @@ Game_Info:
   # DO NOT MANUALLY CHANGE THESE PATHS UNLESS YOU KNOW THEY ARE INCORRECTLY DETECTED
   # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
 
-  # FO4 MAIN
-  Root_Folder_Docs: C:\Users\Zen\Documents\My Games\Fallout4
-  Root_Folder_Game: E:\Steam\steamapps\common\Fallout 4\
-  # FO4 GAME
-  Game_Folder_Data: E:\Steam\steamapps\common\Fallout 4\Data
-  Game_Folder_Scripts: E:\Steam\steamapps\common\Fallout 4\Data\Scripts
-  Game_Folder_CK_Fixes: E:\Steam\steamapps\common\Fallout 4\Data\F4CKFixes
-  Game_File_AddressLib: E:\Steam\steamapps\common\Fallout 4\Data\F4SE\Plugins\version-1-10-163-0.bin
-  Game_File_BuffoutDLL: E:\Steam\steamapps\common\Fallout 4\Data\F4SE\Plugins\Buffout4.dll
-  Game_File_BuffoutTOML: E:\Steam\steamapps\common\Fallout 4\Data\F4SE\Plugins\Buffout4\config.toml
-  Game_File_CK_EXE: E:\Steam\steamapps\common\Fallout 4\CreationKit.exe
-  Game_File_EXE: E:\Steam\steamapps\common\Fallout 4\Fallout4.exe
-  Game_File_PreloaderDLL: E:\Steam\steamapps\common\Fallout 4\IpHlpAPI.dll
-  Game_File_PreloaderXML: E:\Steam\steamapps\common\Fallout 4\xSE PluginPreloader.xml
-  Game_File_SteamINI: E:\Steam\steamapps\common\Fallout 4\steam_api.ini
-  # FO4 GAME F4SE
-  XSE_File_DLL: E:\Steam\steamapps\common\Fallout 4\f4se_1_10_163.dll
-  XSE_File_Loader: E:\Steam\steamapps\common\Fallout 4\f4se_loader.exe
-  XSE_File_SteamDLL: E:\Steam\steamapps\common\Fallout 4\f4se_steam_loader.dll
-  # FO4 DOCS
-  Docs_Folder_XSE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE
-  Docs_File_XSE: C:\Users\Zen\Documents\My Games\Fallout4\F4SE\f4se.log
-  Docs_File_GameMainINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4.ini
-  Docs_File_GameCustomINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4Custom.ini
-  Docs_File_GamePrefsINI: C:\Users\Zen\Documents\My Games\Fallout4\Fallout4Prefs.ini
-  Docs_File_PapyrusLog: C:\Users\Zen\Documents\My Games\Fallout4\Logs\Script\Papyrus.0.log
-  Docs_File_WryeBashPC: C:\Users\Zen\Documents\My Games\Fallout4\ModChecker.html
-
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'

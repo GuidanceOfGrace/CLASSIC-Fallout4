@@ -45,9 +45,9 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
     if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "Docs_Folder_XSE")
+        XSE_folder = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))

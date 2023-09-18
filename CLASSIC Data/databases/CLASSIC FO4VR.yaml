@@ -53,36 +53,6 @@ GameVR_Info:
   # DO NOT MANUALLY CHANGE THESE PATHS UNLESS YOU KNOW THEY ARE INCORRECTLY DETECTED
   # ONEDRIVE CAN MESS WITH READ / WRITE PERMISSIONS, DISABLE OR CHANGE ONEDRIVE SETTINGS
 
-  # FO4 MAIN
-  Root_Folder_Docs: 
-  Root_Folder_Game: E:\Steam\steamapps\common\Fallout 4\ VR
-  # FO4 GAME
-  Game_Folder_Data: E:\Steam\steamapps\common\Fallout 4\ VRData
-  Game_Folder_Scripts: E:\Steam\steamapps\common\Fallout 4\ VRData\Scripts
-  Game_Folder_CK_Fixes: E:\Steam\steamapps\common\Fallout 4\ VRData\F4CKFixes
-  Game_File_AddressLib: E:\Steam\steamapps\common\Fallout 4\ VR\Data\F4SE\Plugins\version-1-2-72-0.csv
-  Game_File_BuffoutDLL: E:\Steam\steamapps\common\Fallout 4\ VR\Data\F4SE\Plugins\msdia140.dll
-  Game_File_BuffoutTOML: E:\Steam\steamapps\common\Fallout 4\ VR\Data\F4SE\Plugins\Buffout4.toml
-  Game_File_CK_EXE: E:\Steam\steamapps\common\Fallout 4\ VRCreationKit.exe
-  Game_File_EXE: E:\Steam\steamapps\common\Fallout 4\ VR\Fallout4VR.exe
-  Game_File_PreloaderDLL: E:\Steam\steamapps\common\Fallout 4\ VRIpHlpAPI.dll
-  Game_File_PreloaderXML: E:\Steam\steamapps\common\Fallout 4\ VRxSE PluginPreloader.xml
-  Game_File_SteamINI: E:\Steam\steamapps\common\Fallout 4\ VRsteam_api.ini
-  # FO4 GAME F4SE
-  XSE_File_DLL: E:\Steam\steamapps\common\Fallout 4\ VR\f4sevr_1_2_72.dll
-  XSE_File_Loader: E:\Steam\steamapps\common\Fallout 4\ VR\f4sevr_loader.exe.exe
-  XSE_File_SteamDLL: E:\Steam\steamapps\common\Fallout 4\ VR\f4sevr_steam_loader.dll
-
-  # FO4 DOCS
-  Docs_Folder_XSE: None\F4SE
-  Docs_File_XSE: None\F4SE\f4sevr.log
-  Docs_File_PapyrusLog: None\Logs\Script\Papyrus.0.log
-  Docs_File_GameMainINI: None\Fallout4VR.ini
-  Docs_File_GameCustomINI: None\Fallout4VRCustom.ini
-  Docs_File_GamePrefsINI: None\Fallout4VRPrefs.ini
-  Docs_File_WryeBashPC: None\ModChecker.html
-
-
 GameVR_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
