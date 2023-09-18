@@ -141,7 +141,7 @@ def crashlogs_scan():
         game_files_check = CGame.game_combined_result()
     else:
         main_files_check = "❌ FCX Mode is disabled, skipping core files check... \n-----\n"
-        game_files_check = "❌ FCX Mode is disabled, skipping game files check... \n-----\n"
+        game_files_check = ""
 
     # DETECT ONE WHOLE KEY (1 MOD) PER LOOP IN YAML DICT
     def detect_mods_single(yaml_dict):
@@ -456,7 +456,8 @@ def crashlogs_scan():
                                     "[ To disable mod & game files detection, disable FCX Mode in the exe or CLASSIC Settings.yaml ] \n\n"])
 
         autoscan_report.append(main_files_check)
-        autoscan_report.append(game_files_check)
+        if game_files_check:
+            autoscan_report.append(game_files_check)
 
         autoscan_report.extend(["====================================================\n",
                                 "CHECKING FOR MODS THAT CAN CAUSE FREQUENT CRASHES...\n",
