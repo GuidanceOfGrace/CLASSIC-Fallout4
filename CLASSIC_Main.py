@@ -44,9 +44,8 @@ def remove_readonly(file_path):
         else:
             permissions = os.stat(file_path).st_mode & 0o777
 
-        # Check if file is set to Read-Only.
         if permissions & (os.O_RDONLY | os.O_WRONLY):
-            # Remove Read-Only permission (add write permission).
+            # Remove file permissions.
             if platform.system() == "Windows":
                 os.chmod(file_path, permissions & ~0o400)
             else:
@@ -66,7 +65,6 @@ def yaml_get(yaml_path, *key_path):
     yaml = ruamel.yaml.YAML()
     yaml.indent(offset=2)
     yaml.width = 300
-
     with open(yaml_path, 'r', encoding='utf-8') as file:
         data = yaml.load(file)
 
@@ -83,7 +81,6 @@ def yaml_update(yaml_path, key_path, new_value):
     yaml = ruamel.yaml.YAML()
     yaml.indent(offset=2)
     yaml.width = 300
-
     with open(yaml_path, 'r', encoding='utf-8') as yaml_file:
         data = yaml.load(yaml_file)
 
@@ -93,7 +90,6 @@ def yaml_update(yaml_path, key_path, new_value):
         current = current[key]
 
     current[keys[-1]] = new_value
-
     with open(yaml_path, 'w', encoding='utf-8') as yaml_file:
         yaml.dump(data, yaml_file)
 
@@ -121,9 +117,6 @@ def local_oobe():
                                    "XSE_File_SteamDLL": None,
                                    "Docs_Folder_XSE": None,
                                    "Docs_File_XSE": None,
-                                   "Docs_File_GameMainINI": None,
-                                   "Docs_File_GameCustomINI": None,
-                                   "Docs_File_GamePrefsINI": None,
                                    "Docs_File_PapyrusLog": None,
                                    "Docs_File_WryeBashPC": None}}
         with open("CLASSIC Data/CLASSIC FO4 Local.yaml", "w", encoding="utf-8", errors="ignore") as file:
@@ -147,9 +140,6 @@ def local_oobe():
                                        "XSE_File_SteamDLL": None,
                                        "Docs_Folder_XSE": None,
                                        "Docs_File_XSE": None,
-                                       "Docs_File_GameMainINI": None,
-                                       "Docs_File_GameCustomINI": None,
-                                       "Docs_File_GamePrefsINI": None,
                                        "Docs_File_PapyrusLog": None,
                                        "Docs_File_WryeBashPC": None}}
         with open("CLASSIC Data/CLASSIC FO4VR Local.yaml", "w", encoding="utf-8", errors="ignore") as file:
