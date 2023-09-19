@@ -67,7 +67,7 @@ def custom_popup_window(parent, title, text, height=240, callback=""):
     popup_window = QDialog(parent)
     popup_window.setWindowTitle(title)
     popup_window.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-    popup_window.setStyleSheet("color: white; background: rgba(10, 10, 10, 1); border : 1px solid gray; font-family: Yu Gothic; font-size: 15px")
+    popup_window.setStyleSheet("color: white; background: rgba(10, 10, 10, 1); border : 1px solid black; font-family: Yu Gothic; font-size: 15px")
     popup_window.setGeometry(15, 250, 620, height)
 
     layout = QVBoxLayout()
@@ -78,9 +78,12 @@ def custom_popup_window(parent, title, text, height=240, callback=""):
     # Create a horizontal layout for buttons
     button_layout = QHBoxLayout()
     ok_button = QPushButton("OK")
-    close_button = QPushButton("Close")
     ok_button.setMinimumSize(100, 50)
+    ok_button.setStyleSheet("color: black; background: rgb(45, 237, 138); font-family: Yu Gothic; font-size: 20px; font-weight: bold")
+    
+    close_button = QPushButton("Close")
     close_button.setMinimumSize(100, 50)
+    close_button.setStyleSheet("color: black; background: rgb(240, 63, 40); font-family: Yu Gothic; font-size: 20px; font-weight: bold")
 
     # Connect button signals to actions
     if callback:

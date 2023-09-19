@@ -1,4 +1,3 @@
-# import timeit | RESERVED For timing functions.
 import os
 import re
 import time
@@ -47,7 +46,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
     XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
     if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4VR Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
+        XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -80,7 +79,7 @@ def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old an
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
     xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
     if CMain.classic_settings("VR Mode"):
-        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "XSE_Acronym")
+        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "GameVR_Info", "XSE_Acronym")
 
     crash_files = crashlogs_get_files()
     for file in crash_files:
@@ -118,7 +117,7 @@ def crashlogs_scan():
 
     crashgen_latestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LatestVer")
     crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
-    crashgen_vrlatestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4VR.yaml", "GameVR_Info", "CRASHGEN_LatestVer")
+    crashgen_vrlatestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "GameVR_Info", "CRASHGEN_LatestVer")
 
     warn_noplugins = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_NOPlugins")
     warn_outdated = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_Outdated")
@@ -188,7 +187,7 @@ def crashlogs_scan():
             if mod_found:
                 if gpu_rival and gpu_rival in mod_warn.lower():
                     autoscan_report.extend([f"❓ {mod_split[1]} is installed, BUT YOU DON'T HAVE AN {gpu_rival.upper()} GPU!\n",
-                                            "THIS MOD IS NOT INTENDED FOR YOUR GPU, PLEASE REMOVE IT TO AVOID PROBLEMS!\n\n"])
+                                            "THIS MOD IS NOT INTENDED FOR YOUR GPU, PLEASE REMOVE IT TO AVOID PROBLEMS! \n\n"])
                 else:
                     autoscan_report.extend([f"✔️ {mod_split[1]} is installed!\n\n"])
             else:
@@ -720,6 +719,4 @@ if __name__ == "__main__":
 
     fidfile_generate()
     crashlogs_scan()
-    # execution_time = timeit.timeit(crashlogs_scan, number=1)
-    # print(f"Execution time: {execution_time} seconds")
     os.system("pause")

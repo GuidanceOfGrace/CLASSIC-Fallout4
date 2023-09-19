@@ -1,11 +1,11 @@
 # FALLOUT 4 DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.00+
 
 Game_Info:
-  Game_Root_Name: Fallout 4
-  Game_Docs_Name: Fallout4
-  Game_SteamID: 377160
-  Game_HashedMain: # SHA-256 | Fallout4.exe
-    1.10.163: 55f57947db9e05575122fae1088f0b0247442f11e566b56036caa0ac93329c36
+  Main_Root_Name: Fallout 4
+  Main_Docs_Name: Fallout4
+  Main_SteamID: 377160
+  EXE_HashedOLD: 55f57947db9e05575122fae1088f0b0247442f11e566b56036caa0ac93329c36
+  EXE_HashedNEW: 00000
 
   CRASHGEN_Acronym: BO4
   CRASHGEN_LogName: Buffout 4
@@ -47,6 +47,56 @@ Game_Info:
     Utility.pex: e10d65904d0a1e9ee568bdaba02636f0183bfa9565b4056758b1461540f9be75
     WaterType.pex: c4f8589ed33f72265e95a6bec2c9cab58667795e972bcf5f7d17c40deed43207
     Weapon.pex: f39cf899d90d47d694873ccaa2a72308c6717f5e36a302d6f95243e53672d77d
+  
+
+GameVR_Info:
+  Main_Root_Name: Fallout 4 VR
+  Main_Docs_Name: Fallout4VR
+  Main_SteamID: 611660
+  EXE_HashedOLD: 00000
+  EXE_HashedNEW: 00000
+
+  CRASHGEN_Acronym: BO4 NG
+  CRASHGEN_LogName: Buffout 4
+  CRASHGEN_DLL_File: buffout4.dll
+  CRASHGEN_LatestVer: Buffout 4 v1.31.1 Feb 28 2023 00:32:02
+
+  XSE_Acronym: F4SEVR
+  XSE_FullName: Fallout 4 Script Extender VR (F4SEVR)
+  XSE_Ver_Latest: 0.6.20
+  XSE_FileCount: 29
+
+  XSE_HashedScripts:  # SHA-256 from https://f4se.silverlock.org/
+    Actor.pex: 00000
+    ActorBase.pex: 00000
+    Armor.pex: 00000
+    ArmorAddon.pex: 00000
+    Cell.pex: 00000
+    Component.pex: 00000
+    ConstructibleObject.pex: 00000
+    DefaultObject.pex: 00000
+    EncounterZone.pex: 00000
+    EquipSlot.pex: 00000
+    F4SE.pex: 00000
+    FavoritesManager.pex: 00000
+    Form.pex: 00000
+    Game.pex: 00000
+    HeadPart.pex: 00000
+    Input.pex: 00000
+    InstanceData.pex: 00000
+    Location.pex: 00000
+    Math.pex: 00000
+    MatSwap.pex: 00000
+    MiscObject.pex: 00000
+    ObjectMod.pex: 00000
+    ObjectReference.pex: 00000
+    Perk.pex: 00000
+    ScriptObject.pex: 00000
+    UI.pex: 00000
+    Utility.pex: 00000
+    WaterType.pex: 00000
+    Weapon.pex: 00000
+  
 
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
@@ -60,7 +110,7 @@ Game_Hints:
   - 'Random Hint: Revisit both Buffout 4 Crash Article and CLASSIC Nexus Page from time to time in case there are updates.'
   - 'Random Hint: When posting crash logs, it is helpful to mention the last thing you were doing before the crash happened.'
 
-Default_FO4Custom: |  # Default settings for *Fallout4Custom.ini* if that file doesn't already exist.
+Default_CustomINI: |  # Default settings for *Fallout4Custom.ini* if that file doesn't already exist.
   [Archive]
   ; Enable Archive Invalidation
   bInvalidateOlderFiles=1
@@ -522,7 +572,7 @@ Mods_CONF:  # 2) MODS THAT CONFLICT WITH OTHER MODS
         -----
 
   cbp | chw: |
-    Cbp Physics ❌ CONFLICTS WITH : Classic Holstered Weapons
+    CBP Physics ❌ CONFLICTS WITH : Classic Holstered Weapons
         Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.
         If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496
         -----

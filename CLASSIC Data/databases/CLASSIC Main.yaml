@@ -51,6 +51,13 @@ CLASSIC_Info:
     # CLASSIC will only scan crash logs from your F4SE folder and where the CLASSIC exe is by default.
       SCAN Custom Path:
 
+  default_localyaml: |
+    Game_Info:
+      Root_Folder_Game:
+    
+    GameVR_Info:
+      Root_Folder_Game:
+
   default_ignorefile: |
     # This file contains plugin names that CLASSIC will IGNORE while scanning your crash logs and mod files.
     # When adding plugin names, make sure you add it under the correct game list, same applies to VR plugins.
@@ -96,7 +103,7 @@ CLASSIC_Interface:
     
     If you have trouble running this program or wish to submit your crash log files
     for help from our support team, join the Collective Modding Discord server.
-    Press OK to open the server link in your dafult browser.
+    Press OK to open the server link in your default browser.
   
   update_popup_text: |
     New CLASSIC version available! Press OK to open the CLASSIC Nexus Page.
@@ -232,7 +239,7 @@ Mods_Warn:
   
   Mods_BSArch_Missing: |
     ❌ BSARCH EXECUTABLE CANNOT BE FOUND. TO SCAN ALL YOUR MOD ARCHIVES, PLEASE DOWNLOAD
-    THE LATEST VERSION OF BSARCH AND EXTRACT ITS EXE INTO THE *CLASSIC Config* FOLDER
+    THE LATEST VERSION OF BSARCH AND EXTRACT ITS EXE INTO THE *CLASSIC Data* FOLDER
     BSArch Link: https://www.nexusmods.com/newvegas/mods/64745?tab=files
 
 # =============== INCLUDE & EXCLUDE LISTS ==============
