@@ -67,35 +67,35 @@ GameVR_Info:
   XSE_FileCount: 29
 
   XSE_HashedScripts:  # SHA-256 from https://f4se.silverlock.org/
-    Actor.pex: 00000
-    ActorBase.pex: 00000
-    Armor.pex: 00000
-    ArmorAddon.pex: 00000
-    Cell.pex: 00000
-    Component.pex: 00000
-    ConstructibleObject.pex: 00000
-    DefaultObject.pex: 00000
-    EncounterZone.pex: 00000
-    EquipSlot.pex: 00000
-    F4SE.pex: 00000
-    FavoritesManager.pex: 00000
-    Form.pex: 00000
-    Game.pex: 00000
-    HeadPart.pex: 00000
-    Input.pex: 00000
-    InstanceData.pex: 00000
-    Location.pex: 00000
-    Math.pex: 00000
-    MatSwap.pex: 00000
-    MiscObject.pex: 00000
-    ObjectMod.pex: 00000
-    ObjectReference.pex: 00000
-    Perk.pex: 00000
-    ScriptObject.pex: 00000
-    UI.pex: 00000
-    Utility.pex: 00000
-    WaterType.pex: 00000
-    Weapon.pex: 00000
+    Actor.pex: dfd7177ad93b78e3adf91a4a18ad26a9d8e4447e3dc173269798977054b82f17
+    ActorBase.pex: 659acecc1146734cf691d6d572f4c30edbbbc3ea3efb2502fd14bb91425828c8
+    Armor.pex: 3995537c4b5925b82079291d383da4bda6a284787794e65ee33a65752741f027
+    ArmorAddon.pex: 12bca4e4eddfb487c4f945fd5d6fe762475eb4d8a26ffd90fb7d0de4ddc165c7
+    Cell.pex: 34da9be5c267f599c466b9263f459b0704d7e87ccfee41fad85e93f25e76c636
+    Component.pex: 0243f0017f7190c38f17c848755a3675fb25a861dc09ef28d1dd5490a57876ff
+    ConstructibleObject.pex: 2a4de0c3190acec6ae13ee0cd936e6eefdcd5a8fb5cef8ecb845b01d67e6924e
+    DefaultObject.pex: e7d2e193c2a9bd7e2600993da256fae6186c8fe579d0dc7592f9e27638649177
+    EncounterZone.pex: facb76d19c4efdcd8f5b9e0329f214db130217e3e59154cf2568c30ff65916a1
+    EquipSlot.pex: 33858e7a68826a3afdccbe55e0cba34dbdbc21c3889eda6e6bcbb8f393f5dd40
+    F4SE.pex: 8b7de39f18695b2af5bdae2e3550291af1c72a7d0bbeefd65fcfe83b8d9d94bf
+    FavoritesManager.pex: eb616c6fd7b6e9a1874fcf8840c7dac8070d1b5cb587eaf4a5a162b7f3532c0a
+    Form.pex: bb436785aa3a8b9b6fd4c95f85982651e92dcc24cfb0a623e2dd616815bce5d8
+    Game.pex: e9baa2e483fbbda20ab476d0df53c6c62c1410c13f288f8dc48b2853c2df73a7
+    HeadPart.pex: 6a8a34cc933b4a3a2274d2c59e3d078df42fcf2531e0518c54f16fb764d5f0fa
+    Input.pex: ff7a9f5819b822867f9a3a2dea4a4ebfe31b3ed1fa013d82f6b9048fc8ae5e03
+    InstanceData.pex: 933f26d7185be5df62f44c9f47c95ad743a1605454c7aa9b01e16b696729b585
+    Location.pex: 130dd8512339a26cf57780dcfc093de19e4abaed7f0d7e07a8b5707af877c05d
+    Math.pex: 1375ffebd59f5070a07cccb6381624d4b5429ccf6a23fe0b9c464a135cd57b05
+    MatSwap.pex: fa7df6ce66abde793efb8449c0e6517beafb5c88c0813ca8b81f4ceb912857bc
+    MiscObject.pex: cec1b89d95e7ab8526dd90a1ae6f968c08c0b3b77851cc8e46e658b3049d14c6
+    ObjectMod.pex: 1385636404a733d6332cfaadd509eda8b317a319c8e3968eabae7e958c0e1522
+    ObjectReference.pex: 5f18adbfd777c6c265a46a5081c882737a350e30f336c225d509b8101f5fbecc
+    Perk.pex: 5f306d34f10168c9307d8ec98b83b3a0a49faf6c00949d5c83c8ce88791ab5d8
+    ScriptObject.pex: 6daa54faeedfefcb0da7a76ad4ab7fa48e427d5704b7367eea88c3bebc8fba4f
+    UI.pex: 523ba72eb4d17cd148ac39aaea3e5e5a64ef8484e287583987b4522b867f8414
+    Utility.pex: 9bff49b59e18636ea84033f362b45f1962c2b3740eb36ad9e9dcae94556f3490
+    WaterType.pex: 8711f4a818c1fed8b549f9cfb0fc49186bf6875cd2c8b0146c4e3154da91028f
+    Weapon.pex: e9a18d4f7e3aa6b67fb79dee501b221e62e4fbe10baad0b47fb087735f7fb7a9
   
 
 Game_Hints:
