@@ -317,24 +317,10 @@ def game_generate_paths():
     yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{vr}_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
     yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{vr}_Info.Game_File_EXE", fr"{game_path}Fallout4{vr}.exe")
 
-    if not classic_settings("VR Mode"):
-        # GAME FILES
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\F4SE\Plugins\version-1-10-163-0.bin")
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.Game_File_BuffoutDLL", fr"{game_path}Data\F4SE\Plugins\Buffout4.dll")
+    if not classic_settings("VR Mode"):  # Files that have different names and/or paths depending on game version.
         yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.Game_File_BuffoutTOML", fr"{game_path}Data\F4SE\Plugins\Buffout4\config.toml")
-        # GAME F4SE
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.XSE_File_DLL", fr"{game_path}f4se_1_10_163.dll")
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.XSE_File_Loader", fr"{game_path}f4se_loader.exe")
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info.XSE_File_SteamDLL", fr"{game_path}f4se_steam_loader.dll")
     else:
-        # VR FILES
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info.Game_File_AddressLib", fr"{game_path}\Data\F4SE\Plugins\version-1-2-72-0.csv")
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info.Game_File_BuffoutDLL", fr"{game_path}\Data\F4SE\Plugins\msdia140.dll")
         yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info.Game_File_BuffoutTOML", fr"{game_path}\Data\F4SE\Plugins\Buffout4.toml")
-        # VR F4SE
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info.XSE_File_DLL", fr"{game_path}\f4sevr_1_2_72.dll")
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info.XSE_File_Loader", fr"{game_path}\f4sevr_loader.exe.exe")
-        yaml_update("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info.XSE_File_SteamDLL", fr"{game_path}\f4sevr_steam_loader.dll")
 
 
 # =========== CHECK GAME EXE FILE -> GET PATH AND HASHES ===========

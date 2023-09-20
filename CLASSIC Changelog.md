@@ -1,6 +1,17 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.13
+*NEW FEATURES*
+- Added Address Library file check (required for Script Extender).
+
+*CHANGES*
+- Improved visuals of interface popup boxes.
+- Re-centered a few misaligned interface elements.
+- Additional fixes for Fallout 4 VR file and folder paths detection.
+- Fixed crash log files not being excluded from general log files error search.
+- Fixed incorrect detection of Script Extender file copies during *Game Files Scan*.
+
 7.10
 *NEW FEATURES*
 - CLASSIC will now extract required files from *CLASSIC Data.zip* if they are not found.

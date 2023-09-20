@@ -228,12 +228,14 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
 
         # TOP MAIN ROW
         self.RegButton_SCAN_LOGS = custom_push_button(self, QtCore.QRect(35, 185, 270, 48), "RegButton_SCAN_LOGS", "SCAN CRASH LOGS", bold_11, "", self.crash_logs_scan)
-        self.RegButton_SCAN_FILES = custom_push_button(self, QtCore.QRect(335, 185, 270, 48), "RegButton_SCAN_FILES", "SCAN GAME FILES", bold_11, "", self.game_files_scan)
+        self.RegButton_SCAN_LOGS.setStyleSheet("color: black; background: rgba(250, 250, 250, 0.90); border-radius: 10px; border : 1px solid white; font-family: Yu Gothic; font-size: 17px")
+        self.RegButton_SCAN_FILES = custom_push_button(self, QtCore.QRect(345, 185, 270, 48), "RegButton_SCAN_FILES", "SCAN GAME FILES", bold_11, "", self.game_files_scan)
+        self.RegButton_SCAN_FILES.setStyleSheet("color: black; background: rgba(250, 250, 250, 0.90); border-radius: 10px; border : 1px solid white; font-family: Yu Gothic; font-size: 17px")
 
         # BOTTOM MAIN ROW
         self.RegButton_ChangeINI = custom_push_button(self, QtCore.QRect(35, 250, 150, 32), "RegButton_ChangeINI", "CHANGE INI PATH", bold_09, "Select the folder where Fallout4.ini is located so CLASSIC can use that new location.", self.select_folder_ini)
-        self.RegButton_OpenSettings = custom_push_button(self, QtCore.QRect(220, 250, 200, 32), "RegButton_OpenSettings", "OPEN CLASSIC SETTINGS", bold_09, "Open the CLASSIC Settings.yaml file in your default text editor.", self.open_settings)
-        self.RegButton_CheckUpdates = custom_push_button(self, QtCore.QRect(455, 250, 150, 32), "RegButton_CheckUpdates", "CHECK UPDATES", bold_09, "Check for new CLASSIC versions (CLASSIC does this automatically every 7 days).", self.update_popup)
+        self.RegButton_OpenSettings = custom_push_button(self, QtCore.QRect(220, 250, 210, 32), "RegButton_OpenSettings", "OPEN CLASSIC SETTINGS", bold_09, "Open the CLASSIC Settings.yaml file in your default text editor.", self.open_settings)
+        self.RegButton_CheckUpdates = custom_push_button(self, QtCore.QRect(465, 250, 150, 32), "RegButton_CheckUpdates", "CHECK UPDATES", bold_09, "Check for new CLASSIC versions (CLASSIC does this automatically every 7 days).", self.update_popup)
 
         # CHECK EXISTING BROWSE PATHS
         SCAN_folder = CMain.classic_settings("SCAN Custom Path")
@@ -278,7 +280,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
         # ARRANGE BUTTONS IN GRID
         for i, data in enumerate(button_data):
             button = QtWidgets.QPushButton(self)
-            button.setGeometry(QtCore.QRect(40 + i % 3 * 190, 505 + i // 3 * 60, 180, 50))
+            button.setGeometry(QtCore.QRect(45 + i % 3 * 190, 505 + i // 3 * 60, 180, 50))
             button.setObjectName("ArtBT_" + data["text"].replace(" ", ""))
             button.setText(data["text"])
             button.setStyleSheet("color: white; border-radius: 5px; border : 1px solid white; font-family: Yu Gothic; font-size: 11px; font-weight: bold")
@@ -288,11 +290,12 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
         # BOTTOM
 
         # Button - HELP
-        self.RegButton_Help = custom_push_button(self, QtCore.QRect(20, 720, 110, 30), "RegButton_Help", "HELP", normal_11, "How To Use CLASSIC GUI", self.help_popup)
+        self.RegButton_Help = custom_push_button(self, QtCore.QRect(20, 720, 110, 30), "RegButton_Help", "HELP", normal_11, "", self.help_popup)
         # Button - PAPYRUS MONITORING
-        self.RegButton_Papyrus = custom_push_button(self, QtCore.QRect(195, 720, 260, 30), "RegButton_Papyrus", "START PAPYRUS MONITORING", bold_11, "Monitor Papyrus0.log every 5 seconds.", self.toggle_papyrus_worker)
+        self.RegButton_Papyrus = custom_push_button(self, QtCore.QRect(195, 720, 260, 30), "RegButton_Papyrus", "START PAPYRUS MONITORING", bold_11, "", self.toggle_papyrus_worker)
+        self.RegButton_Papyrus.setStyleSheet("color: black; background: rgb(45, 237, 138); border-radius: 10px; border : 1px solid black; font-family: Yu Gothic; font-size: 13px; font-weight: bold")
         # Button - EXIT
-        self.RegButton_Exit = custom_push_button(self, QtCore.QRect(520, 720, 110, 30), "RegButton_Exit", "EXIT", normal_11, "Exit CLASSIC GUI", self.close)
+        self.RegButton_Exit = custom_push_button(self, QtCore.QRect(520, 720, 110, 30), "RegButton_Exit", "EXIT", normal_11, "", self.close)
         # Text Box - SHARED
         self.TXT_Window = custom_text_box(self, QtCore.QRect(20, 760, 610, 120), "Crash Log Auto Scanner & Setup Integrity Checker | Made by: Poet \nContributors: evildarkarchon | kittivelae | AtomicFallout757")
 
@@ -332,11 +335,13 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
             self.worker_process.daemon = True
             self.worker_process.start()
             self.RegButton_Papyrus.setText("STOP PAPYRUS MONITORING")
+            self.RegButton_Papyrus.setStyleSheet("background: rgb(240, 63, 40); border-radius: 10px")
         else:
             self.worker_stop_event.set()
             self.worker_process.join()
             self.worker_process = None
             self.RegButton_Papyrus.setText("START PAPYRUS MONITORING")
+            self.RegButton_Papyrus.setStyleSheet("color: black; background: rgb(45, 237, 138); border-radius: 10px")
         self.is_worker_running = not self.is_worker_running
 
     def update_text_window(self):

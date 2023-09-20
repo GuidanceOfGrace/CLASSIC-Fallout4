@@ -101,7 +101,7 @@ GameVR_Info:
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
-  - 'Random Hint: Buffout crash logs are generated in your Documents/My Games/Fallout4/F4SE folder by default.'
+  - 'Random Hint: Buffout crash logs are generated in your Documents/My Games/Fallout4/F4SE(VR) folder by default.'
   - 'Random Hint: You have a crash log where the auto scan could not find any solutions? Feel free to send it to me.'
   - 'Random Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.'
   - 'Random Hint: If you do not use Profile Specific INIs, consider disabling this option in your MO2 Profile settings.'
@@ -283,6 +283,7 @@ Crashlog_Error_Check:
   5 | Stack Overflow Crash: EXCEPTION_STACK_OVERFLOW
 
   5 | Active Effects Crash: '0x000100000000'
+
   3 | C++ Redist Crash: MSVC
 
   4 | Rendering Crash: d3d11
@@ -320,6 +321,7 @@ Crashlog_Stack_Check:
   5 | Grid Scrap Crash: [GridAdjacencyMapNode, PowerUtils]
 
   5 | Map Marker Crash: [HUDCompass, HUDCompassMarker, attachMovie()]
+
   4 | Mesh (NIF) Crash: [NOT|LooseFileAsyncStream, LooseFileStream, BSFadeNode, BSMultiBoundNode]
 
   4 | Texture (DDS) Crash: [Create2DTexture, DefaultTexture]
@@ -367,11 +369,13 @@ Crashlog_Stack_Check:
   5 | Animation / Physics Crash: [ME-OPT|1FCC07E, BSAnimationGraphManager, hkbVariableBindingSet, hkbHandIkControlsModifier, hkbBehaviorGraph, hkbModifierList]
 
   5 | Animation Corruption Crash: [ME-OPT|1B938F0, AnimTextData\\AnimationFileData, AnimationFileLookupSingletonHelper]
+
   5 | Archive Invalidation Crash: [DLCBanner05.dds]
 
   1 | *[Item Crash]: [ME-OPT|0B2C44B, TESObjectARMO, TESObjectWEAP, BGSMod::Attachment, BGSMod::Template, BGSMod::Template::Item]
 
   1 | *[Save Crash]: [ME-OPT|0CDAD30, BGSSaveLoadManager, BGSSaveLoadThread, BGSSaveFormBuffer]
+
   1 | *[Input Crash]: [ButtonEvent, MenuControls, MenuOpenCloseHandler, PlayerControls, DXGISwapChain]
 
   1 | *[SS2 / WF Crash]: [ME-OPT|01F498D, ME-OPT|03F89A3, StartWorkshop, IsWithinBuildableArea, PlayerControls, DXGISwapChain]

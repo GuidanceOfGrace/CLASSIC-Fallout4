@@ -44,9 +44,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "Game_Info", "Docs_Folder_XSE")
-    if CMain.classic_settings("VR Mode"):
-        XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", "GameVR_Info", "Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{CMain.vr}_Info", "Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -77,9 +75,7 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
 
 def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old and new CRASHGEN formats match.
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
-    xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
-    if CMain.classic_settings("VR Mode"):
-        xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "GameVR_Info", "XSE_Acronym")
+    xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info", "XSE_Acronym")
 
     crash_files = crashlogs_get_files()
     for file in crash_files:
