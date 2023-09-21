@@ -418,8 +418,7 @@ def crashlogs_scan():
             autoscan_report.extend(["* NOTICE: FCX MODE IS DISABLED. YOU CAN ENABLE IT TO DETECT PROBLEMS IN YOUR MOD & GAME FILES * \n",
                                     "[ FCX Mode can be enabled in the exe or CLASSIC Settings.yaml located in your CLASSIC folder. ] \n\n"])
 
-            crashgen_ignore = ["F4EE", "WaitForDebugger", "Achievements", "InputSwitch", "MemoryManager",
-                               "AutoOpen", "PromptUpload", "MemoryManagerDebug", "BSTextureStreamerLocalHeap"]
+            crashgen_ignore = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info", "Crashgen_Ignore")
             for line in segment_crashgen:
 
                 if "false" in line.lower() and all(elem.lower() not in line.lower() for elem in crashgen_ignore):

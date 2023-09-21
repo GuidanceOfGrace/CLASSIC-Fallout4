@@ -47,8 +47,19 @@ Game_Info:
     Utility.pex: e10d65904d0a1e9ee568bdaba02636f0183bfa9565b4056758b1461540f9be75
     WaterType.pex: c4f8589ed33f72265e95a6bec2c9cab58667795e972bcf5f7d17c40deed43207
     Weapon.pex: f39cf899d90d47d694873ccaa2a72308c6717f5e36a302d6f95243e53672d77d
-  
 
+
+  Crashgen_Ignore:
+    - F4EE
+    - WaitForDebugger
+    - Achievements
+    - InputSwitch
+    - MemoryManager
+    - AutoOpen
+    - PromptUpload
+    - MemoryManagerDebug
+    - BSTextureStreamerLocalHeap
+    - ArchiveLimit
 GameVR_Info:
   Main_Root_Name: Fallout 4 VR
   Main_Docs_Name: Fallout4VR
@@ -96,8 +107,19 @@ GameVR_Info:
     Utility.pex: 9bff49b59e18636ea84033f362b45f1962c2b3740eb36ad9e9dcae94556f3490
     WaterType.pex: 8711f4a818c1fed8b549f9cfb0fc49186bf6875cd2c8b0146c4e3154da91028f
     Weapon.pex: e9a18d4f7e3aa6b67fb79dee501b221e62e4fbe10baad0b47fb087735f7fb7a9
-  
 
+
+  Crashgen_Ignore:
+    - F4EE
+    - WaitForDebugger
+    - Achievements
+    - InputSwitch
+    - MemoryManager
+    - AutoOpen
+    - PromptUpload
+    - MemoryManagerDebug
+    - BSTextureStreamerLocalHeap
+    - ArchiveLimit
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
   - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
@@ -131,9 +153,9 @@ Default_CustomINI: |  # Default settings for *Fallout4Custom.ini* if that file d
 
 Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't already exist.
   >>> THIS IS ONLY A PLACEHOLDER | YOU NEED TO GENERATE THIS FILE WITH FO4EDIT!
-  
+
   - CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
-  
+
   - To generate the FormID List:
     1) Place the *Generate FormID List.pas* from the CLASSIC Config folder into your FO4Edit/Edit Scripts folder.
     2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
