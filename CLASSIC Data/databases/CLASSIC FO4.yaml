@@ -525,7 +525,7 @@ Mods_CONF:  # 2) MODS THAT CONFLICT WITH OTHER MODS
 
   bostonfpsfix | prp.esp: |
     Boston Fps Fix ❌ CONFLICTS WITH : Previs Repair Pack
-        Using both mods can break precombines. CLAS suggests using Previs Repair Pack only.
+        Using both mods can break precombines. CLASSIC suggests using Previs Repair Pack only.
         -----
 
   ExtendedWeaponSystem | tacticalreload: |
@@ -555,12 +555,12 @@ Mods_CONF:  # 2) MODS THAT CONFLICT WITH OTHER MODS
   vulkan | NVIDIA_Reflex: |
     Vulkan Renderer ❌ CONFLICTS WITH : Nvidia Reflex Support
         Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior.
-        If you encounter Nvidia Driver crashes, CLAS suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.
+        If you encounter Nvidia Driver crashes, CLASSIC suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.
         -----
 
   CustomCamera | CameraTweaks: |
     Custom Camera ❌ CONFLICTS WITH : Camera Tweaks
-        Both mods make changes to the in-game camera. CLAS suggests using Camera Tweaks only, since it's an updated alternative.
+        Both mods make changes to the in-game camera. CLASSIC suggests using Camera Tweaks only, since it's an updated alternative.
         -----
 
   UniquePlayer | chw: |

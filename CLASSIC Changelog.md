@@ -1,8 +1,9 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
-7.13
+7.15
 *NEW FEATURES*
+- Added hash checks for Script Extender files from the VR version.
 - Added Address Library file check (required for Script Extender).
 
 *CHANGES*
@@ -11,6 +12,7 @@
 - Additional fixes for Fallout 4 VR file and folder paths detection.
 - Fixed crash log files not being excluded from general log files error search.
 - Fixed incorrect detection of Script Extender file copies during *Game Files Scan*.
+- CLASSIC now checks if given folder for the INI path actually exists before adding it.
 
 7.10
 *NEW FEATURES*

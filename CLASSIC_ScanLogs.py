@@ -16,13 +16,6 @@ CMain.configure_logging()
 # ================================================
 # ASSORTED FUNCTIONS
 # ================================================
-def fidfile_generate():
-    if not os.path.exists("CLASSIC Data/databases/FO4 FID Mods.txt"):
-        default_fidfile = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Default_FIDMods")
-        with open("CLASSIC Data/databases/FO4 FID Mods.txt", "w", encoding="utf-8") as fidfile:
-            fidfile.write(default_fidfile)
-
-
 def pastebin_fetch(url):
     if urlparse(url).netloc == "pastebin.com":
         if "/raw" not in url.path:
@@ -44,7 +37,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_get("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{CMain.vr}_Info", "Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_settings("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{CMain.vr}_Info.Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
@@ -64,7 +57,7 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
 def crashlogs_truncate():  # Remove *useless* lines from all available crash logs.
     logging.info("- - - SIMPLIFY LOGS IS ENABLED -> TRUNCATING ALL AVAILABLE CRASH LOGS")
     crash_files = crashlogs_get_files()
-    remove_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
+    remove_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
     for file in crash_files:
         with file.open("r", encoding="utf-8", errors="ignore") as crash_log:
             crash_data = crash_log.readlines()
@@ -74,8 +67,9 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
 
 
 def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old and new CRASHGEN formats match.
+    CMain.vrmode_check()  # Only place where this is needed since crashlogs_reformat() runs first in crashlogs_scan()
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
-    xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info", "XSE_Acronym")
+    xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_Acronym")
 
     crash_files = crashlogs_get_files()
     for file in crash_files:
@@ -98,37 +92,38 @@ def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old an
 # CRASH LOG SCAN START
 # ================================================
 def crashlogs_scan():
+    print("REFORMATTING CRASH LOGS, PLEASE WAIT...\n")
     crashlogs_reformat()
     if CMain.classic_settings("Simplify Logs"):
         crashlogs_truncate()
 
-    print("SCANNING LOGS, PLEASE WAIT...\n")
+    print("SCANNING CRASH LOGS, PLEASE WAIT...\n")
     scan_start_time = time.perf_counter()
     # ================================================
-    # Grabbing YAML values are time expensive, so keep these out of the main file loop.
-    classic_game_hints = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Hints")
-    classic_records_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "catch_log_records")
-    classic_version = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info", "version")
-    classic_version_date = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info", "version_date")
+    # Grabbing YAML values is time expensive, so keep these out of the main file loop.
+    classic_game_hints = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Hints")
+    classic_records_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "catch_log_records")
+    classic_version = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info.version")
+    classic_version_date = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info.version_date")
 
-    crashgen_latestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LatestVer")
-    crashgen_logname = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "CRASHGEN_LogName")
-    crashgen_vrlatestver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "GameVR_Info", "CRASHGEN_LatestVer")
+    crashgen_name = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info.CRASHGEN_LogName")
+    crashgen_latest_og = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info.CRASHGEN_LatestVer")
+    crashgen_latest_vr = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "GameVR_Info.CRASHGEN_LatestVer")
 
-    warn_noplugins = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_NOPlugins")
-    warn_outdated = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN", "Warn_Outdated")
-    xse_acronym = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info", "XSE_Acronym")
+    warn_noplugins = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN.Warn_NOPlugins")
+    warn_outdated = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN.Warn_Outdated")
+    xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info.XSE_Acronym")
 
-    custom_ignore_plugins = CMain.yaml_get("CLASSIC Ignore.yaml", "CLASSIC_Ignore_Fallout4")
-    game_ignore_plugins = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Plugins_Exclude")
-    game_ignore_records = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Records_Exclude")
-    suspects_error_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Error_Check")
-    suspects_stack_list = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Stack_Check")
-    game_mods_conf = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CONF")
-    game_mods_core = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CORE")
-    game_mods_freq = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_FREQ")
-    game_mods_opc2 = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_OPC2")
-    game_mods_solu = CMain.yaml_get("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_SOLU")
+    custom_ignore_plugins = CMain.yaml_settings("CLASSIC Ignore.yaml", "CLASSIC_Ignore_Fallout4")
+    game_ignore_plugins = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Plugins_Exclude")
+    game_ignore_records = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Records_Exclude")
+    suspects_error_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Error_Check")
+    suspects_stack_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Stack_Check")
+    game_mods_conf = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CONF")
+    game_mods_core = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CORE")
+    game_mods_freq = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_FREQ")
+    game_mods_opc2 = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_OPC2")
+    game_mods_solu = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_SOLU")
 
     # ================================================
     if CMain.classic_settings("FCX Mode"):
@@ -182,8 +177,8 @@ def crashlogs_scan():
                     continue
             if mod_found:
                 if gpu_rival and gpu_rival in mod_warn.lower():
-                    autoscan_report.extend([f"❓ {mod_split[1]} is installed, BUT YOU DON'T HAVE AN {gpu_rival.upper()} GPU!\n",
-                                            "THIS MOD IS NOT INTENDED FOR YOUR GPU, PLEASE REMOVE IT TO AVOID PROBLEMS! \n\n"])
+                    autoscan_report.extend([f"❓ {mod_split[1]} is installed, BUT IT SEEMS YOU DON'T HAVE AN {gpu_rival.upper()} GPU?\n",
+                                            "IF THIS IS CORRECT, COMPLETELY UNINSTALL THIS MOD TO AVOID ANY PROBLEMS! \n\n"])
                 else:
                     autoscan_report.extend([f"✔️ {mod_split[1]} is installed!\n\n"])
             else:
@@ -219,7 +214,7 @@ def crashlogs_scan():
         index_mainerror = 3
         index_lastline: int = len(crash_data) - 1
         for index, line in enumerate(crash_data):
-            if crashgen_logname and crashgen_logname.lower() in line.lower():
+            if crashgen_name and crashgen_name.lower() in line.lower():
                 index_crashgenver = index
             elif "unhandled exception" in line.lower():
                 index_mainerror = index
@@ -272,9 +267,9 @@ def crashlogs_scan():
 
         # =============== CRASHGEN VERSION ===============
         crashlog_crashgen = crash_data[index_crashgenver].strip()
-        autoscan_report.append(f"Detected {crashgen_logname} Version: {crashlog_crashgen} \n")
-        if crashgen_latestver == crashlog_crashgen or crashgen_vrlatestver == crashlog_crashgen:
-            autoscan_report.append(f"* You have the latest version of {crashgen_logname}! *\n\n")
+        autoscan_report.append(f"Detected {crashgen_name} Version: {crashlog_crashgen} \n")
+        if crashgen_latest_og == crashlog_crashgen or crashgen_latest_vr == crashlog_crashgen:
+            autoscan_report.append(f"* You have the latest version of {crashgen_name}! *\n\n")
         else:
             autoscan_report.append(f"{warn_outdated} \n")
 
@@ -307,7 +302,7 @@ def crashlogs_scan():
         # IF CRASH LOG DOESN'T LIST PLUGINS, CHECK LOADORDER FILE
         if not trigger_plugins_loaded:
             if os.path.exists("loadorder.txt"):
-                autoscan_report.extend(["* ✔️ LOADORDER.TXT FILE FOUND IN THE CLASSIC FOLDER! *\n",
+                autoscan_report.extend(["* ✔️ LOADORDER.TXT FILE FOUND IN THE MAIN CLASSIC FOLDER! *\n",
                                         "CLASSIC will now ignore plugins in all crash logs and only detect plugins in this file.\n",
                                         "[ To disable this functionality, simply remove loadorder.txt from your CLASSIC folder. ]\n"])
                 with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_file:
@@ -424,28 +419,28 @@ def crashlogs_scan():
 
                 if "false" in line.lower() and all(elem.lower() not in line.lower() for elem in crashgen_ignore):
                     line_split = line.split(":", 1)
-                    autoscan_report.append(f"* NOTICE : {line_split[0].strip()} is disabled in your {crashgen_logname} settings, is this intentional? * \n-----\n")
+                    autoscan_report.append(f"* NOTICE : {line_split[0].strip()} is disabled in your {crashgen_name} settings, is this intentional? * \n-----\n")
 
                 if "achievements:" in line.lower():
                     if "true" in line.lower() and any(("achievements.dll" or "unlimitedsurvivalmode.dll") in elem.lower() for elem in segment_xsemodules):
                         autoscan_report.extend(["# ❌ CAUTION : The Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements is set to TRUE # \n",
-                                                f" FIX: Open {crashgen_logname}'s TOML file and change Achievements to FALSE, this prevents conflicts with Buffout 4.\n-----\n"])
+                                                f" FIX: Open {crashgen_name}'s TOML file and change Achievements to FALSE, this prevents conflicts with {crashgen_name}.\n-----\n"])
                     else:
-                        autoscan_report.append(f"✔️ Achievements parameter is correctly configured in your {crashgen_logname} settings! \n-----\n")
+                        autoscan_report.append(f"✔️ Achievements parameter is correctly configured in your {crashgen_name} settings! \n-----\n")
 
                 if "memorymanager:" in line.lower():
                     if "true" in line.lower() and any("bakascrapheap.dll" in elem.lower() for elem in segment_xsemodules):
                         autoscan_report.extend(["# ❌ CAUTION : The Baka ScrapHeap Mod is installed, but MemoryManager parameter is set to TRUE # \n",
-                                                f" FIX: Open {crashgen_logname}'s TOML file and change MemoryManager to FALSE, this prevents conflicts with Buffout 4.\n-----\n"])
+                                                f" FIX: Open {crashgen_name}'s TOML file and change MemoryManager to FALSE, this prevents conflicts with {crashgen_name}.\n-----\n"])
                     else:
-                        autoscan_report.append(f"✔️ Memory Manager parameter is correctly configured in your {crashgen_logname} settings! \n-----\n")
+                        autoscan_report.append(f"✔️ Memory Manager parameter is correctly configured in your {crashgen_name} settings! \n-----\n")
 
                 if "f4ee:" in line.lower():
                     if "false" in line.lower() and any("f4ee.dll" in elem.lower() for elem in segment_xsemodules):
                         autoscan_report.extend(["# ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE # \n",
-                                                f" FIX: Open {crashgen_logname}'s TOML file and change F4EE to TRUE, this prevents bugs and crashes from Looks Menu.\n-----\n"])
+                                                f" FIX: Open {crashgen_name}'s TOML file and change F4EE to TRUE, this prevents bugs and crashes from Looks Menu.\n-----\n"])
                     else:
-                        autoscan_report.append(f"✔️ F4EE (Looks Menu) parameter is correctly configured in your {crashgen_logname} settings! \n-----\n")
+                        autoscan_report.append(f"✔️ F4EE (Looks Menu) parameter is correctly configured in your {crashgen_name} settings! \n-----\n")
         else:
             autoscan_report.extend(["* NOTICE: FCX MODE IS ENABLED. CLASSIC MUST BE RUN BY THE ORIGINAL USER FOR CORRECT DETECTION * \n",
                                     "[ To disable mod & game files detection, disable FCX Mode in the exe or CLASSIC Settings.yaml ] \n\n"])
@@ -523,9 +518,8 @@ def crashlogs_scan():
                                 "====================================================\n"])
 
         if trigger_plugin_limit:
-            autoscan_report.extend(["# [!] CAUTION : ONE OF YOUR PLUGINS HAS THE [FF] PLUGIN INDEX VALUE #",
-                                    "* THIS MEANS YOU ALMOST CERTAINLY WENT OVER THE GAME PLUGIN LIMIT! *",
-                                    "Disable some of your esm/esp plugins and re-run the Crash Log Scan.\n-----\n"])
+            warn_plugin_limit = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn.Mods_Plugin_Limit")
+            autoscan_report.append(warn_plugin_limit)
 
         # ================================================
 
@@ -543,7 +537,7 @@ def crashlogs_scan():
                 autoscan_report.append(f"- {key} | {value}\n")
 
             autoscan_report.extend(["\n[Last number counts how many times each Plugin Suspect shows up in the crash log.]\n",
-                                    "These Plugins were caught by Buffout 4 and some of them might be responsible for this crash.\n",
+                                    f"These Plugins were caught by {crashgen_name} and some of them might be responsible for this crash.\n",
                                     "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n\n"])
         else:
             autoscan_report.append("* COULDN'T FIND ANY PLUGIN SUSPECTS *\n\n")
@@ -579,7 +573,7 @@ def crashlogs_scan():
                             break
 
             autoscan_report.extend(["\n[Last number counts how many times each Form ID shows up in the crash log.]\n",
-                                    f"These Form IDs were caught by {crashgen_logname} and some of them might be related to this crash.\n",
+                                    f"These Form IDs were caught by {crashgen_name} and some of them might be related to this crash.\n",
                                     "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n\n"])
         else:
             autoscan_report.append("* COULDN'T FIND ANY FORM ID SUSPECTS *\n\n")
@@ -602,7 +596,7 @@ def crashlogs_scan():
                 autoscan_report.append(f"- {record} | {count}\n")
 
             autoscan_report.extend(["\n[Last number counts how many times each Named Record shows up in the crash log.]\n",
-                                    f"These records were caught by {crashgen_logname} and some of them might be related to this crash.\n",
+                                    f"These records were caught by {crashgen_name} and some of them might be related to this crash.\n",
                                     "Named records should give extra info on involved game objects, record types or mod files.\n\n"])
         else:
             autoscan_report.append("* COULDN'T FIND ANY NAMED RECORDS *\n\n")
@@ -611,7 +605,7 @@ def crashlogs_scan():
         autoscan_report.extend(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n",
                                 "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n",
                                 "===============================================================================\n",
-                                f"END OF AUTOSCAN | Author / Made By: Poet | {classic_version_date}\n",
+                                f"END OF AUTOSCAN | Author/Made By: Poet | {classic_version} | {classic_version_date}\n",
                                 "CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757\n",
                                 "CLASSIC | https://www.nexusmods.com/fallout4/mods/56255"])
 
@@ -671,7 +665,6 @@ def crashlogs_scan():
     print("================================ CONTACT INFO =================================")
     print("DISCORD | Poet#9800 (guidance.of.grace) | https://discord.gg/DfFYJtt8p4")
     print("CLASSIC ON NEXUS | https://www.nexusmods.com/fallout4/mods/56255")
-    print("NEXUS PROFILE | https://www.nexusmods.com/users/64682231")
     # Trying to generate Stat Logging for 0 valid logs can crash the script.
     if stats_crashlog_scanned == 0 and stats_crashlog_incomplete == 0:
         print("\n❌ CLAS found no crash logs to scan or the scan failed.")
@@ -699,20 +692,19 @@ if __name__ == "__main__":
     # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
     # So it will respect current INI values if not specified on the command line.
     if isinstance(args.fcx_mode, bool) and not args.fcx_mode == CMain.classic_settings("FCX Mode"):
-        CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.FCX Mode", args.fcx_mode)
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.FCX Mode", args.fcx_mode)
 
     if isinstance(args.imi_mode, bool) and not args.imi_mode == CMain.classic_settings("IMI Mode"):
-        CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.IMI Mode", args.imi_mode)
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.IMI Mode", args.imi_mode)
 
     if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CMain.classic_settings("Move Unsolved"):
-        CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.Move Unsolved", args.args.move_unsolved)
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.Move Unsolved", args.args.move_unsolved)
 
     if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CMain.classic_settings("INI Folder Path"):
-        CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.INI Folder Path", str(Path(ini_path).resolve()))
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.INI Folder Path", str(Path(ini_path).resolve()))
 
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CMain.classic_settings("SCAN Custom Path"):
-        CMain.yaml_update("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
 
-    fidfile_generate()
     crashlogs_scan()
     os.system("pause")

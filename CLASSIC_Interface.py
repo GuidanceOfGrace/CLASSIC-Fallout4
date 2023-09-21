@@ -80,7 +80,7 @@ def custom_popup_window(parent, title, text, height=240, callback=""):
     ok_button = QPushButton("OK")
     ok_button.setMinimumSize(100, 50)
     ok_button.setStyleSheet("color: black; background: rgb(45, 237, 138); font-family: Yu Gothic; font-size: 20px; font-weight: bold")
-    
+
     close_button = QPushButton("Close")
     close_button.setMinimumSize(100, 50)
     close_button.setStyleSheet("color: black; background: rgb(240, 63, 40); font-family: Yu Gothic; font-size: 20px; font-weight: bold")
@@ -130,7 +130,7 @@ def play_sound(sound_file):
 # ================================================
 class UiCLASSICMainWin(QtWidgets.QMainWindow):
     def setup_ui(self):
-        classic_ver = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info", "version")
+        classic_ver = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info.version")
         self.setWindowTitle(f"Crash Log Auto Scanner & Setup Integrity Checker | {classic_ver}")
         self.setWindowIcon(QIcon("CLASSIC Data/graphics/CLASSIC.ico"))
         self.setStyleSheet("font-family: Yu Gothic; font-size: 13px")
@@ -171,10 +171,10 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
             nonlocal check
             # Toggle between images when label is clicked.
             if CMain.classic_settings(check):
-                CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.{check}", False)
+                CMain.yaml_settings("CLASSIC Settings.yaml", f"CLASSIC_Settings.{check}", False)
                 image_label.setPixmap(pixmap0)
             else:
-                CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.{check}", True)
+                CMain.yaml_settings("CLASSIC Settings.yaml", f"CLASSIC_Settings.{check}", True)
                 image_label.setPixmap(pixmap1)
 
         image_label.mousePressEvent = toggle_setting
@@ -359,21 +359,21 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
         SCAN_folder = QFileDialog.getExistingDirectory()
         if SCAN_folder:
             self.Box_SelectedScan.setText(SCAN_folder)
-            CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.SCAN Custom Path", SCAN_folder)
+            CMain.yaml_settings("CLASSIC Settings.yaml", f"CLASSIC_Settings.SCAN Custom Path", SCAN_folder)
             self.Box_SelectedScan.setStyleSheet("color: black; font-family: Yu Gothic")
 
     def select_folder_mods(self):
         MODS_folder = QFileDialog.getExistingDirectory()
         if MODS_folder:
             self.Box_SelectedMods.setText(MODS_folder)
-            CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.MODS Folder Path", MODS_folder)
+            CMain.yaml_settings("CLASSIC Settings.yaml", f"CLASSIC_Settings.MODS Folder Path", MODS_folder)
             self.Box_SelectedMods.setStyleSheet("color: black; font-family: Yu Gothic")
 
     def select_folder_ini(self):
         INI_folder = QFileDialog.getExistingDirectory()  # QFileDialog.getOpenFileName(filter="*.ini")
         if INI_folder:
             QtWidgets.QMessageBox.information(self, "New INI Path Set", "You have set the new path to: \n" + INI_folder)
-            CMain.yaml_update("CLASSIC Settings.yaml", f"CLASSIC_Settings.INI Folder Path", INI_folder)
+            CMain.yaml_settings("CLASSIC Settings.yaml", f"CLASSIC_Settings.INI Folder Path", INI_folder)
 
         # ================== POP-UPS / WARNINGS =====================
 
@@ -386,12 +386,12 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
             subprocess.Popen(["xdg-open", settings_file])
 
     def help_popup(self):
-        help_popup_text = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface", "help_popup_text")
+        help_popup_text = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface.help_popup_text")
         popup = custom_popup_window(self, title="NEED HELP?", text=help_popup_text, height=450, callback="https://discord.com/invite/7ZZbrsGQh4")
         popup.exec()
 
     def update_popup(self):
-        update_popup_text = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface", "update_popup_text")
+        update_popup_text = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface.update_popup_text")
         if CMain.classic_update_check():
             popup = custom_popup_window(self, title="CLASSIC UPDATE", text="You have the latest version of CLASSIC!")
             popup.exec()
@@ -402,7 +402,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     CMain.main_generate_required()
-    start_message = CMain.yaml_get("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface", "start_message")
+    start_message = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface.start_message")
     print(start_message)
     app = QtWidgets.QApplication(sys.argv)
     ui = UiCLASSICMainWin()

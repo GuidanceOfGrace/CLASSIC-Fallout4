@@ -4,8 +4,8 @@ CLASSIC_Info:
   # ========================================================================================
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
-  version: CLASSIC v7.10
-  version_date: 23.09.18 #YY/MM/DD
+  version: CLASSIC v7.15
+  version_date: 23.09.20 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
@@ -13,10 +13,10 @@ CLASSIC_Info:
     
     # Set to true if you want CLASSIC to periodically check for its own updates online through GitHub.
       Update Check: true
-      
+    
     # Set to true if you want CLASSIC to prioritize scanning the Virtual Reality version of your game.
       VR Mode: false
-      
+    
     # FCX - File Check Xtended | Set to true if you want CLASSIC to check the integrity of your game files and core mods.
       FCX Mode: true
     
@@ -50,6 +50,7 @@ CLASSIC_Info:
     # Crash logs are generated in Documents/My Games/Fallout 4/F4SE folder by default. If no path is set,
     # CLASSIC will only scan crash logs from your F4SE folder and where the CLASSIC exe is by default.
       SCAN Custom Path:
+    
 
   default_localyaml: |
     Game_Info:
@@ -57,6 +58,7 @@ CLASSIC_Info:
     
     GameVR_Info:
       Root_Folder_Game:
+    
 
   default_ignorefile: |
     # This file contains plugin names that CLASSIC will IGNORE while scanning your crash logs and mod files.
@@ -106,8 +108,20 @@ CLASSIC_Interface:
     Press OK to open the server link in your default browser.
   
   update_popup_text: |
-    New CLASSIC version available! Press OK to open the CLASSIC Nexus Page.
+    New CLASSIC version is available! Press OK to open the CLASSIC Nexus Page.
     REMINDER: CLASSIC should automatically check for updates every 7 days.
+    
+    CLASSIC for Fallout 4 : https://www.nexusmods.com/fallout4/mods/56255
+    CLASSIC for Skyrim SE : https://www.nexusmods.com/fallout4/mods/xxxxx
+    
+  update_warning_fo4: |
+    ❌ WARNING : YOUR FALLOUT 4 CLASSIC VERSION IS OUT OF DATE!
+    You can get the latest Fallout 4 CLASSIC version from here:
+    https://www.nexusmods.com/fallout4/mods/56255
+  
+  update_unable_fo4: |
+    ❌ WARNING : CLASSIC WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
+    CHECK FOR ANY CLASSIC UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
 
 # =================== WRYE BASH WARNINGS ==================
 
@@ -241,6 +255,13 @@ Mods_Warn:
     ❌ BSARCH EXECUTABLE CANNOT BE FOUND. TO SCAN ALL YOUR MOD ARCHIVES, PLEASE DOWNLOAD
     THE LATEST VERSION OF BSARCH AND EXTRACT ITS EXE INTO THE *CLASSIC Data* FOLDER
     BSArch Link: https://www.nexusmods.com/newvegas/mods/64745?tab=files
+    -----
+    
+  Mods_Plugin_Limit: |
+    # [!] CAUTION : ONE OF YOUR PLUGINS HAS THE [FF] PLUGIN INDEX VALUE #
+    * THIS MEANS YOU ALMOST CERTAINLY WENT OVER THE GAME PLUGIN LIMIT! *
+    Disable some of your esm/esp plugins and re-run the Crash Logs Scan.
+    -----
 
 # =============== INCLUDE & EXCLUDE LISTS ==============
 
