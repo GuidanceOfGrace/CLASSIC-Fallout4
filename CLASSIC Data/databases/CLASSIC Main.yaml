@@ -77,7 +77,7 @@ CLASSIC_Info:
       - Another Example.esl
       - Example_DLL.dll
 
-# =================== CLASSIC INTERFACE ===================
+# =============== CLASSIC INTERFACE ===============
 
 CLASSIC_Interface:
   start_message: |
@@ -123,9 +123,24 @@ CLASSIC_Interface:
     ❌ WARNING : CLASSIC WAS UNABLE TO CHECK FOR UPDATES, BUT WILL CONTINUE SCANNING.
     CHECK FOR ANY CLASSIC UPDATES HERE: https://www.nexusmods.com/fallout4/mods/56255
 
-# =================== WRYE BASH WARNINGS ==================
+# ================= GAME WARNINGS =================
 
-Wrye_Warn:
+Warnings_GAME:
+  warn_root_path: |
+    ❌ CAUTION : Your game files are installed inside of the default Program Files folder!
+      Having the game installed here may cause Windows UAC to prevent some mods from working properly.
+      To ensure that everything works, move your Game or entire Steam folder outside of Program Files.
+    -----
+  
+  warn_docs_path: |
+    ❌ CAUTION : MICROSOFT ONEDRIVE IS OVERRIDING YOUR DOCUMENTS FOLDER PATH!
+      This can sometimes cause various save file and file permissions problems.
+      To avoid this, disable Documents folder backup in your OneDrive settings.
+    -----
+
+# =============== WRYE BASH WARNINGS ==============
+
+Warnings_WRYE:
   Corrupted: |
     
     ❓ Wrye Bash could not read these plugins, there's a high chance they are corrupted.
@@ -298,6 +313,7 @@ catch_log_records:  # DETECT lines that contain *these* strings from all availab
 
 exclude_log_records:  # REMOVE lines that contain *these* strings from all crash logs while Simplify_Logs is true.
  - '(char*) "	"'
+ - '(char*) """'
  - '(char*) ")"'
  - '(char*) "("'
  - '(char*) "]"'

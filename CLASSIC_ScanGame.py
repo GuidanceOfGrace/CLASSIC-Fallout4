@@ -234,7 +234,7 @@ def scan_wryecheck():
     message_list = []
     wrye_missinghtml = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_MODS.Warn_WRYE_MissingHTML")
     wrye_plugincheck = CMain.yaml_settings("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{CMain.vr}_Info.Docs_File_WryeBashPC")
-    wrye_warnings = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "Wrye_Warn")
+    wrye_warnings = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "Warnings_WRYE")
 
     if Path(wrye_plugincheck).is_file():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",

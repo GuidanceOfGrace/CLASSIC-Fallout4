@@ -336,10 +336,8 @@ def game_check_integrity() -> str:
         if "Program Files" not in str(game_exe_path):
             message_list.append(f"✔️ Your {root_name} game files are installed outside of the Program Files folder! \n-----\n")
         else:
-            message_list.extend([f"❌ CAUTION : Your {root_name} game files are installed inside of the Program Files folder!",
-                                 "   Having the game installed here might cause Windows UAC to block some mods from working properly.",
-                                 "   To ensure that everything works, move your Game or entire Steam folder outside of Program Files.",
-                                 "-----"])
+            root_warn = yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "Warnings_GAME.warn_root_path")
+            message_list.append(root_warn)
 
     message_output = "".join(message_list)
     return message_output
@@ -436,11 +434,9 @@ def xse_check_hashes() -> str:
 def docs_check_folder():
     message_list = []
     docs_name = yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{vr}_Info.Main_Docs_Name")
-
     if "onedrive" in docs_name.lower():
-        message_list.extend([f"❌ CAUTION : MICROSOFT ONEDRIVE IS OVERRIDING YOUR DOCUMENTS FOLDER PATH! \n",
-                             f"   This can sometimes cause various save file and file permissions problems. \n",
-                             "    To avoid this, disable Documents folder backup in your OneDrive settings. \n-----\n"])
+        docs_warn = yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "Warnings_GAME.warn_docs_path")
+        message_list.append(docs_warn)
     message_output = "".join(message_list)
     return message_output
 

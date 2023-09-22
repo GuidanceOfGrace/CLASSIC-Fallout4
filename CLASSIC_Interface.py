@@ -249,7 +249,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
 
         # SEGMENT - SETTINGS
         self.Line_Sep_Settings = custom_frame(self, QtCore.QRect(30, 300, 590, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Sep_Settings")
-        self.LBL_Settings = custom_label(self, QtCore.QRect(245, 320, 180, 16), "CLASSIC SETTINGS", bold_11, "LBL_Settings")
+        self.LBL_Settings = custom_label(self, QtCore.QRect(260, 320, 180, 16), "CLASSIC SETTINGS", bold_11, "LBL_Settings")
         # CHECKBOXES - Column 1
         self.ChkBT_FCXMode = self.custom_checkbox_widget(pos_x=70, pos_y=340, label_text="FCX MODE", check="FCX Mode")
         self.ChkBT_VRMode = self.custom_checkbox_widget(pos_x=70, pos_y=390, label_text="VR MODE", check="VR Mode")
@@ -262,7 +262,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
 
         # SEPARATOR WEBSITE LINKS
         self.Line_Sep_Links = custom_frame(self, QtCore.QRect(30, 450, 590, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Sep_Links")
-        self.LBL_ArtWeb = custom_label(self, QtCore.QRect(180, 470, 590, 20), "ARTICLES / WEBSITES / NEXUS LINKS", bold_11, "LBL_ArtWeb")
+        self.LBL_ArtWeb = custom_label(self, QtCore.QRect(200, 470, 590, 20), "ARTICLES / WEBSITES / NEXUS LINKS", bold_11, "LBL_ArtWeb")
 
         # Articles & Websites - ADD LINK BUTTONS FOR BETHINI, DDS SCANNER & WRYE BASH
         button_data = [
