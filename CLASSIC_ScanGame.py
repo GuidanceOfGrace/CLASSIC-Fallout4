@@ -382,7 +382,8 @@ def scan_mods_unpacked():
     xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_Acronym")
     xse_scriptfiles = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_HashedScripts")
 
-    misc_path = "CLASSIC Misc"
+    backup_path = "CLASSIC Backup/Cleaned Files"
+    Path(backup_path).mkdir(exist_ok=True)
     mod_path = CMain.classic_settings("MODS Folder Path")
     if mod_path:
         if Path(mod_path).exists():
@@ -401,9 +402,9 @@ def scan_mods_unpacked():
                     elif dirname.lower() == "fomod":
                         fomod_folder_path = os.path.join(root, dirname)
                         relative_path = os.path.relpath(fomod_folder_path, mod_path)
-                        new_folder_path = os.path.join(misc_path, relative_path)
+                        new_folder_path = os.path.join(backup_path, relative_path)
 
-                        cleanup_list.append(f"MOVED > {fomod_folder_path} FOLDER TO > {misc_path} \n")
+                        cleanup_list.append(f"MOVED > {fomod_folder_path} FOLDER TO > {backup_path} \n")
                         shutil.move(fomod_folder_path, new_folder_path)
 
                 for filename in files:
@@ -446,11 +447,11 @@ def scan_mods_unpacked():
                     elif any(names.lower() in filename.lower() for names in filter_names) and filename.lower().endswith(".txt"):
                         readme_file_path = os.path.join(root, filename)
                         relative_path = os.path.relpath(readme_file_path, mod_path)
-                        new_file_path = os.path.join(misc_path, relative_path)
+                        new_file_path = os.path.join(backup_path, relative_path)
 
                         # Create subdirectories if they don't exist.
                         os.makedirs(os.path.dirname(new_file_path), exist_ok=True)
-                        cleanup_list.append(f"MOVED > {readme_file_path} FILE TO > {misc_path} \n")
+                        cleanup_list.append(f"MOVED > {readme_file_path} FILE TO > {backup_path} \n")
                         shutil.move(readme_file_path, new_file_path)
 
             print("✔️ CLEANUP COMPLETE! NOW ANALYZING ALL UNPACKED/LOOSE MOD FILES...")

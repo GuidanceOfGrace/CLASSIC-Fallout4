@@ -61,7 +61,7 @@ def crashlogs_truncate():  # Remove *useless* lines from all available crash log
     for file in crash_files:
         with file.open("r", encoding="utf-8", errors="ignore") as crash_log:
             crash_data = crash_log.readlines()
-            truncated_lines = [line for line in crash_data if not any(string in line for string in remove_list)]
+            truncated_lines = [line for line in crash_data if all(string not in line for string in remove_list)]
         with file.open("w", encoding="utf-8", errors="ignore") as crash_log:
             crash_log.writelines(truncated_lines)
 
@@ -624,11 +624,11 @@ def crashlogs_scan():
             autoscan_file.write(autoscan_output)
 
         if trigger_scan_failed and CMain.classic_settings("Move Unsolved"):
-            unsolved_folder = "CLASSIC Misc"
-            Path(unsolved_folder).mkdir(exist_ok=True)
+            backup_path = "CLASSIC Backup/Unsolved Logs"
+            Path(backup_path).mkdir(exist_ok=True)
             autoscan_file = crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md")
-            crash_move = Path(unsolved_folder, crashlog_file.name)
-            scan_move = Path(unsolved_folder, autoscan_file.name)
+            crash_move = Path(backup_path, crashlog_file.name)
+            scan_move = Path(backup_path, autoscan_file.name)
 
             if crashlog_file.exists():
                 shutil.copy2(crashlog_file, crash_move)
