@@ -1,18 +1,27 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
-7.15
+7.20
 *NEW FEATURES*
-- Added hash checks for Script Extender files from the VR version.
-- Added Address Library file check (required for Script Extender).
+- CLASSIC now automatically creates backups of your game's main EXE files.
+- CLASSIC now automatically checks for F4SE updates from the official website.
+- Added hash checks for Script Extender files from the VR version of the game.
+- Added the Address Library file check (required for Script Extender and some mods).
+- CLASSIC now checks if given folder for the INI path actually exists before adding it.
+- Added options to Backup / Restore / Remove files from *ENB, Reshade and Vulkan Renderer*
+[These options are located under the new tab in the CLASSIC interface. See Readme PDF for details].
+- All invalid crash logs and file backups are now stored and separated into *CLASSIC Backup* folder.
 
 *CHANGES*
+- *Crash Logs Scan* is now ~30% faster.
 - Improved visuals of interface popup boxes.
 - Re-centered a few misaligned interface elements.
+- Updated BethINI link to the new BethINI PIE version.
 - Additional fixes for Fallout 4 VR file and folder paths detection.
+- Converted CLASSIC Readme to PDF with better formatting and more info.
 - Fixed crash log files not being excluded from general log files error search.
 - Fixed incorrect detection of Script Extender file copies during *Game Files Scan*.
-- CLASSIC now checks if given folder for the INI path actually exists before adding it.
+- Fixed an issue where certain plugins were not detected under *Possible Plugin Suspects*.
 
 7.10
 *NEW FEATURES*

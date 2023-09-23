@@ -10,6 +10,7 @@ import CLASSIC_ScanGame as CGame
 from urllib.parse import urlparse
 from collections import Counter
 from pathlib import Path
+
 CMain.configure_logging()
 
 
@@ -227,7 +228,7 @@ def crashlogs_scan():
             except StopIteration:
                 index_start = 0
             try:
-                index_end = next(index for index, item in enumerate(crash_data) if segment_end.lower() in item.lower()) - 1
+                index_end = next(index for index, item in enumerate(crash_data) if segment_end.lower() in item.lower() and xse_acronym.lower() not in item.lower()) - 1
             except StopIteration:
                 index_end: int = len(crash_data) - 1
 
@@ -300,7 +301,7 @@ def crashlogs_scan():
         else:
             crashlog_GPUI = False
 
-        # IF CRASH LOG DOESN'T LIST PLUGINS, CHECK LOADORDER FILE
+        # IF LOADORDER FILE EXISTS, USE ITS PLUGINS INSTEAD
         if os.path.exists("loadorder.txt"):
             autoscan_report.extend(["* ✔️ LOADORDER.TXT FILE FOUND IN THE MAIN CLASSIC FOLDER! *\n",
                                     "CLASSIC will now ignore plugins in all crash logs and only detect plugins in this file.\n",
@@ -308,43 +309,42 @@ def crashlogs_scan():
             with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_file:
                 loadorder_data = loadorder_file.readlines()
             for elem in loadorder_data[1:]:
-                if elem not in crashlog_plugins:
+                if all(elem not in item for item in crashlog_plugins):
                     crashlog_plugins[elem] = "LO"
 
-        else:  # IF CRASH LOG LISTS PLUGINS, USE THOSE INSTEAD
+        else:  # OTHERWISE, USE PLUGINS FROM CRASH LOG
             for elem in segment_plugins:
                 if "[FF]" in elem:
                     trigger_plugin_limit = True
                 if " " in elem:
-                    elem = elem.replace("[", "").replace(":", "").replace("]", "").replace("     ", " ").strip()
-                    elem_parts = elem.split(' ', 1)
+                    elem = elem.replace("     ", " ").strip()
+                    elem_parts = elem.split(" ", 1)
+                    elem_parts[0] = elem_parts[0].replace("[", "").replace(":", "").replace("]", "")
                     crashlog_plugins[elem_parts[1]] = elem_parts[0]
 
         for elem in segment_xsemodules:
             # SOME IMPORTANT DLLs HAVE A VERSION, REMOVE IT
             elem = elem.strip()
-            if " v" in elem:
-                elem_parts = elem.split(' v', 1)
+            if ".dll v" in elem:
+                elem_parts = elem.split(" v", 1)
                 elem = elem_parts[0]
-            if elem not in crashlog_plugins:
+            if all(elem not in item for item in crashlog_plugins):
                 crashlog_plugins[elem] = "DLL"
 
         for elem in segment_allmodules:
-            # SOME IMPORTANT DLLs ONLY APPEAR UNDER MODULES
+            # SOME IMPORTANT DLLs ONLY APPEAR UNDER ALL MODULES
             if "vulkan" in elem.lower():
                 elem = elem.strip()
                 elem_parts = elem.split(' ', 1)
                 elem_parts[1] = "DLL"
-                if elem not in crashlog_plugins:
+                if all(elem_parts[0] not in item for item in crashlog_plugins):
                     crashlog_plugins[elem_parts[0]] = elem_parts[1]
 
         # CHECK IF THERE ARE ANY PLUGINS IN THE IGNORE TOML
         if ignore_plugins_list:
             for item in ignore_plugins_list:
-                for plugin in crashlog_plugins:
-                    if item.lower() == plugin.lower():
-                        del crashlog_plugins[plugin]
-                        break
+                if any(item.lower() == plugin.lower() for plugin in crashlog_plugins):
+                    del crashlog_plugins[item]
 
         autoscan_report.extend(["====================================================\n",
                                 "CHECKING IF LOG MATCHES ANY KNOWN CRASH SUSPECTS...\n",
@@ -542,9 +542,9 @@ def crashlogs_scan():
         # ================================================
 
         autoscan_report.append("# LIST OF (POSSIBLE) FORM ID SUSPECTS #\n")
-        formids_matches = [line.replace('0x', '').strip() for line in segment_callstack if "formid:" in line.lower() and "0xFF" not in line]
+        formids_matches = [line.replace('0x', '').strip() for line in segment_callstack if "id:" in line.lower() and "0xFF" not in line]
         if formids_matches:
-            formids_found = dict(Counter(formids_matches))
+            formids_found = dict(Counter(sorted(formids_matches)))
             for formid_full, count in formids_found.items():
                 formid_split = formid_full.split(": ", 1)
                 for plugin, plugin_id in crashlog_plugins.items():
