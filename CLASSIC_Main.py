@@ -526,7 +526,7 @@ def main_files_backup():
 
     # If there is no folder for current xse version, create it.
     backup_path = f"CLASSIC Backup/Game Files/{version_xse}"
-    Path(backup_path).mkdir(exist_ok=True)
+    Path(backup_path).mkdir(parents=True, exist_ok=True)
     # Backup the file if backup of file does not already exist.
     game_files = list(Path(game_path).glob("*.*"))
     backup_files = list(Path(backup_path).glob("*.*"))
