@@ -24,7 +24,7 @@ def pastebin_fetch(url):
     response = requests.get(url)
     if response.status_code in requests.codes.ok:
         if not os.path.exists("CLASSIC Pastebin"):
-            os.mkdir("CLASSIC Pastebin")
+            Path("CLASSIC Pastebin").mkdir(parents=True, exist_ok=True)
         outfile = Path(f"CLASSIC Pastebin/crash-{urlparse(url).path.split('/')[-1]}.log")
         outfile.write_text(response.text, encoding="utf-8", errors="ignore")
     else:
@@ -305,7 +305,7 @@ def crashlogs_scan():
         if os.path.exists("loadorder.txt"):
             autoscan_report.extend(["* ✔️ LOADORDER.TXT FILE FOUND IN THE MAIN CLASSIC FOLDER! *\n",
                                     "CLASSIC will now ignore plugins in all crash logs and only detect plugins in this file.\n",
-                                    "[ To disable this functionality, simply remove loadorder.txt from your CLASSIC folder. ]\n"])
+                                    "[ To disable this functionality, simply remove loadorder.txt from your CLASSIC folder. ]\n\n"])
             with open("loadorder.txt", "r", encoding="utf-8", errors="ignore") as loadorder_file:
                 loadorder_data = loadorder_file.readlines()
             for elem in loadorder_data[1:]:
@@ -625,7 +625,7 @@ def crashlogs_scan():
 
         if trigger_scan_failed and CMain.classic_settings("Move Unsolved"):
             backup_path = "CLASSIC Backup/Unsolved Logs"
-            Path(backup_path).mkdir(exist_ok=True)
+            Path(backup_path).mkdir(parents=True, exist_ok=True)
             autoscan_file = crashlog_file.with_name(crashlog_file.stem + "-AUTOSCAN.md")
             crash_move = Path(backup_path, crashlog_file.name)
             scan_move = Path(backup_path, autoscan_file.name)

@@ -11,6 +11,7 @@ import ruamel.yaml
 import configparser
 from pathlib import Path
 from bs4 import BeautifulSoup
+from urllib3.exceptions import InsecureRequestWarning
 
 """ AUTHOR NOTES (POET): ❓ ❌ ✔️
     ❓ REMINDER: 'shadows x from outer scope' means the variable name repeats both in the func and outside all other func.
@@ -275,7 +276,7 @@ def game_path_find():
     logging.debug("- - - INITIATED GAME PATH CHECK")
     xse_file = yaml_settings("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{vr}_Info.Docs_File_XSE")
     xse_acronym = yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{vr}_Info.XSE_Acronym")
-    root_name = yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{vr}_Info.Main_Root_Name")
+    game_name = yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{vr}_Info.Main_Root_Name")
 
     if Path(xse_file).is_file():
         with open(xse_file, "r", encoding="utf-8", errors="ignore") as LOG_Check:
@@ -285,8 +286,8 @@ def game_path_find():
                     logline = logline[19:].replace(f"\\Data\\{xse_acronym}\\Plugins", "")
                     game_path = logline.replace("\n", "")
                     if not game_path or not Path(game_path).exists():
-                        print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {root_name} IS LOCATED < <")
-                        path_input = input(fr"(EXAMPLE: C:\Steam\steamapps\common\{root_name} | Press ENTER to confirm.)\n> ")
+                        print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_name} IS LOCATED < <")
+                        path_input = input(fr"(EXAMPLE: C:\Steam\steamapps\common\{game_name} | Press ENTER to confirm.)\n> ")
                         print(f"You entered: {path_input} | This path will be automatically added to CLASSIC Settings.yaml")
                         game_path = Path(path_input.strip())
 
@@ -507,6 +508,10 @@ def docs_check_ini(ini_name) -> str:
 
 # =========== GENERATE FILE BACKUPS ===========
 def main_files_backup():
+    # Got an expired certificate warning after a few tries, maybe there's a better way?
+    # noinspection PyUnresolvedReferences
+    requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+
     backup_list = yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_AutoBackup")
     game_path = yaml_settings("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{vr}_Info.Root_Folder_Game")
     xse_acronym = yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{vr}_Info.XSE_Acronym")
@@ -539,7 +544,7 @@ def main_files_backup():
     # Check for Script Extender updates since we also need local version for it.
     xse_links = []
     try:
-        response = requests.get("https://f4se.silverlock.org", timeout=10)
+        response = requests.get("https://f4se.silverlock.org", verify=False, timeout=10)
         if response.status_code == 200:  # Check if request went through.
             soup = BeautifulSoup(response.text, 'html.parser')
             links = soup.find_all('a')  # Find all anchor tags (links) in HTML.

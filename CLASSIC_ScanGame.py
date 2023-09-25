@@ -22,12 +22,16 @@ def mod_ini_config(ini_path, section, key, new_value=None):
         mod_config.optionxform = str
         mod_config.read(ini_path)
     except FileNotFoundError:
-        raise FileNotFoundError(f"ERROR: File '{ini_path}' not found")
+        logging.error(f"ERROR: File '{ini_path}' not found.")
+        mod_config = []
+        pass
 
     if section not in mod_config:
-        raise configparser.Error(f"ERROR : Section '{section}' does not exist in '{ini_path}'")
+        logging.error(f"ERROR : Section '{section}' does not exist in '{ini_path}'")
+        pass
     if key not in mod_config[section]:
-        raise configparser.Error(f"ERROR : Key '{key}' does not exist in section '{section}'")
+        logging.error(f"ERROR : Key '{key}' does not exist in section '{section}'")
+        pass
 
     # If new_value is specified, update value in INI.
     if new_value is not None:
@@ -378,12 +382,11 @@ def scan_mods_unpacked():
     message_list = []
     cleanup_list = []
     modscan_list = []
-
     xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_Acronym")
     xse_scriptfiles = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_HashedScripts")
 
     backup_path = "CLASSIC Backup/Cleaned Files"
-    Path(backup_path).mkdir(exist_ok=True)
+    Path(backup_path).mkdir(parents=True, exist_ok=True)
     mod_path = CMain.classic_settings("MODS Folder Path")
     if mod_path:
         if Path(mod_path).exists():
@@ -473,7 +476,6 @@ def scan_mods_unpacked():
 def scan_mods_archived():
     message_list = []
     modscan_list = []
-
     xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_Acronym")
     xse_scriptfiles = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_HashedScripts")
 
@@ -530,25 +532,25 @@ def scan_mods_archived():
                                 # DETECT INVALID SOUND FILE FORMATS
                                 if (".mp3" or ".m4a") in archived_output.lower():
                                     root_main = main_path.split(os.path.sep)[1]
-                                    modscan_list.append(f"[-] NOTICE (-FORMAT-) : {root_main} > CONTAINS SOUND FILES IN THE WRONG FORMAT \n")
+                                    modscan_list.append(f"[-] NOTICE (-FORMAT-) : {root_main} > BA2 ARCHIVE CONTAINS SOUND FILES IN THE WRONG FORMAT \n")
                                 # ================================================
                                 # DETECT MODS WITH AnimationFileData
                                 if "animationfiledata" in archived_output.lower():
                                     root_main = main_path.split(os.path.sep)[1]
-                                    modscan_list.append(f"[-] NOTICE (ANIMDATA) : {root_main} > CONTAINS CUSTOM ANIMATION FILE DATA \n")
+                                    modscan_list.append(f"[-] NOTICE (ANIMDATA) : {root_main} > BA2 ARCHIVE CONTAINS CUSTOM ANIMATION FILE DATA \n")
                                 # ================================================
                                 # DETECT MODS WITH SCRIPT EXTENDER FILE COPIES
                                 if any(f"scripts\\{key.lower()}" in archived_output.lower() for key in xse_scriptfiles) and "workshop framework" not in root.lower():
                                     root_main = main_path.split(os.path.sep)[1]
-                                    modscan_list.append(f"[!] CAUTION (XSE-COPY) : {root_main} > CONTAINS ONE OR SEVERAL COPIES OF *{xse_acronym}* SCRIPT FILES \n")
+                                    modscan_list.append(f"[!] CAUTION (XSE-COPY) : {root_main} > BA2 ARCHIVE CONTAINS ONE OR SEVERAL COPIES OF *{xse_acronym}* SCRIPT FILES \n")
                                 # ================================================
                                 # DETECT MODS WITH PRECOMBINE / PREVIS FILES
                                 if (".uvd" or "_oc.nif") in archived_output.lower() and "previs repair pack" not in root.lower():
                                     root_main = main_path.split(os.path.sep)[1]
-                                    modscan_list.append(f"[-] NOTICE (-PREVIS-) : {root_main} > CONTAINS CUSTOM PRECOMBINE / PREVIS FILES \n")
+                                    modscan_list.append(f"[-] NOTICE (-PREVIS-) : {root_main} > BA2 ARCHIVE CONTAINS CUSTOM PRECOMBINE / PREVIS FILES \n")
                             else:
                                 error_message = archived_list.stderr
-                                print("Command failed with error:\n", error_message)
+                                print("BSArch command failed with the following error:\n", error_message)
             else:
                 message_list.append(CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "Mods_Warn.Mods_BSArch_Missing"))
         else:
@@ -561,6 +563,76 @@ def scan_mods_archived():
     return message_output
 
 
+# ================================================
+# BACKUP / RESTORE / REMOVE
+# ================================================
+def game_files_manage(classic_list, mode="BACKUP"):
+    manage_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"{classic_list}")
+    game_path = CMain.yaml_settings("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{CMain.vr}_Info.Root_Folder_Game")
+
+    backup_path = f"CLASSIC Backup/Game Files/{classic_list}"
+    Path(backup_path).mkdir(parents=True, exist_ok=True)
+    game_files = list(Path(game_path).glob("*"))
+    list_name = classic_list.split(" ", 1)
+
+    if mode == "BACKUP":
+        print(f"CREATING A BACKUP OF {list_name[1]} FILES, PLEASE WAIT...")
+        try:
+            for file in game_files:
+                if any(item.lower() in str(file.name).lower() for item in manage_list):
+                    destination_file = f"{backup_path}/{file.name}"
+                    if os.path.isfile(file):
+                        shutil.copy2(file, destination_file)
+                    elif os.path.isdir(file):
+                        if os.path.exists(destination_file):
+                            if os.path.isdir(destination_file):
+                                shutil.rmtree(destination_file)
+                            else:
+                                os.remove(destination_file)
+                        shutil.copytree(file, destination_file)
+            print(f"✔️ SUCCESSFULLY CREATED A BACKUP OF {list_name[1]} FILES \n")
+        except PermissionError:
+            print(f"❌ ERROR : UNABLE TO BACKUP {list_name[1]} FILES DUE TO FILE PERMISSIONS!")
+            print("    TRY RUNNING CLASSIC.EXE IN ADMIN MODE TO RESOLVE THIS PROBLEM.\n")
+
+    elif mode == "RESTORE":
+        print(f"RESTORING {list_name[1]} FILES FROM A BACKUP, PLEASE WAIT...")
+        try:
+            for file in game_files:
+                if any(item.lower() in str(file.name).lower() for item in manage_list):
+                    destination_file = f"{backup_path}/{file.name}"
+                    if os.path.isfile(destination_file):
+                        shutil.copy2(destination_file, file)
+                    elif os.path.isdir(destination_file):
+                        if os.path.exists(file):
+                            if os.path.isdir(file):
+                                shutil.rmtree(file)
+                            else:
+                                os.remove(file)
+                        shutil.copytree(destination_file, file)
+            print(f"✔️ SUCCESSFULLY RESTORED {list_name[1]} FILES TO THE GAME FOLDER \n")
+        except PermissionError:
+            print(f"❌ ERROR : UNABLE TO RESTORE {list_name[1]} FILES DUE TO FILE PERMISSIONS!")
+            print("    TRY RUNNING CLASSIC.EXE IN ADMIN MODE TO RESOLVE THIS PROBLEM.\n")
+
+    elif mode == "REMOVE":
+        print(f"REMOVING {list_name[1]} FILES FROM YOUR GAME FOLDER, PLEASE WAIT...")
+        try:
+            for file in game_files:
+                if any(item.lower() in str(file.name).lower() for item in manage_list):
+                    if os.path.isfile(file):
+                        os.remove(file)
+                    elif os.path.isdir(file):
+                        os.removedirs(file)
+            print(f"✔️ SUCCESSFULLY REMOVED {list_name[1]} FILES FROM THE GAME FOLDER \n")
+        except PermissionError:
+            print(f"❌ ERROR : UNABLE TO REMOVE {list_name[1]} FILES DUE TO FILE PERMISSIONS!")
+            print("  TRY RUNNING CLASSIC.EXE IN ADMIN MODE TO RESOLVE THIS PROBLEM.\n")
+
+
+# ================================================
+# COMBINED RESULTS
+# ================================================
 @lru_cache
 def game_combined_result():
     CMain.vrmode_check()
@@ -591,4 +663,5 @@ if __name__ == "__main__":
     print(game_combined_result())
     print(mods_combined_result())
     write_combined_results()
+    game_files_manage("Backup ENB")
     os.system("pause")

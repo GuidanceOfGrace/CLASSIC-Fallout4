@@ -119,6 +119,50 @@ GameVR_Info:
     WaterType.pex: 8711f4a818c1fed8b549f9cfb0fc49186bf6875cd2c8b0146c4e3154da91028f
     Weapon.pex: e9a18d4f7e3aa6b67fb79dee501b221e62e4fbe10baad0b47fb087735f7fb7a9
   
+# =============== GAME FILES BACKUP ==============
+
+Backup ENB:  # BACKUP FOR ENB
+  - enbseries
+  - d3d11.dll
+  - d3dcompiler_46e.dll
+  - enbadaptation.fx
+  - enbbloom.fx
+  - enbdepthoffield.fx
+  - enbeffect.fx
+  - enbeffectpostpass.fx
+  - enblens.fx
+  - enblocal.ini
+  - enbpalette.bmp
+  - enbraindrops.dds
+  - enbseries.ini
+  - license_en.txt
+  - readme_en.txt
+  
+Backup RESHADE:  # BACKUP FOR RESHADE
+  - ReShade.ini
+  - ReShadePreset.ini
+  - reshade-shaders
+
+Backup VULKAN:  # BACKUP FOR VULKAN RENDERER
+  - Vulkan.msi
+  - vulkan_d3d11.dll
+  - d3d11_vulkan.dll
+  - dxgi.dll
+  - dxvk.conf
+  - vulkan-1.dll
+  - vulkan-runtime.exe
+  - vulkaninfo.exe
+  - VulkanRT
+  - MAGPIE
+  
+Backup XSE:  # BACKUP FOR SCRIPT EXTENDER
+  - CustomControlMap.txt
+  - f4se_loader.exe
+  - f4se_readme.txt
+  - f4se_steam_loader.dll
+  - f4se_whatsnew.txt
+  - f4se
+  - src
 
 Game_Hints:
   - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'

@@ -5,7 +5,7 @@ CLASSIC_Info:
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
   version: CLASSIC v7.20
-  version_date: 23.09.22 #YY/MM/DD
+  version_date: 23.09.23 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
@@ -98,7 +98,7 @@ CLASSIC_Interface:
     IF YOU ARE USING MOD ORGANIZER 2, RUN CLASSIC WITH THE MO2 SHORTCUT
     READ THE *CLASSIC Readme.md* FILE FOR MORE DETAILS AND INSTRUCTIONS
 
-  help_popup_text: |
+  help_popup_main: |
     PRESS THE *SCAN CRASH LOGS* BUTTON TO SCAN ALL AVAILABLE CRASH LOGS
     PRESS THE *SCAN GAME FILES* BUTTON TO SCAN YOUR GAME & MOD FILES
 
@@ -117,13 +117,33 @@ CLASSIC_Interface:
     for help from our support team, join the Collective Modding Discord server.
     Press OK to open the server link in your default browser.
   
+  help_popup_backup: |
+    BACKUP > Backup files from the game folder into the CLASSIC Backup folder.
+    RESTORE > Restore file backup from the CLASSIC Backup folder into the game folder.
+    REMOVE > Remove files only from the game folder without removing existing backups.
+    
+    - If backup already exists, both BACKUP and RESTORE buttons will be filled out.
+  
+    - Only one backup is created per option and only the current files are backed up.
+    
+    - Creating a backup again will overwrite any files in the current backup if it exists.
+    
+    - Restoring files from the current backup will not remove any files from the backup.
+    
+    - Using any available BACKUP / RESTORE / REMOVE options may require you to
+      run CLASSIC in admin mode (and with a Mod Organizer 2 shortcut if using MO2).
+    
+    If you have trouble running this program or wish to submit your crash log files
+    for help from our support team, join the Collective Modding Discord server.
+    Press OK to open the server link in your default browser.
+  
   update_popup_text: |
     New CLASSIC version is available! Press OK to open the CLASSIC Nexus Page.
     REMINDER: CLASSIC should automatically check for updates every 7 days.
     
     CLASSIC for Fallout 4 : https://www.nexusmods.com/fallout4/mods/56255
     CLASSIC for Skyrim SE : https://www.nexusmods.com/fallout4/mods/xxxxx
-    
+  
   update_warning_fo4: |
     ❌ WARNING : YOUR FALLOUT 4 CLASSIC VERSION IS OUT OF DATE!
     YOU CAN GET THE LATEST FALLOUT 4 CLASSIC VERSION FROM HERE:
@@ -336,10 +356,11 @@ exclude_log_errors:  # EXCLUDE lines that contain *these* strings from .log file
   - unable to locate pdb
 
 exclude_log_files:  # EXCLUDE .log files that contain *these* strings in their name while checking errors.
-  - CreationKit
-  - DumpStack
-  - HHS
-  - _dxgi
   - cbpfo4
   - crash-
+  - CreationKit
+  - DumpStack
+  - dxgi
   - f4se
+  - HHS
+  - PluginPreloader
