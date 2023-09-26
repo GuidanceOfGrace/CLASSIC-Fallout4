@@ -32,20 +32,21 @@ def pastebin_fetch(url):
 
 
 # ================================================
-# INITIAL TRUNCATING FOR CRASH LOG FILES
+# INITIAL REFORMAT FOR CRASH LOG FILES
 # ================================================
 def crashlogs_get_files():  # Get paths of all available crash logs.
     logging.debug("- - - INITIATED CRASH LOG FILE LIST GENERATION")
     CLASSIC_folder = Path.cwd()
     CUSTOM_folder = CMain.classic_settings("SCAN Custom Path")
-    XSE_folder = CMain.yaml_settings("CLASSIC Data/CLASSIC FO4 Local.yaml", f"Game{CMain.vr}_Info.Docs_Folder_XSE")
+    XSE_folder = CMain.yaml_settings(f"CLASSIC Data/CLASSIC {CMain.game} Local.yaml", f"Game{CMain.vr}_Info.Docs_Folder_XSE")
 
     if Path(XSE_folder).exists():
         xse_crash_files = list(Path(XSE_folder).glob("crash-*.log"))
         if xse_crash_files:
             for crash_file in xse_crash_files:
                 destination_file = fr"{CLASSIC_folder}/{crash_file.name}"
-                shutil.copy2(crash_file, destination_file)
+                if not Path(destination_file).is_file():
+                    shutil.copy2(crash_file, destination_file)
 
     crash_files = list(CLASSIC_folder.glob("crash-*.log"))
     if CUSTOM_folder:
@@ -55,34 +56,26 @@ def crashlogs_get_files():  # Get paths of all available crash logs.
     return crash_files
 
 
-def crashlogs_truncate():  # Remove *useless* lines from all available crash logs.
-    logging.info("- - - SIMPLIFY LOGS IS ENABLED -> TRUNCATING ALL AVAILABLE CRASH LOGS")
-    crash_files = crashlogs_get_files()
-    remove_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
-    for file in crash_files:
-        with file.open("r", encoding="utf-8", errors="ignore") as crash_log:
-            crash_data = crash_log.readlines()
-            truncated_lines = [line for line in crash_data if all(string not in line for string in remove_list)]
-        with file.open("w", encoding="utf-8", errors="ignore") as crash_log:
-            crash_log.writelines(truncated_lines)
-
-
 def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old and new CRASHGEN formats match.
-    CMain.vrmode_check()  # Only place where this is needed since crashlogs_reformat() runs first in crashlogs_scan()
+    CMain.vrmode_check()  # Only place where needed since crashlogs_reformat() runs first in crashlogs_scan()
     logging.debug("- - - INITIATED CRASH LOG FILE REFORMAT")
-    xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.XSE_Acronym")
+    xse_acronym = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", f"Game{CMain.vr}_Info.XSE_Acronym")
+    remove_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
+    simple_logs = CMain.classic_settings("Simplify Logs")
 
     crash_files = crashlogs_get_files()
     for file in crash_files:
         with file.open("r", encoding="utf-8", errors="ignore") as crash_log:
             crash_data = crash_log.readlines()
+        try:
+            index_plugins = next(index for index, item in enumerate(crash_data) if xse_acronym and xse_acronym not in item and "PLUGINS:" in item)
+        except StopIteration:
             index_plugins = 1
+
         for index, line in enumerate(crash_data):
-            if xse_acronym and xse_acronym not in line and "PLUGINS:" in line:
-                index_plugins = index
-                break
-        for index, line in enumerate(crash_data):
-            if index > index_plugins:  # Replace all white space chars inside [ ] brackets with the 0 char.
+            if simple_logs and any(string in line for string in remove_list):
+                crash_data.pop(index)  # Remove *useless* lines from crash log if Simplify Logs is enabled.
+            elif index > index_plugins:  # Replace all white space chars inside [ ] brackets with the 0 char.
                 formatted_line = re.sub(r'\[(.*?)]', lambda x: "[" + re.sub(r'\s', '0', x.group(1)) + "]", line)
                 crash_data[index] = formatted_line
         with file.open("w", encoding="utf-8", errors="ignore") as crash_log:
@@ -95,39 +88,45 @@ def crashlogs_reformat():  # Reformat plugin lists in crash logs, so that old an
 def crashlogs_scan():
     print("REFORMATTING CRASH LOGS, PLEASE WAIT...\n")
     crashlogs_reformat()
-    if CMain.classic_settings("Simplify Logs"):
-        crashlogs_truncate()
 
     print("SCANNING CRASH LOGS, PLEASE WAIT...\n")
     scan_start_time = time.perf_counter()
     # ================================================
     # Grabbing YAML values is time expensive, so keep these out of the main file loop.
-    classic_game_hints = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Hints")
+    classic_game_hints = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Game_Hints")
     classic_records_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "catch_log_records")
     classic_version = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info.version")
     classic_version_date = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Info.version_date")
 
-    crashgen_name = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info.CRASHGEN_LogName")
-    crashgen_latest_og = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info.CRASHGEN_LatestVer")
-    crashgen_latest_vr = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "GameVR_Info.CRASHGEN_LatestVer")
-    crashgen_ignore = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", f"Game{CMain.vr}_Info.CRASHGEN_Ignore")
+    crashgen_name = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Game_Info.CRASHGEN_LogName")
+    crashgen_latest_og = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Game_Info.CRASHGEN_LatestVer")
+    crashgen_latest_vr = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "GameVR_Info.CRASHGEN_LatestVer")
+    crashgen_ignore = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", f"Game{CMain.vr}_Info.CRASHGEN_Ignore")
 
-    warn_noplugins = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN.Warn_NOPlugins")
-    warn_outdated = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Warnings_CRASHGEN.Warn_Outdated")
-    xse_acronym = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Game_Info.XSE_Acronym")
+    warn_noplugins = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Warnings_CRASHGEN.Warn_NOPlugins")
+    warn_outdated = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Warnings_CRASHGEN.Warn_Outdated")
+    xse_acronym = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Game_Info.XSE_Acronym")
 
     custom_ignore_plugins = CMain.yaml_settings("CLASSIC Ignore.yaml", "CLASSIC_Ignore_Fallout4")
-    game_ignore_plugins = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Plugins_Exclude")
-    game_ignore_records = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Records_Exclude")
-    suspects_error_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Error_Check")
-    suspects_stack_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Crashlog_Stack_Check")
+    game_ignore_plugins = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Plugins_Exclude")
+    game_ignore_records = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Records_Exclude")
+    suspects_error_list = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Error_Check")
+    suspects_stack_list = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Stack_Check")
     remove_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
 
-    game_mods_conf = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CONF")
-    game_mods_core = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_CORE")
-    game_mods_freq = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_FREQ")
-    game_mods_opc2 = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_OPC2")
-    game_mods_solu = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC FO4.yaml", "Mods_SOLU")
+    game_mods_conf = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_CONF")
+    game_mods_core = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_CORE")
+    game_mods_freq = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_FREQ")
+    game_mods_opc2 = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_OPC2")
+    game_mods_solu = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_SOLU")
+
+    autoscan_fo4 = """
+    FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS
+    VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115
+    ===============================================================================
+    Author/Made By: Poet (guidance.of.grace) | https://discord.gg/DfFYJtt8p4
+    CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757
+    FO4 CLASSIC | https://www.nexusmods.com/fallout4/mods/56255"""
 
     # ================================================
     if CMain.classic_settings("FCX Mode"):
@@ -214,11 +213,11 @@ def crashlogs_scan():
 
         # Set default index values incase actual index is not found.
         try:
-            index_crashgenver = next(index for index, item in enumerate(crash_data) if crashgen_name and crashgen_name.lower() in item.lower())
+            index_crashgenver = next(index for index, item in enumerate(crash_data) if index < 10 and crashgen_name and crashgen_name.lower() in item.lower())
         except StopIteration:
             index_crashgenver = 1
         try:
-            index_mainerror = next(index for index, item in enumerate(crash_data) if "unhandled exception" in item.lower())
+            index_mainerror = next(index for index, item in enumerate(crash_data) if index < 10 and "unhandled exception" in item.lower())
         except StopIteration:
             index_mainerror = 3
 
@@ -291,17 +290,11 @@ def crashlogs_scan():
         # ================================================
 
         # CHECK GPU TYPE FOR CRASH LOG
-        for elem in segment_system:
-            if "GPU" in elem and "AMD" in elem:
-                crashlog_GPUAMD = True
-            elif "GPU" in elem and "Nvidia" in elem:
-                crashlog_GPUNV = True
-        if not crashlog_GPUAMD and not crashlog_GPUNV:
-            crashlog_GPUI = True
-        else:
-            crashlog_GPUI = False
+        crashlog_GPUAMD = True if any("GPU" in elem and "AMD" in elem for elem in segment_system) else False
+        crashlog_GPUNV = True if any("GPU" in elem and "Nvidia" in elem for elem in segment_system) else False
+        crashlog_GPUI = True if not crashlog_GPUAMD and not crashlog_GPUNV else False
 
-        # IF LOADORDER FILE EXISTS, USE ITS PLUGINS INSTEAD
+        # IF LOADORDER FILE EXISTS, USE ITS PLUGINS
         if os.path.exists("loadorder.txt"):
             autoscan_report.extend(["* ✔️ LOADORDER.TXT FILE FOUND IN THE MAIN CLASSIC FOLDER! *\n",
                                     "CLASSIC will now ignore plugins in all crash logs and only detect plugins in this file.\n",
@@ -481,25 +474,26 @@ def crashlogs_scan():
         if trigger_plugins_loaded:
             if detect_mods_single(game_mods_solu):
                 autoscan_report.extend(["# [!] CAUTION : FOUND PROBLEMATIC MODS WITH SOLUTIONS AND COMMUNITY PATCHES # \n",
-                                        "[Due to limitations, CLAS will show warnings for some mods even if fixes or patches are already installed.] \n",
+                                        "[Due to limitations, CLASSIC will show warnings for some mods even if fixes or patches are already installed.] \n",
                                         "[To hide these warnings, you can add their plugin names to the CLASSIC Ignore.yaml file. ONE PLUGIN PER LINE.] \n\n"])
             else:
                 autoscan_report.append(f"# FOUND NO PROBLEMATIC MODS WITH AVAILABLE SOLUTIONS AND COMMUNITY PATCHES # \n\n")
         else:
             autoscan_report.append(warn_noplugins)
 
-        autoscan_report.extend(["====================================================\n",
-                                "CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...\n",
-                                "====================================================\n"])
+        if CMain.game == "FO4":
+            autoscan_report.extend(["====================================================\n",
+                                    "CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...\n",
+                                    "====================================================\n"])
 
-        if trigger_plugins_loaded:
-            if detect_mods_single(game_mods_opc2):
-                autoscan_report.extend(["\n* FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,* \n",
-                                        "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n\n"])
+            if trigger_plugins_loaded:
+                if detect_mods_single(game_mods_opc2):
+                    autoscan_report.extend(["\n* FOR PATCH REPOSITORY THAT PREVENTS CRASHES AND FIXES PROBLEMS IN THESE AND OTHER MODS,* \n",
+                                            "* VISIT OPTIMIZATION PATCHES COLLECTION: https://www.nexusmods.com/fallout4/mods/54872 * \n\n"])
+                else:
+                    autoscan_report.append("# FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH THE OPC INSTALLER # \n\n")
             else:
-                autoscan_report.append("# FOUND NO PROBLEMATIC MODS THAT ARE ALREADY PATCHED THROUGH THE OPC INSTALLER # \n\n")
-        else:
-            autoscan_report.append(warn_noplugins)
+                autoscan_report.append(warn_noplugins)
 
         autoscan_report.extend(["====================================================\n",
                                 "CHECKING IF IMPORTANT PATCHES & FIXES ARE INSTALLED\n",
@@ -535,7 +529,7 @@ def crashlogs_scan():
 
             autoscan_report.extend(["\n[Last number counts how many times each Plugin Suspect shows up in the crash log.]\n",
                                     f"These Plugins were caught by {crashgen_name} and some of them might be responsible for this crash.\n",
-                                    "You can try disabling these plugins and recheck your game, though this method can be unreliable.\n\n"])
+                                    "You can try disabling these plugins and check if the game still crashes, though this method can be unreliable.\n\n"])
         else:
             autoscan_report.append("* COULDN'T FIND ANY PLUGIN SUSPECTS *\n\n")
 
@@ -550,8 +544,8 @@ def crashlogs_scan():
                 for plugin, plugin_id in crashlog_plugins.items():
                     if str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
-                            with open("CLASSIC Data/databases/FO4 FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
-                                with open("CLASSIC Data/databases/FO4 FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
+                            with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
+                                with open(f"CLASSIC Data/databases/{CMain.game} FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
                                     line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
                                     line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
                                     if line_match_main:
@@ -571,7 +565,7 @@ def crashlogs_scan():
 
             autoscan_report.extend(["\n[Last number counts how many times each Form ID shows up in the crash log.]\n",
                                     f"These Form IDs were caught by {crashgen_name} and some of them might be related to this crash.\n",
-                                    "You can try searching any listed Form IDs in FO4Edit and see if they lead to relevant records.\n\n"])
+                                    "You can try searching any listed Form IDs in xEdit and see if they lead to relevant records.\n\n"])
         else:
             autoscan_report.append("* COULDN'T FIND ANY FORM ID SUSPECTS *\n\n")
 
@@ -599,12 +593,9 @@ def crashlogs_scan():
             autoscan_report.append("* COULDN'T FIND ANY NAMED RECORDS *\n\n")
 
         # ============== AUTOSCAN REPORT END ==============
-        autoscan_report.extend(["FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,\n",
-                                "VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115\n",
-                                "===============================================================================\n",
-                                f"END OF AUTOSCAN | Author/Made By: Poet | {classic_version} | {classic_version_date}\n",
-                                "CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757\n",
-                                "CLASSIC | https://www.nexusmods.com/fallout4/mods/56255"])
+        if CMain.game == "FO4":
+            autoscan_report.append(autoscan_fo4)
+        autoscan_report.append(f"{classic_version} | {classic_version_date} | END OF AUTOSCAN \n")
 
         # CHECK IF SCAN FAILED
         stats_crashlog_scanned += 1
@@ -657,12 +648,8 @@ def crashlogs_scan():
     print(f"Number of Scanned Logs (No Autoscan Errors): {stats_crashlog_scanned}")
     print(f"Number of Incomplete Logs (No Plugins List): {stats_crashlog_incomplete}")
     print(f"Number of Failed Logs (Autoscan Can't Scan): {stats_crashlog_failed}\n-----")
-    print("FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS,")
-    print("VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115 \n")
-    print("================================ CONTACT INFO =================================")
-    print("DISCORD | Poet#9800 (guidance.of.grace) | https://discord.gg/DfFYJtt8p4")
-    print("CLASSIC ON NEXUS | https://www.nexusmods.com/fallout4/mods/56255")
-    # Trying to generate Stat Logging for 0 valid logs can crash the script.
+    if CMain.game == "FO4":
+        print(autoscan_fo4)
     if stats_crashlog_scanned == 0 and stats_crashlog_incomplete == 0:
         print("\n❌ CLAS found no crash logs to scan or the scan failed.")
         print("    There are no statistics to show (at this time).\n")

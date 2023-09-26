@@ -231,7 +231,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
         self.RegButton_SCAN_FILES.setStyleSheet("color: black; background: rgba(250, 250, 250, 0.90); border-radius: 10px; border : 1px solid white; font-size: 17px")
 
         # BOTTOM MAIN ROW
-        self.RegButton_ChangeINI = custom_push_button(self, QtCore.QRect(35, 310, 150, 32), "RegButton_ChangeINI", "CHANGE INI PATH", bold_09, "Select the folder where Fallout4.ini is located so CLASSIC can use that new location.", self.select_folder_ini)
+        self.RegButton_ChangeINI = custom_push_button(self, QtCore.QRect(35, 310, 150, 32), "RegButton_ChangeINI", "CHANGE INI PATH", bold_09, "Select folder of the game's main INI files so CLASSIC can use that location.", self.select_folder_ini)
         self.RegButton_OpenSettings = custom_push_button(self, QtCore.QRect(220, 310, 210, 32), "RegButton_OpenSettings", "OPEN CLASSIC SETTINGS", bold_09, "Open the CLASSIC Settings.yaml file in your default text editor.", self.open_settings)
         self.RegButton_CheckUpdates = custom_push_button(self, QtCore.QRect(465, 310, 150, 32), "RegButton_CheckUpdates", "CHECK UPDATES", bold_09, "Check for new CLASSIC versions (CLASSIC does this automatically every 7 days).", self.update_popup)
 
