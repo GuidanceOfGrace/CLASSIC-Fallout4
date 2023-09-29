@@ -166,6 +166,30 @@ def custom_checkbox_widget(parent, pos_x=250, pos_y=250, size=25, check="", labe
     return checkbox_widget
 
 
+def custom_hover_button(parent, geometry, object_name, text, font, tooltip="", callback=None):
+    hover_button = QtWidgets.QPushButton(parent)
+    hover_button.setObjectName(object_name)
+    hover_button.setGeometry(geometry)
+    hover_button.setToolTip(tooltip)
+    hover_button.setText(text)
+    hover_button.setFont(font)
+    hover_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    hover_button.setStyleSheet("color: white; background: rgba(10, 10, 10, 0.75); border-radius: 10px; border : 1px solid white; font-family: Yu Gothic")
+    if callback:
+        hover_button.clicked.connect(callback)
+
+    def enter_event(_):
+        hover_button.setText("CHANGE GAME")
+
+    def leave_event(_):
+        hover_button.setText(text)
+
+    hover_button.enterEvent = enter_event
+    hover_button.leaveEvent = leave_event
+    hover_button.setMouseTracking(True)
+    return hover_button
+
+
 def papyrus_worker(q, stop_event):
     while not stop_event.is_set():
         papyrus_result = CGame.papyrus_logging()
@@ -200,11 +224,14 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
 
         # ==================== MAIN WINDOW ITEMS =====================
         # TABS / SCREENS
-        self.RegButton_TabMain = custom_push_button(self, QtCore.QRect(0, 0, 325, 48), "RegButton_TabMain", "MAIN OPTIONS", bold_11, "")
+        self.RegButton_TabMain = custom_push_button(self, QtCore.QRect(0, 0, 215, 48), "RegButton_TabMain", "MAIN OPTIONS", bold_11, "")
         self.RegButton_TabMain.setStyleSheet("color: white; background: rgba(25, 25, 25, 0.90); border-radius: 0px; border : 2px solid white; font-size: 15px")
 
-        self.RegButton_TabBackups = custom_push_button(self, QtCore.QRect(325, 0, 325, 48), "RegButton_TabBackups", "FILE BACKUP", bold_11, "", self.open_tab_backups)
+        self.RegButton_TabBackups = custom_push_button(self, QtCore.QRect(215, 0, 215, 48), "RegButton_TabBackups", "FILE BACKUP", bold_11, "", self.open_tab_backups)
         self.RegButton_TabBackups.setStyleSheet("color: white; background: rgba(10, 10, 10, 0.90); border-radius: 0px; border : 2px dashed white; font-size: 15px")
+
+        self.DropDown_GameSelect = custom_hover_button(self, QtCore.QRect(430, 0, 220, 48), "DropDown_GameSelect", "FALLOUT 4", bold_11, "")
+        self.DropDown_GameSelect.setStyleSheet("color: white; background: rgba(240, 63, 40, 0.75); border-radius: 0px; border : 2px solid white; font-size: 15px")
 
         # TOP
 
@@ -213,7 +240,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
         self.Line_Sep_Mods = custom_frame(self, QtCore.QRect(30, 130, 590, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Sep_Mods")
         # BROWSE STAGING MODS FOLDER
         self.Box_SelectedMods = custom_line_box(self, QtCore.QRect(20, 100, 450, 24), "Box_SelectedMods", "(Optional) Press *Browse Folder* to set your staging mods folder location.")
-        self.Box_SelectedMods.setStyleSheet("color: darkgray")
+        self.Box_SelectedMods.setStyleSheet("color: rgb(100, 100, 100)")
         self.RegButton_BrowseMods = custom_push_button(self, QtCore.QRect(490, 100, 130, 24), "RegButton_BrowseMods", "Browse Folder", normal_11, "", self.select_folder_mods)
 
         # SEPARATOR CUSTOM SCAN FOLDER
@@ -221,7 +248,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
         self.Line_Sep_Scan = custom_frame(self, QtCore.QRect(30, 205, 590, 20), QtWidgets.QFrame.Shape.HLine, QtWidgets.QFrame.Shadow.Sunken, "Line_Sep_Scan")
         # BROWSE CUSTOM SCAN FOLDER
         self.Box_SelectedScan = custom_line_box(self, QtCore.QRect(20, 175, 450, 24), "Box_SelectedScan", "(Optional) Press *Browse Folder* to set a different scan folder location.")
-        self.Box_SelectedScan.setStyleSheet("color: darkgray")
+        self.Box_SelectedScan.setStyleSheet("color: rgb(100, 100, 100)")
         self.RegButton_BrowseScan = custom_push_button(self, QtCore.QRect(490, 175, 130, 24), "RegButton_BrowseScan", "Browse Folder", normal_11, "", self.select_folder_scan)
 
         # TOP MAIN ROW
@@ -329,6 +356,7 @@ class UiCLASSICMainWin(QtWidgets.QMainWindow):
     def game_files_scan():
         print(CGame.game_combined_result())
         print(CGame.mods_combined_result())
+        CGame.write_combined_results()
         play_sound("classic_notify.wav")
 
     @Slot()
@@ -417,11 +445,14 @@ class UiCLASSICBackups(QtWidgets.QMainWindow):
         self.background_label.setScaledContents(True)
 
         # TABS / SCREENS | UiCLASSICBackups
-        self.RegButton_TabMain = custom_push_button(self, QtCore.QRect(0, 0, 325, 48), "RegButton_TabMain", "MAIN OPTIONS", bold_11, "", self.open_tab_mainwin)
+        self.RegButton_TabMain = custom_push_button(self, QtCore.QRect(0, 0, 215, 48), "RegButton_TabMain", "MAIN OPTIONS", bold_11, "", self.open_tab_mainwin)
         self.RegButton_TabMain.setStyleSheet("color: white; background: rgba(10, 10, 10, 0.90); border-radius: 0px; border : 2px dashed white; font-size: 15px")
 
-        self.RegButton_TabBackups = custom_push_button(self, QtCore.QRect(325, 0, 325, 48), "RegButton_TabBackups", "FILE BACKUP", bold_11, "")
+        self.RegButton_TabBackups = custom_push_button(self, QtCore.QRect(215, 0, 215, 48), "RegButton_TabBackups", "FILE BACKUP", bold_11, "")
         self.RegButton_TabBackups.setStyleSheet("color: white; background: rgba(25, 25, 25, 0.90); border-radius: 0px; border : 2px solid white; font-size: 15px")
+
+        self.DropDown_GameSelect = custom_hover_button(self, QtCore.QRect(430, 0, 220, 48), "DropDown_GameSelect", "FALLOUT 4", bold_11, "")
+        self.DropDown_GameSelect.setStyleSheet("color: white; background: rgba(240, 63, 40, 0.75); border-radius: 0px; border : 2px solid white; font-size: 15px")
 
         # EXPLANATIONS | UiCLASSICBackups
         self.LBL_Backup = custom_label(self, QtCore.QRect(30, 65, 590, 20), "BACKUP > Backup files from the game folder into the CLASSIC Backup folder.", normal_11, "LBL_Backup")
@@ -504,6 +535,8 @@ class UiCLASSICBackups(QtWidgets.QMainWindow):
 
         # Button - HELP | UiCLASSICBackups
         self.RegButton_Help = custom_push_button(self, QtCore.QRect(20, 770, 110, 30), "RegButton_Help", "HELP", normal_11, "", self.help_popup_backup)
+        # Button - BACKUPS FOLDER | UiCLASSICBackups
+        self.RegButton_OpenBackup = custom_push_button(self, QtCore.QRect(215, 770, 220, 30), "RegButton_OpenBackup", "OPEN CLASSIC BACKUPS", bold_11, "", self.open_backup_folder)
         # Button - EXIT | UiCLASSICBackups
         self.RegButton_Exit = custom_push_button(self, QtCore.QRect(520, 770, 110, 30), "RegButton_Exit", "EXIT", normal_11, "", lambda: QtWidgets.QApplication.quit())
         # Text Box - SHARED | UiCLASSICBackups
@@ -514,6 +547,13 @@ class UiCLASSICBackups(QtWidgets.QMainWindow):
     @staticmethod
     def open_tab_mainwin():
         screen_switch.setCurrentIndex(screen_switch.currentIndex() - 1)
+
+    @staticmethod
+    def open_backup_folder():
+        if platform.system() == "Windows":
+            os.system('explorer "CLASSIC Backup\\Game Files"')
+        else:
+            os.system('xdg-open "CLASSIC Backup\\Game Files"')
 
     def help_popup_backup(self):
         help_popup_text = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface.help_popup_backup")

@@ -6,7 +6,6 @@ import tomlkit
 import subprocess
 import configparser
 import CLASSIC_Main as CMain
-from functools import lru_cache
 from bs4 import BeautifulSoup
 from pathlib import Path
 
@@ -170,8 +169,8 @@ def check_xse_plugins():  # RESERVED | Might be expanded upon in the future.
     message_list = []
     plugins_folder = CMain.yaml_settings(f"CLASSIC Data/CLASSIC {CMain.game} Local.yaml", f"Game{CMain.vr}_Info.Game_Folder_Plugins")
     adlib_versions = {"VR Mode": ("version-1-2-72-0.csv", "Virtual Reality (VR) version", "https://www.nexusmods.com/fallout4/mods/64879?tab=files"),
-                      "Non-VR Mode": ("version-1-10-163-0.bin", "Non-VR (Regular) version", "https://www.nexusmods.com/fallout4/mods/47327?tab=files"),
-                      }
+                      "Non-VR Mode": ("version-1-10-163-0.bin", "Non-VR (Regular) version", "https://www.nexusmods.com/fallout4/mods/47327?tab=files")}
+
     enabled_mode = "VR Mode" if CMain.classic_settings("VR Mode") else "Non-VR Mode"
     selected_version = adlib_versions[enabled_mode]
     other_version = adlib_versions["VR Mode" if enabled_mode == "Non-VR Mode" else "Non-VR Mode"]
@@ -242,7 +241,7 @@ def scan_wryecheck():
 
     if Path(wrye_plugincheck).is_file():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",
-                             f"  [This report is located in your Documents/My Games/{CMain.name} folder.] \n",
+                             f"  [This report is located in your Documents/My Games/{CMain.game} folder.] \n",
                              "  [To hide this report, remove *ModChecker.html* from the same folder.] \n"])
         with open(wrye_plugincheck, "r", encoding="utf-8", errors="ignore") as WB_Check:
             WB_HTML = WB_Check.read()
@@ -318,7 +317,7 @@ def scan_mod_inis():  # Mod INI files check.
                                          "You can test your initial startup time difference by removing this setting from the INI file. \n-----\n"])
 
             if file.lower() == "dxvk.conf":
-                if mod_ini_config(ini_path, f"{CMain.name}.exe", "dxgi.syncInterval") is True:
+                if mod_ini_config(ini_path, f"{CMain.game}.exe", "dxgi.syncInterval") is True:
                     vsync_list.append(f"{ini_path} | SETTING: dxgi.syncInterval \n")
 
             if file.lower() == "enblocal.ini":
@@ -348,7 +347,7 @@ def scan_mod_inis():  # Mod INI files check.
                     logging.info(f"> > > PERFORMED INI FACE TINTS UNLOCK FOR {file}")
                     message_list.append(f"> Performed INI Face Tints Unlock For : {file} \n")
 
-            if file.lower() == f"{CMain.name.lower()}_test.ini":  # CREATION KIT
+            if file.lower() == f"{CMain.game.lower()}_test.ini":  # CREATION KIT
                 if mod_ini_config(ini_path, "CreationKit", "VSyncRender") is True:
                     vsync_list.append(f"{ini_path} | SETTING: VSyncRender \n")
 
@@ -633,7 +632,6 @@ def game_files_manage(classic_list, mode="BACKUP"):
 # ================================================
 # COMBINED RESULTS
 # ================================================
-@lru_cache
 def game_combined_result():
     CMain.vrmode_check()
     docs_path = CMain.yaml_settings(f"CLASSIC Data/CLASSIC {CMain.game} Local.yaml", f"Game{CMain.vr}_Info.Root_Folder_Docs")
@@ -643,7 +641,6 @@ def game_combined_result():
     return combined_result
 
 
-@lru_cache
 def mods_combined_result():  # KEEP THESE SEPARATE SO THEY ARE NOT INCLUDED IN AUTOSCAN REPORTS
     CMain.vrmode_check()
     combined_return = [scan_mods_unpacked(), scan_mods_archived()]
@@ -654,7 +651,7 @@ def mods_combined_result():  # KEEP THESE SEPARATE SO THEY ARE NOT INCLUDED IN A
 def write_combined_results():
     game_result = game_combined_result()
     mods_result = mods_combined_result()
-    with open("CLASSIC Scan Results.md", "w", encoding="utf-8", errors="ignore") as scan_report:
+    with open("CLASSIC GFS Report.md", "w", encoding="utf-8", errors="ignore") as scan_report:
         scan_report.write(game_result + mods_result)
 
 
@@ -662,6 +659,5 @@ if __name__ == "__main__":
     CMain.main_generate_required()
     print(game_combined_result())
     print(mods_combined_result())
-    write_combined_results()
     game_files_manage("Backup ENB")
     os.system("pause")

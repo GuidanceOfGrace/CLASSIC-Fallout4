@@ -107,26 +107,20 @@ def crashlogs_scan():
     warn_outdated = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Warnings_CRASHGEN.Warn_Outdated")
     xse_acronym = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Game_Info.XSE_Acronym")
 
-    custom_ignore_plugins = CMain.yaml_settings("CLASSIC Ignore.yaml", "CLASSIC_Ignore_Fallout4")
     game_ignore_plugins = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Plugins_Exclude")
     game_ignore_records = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Records_Exclude")
     suspects_error_list = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Error_Check")
     suspects_stack_list = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Crashlog_Stack_Check")
+    
+    autoscan_text = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", f"CLASSIC_Interface.autoscan_text_{CMain.game}")
     remove_list = CMain.yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "exclude_log_records")
+    ignore_list = CMain.yaml_settings("CLASSIC Ignore.yaml", f"CLASSIC_Ignore_{CMain.game}")
 
     game_mods_conf = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_CONF")
     game_mods_core = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_CORE")
     game_mods_freq = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_FREQ")
     game_mods_opc2 = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_OPC2")
     game_mods_solu = CMain.yaml_settings(f"CLASSIC Data/databases/CLASSIC {CMain.game}.yaml", "Mods_SOLU")
-
-    autoscan_fo4 = """
-    FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS
-    VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115
-    ===============================================================================
-    Author/Made By: Poet (guidance.of.grace) | https://discord.gg/DfFYJtt8p4
-    CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757
-    FO4 CLASSIC | https://www.nexusmods.com/fallout4/mods/56255"""
 
     # ================================================
     if CMain.classic_settings("FCX Mode"):
@@ -275,8 +269,8 @@ def crashlogs_scan():
             autoscan_report.append(f"{warn_outdated} \n")
 
         # ======= REQUIRED LISTS, DICTS AND CHECKS =======
-        if custom_ignore_plugins:
-            ignore_plugins_list = [item.lower() for item in custom_ignore_plugins]
+        if ignore_list:
+            ignore_plugins_list = [item.lower() for item in ignore_list]
         else:
             ignore_plugins_list = False
 
@@ -481,7 +475,7 @@ def crashlogs_scan():
         else:
             autoscan_report.append(warn_noplugins)
 
-        if CMain.game == "FO4":
+        if CMain.game == "Fallout4":
             autoscan_report.extend(["====================================================\n",
                                     "CHECKING FOR MODS PATCHED THROUGH OPC INSTALLER...\n",
                                     "====================================================\n"])
@@ -593,8 +587,8 @@ def crashlogs_scan():
             autoscan_report.append("* COULDN'T FIND ANY NAMED RECORDS *\n\n")
 
         # ============== AUTOSCAN REPORT END ==============
-        if CMain.game == "FO4":
-            autoscan_report.append(autoscan_fo4)
+        if CMain.game == "Fallout4":
+            autoscan_report.append(autoscan_text)
         autoscan_report.append(f"{classic_version} | {classic_version_date} | END OF AUTOSCAN \n")
 
         # CHECK IF SCAN FAILED
@@ -648,8 +642,8 @@ def crashlogs_scan():
     print(f"Number of Scanned Logs (No Autoscan Errors): {stats_crashlog_scanned}")
     print(f"Number of Incomplete Logs (No Plugins List): {stats_crashlog_incomplete}")
     print(f"Number of Failed Logs (Autoscan Can't Scan): {stats_crashlog_failed}\n-----")
-    if CMain.game == "FO4":
-        print(autoscan_fo4)
+    if CMain.game == "Fallout4":
+        print(autoscan_text)
     if stats_crashlog_scanned == 0 and stats_crashlog_incomplete == 0:
         print("\n❌ CLAS found no crash logs to scan or the scan failed.")
         print("    There are no statistics to show (at this time).\n")

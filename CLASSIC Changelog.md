@@ -13,7 +13,7 @@
 - All invalid crash logs and file backups are now stored and separated into *CLASSIC Backup* folder.
 
 *CHANGES*
-- *Crash Logs Scan* is now ~30% faster.
+- *Crash Logs Scan* is now ~25% faster.
 - Improved visuals of interface popup boxes.
 - Re-centered a few misaligned interface elements.
 - Updated BethINI link to the new BethINI PIE version.

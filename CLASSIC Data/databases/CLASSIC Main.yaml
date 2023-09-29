@@ -5,11 +5,14 @@ CLASSIC_Info:
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
   version: CLASSIC v7.20
-  version_date: 23.09.26 #YY/MM/DD
+  version_date: 23.09.29 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
     CLASSIC_Settings:
+    
+    # Set the game that you want CLASSIC to currently manage. (Fallout 4 | Skyrim SE | Starfield)
+      Managed Game: Fallout 4
     
     # Set to true if you want CLASSIC to periodically check for its own updates online through GitHub.
       Update Check: true
@@ -36,19 +39,19 @@ CLASSIC_Info:
     # Unsolved logs are all crash logs that are incomplete or in the wrong format.
       Move Unsolved Logs: true
     
-    # Copy-paste your INI directory path below. Ex. INI Folder Path: C:/Users/Zen/Documents/My Games/Fallout4
+    # Copy-paste your INI folder path below, where your main game INI files are located (Documents\My Games\*game*)
     # If you are using MO2, I recommend disabling Profile Specific Game INI Files, located in Tools > Profiles
     # This is only required if CLASSIC has problems detecting your game files or is scanning the wrong game.
       INI Folder Path:
     
-    # Copy-paste your staging mods folder path below. (Folder where your mod manager keeps all the extracted mod files). 
-    # MO2 Ex. MODS Folder Path: C:\Mod Organizer 2 FO4\mods | Vortex Ex. MODS Folder Path: C:\Vortex Mods\Fallout 4
-    # You can also set this path to your game's Data folder, but the scan results will be much less accurate.
+    # Copy-paste your staging mods folder path below. (Folder where your mod manager keeps all extracted mod files). 
+    # MO2 Ex. MODS Folder Path: C:\Mod Organizer 2\*game*\mods | Vortex Ex. MODS Folder Path: C:\Vortex Mods\*game*
+    # You can also set this path to your game's Data folder, but then the scan results will be much less accurate.
       MODS Folder Path:
     
-    # Copy-paste your custom crash logs folder path below. Ex. SCAN Custom Path: C:/Crash Logs/Fallout 4
-    # Crash logs are generated in Documents/My Games/Fallout 4/F4SE folder by default. If no path is set,
-    # CLASSIC will only scan crash logs from your F4SE folder and where the CLASSIC exe is by default.
+    # Copy-paste your custom crash logs folder path below. Ex. SCAN Custom Path: C:\My Crash Logs
+    # Crash logs are generated in Documents\My Games\*game*\XSE folder by default. If no path is set,
+    # crash logs from that Scrip Extender folder and where the CLASSIC.exe is located will be scanned.
       SCAN Custom Path:
     
 
@@ -144,21 +147,29 @@ CLASSIC_Interface:
     CLASSIC for Fallout 4 : https://www.nexusmods.com/fallout4/mods/56255
     CLASSIC for Skyrim SE : https://www.nexusmods.com/fallout4/mods/xxxxx
   
-  update_warning_fo4: |
+  update_warning_Fallout4: |
     ❌ WARNING : YOUR FALLOUT 4 CLASSIC VERSION IS OUT OF DATE!
     YOU CAN GET THE LATEST FALLOUT 4 CLASSIC VERSION FROM HERE:
     https://www.nexusmods.com/fallout4/mods/56255
   
-  update_unable_fo4: |
+  update_unable_Fallout4: |
     ❌ WARNING : CLASSIC WAS UNABLE TO CHECK FOR UPDATES AT THIS TIME, TRY AGAIN LATER
     CHECK FOR NEW CLASSIC VERSIONS HERE: https://www.nexusmods.com/fallout4/mods/56255
+    
+  autoscan_text_Fallout4: |
+    FOR FULL LIST OF MODS THAT CAUSE PROBLEMS, THEIR ALTERNATIVES AND DETAILED SOLUTIONS
+    VISIT THE BUFFOUT 4 CRASH ARTICLE: https://www.nexusmods.com/fallout4/articles/3115
+    ===============================================================================
+    Author/Made By: Poet (guidance.of.grace) | https://discord.gg/DfFYJtt8p4
+    CONTRIBUTORS | evildarkarchon | kittivelae | AtomicFallout757
+    FO4 CLASSIC | https://www.nexusmods.com/fallout4/mods/56255
 
 # ================= GAME WARNINGS =================
 
 Warnings_GAME:
   warn_root_path: |
-    ❌ CAUTION : Your game files are installed inside of the default Program Files folder!
-      Having the game installed here may cause Windows UAC to prevent some mods from working properly.
+    ❌ CAUTION : YOUR GAME FILES ARE INSTALLED INSIDE OF THE DEFAULT PROGRAM FILES FOLDER!
+      Having the game installed here may cause Windows UAC to prevent some mods from working correctly.
       To ensure that everything works, move your Game or entire Steam folder outside of Program Files.
     -----
   

@@ -26,9 +26,7 @@ from urllib3.exceptions import InsecureRequestWarning
 # GLOBALS ========================================
 vr = ""  # Used for checking VR Mode yaml setting.
 # ================================================
-game = "FO4"  # Set main game managed by CLASSIC.
-# ================================================
-name = "Fallout4"  # Game name without spaces.
+game = "Fallout4"  # Set game managed by CLASSIC.
 # ================================================
 
 
@@ -195,10 +193,10 @@ def classic_update_check():
                 print("✔️ You have the latest version of CLASSIC! \n")
                 return True
             else:
-                print(yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface.update_warning_fo4"))
+                print(yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", f"CLASSIC_Interface.update_warning_{game}"))
         except (ValueError, OSError, requests.exceptions.RequestException) as err:
             print(err)
-            print(yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_Interface.update_unable_fo4"))
+            print(yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", f"CLASSIC_Interface.update_unable_{game}"))
     else:
         print("\n❌ NOTICE: UPDATE CHECK IS DISABLED IN CLASSIC Settings.yaml \n")
         print("===============================================================================")
@@ -313,7 +311,7 @@ def game_generate_paths():
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Scripts", fr"{game_path}Data\Scripts")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Plugins", fr"{game_path}Data\{xse_acronym}\Plugins")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
-    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_EXE", fr"{game_path}{name}{vr}.exe")
+    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_EXE", fr"{game_path}{game}{vr}.exe")
 
 
 # =========== CHECK GAME EXE FILE -> GET PATH AND HASHES ===========
@@ -549,7 +547,7 @@ def main_files_backup():
     # Check for Script Extender updates since we also need local version for it.
     xse_links = []
     try:
-        response = requests.get("https://f4se.silverlock.org", verify=False, timeout=10)
+        response = requests.get(f"https://{xse_acronym.lower()}.silverlock.org", verify=False, timeout=10)
         if response.status_code == 200:  # Check if request went through.
             soup = BeautifulSoup(response.text, 'html.parser')
             links = soup.find_all('a')  # Find all anchor tags (links) in HTML.
@@ -573,7 +571,7 @@ def main_files_backup():
 def main_combined_result():
     vrmode_check()
     combined_return = [game_check_integrity(), xse_check_integrity(), xse_check_hashes(), docs_check_folder(),
-                       docs_check_ini(f"{name}.ini"), docs_check_ini(f"{name}Custom.ini"), docs_check_ini(f"{name}Prefs.ini")]
+                       docs_check_ini(f"{game}.ini"), docs_check_ini(f"{game}Custom.ini"), docs_check_ini(f"{game}Prefs.ini")]
     combined_result = "".join(combined_return)
     return combined_result
 
