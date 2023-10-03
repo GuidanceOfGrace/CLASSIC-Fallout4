@@ -312,6 +312,10 @@ def game_generate_paths():
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Plugins", fr"{game_path}Data\{xse_acronym}\Plugins")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_EXE", fr"{game_path}{game}{vr}.exe")
+    if game == "Fallout4" and not vr:
+        yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym}\version-1-10-163-0.bin")
+    elif game == "Fallout4" and vr:
+        yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"GameVR_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym}\version-1-2-72-0.csv")
 
 
 # =========== CHECK GAME EXE FILE -> GET PATH AND HASHES ===========
