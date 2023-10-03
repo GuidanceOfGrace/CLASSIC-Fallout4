@@ -9,7 +9,7 @@ import requests
 import platform
 import ruamel.yaml
 import configparser
-from pathlib import Path
+from pathlib import Path, PurePath
 from bs4 import BeautifulSoup
 from urllib3.exceptions import InsecureRequestWarning
 
@@ -362,32 +362,40 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
     xse_full_name = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_FullName")
     xse_ver_latest = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Ver_Latest")
     adlib_file = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_AddressLib")
+    
+    match adlib_file:
+        case str() | Path():
+            if Path(adlib_file).exists():
+                message_list.append(f"✔️ REQUIRED: *Address Library* for Script Extender is installed! \n-----\n")
+            else:
+                message_list.append(yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Warnings_MODS.Warn_ADLIB_Missing"))
+        case _:
+            message_list.append(f"❌ Value for Address Library is invalid or missing from CLASSIC {game} Local.yaml!\n-----\n")
 
-    if Path(adlib_file).exists():
-        message_list.append(f"✔️ REQUIRED: *Address Library* for Script Extender is installed! \n-----\n")
-    else:
-        message_list.append(yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Warnings_MODS.Warn_ADLIB_Missing"))
+    match xse_log_file:
+        case str() | Path():
+            if Path(xse_log_file).exists():
+                message_list.append(f"✔️ REQUIRED: *{xse_full_name}* is installed! \n-----\n")
+                with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
+                    xse_data = xse_log.readlines()
+                if str(xse_ver_latest) in xse_data[0]:
+                    message_list.append(f"✔️ You have the latest version of *{xse_full_name}*! \n-----\n")
+                else:
+                    message_list.append(yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Warnings_XSE.Warn_Outdated"))
+                for line in xse_data:
+                    if any(item.lower() in line.lower() for item in catch_errors):
+                        failed_list.append(line)
 
-    if Path(xse_log_file).exists():
-        message_list.append(f"✔️ REQUIRED: *{xse_full_name}* is installed! \n-----\n")
-        with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
-            xse_data = xse_log.readlines()
-        if str(xse_ver_latest) in xse_data[0]:
-            message_list.append(f"✔️ You have the latest version of *{xse_full_name}*! \n-----\n")
-        else:
-            message_list.append(yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Warnings_XSE.Warn_Outdated"))
-        for line in xse_data:
-            if any(item.lower() in line.lower() for item in catch_errors):
-                failed_list.append(line)
-
-        if failed_list:
-            message_list.append(f"#❌ CAUTION : {xse_acronym}.log REPORTS THE FOLLOWING ERRORS #\n")
-            for elem in failed_list:
-                message_list.append(f"ERROR > {elem.strip()} \n-----\n")
-    else:
-        message_list.extend([f"❌ CAUTION : *{xse_acronym.lower()}.log* FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
-                             f"   You need to run the game at least once with {xse_acronym.lower()}_loader.exe \n",
-                             "    After that, try running CLASSIC again! \n-----\n"])
+                if failed_list:
+                    message_list.append(f"#❌ CAUTION : {xse_acronym}.log REPORTS THE FOLLOWING ERRORS #\n")
+                    for elem in failed_list:
+                        message_list.append(f"ERROR > {elem.strip()} \n-----\n")
+            else:
+                message_list.extend([f"❌ CAUTION : *{xse_acronym.lower()}.log* FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
+                                    f"   You need to run the game at least once with {xse_acronym.lower()}_loader.exe \n",
+                                    "    After that, try running CLASSIC again! \n-----\n"])
+        case _:
+            message_list.append(f"❌ Value for {xse_acronym.lower()}.log is invalid or missing from CLASSIC {game} Local.yaml!\n-----\n")
 
     message_output = "".join(message_list)
     return message_output
