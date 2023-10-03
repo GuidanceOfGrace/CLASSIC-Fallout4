@@ -9,7 +9,7 @@ import requests
 import platform
 import ruamel.yaml
 import configparser
-from pathlib import Path, PurePath
+from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib3.exceptions import InsecureRequestWarning
 
