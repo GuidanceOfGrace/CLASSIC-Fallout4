@@ -5,6 +5,7 @@ import shutil
 import random
 import logging
 import requests
+import sqlite3
 import CLASSIC_Main as CMain
 import CLASSIC_ScanGame as CGame
 from urllib.parse import urlparse
@@ -529,7 +530,19 @@ def crashlogs_scan():
 
         # ================================================
 
-        autoscan_report.append("# LIST OF (POSSIBLE) FORM ID SUSPECTS #\n")
+        def get_entry(formid, plugin=None) -> str | None:
+            with sqlite3.connect(f"CLASSIC Data/databases/FormIDs.db") as conn:
+                c = conn.cursor()
+                if plugin:
+                    c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
+                else:
+                    c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? COLLATE nocase''', (formid,))
+                entry = c.fetchone()
+                if entry:
+                    return entry[0]
+                else:
+                    return None
+
         formids_matches = [line.replace('0x', '').strip() for line in segment_callstack if "id:" in line.lower() and "0xFF" not in line]
         if formids_matches:
             formids_found = dict(Counter(sorted(formids_matches)))
@@ -538,7 +551,13 @@ def crashlogs_scan():
                 for plugin, plugin_id in crashlog_plugins.items():
                     if str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
-                            with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
+                            report = get_entry(formid_split[1][2:], plugin)
+                            if report:
+                                autoscan_report.append(f"- {formid_full} | [{plugin}] | {report} | {count}\n")
+                            else:
+                                autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                                break
+                            """with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
                                 with open(f"CLASSIC Data/databases/{CMain.game} FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
                                     line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
                                     line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
@@ -552,7 +571,7 @@ def crashlogs_scan():
                                         autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
                                     else:
                                         autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
-                                        break
+                                        break"""
                         else:
                             autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
                             break
