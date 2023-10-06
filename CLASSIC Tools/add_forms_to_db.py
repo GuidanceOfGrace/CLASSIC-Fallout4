@@ -10,10 +10,11 @@ argparser.add_argument("--verbose", help="Prints out the lines as they are added
 args = argparser.parse_args()
 
 conn = sqlite3.connect(args.db)
+c = conn.cursor()
 
 with open(args.file, encoding="utf-8", errors="ignore") as f:
     for line in f:
         line = line.strip()
         if args.verbose:
             print(f"Adding {line} to {args.table}")
-        insert(line, args.table)
+        insert(line, args.table, c)
