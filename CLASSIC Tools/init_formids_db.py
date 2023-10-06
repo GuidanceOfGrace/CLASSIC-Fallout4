@@ -17,7 +17,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS Skyrim
 
 def insert(line, table="Fallout4"):
     if line:
-        if len(line.split(" | ")) >= 3:
+        if "|" in line and len(line.split(" | ")) >= 3:
             plugin, formid, entry, *extra = line.split(" | ")  # the *extra is for any extraneous data that might be in the line (Python thinks there are more than 3 items in the list for some reason)
             c.execute(f'''INSERT INTO {table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
