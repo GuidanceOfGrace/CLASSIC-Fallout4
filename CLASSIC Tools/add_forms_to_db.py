@@ -16,6 +16,8 @@ conn = sqlite3.connect(args.db)
 c = conn.cursor()
 
 with open(args.file, encoding="utf-8", errors="ignore") as f:
+    if not args.verbose:
+        print(f"Adding FormIDs from {args.file} to {args.table}")
     for line in f:
         line = line.strip()
         if " | " in line:
