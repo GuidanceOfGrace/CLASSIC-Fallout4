@@ -21,7 +21,7 @@ with open(args.file, encoding="utf-8", errors="ignore") as f:
         data = line.split(" | ")
         if args.verbose:
             print(f"Adding {line} to {args.table}")
-        if len(data) >= 3:
+        if " | " in line and len(data) >= 3:
             plugin, formid, entry, *extra = data
             c.execute(f'''INSERT INTO {args.table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
