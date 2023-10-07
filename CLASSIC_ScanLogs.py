@@ -530,13 +530,10 @@ def crashlogs_scan():
 
         # ================================================
 
-        def get_entry(formid, plugin=None) -> str | None:
+        def get_entry(formid, plugin) -> str | None:
             with sqlite3.connect(f"CLASSIC Data/databases/FormIDs.db") as conn:
                 c = conn.cursor()
-                if plugin:
-                    c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
-                else:
-                    c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? COLLATE nocase''', (formid,))
+                c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
                 entry = c.fetchone()
                 if entry:
                     return entry[0]
