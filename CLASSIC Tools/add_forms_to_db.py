@@ -4,7 +4,7 @@ import sqlite3
 from init_formids_db import insert
 
 argparser = argparse.ArgumentParser()
-argparser.add_argument("file", help="The file to add to the database")
+argparser.add_argument("file", help="The file to add to the database", default="FormID_List.txt", nargs=1)
 argparser.add_argument("--table", help="The table to add the file to", default="Fallout4", nargs=1)
 argparser.add_argument("--db", help="The database to add the file to", default="../CLASSIC Data/databases/FormIDs.db", nargs=1)
 argparser.add_argument("--verbose", help="Prints out the lines as they are added", action="store_true")
