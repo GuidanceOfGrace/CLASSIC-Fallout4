@@ -18,12 +18,13 @@ c = conn.cursor()
 with open(args.file, encoding="utf-8", errors="ignore") as f:
     for line in f:
         line = line.strip()
-        data = line.split(" | ")
-        if args.verbose:
-            print(f"Adding {line} to {args.table}")
-        if " | " in line and len(data) >= 3:
-            plugin, formid, entry, *extra = data
-            c.execute(f'''INSERT INTO {args.table} (plugin, formid, entry) 
+        if " | " in line:
+            data = line.split(" | ")
+            if args.verbose:
+                print(f"Adding {line} to {args.table}")
+            if len(data) >= 3:
+                plugin, formid, entry, *extra = data
+                c.execute(f'''INSERT INTO {args.table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
 conn.commit()
 conn.close()
