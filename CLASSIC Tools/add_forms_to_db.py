@@ -22,3 +22,5 @@ with open(args.file, encoding="utf-8", errors="ignore") as f:
         if args.verbose:
             print(f"Adding {line} to {args.table}")
         insert(line, args.table, c)
+conn.commit()
+conn.close()
