@@ -15,11 +15,11 @@ c.execute('''CREATE TABLE IF NOT EXISTS Skyrim
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                  plugin TEXT, formid TEXT, entry TEXT)''')
 
-def insert(line, table="Fallout4", cursor=c):
+def insert(line, table="Fallout4"):
     if line:
         if "|" in line and len(line.split(" | ")) >= 3:
             plugin, formid, entry, *extra = line.split(" | ")  # the *extra is for any extraneous data that might be in the line (Python thinks there are more than 3 items in the list for some reason)
-            cursor.execute(f'''INSERT INTO {table} (plugin, formid, entry) 
+            c.execute(f'''INSERT INTO {table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
 
 with open("../CLASSIC Data/databases/Fallout4 FID Main.txt", encoding="utf-8", errors="ignore") as f:
