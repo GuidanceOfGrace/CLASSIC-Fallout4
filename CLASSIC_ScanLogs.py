@@ -538,7 +538,7 @@ def crashlogs_scan():
             autoscan_report.append("* COULDN'T FIND ANY PLUGIN SUSPECTS *\n\n")
 
         # ================================================
-
+        autoscan_report.append("# LIST OF (POSSIBLE) FORM ID SUSPECTS #\n")
         formids_matches = [line.replace('0x', '').strip() for line in segment_callstack if "id:" in line.lower() and "0xFF" not in line]
         if formids_matches:
             formids_found = dict(Counter(sorted(formids_matches)))
