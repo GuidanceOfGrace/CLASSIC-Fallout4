@@ -37,7 +37,7 @@ with open(args.file, encoding="utf-8", errors="ignore") as f:
                     print(f"Adding {line} to {args.table}")
                 c.execute(f'''INSERT INTO {args.table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
-c.commit()
+conn.commit()
 print("Optimizing database...")
 c.execute("vacuum")
 conn.close()
