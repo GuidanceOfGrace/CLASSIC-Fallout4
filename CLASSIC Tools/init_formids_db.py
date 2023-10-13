@@ -16,8 +16,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS Skyrim
                  plugin TEXT, formid TEXT, entry TEXT)''')
 
 # The indexes may increase the size of the DB, but they make searches almost instantaneous.
-c.execute("CREATE INDEX IF NOT EXISTS Fallout4_index ON Fallout4 (plugin, formid)")
-c.execute("CREATE INDEX IF NOT EXISTS Skyrim_index ON Skyrim (plugin, formid)")
+c.execute("CREATE INDEX IF NOT EXISTS Fallout4_index ON Fallout4(formid, plugin COLLATE nocase);")
+c.execute("CREATE INDEX IF NOT EXISTS Skyrim_index ON Skyrim (formid, plugin COLLATE nocase);")
 
 def insert(line, table="Fallout4"):
     if line:
