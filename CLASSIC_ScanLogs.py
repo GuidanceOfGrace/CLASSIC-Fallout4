@@ -545,7 +545,7 @@ def crashlogs_scan():
             for formid_full, count in formids_found.items():
                 formid_split = formid_full.split(": ", 1)
                 for plugin, plugin_id in crashlog_plugins.items():
-                    if str(plugin_id) == str(formid_split[1][:2]):
+                    if len(formid_split) >= 2 and str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
                             report = get_entry(formid_split[1][2:], plugin)
                             if report:
