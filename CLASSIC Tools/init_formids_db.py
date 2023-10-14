@@ -27,10 +27,12 @@ def insert(line, table="Fallout4"):
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
 
 with open("../CLASSIC Data/databases/Fallout4 FID Main.txt", encoding="utf-8", errors="ignore") as f:
+    print("Inserting Fallout 4 Main FormIDs...")
     for line in f:
         line = line.strip()
         insert(line)
 if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Mods.txt"):
+    print("Inserting Fallout 4 Mod FormIDs...")
     with open("../CLASSIC Data/databases/Fallout4 FID Mods.txt", "rb") as f:
         hash = hashlib.sha256(f.read()).hexdigest()
     if not hash == "bb9ebacc7b1cf232becbf00a942105348ced8a25d8e556fa7739845985cb2553":
@@ -40,12 +42,14 @@ if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Mods.txt"):
                 insert(line)
 
 if os.path.exists("../CLASSIC Data/databases/Skyrim FID Main.txt"):
+    print("Inserting Skyrim Main FormIDs...")
     with open("../CLASSIC Data/databases/Skyrim FID Main.txt", encoding="utf-8", errors="ignore") as f:
         for line in f:
             line = line.strip()
             insert(line, "Skyrim")
 
 if os.path.exists("../CLASSIC Data/databases/Skyrim FID Mods.txt"):
+    print("Inserting Skyrim Mod FormIDs...")
     with open("../CLASSIC Data/databases/Skyrim FID Mods.txt", encoding="utf-8", errors="ignore") as f:
         for line in f:
             line = line.strip()
