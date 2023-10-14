@@ -32,14 +32,17 @@ def pastebin_fetch(url):
         response.raise_for_status()
 
 def get_entry(formid, plugin) -> str | None:
-    with sqlite3.connect(f"CLASSIC Data/databases/FormIDs.db") as conn:
-        c = conn.cursor()
-        c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
-        entry = c.fetchone()
-        if entry:
-            return entry[0]
-        else:
-            return None
+    if os.path.isfile("CLASSIC Data/databases/FormIDs.db"):
+        with sqlite3.connect("CLASSIC Data/databases/FormIDs.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
+            entry = c.fetchone()
+            if entry:
+                return entry[0]
+            else:
+                return None
+    else:
+        return None
 
 # ================================================
 # INITIAL REFORMAT FOR CRASH LOG FILES
