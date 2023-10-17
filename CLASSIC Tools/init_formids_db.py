@@ -1,7 +1,6 @@
 from calendar import c
 import os
 import sqlite3
-import hashlib
 
 if os.path.exists("../CLASSIC Data/databases/FormIDs.db"):
     os.remove("../CLASSIC Data/databases/FormIDs.db")
