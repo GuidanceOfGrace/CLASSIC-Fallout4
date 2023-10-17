@@ -8,16 +8,24 @@ if os.path.exists("../CLASSIC Data/databases/FormIDs.db"):
 conn = sqlite3.connect("../CLASSIC Data/databases/FormIDs.db")
 c = conn.cursor()
 
-c.execute('''CREATE TABLE IF NOT EXISTS Fallout4 
+if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Main.txt"):
+    c.execute('''CREATE TABLE IF NOT EXISTS Fallout4 
               (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                plugin TEXT, formid TEXT, entry TEXT)''')
-c.execute('''CREATE TABLE IF NOT EXISTS Skyrim
+    c.execute("CREATE INDEX IF NOT EXISTS Fallout4_index ON Fallout4(formid, plugin COLLATE nocase);")
+if os.path.exists("../CLASSIC Data/databases/Skyrim FID Main.txt"):
+    c.execute('''CREATE TABLE IF NOT EXISTS Skyrim
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                  plugin TEXT, formid TEXT, entry TEXT)''')
+    c.execute("CREATE INDEX IF NOT EXISTS Skyrim_index ON Skyrim (formid, plugin COLLATE nocase);")
+if os.path.exists("../CLASSIC Data/databases/Starfield FID Main.txt"):
+    c.execute('''CREATE TABLE IF NOT EXISTS Starfield
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                 plugin TEXT, formid TEXT, entry TEXT)''')
+    c.execute("CREATE INDEX IF NOT EXISTS Starfield_index ON Starfield (formid, plugin COLLATE nocase);")
 
-# The indexes may increase the size of the DB, but they make searches almost instantaneous.
-c.execute("CREATE INDEX IF NOT EXISTS Fallout4_index ON Fallout4(formid, plugin COLLATE nocase);")
-c.execute("CREATE INDEX IF NOT EXISTS Skyrim_index ON Skyrim (formid, plugin COLLATE nocase);")
+
+
 
 def insert(line, table="Fallout4"):
     if line:
@@ -26,11 +34,12 @@ def insert(line, table="Fallout4"):
             c.execute(f'''INSERT INTO {table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
 
-with open("../CLASSIC Data/databases/Fallout4 FID Main.txt", encoding="utf-8", errors="ignore") as f:
-    print("Inserting Fallout 4 Main FormIDs...")
-    for line in f:
-        line = line.strip()
-        insert(line)
+if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Main.txt"):
+    with open("../CLASSIC Data/databases/Fallout4 FID Main.txt", encoding="utf-8", errors="ignore") as f:
+        print("Inserting Fallout 4 Main FormIDs...")
+        for line in f:
+            line = line.strip()
+            insert(line)
 if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Mods.txt"):
     print("Inserting Fallout 4 Mod FormIDs...")
     with open("../CLASSIC Data/databases/Fallout4 FID Mods.txt", "rb") as f:
@@ -54,6 +63,20 @@ if os.path.exists("../CLASSIC Data/databases/Skyrim FID Mods.txt"):
         for line in f:
             line = line.strip()
             insert(line, "Skyrim")
+
+if os.path.exists("../CLASSIC Data/databases/Starfield FID Main.txt"):
+    print("Inserting Starfield Main FormIDs...")
+    with open("../CLASSIC Data/databases/Starfield FID Main.txt", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            line = line.strip()
+            insert(line, "Starfield")
+
+if os.path.exists("../CLASSIC Data/databases/Starfield FID Mods.txt"):
+    print("Inserting Starfield Mod FormIDs...")
+    with open("../CLASSIC Data/databases/Starfield FID Mods.txt", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            line = line.strip()
+            insert(line, "Starfield")
 
 conn.commit()
 conn.close()
