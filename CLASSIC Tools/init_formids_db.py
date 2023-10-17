@@ -22,6 +22,8 @@ with sqlite3.connect("../CLASSIC Data/databases/FormIDs.db") as conn:
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                  plugin TEXT, formid TEXT, entry TEXT)''')
         c.execute("CREATE INDEX IF NOT EXISTS Starfield_index ON Starfield (formid, plugin COLLATE nocase);")
+    if conn.in_transaction:
+        conn.commit()
 
 def insert(lines, table="Fallout4"):
     with sqlite3.connect("../CLASSIC Data/databases/FormIDs.db") as conn:
@@ -33,7 +35,8 @@ def insert(lines, table="Fallout4"):
                     plugin, formid, entry, *extra = line.split(" | ")  # the *extra is for any extraneous data that might be in the line (Python thinks there are more than 3 items in the list for some reason)
                     c.execute(f'''INSERT INTO {table} (plugin, formid, entry) 
                           VALUES (?, ?, ?)''', (plugin, formid, entry))
-            conn.commit()
+            if conn.in_transaction:
+                conn.commit()
 
 if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Main.txt"):
     with open("../CLASSIC Data/databases/Fallout4 FID Main.txt", encoding="utf-8", errors="ignore") as f:

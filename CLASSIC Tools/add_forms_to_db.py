@@ -27,7 +27,8 @@ with open(args.file, encoding="utf-8", errors="ignore") as f:
                     plugin, formid, entry, *extra = data
                     c.execute(f'''INSERT INTO {args.table} (plugin, formid, entry) 
                       VALUES (?, ?, ?)''', (plugin, formid, entry))
-        conn.commit()
+        if conn.in_transaction:
+            conn.commit()
         print("Optimizing database...")
         c.execute("vacuum")
 
