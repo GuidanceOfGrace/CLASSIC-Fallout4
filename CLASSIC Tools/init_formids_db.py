@@ -24,9 +24,6 @@ if os.path.exists("../CLASSIC Data/databases/Starfield FID Main.txt"):
                  plugin TEXT, formid TEXT, entry TEXT)''')
     c.execute("CREATE INDEX IF NOT EXISTS Starfield_index ON Starfield (formid, plugin COLLATE nocase);")
 
-
-
-
 def insert(line, table="Fallout4"):
     if line:
         if "|" in line and len(line.split(" | ")) >= 3:
