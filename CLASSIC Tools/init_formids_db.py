@@ -1,32 +1,44 @@
-from calendar import c
 import os
 import sqlite3
 
-if os.path.exists("../CLASSIC Data/databases/FormIDs.db"):
-    os.remove("../CLASSIC Data/databases/FormIDs.db")
+if os.path.exists("../CLASSIC Data/databases/Fallout4 FormIDs.db"):
+    os.remove("../CLASSIC Data/databases/Fallout4 FormIDs.db")
 
-with sqlite3.connect("../CLASSIC Data/databases/FormIDs.db") as conn:
-    c = conn.cursor()
-    if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Main.txt"):
-        c.execute('''CREATE TABLE IF NOT EXISTS Fallout4 
+if os.path.exists("../CLASSIC Data/databases/Skyrim FormIDs.db"):
+    os.remove("../CLASSIC Data/databases/Skyrim FormIDs.db")
+
+if os.path.exists("../CLASSIC Data/databases/Starfield FormIDs.db"):
+    os.remove("../CLASSIC Data/databases/Starfield FormIDs.db")
+
+if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Main.txt"):
+    with sqlite3.connect("../CLASSIC Data/databases/Fallout4 FormIDs.db") as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS Fallout4 
               (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                plugin TEXT, formid TEXT, entry TEXT)''')
-        c.execute("CREATE INDEX IF NOT EXISTS Fallout4_index ON Fallout4(formid, plugin COLLATE nocase);")
-    if os.path.exists("../CLASSIC Data/databases/Skyrim FID Main.txt"):
-        c.execute('''CREATE TABLE IF NOT EXISTS Skyrim
+        conn.execute("CREATE INDEX IF NOT EXISTS Fallout4_index ON Fallout4(formid, plugin COLLATE nocase);")
+        if conn.in_transaction:
+            conn.commit()
+
+if os.path.exists("../CLASSIC Data/databases/Skyrim FID Main.txt"):
+    with sqlite3.connect("../CLASSIC Data/databases/Skyrim FormIDs.db") as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS Skyrim
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                  plugin TEXT, formid TEXT, entry TEXT)''')
-        c.execute("CREATE INDEX IF NOT EXISTS Skyrim_index ON Skyrim (formid, plugin COLLATE nocase);")
-    if os.path.exists("../CLASSIC Data/databases/Starfield FID Main.txt"):
-        c.execute('''CREATE TABLE IF NOT EXISTS Starfield
+        conn.execute("CREATE INDEX IF NOT EXISTS Skyrim_index ON Skyrim (formid, plugin COLLATE nocase);")
+        if conn.in_transaction:
+            conn.commit()
+    
+if os.path.exists("../CLASSIC Data/databases/Starfield FID Main.txt"):
+    with sqlite3.connect("../CLASSIC Data/databases/Starfield FormIDs.db") as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS Starfield
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,  
                  plugin TEXT, formid TEXT, entry TEXT)''')
-        c.execute("CREATE INDEX IF NOT EXISTS Starfield_index ON Starfield (formid, plugin COLLATE nocase);")
+        conn.execute("CREATE INDEX IF NOT EXISTS Starfield_index ON Starfield (formid, plugin COLLATE nocase);")
     if conn.in_transaction:
         conn.commit()
 
 def insert(lines, table="Fallout4"):
-    with sqlite3.connect("../CLASSIC Data/databases/FormIDs.db") as conn:
+    with sqlite3.connect(f"../CLASSIC Data/databases/{table} FormIDs.db") as conn:
         c = conn.cursor()
         if lines:
             for line in lines:

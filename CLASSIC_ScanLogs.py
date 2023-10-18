@@ -32,8 +32,8 @@ def pastebin_fetch(url):
         response.raise_for_status()
 
 def get_entry(formid, plugin) -> str | None:
-    if os.path.isfile("CLASSIC Data/databases/FormIDs.db"):
-        with sqlite3.connect("CLASSIC Data/databases/FormIDs.db") as conn:
+    if os.path.isfile(f"CLASSIC Data/databases/{CMain.game} FormIDs.db"):
+        with sqlite3.connect(f"CLASSIC Data/databases/{CMain.game} FormIDs.db") as conn:
             c = conn.cursor()
             c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
             entry = c.fetchone()
@@ -550,7 +550,7 @@ def crashlogs_scan():
                 for plugin, plugin_id in crashlog_plugins.items():
                     if len(formid_split) >= 2 and str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
-                            if os.path.exists(f"CLASSIC Data/databases/FormIDs.db"):
+                            if os.path.exists(f"CLASSIC Data/databases/{CMain.game} FormIDs.db"):
                                 report = get_entry(formid_split[1][2:], plugin)
                                 if report:
                                     autoscan_report.append(f"- {formid_full} | [{plugin}] | {report} | {count}\n")
