@@ -51,8 +51,8 @@ def insert(lines, table="Fallout4"):
                 conn.commit()
 
 if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Main.txt"):
+    print("Inserting Fallout 4 Main FormIDs...")
     with open("../CLASSIC Data/databases/Fallout4 FID Main.txt", encoding="utf-8", errors="ignore") as f:
-        print("Inserting Fallout 4 Main FormIDs...")
         insert(f.readlines())
 if os.path.exists("../CLASSIC Data/databases/Fallout4 FID Mods.txt"):
     print("Inserting Fallout 4 Mod FormIDs...")
