@@ -550,27 +550,29 @@ def crashlogs_scan():
                 for plugin, plugin_id in crashlog_plugins.items():
                     if len(formid_split) >= 2 and str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
-                            report = get_entry(formid_split[1][2:], plugin)
-                            if report:
-                                autoscan_report.append(f"- {formid_full} | [{plugin}] | {report} | {count}\n")
+                            if os.path.exists(f"CLASSIC Data/databases/FormIDs.db"):
+                                report = get_entry(formid_split[1][2:], plugin)
+                                if report:
+                                    autoscan_report.append(f"- {formid_full} | [{plugin}] | {report} | {count}\n")
+                                else:
+                                    autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                                    break
                             else:
-                                autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
-                                break
-                            """with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
-                                with open(f"CLASSIC Data/databases/{CMain.game} FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
-                                    line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
-                                    line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
-                                    if line_match_main:
-                                        line_split = line_match_main.split(" | ")
-                                        fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
-                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
-                                    elif line_match_mods:
-                                        line_split = line_match_mods.split(" | ")
-                                        fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
-                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
-                                    else:
-                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
-                                        break"""
+                                with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
+                                    with open(f"CLASSIC Data/databases/{CMain.game} FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
+                                        line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
+                                        line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
+                                        if line_match_main:
+                                            line_split = line_match_main.split(" | ")
+                                            fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
+                                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
+                                        elif line_match_mods:
+                                            line_split = line_match_mods.split(" | ")
+                                            fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
+                                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
+                                        else:
+                                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                                            break
                         else:
                             autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
                             break
