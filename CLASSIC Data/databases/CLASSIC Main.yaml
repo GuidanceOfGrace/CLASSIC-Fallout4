@@ -4,8 +4,8 @@ CLASSIC_Info:
   # ========================================================================================
   # CAUTION: DO NOT CHANGE YOUR SETTINGS HERE! OPEN & EDIT CLASSIC Settings.yaml instead!
   # ========================================================================================
-  version: CLASSIC v7.20
-  version_date: 23.09.29 #YY/MM/DD
+  version: CLASSIC v7.25 EvilDarkArchon Beta 1
+  version_date: 23.10.22 #YY/MM/DD
   default_settings: |
     # This file contains settings for CLASSIC v7.00+, used by both source scripts and the executable.
     
