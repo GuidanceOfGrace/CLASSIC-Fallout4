@@ -9,6 +9,7 @@ import requests
 import platform
 import ruamel.yaml
 import configparser
+import sqlite3
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib3.exceptions import InsecureRequestWarning
@@ -20,8 +21,8 @@ from urllib3.exceptions import InsecureRequestWarning
     ❓ import shelve if you want to store persistent data that you do not want regular users to access or modify.
     ❓ Globals are generally used to standardize game paths and INI files naming conventions.
     -----
-    CO-AUTHOR NOTES (NameHere):
-    * You can write stuff here so I don't miss it. *
+    CO-AUTHOR NOTES (EvilDarkArchon):
+    ❓ We're going to have to special-case (or disable) Starfield Script Extender update checks because it's on Nexus, not silverlock.org.
 """
 # GLOBALS ========================================
 vr = ""  # Used for checking VR Mode yaml setting.
@@ -139,6 +140,26 @@ def classic_logging():
                 print(f"An error occurred while deleting CLASSIC Journal.log: {err}")
                 classic_update_check()
 
+def create_formid_db():
+    if not os.path.exists(f"CLASSIC Data/databases/{game} FormIDs.db") and os.path.exists(f"CLASSIC Data/databases/{game} FID Main.txt"):
+        with sqlite3.connect(f"CLASSIC Data/databases/{game} FormIDs.db") as conn, open(f"CLASSIC Data/databases/{game} FID Main.txt", encoding="utf-8", errors="ignore") as f:
+            conn.execute(f'''CREATE TABLE IF NOT EXISTS {game} 
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                plugin TEXT, formid TEXT, entry TEXT)''')
+            conn.execute(f"CREATE INDEX IF NOT EXISTS Fallout4_index ON {game}(formid, plugin COLLATE nocase);")
+            if conn.in_transaction:
+                conn.commit()
+            lines = f.readlines()
+            if len(lines) > 0:
+                print("⏳ Generating FormID cache...", end="")
+                for line in lines:
+                    line = line.strip()
+                    if "|" in line and len(line.split(" | ")) >= 3:
+                        plugin, formid, entry, *extra = line.split(" | ")  # the *extra is for any extraneous data that might be in the line (Python thinks there are more than 3 items in the list for some reason)
+                        conn.execute(f'''INSERT INTO {game} (plugin, formid, entry) VALUES (?, ?, ?)''', (plugin, formid, entry))
+                if conn.in_transaction:
+                    conn.commit()
+                print(" Done!")
 
 def classic_data_extract():
     if not os.path.exists("CLASSIC Data/databases/CLASSIC Main.yaml"):
@@ -157,13 +178,15 @@ def classic_data_extract():
         if os.path.exists("CLASSIC Data/CLASSIC Data.zip"):
             with zipfile.ZipFile("CLASSIC Data/CLASSIC Data.zip", "r") as zip_data:
                 zip_data.extract(f"databases/{game} FID Main.txt", "CLASSIC Data")
+                
         elif os.path.exists("CLASSIC Data.zip"):
             with zipfile.ZipFile("CLASSIC Data.zip", "r") as zip_data:
                 zip_data.extract(f"databases/{game} FID Main.txt", "CLASSIC Data")
         else:
             print("❌ ERROR : UNABLE TO FIND CLASSIC Data.zip! CLASSIC will not be able to show FormID values.")
             print("Please ensure that you have extracted all CLASSIC files into the same folder after downloading.")
-
+    
+    create_formid_db()
 
 def classic_settings(setting=None):
     if not os.path.exists("CLASSIC Settings.yaml"):
