@@ -1,6 +1,14 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.25 EvilDarkArchon Beta 1
+*NEW FEATURES*
+- CLASSIC will now generate a cache of the Form-IDs list for faster searching
+- Added tools to add new form-ids or update existing form-ids in the cache.
+
+DISCLAIMER:
+This is just a reflection of my copy of the code and may or may not make it into the final build.
+
 7.20
 *NEW FEATURES*
 - CLASSIC now automatically creates backups of your game's main EXE files.
