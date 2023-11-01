@@ -528,6 +528,8 @@ def docs_check_ini(ini_name) -> str:
             message_list.extend([f"[!] CAUTION : YOUR {ini_name} FILE IS VERY LIKELY BROKEN, PLEASE CREATE A NEW ONE \n",
                                  f"    Delete this file from your Documents/My Games/{docs_name} folder, then press \n",
                                  f"    *Scan Game Files* in CLASSIC to generate a new {ini_name} file. \n-----\n"])
+        except configparser.DuplicateOptionError as e:
+            message_list.append(f"[!] ERROR : {e} \n")
     else:
         if ini_name.lower() == f"{docs_name.lower()}.ini":
             message_list.extend([f"❌ CAUTION : {ini_name} FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
