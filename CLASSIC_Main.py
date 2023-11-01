@@ -530,7 +530,7 @@ def docs_check_ini(ini_name) -> str:
                                  f"    *Scan Game Files* in CLASSIC to generate a new {ini_name} file. \n-----\n"])
         except configparser.DuplicateOptionError as e:
             message_list.extend([f"[!] ERROR : Your {ini_name} file has duplicate options! \n",
-                                 f"{e} \n-----\n"])
+                                 f"    {e} \n-----\n"])
     else:
         if ini_name.lower() == f"{docs_name.lower()}.ini":
             message_list.extend([f"❌ CAUTION : {ini_name} FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
