@@ -1,12 +1,17 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
-7.25 EvilDarkArchon Beta 1
+7.25 Unofficial
 *NEW FEATURES*
-- CLASSIC will now generate a cache of the Form-IDs list for faster searching
+- CLASSIC will now generate a cache of the Form-IDs list for faster searching.
 - Added tools to add new form-ids or update existing form-ids in the cache.
 
-DISCLAIMER:
+*CHANGES*
+- Fix Address Library path not being saved in the local data file.
+- Only match the first GPU in the log to avoid issues with systems with an AMD CPU and Nvidia GPU.
+- Finding duplicate entries in game INI files will no longer cause CLASSIC to crash.
+
+*DISCLAIMER*
 This is just a reflection of my copy of the code and may or may not make it into the final build.
 
 7.20
