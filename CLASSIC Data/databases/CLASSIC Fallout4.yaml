@@ -771,7 +771,8 @@ Mods_SOLU:  # 3) MODS WITH SOLUTIONS & COMMUNITY PATCHES
   Homemaker: |
     Homemaker
         - Causes a crash while scrolling over Military / BoS fences in the Settlement Menu.
-          Patch Link: https://www.nexusmods.com/fallout4/mods/41434?tab=files
+          Advised Fix: Make sure you are using at least version 1.73 of this mod.
+          Alternate Fix: https://www.nexusmods.com/fallout4/mods/41434?tab=files
         -----
 
   LegendaryModification: |
