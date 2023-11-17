@@ -677,25 +677,28 @@ if __name__ == "__main__":
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
     parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")
-    parser.add_argument("--imi-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
+    parser.add_argument("--show-fid-values", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
     parser.add_argument("--stat-logging", action=argparse.BooleanOptionalAction, help="Enable (or disable) Stat Logging")
     parser.add_argument("--move-unsolved", action=argparse.BooleanOptionalAction, help="Enable (or disable) moving unsolved logs to a separate directory")
     parser.add_argument("--ini-path", type=Path, help="Set the directory that stores the game's INI files.")
     parser.add_argument("--scan-path", type=Path, help="Set which custom directory to scan crash logs from.")
+    parser.add_argument("--mods-folder-path", type=Path, help="Set the directory where your mod manager stores your mods (Optional).")
+    parser.add_argument("--simplify-logs", action=argparse.BooleanOptionalAction, help="Enable (or disable) Simplify Logs")
     args = parser.parse_args()
 
     scan_path: Path = args.scan_path  # VSCode gives me type errors because args.* is set at runtime (doesn't know what types it's dealing with).
     ini_path: Path = args.ini_path  # Using intermediate variables with type annotations to satisfy it.
+    mods_folder_path: Path = args.mods_folder_path
 
     # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
     # So it will respect current INI values if not specified on the command line.
     if isinstance(args.fcx_mode, bool) and not args.fcx_mode == CMain.classic_settings("FCX Mode"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.FCX Mode", args.fcx_mode)
 
-    if isinstance(args.imi_mode, bool) and not args.imi_mode == CMain.classic_settings("IMI Mode"):
+    if isinstance(args.show_fid_vaues, bool) and not args.imi_mode == CMain.classic_settings("Show FormID Values"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.IMI Mode", args.imi_mode)
 
-    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CMain.classic_settings("Move Unsolved"):
+    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CMain.classic_settings("Move Unsolved Logs"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.Move Unsolved", args.args.move_unsolved)
 
     if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CMain.classic_settings("INI Folder Path"):
@@ -703,6 +706,12 @@ if __name__ == "__main__":
 
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CMain.classic_settings("SCAN Custom Path"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
+    
+    if isinstance(mods_folder_path, Path) and mods_folder_path.resolve().is_dir() and not str(mods_folder_path) == CMain.classic_settings("MODS Folder Path"):
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.MODS Folder Path", str(Path(mods_folder_path).resolve()))
+    
+    if isinstance(args.simplify_logs, bool) and not args.simplify_logs == CMain.classic_settings("Simplify Logs"):
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.Simplify Logs", args.simplify_logs)
 
     crashlogs_scan()
     os.system("pause")
