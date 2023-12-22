@@ -207,7 +207,7 @@ def classic_update_check():
         print("❓ (Needs internet connection) CHECKING FOR NEW CLASSIC VERSIONS...")
         print("   (You can disable this check in the EXE or CLASSIC Settings.yaml) \n")
         try:
-            response = requests.get("https://api.github.com/repos/GuidanceOfGrace/CLASSIC-Fallout4/releases/latest", timeout=10)
+            response = requests.get("https://api.github.com/repos/evildarkarchon/CLASSIC-Fallout4/releases/latest", timeout=10)
             if not response.status_code == requests.codes.ok:
                 response.raise_for_status()
             classic_ver_received = response.json()["name"]
