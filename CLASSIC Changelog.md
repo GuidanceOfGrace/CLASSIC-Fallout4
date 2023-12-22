@@ -1,6 +1,10 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.25.1 Unofficial
+*CHANGES*
+Unofficial Series Only: Redirect update queries to my GitHub page.
+
 7.25 Unofficial
 *NEW FEATURES*
 - CLASSIC will now generate a cache of the Form-IDs list for faster searching.
