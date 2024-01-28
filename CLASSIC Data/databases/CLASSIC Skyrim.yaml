@@ -1,0 +1,934 @@
+# FALLOUT 4 DATABASE for Crash Log Auto Scanner & Setup Integrity Checker (CLASSIC) v7.00+
+
+Game_Info:
+  Main_Root_Name: Fallout 4
+  Main_Docs_Name: Fallout4
+  Main_SteamID: 377160
+  EXE_HashedOLD: 55f57947db9e05575122fae1088f0b0247442f11e566b56036caa0ac93329c36
+  EXE_HashedNEW: 00000
+
+  CRASHGEN_Acronym: BO4
+  CRASHGEN_LogName: Buffout 4
+  CRASHGEN_DLL_File: buffout4.dll
+  CRASHGEN_LatestVer: Buffout 4 v1.28.6
+  CRASHGEN_Ignore:
+    - F4EE
+    - WaitForDebugger
+    - Achievements
+    - InputSwitch
+    - MemoryManager
+    - AutoOpen
+    - PromptUpload
+    - MemoryManagerDebug
+    - BSTextureStreamerLocalHeap
+    - ArchiveLimit
+
+  XSE_Acronym: F4SE
+  XSE_FullName: Fallout 4 Script Extender (F4SE)
+  XSE_Ver_Latest: 0.6.23
+  XSE_FileCount: 29
+
+  XSE_HashedScripts:  # SHA-256 from https://f4se.silverlock.org/
+    Actor.pex: 9333aa9b33d6009933afc3a1234a89ca93b5522ea186b44bc6c78846ed5a82c4
+    ActorBase.pex: cb5d29fead7df77eca8674101abdc57349a8cf345f18c3ddd6ef8d94ad254da7
+    Armor.pex: 2bc34ab0d58f701e8684fc911742257e0768bd3e63b1eb8bdb2e043e7b67346b
+    ArmorAddon.pex: 5d9ff578b6e401526dbddedf93bdbccb4e202dba2b8b2e77809140b48fc8c1af
+    Cell.pex: 25d742d4fbe274fe5b8b3adc3775964ab9e22c1f32c47d5d3102b735c5b4e190
+    Component.pex: 80eef0f21bb7b1b9882c4a953a24aff3df8095f8464c006a96fafc0858f9b889
+    ConstructibleObject.pex: 51bdb39c81465bfbbbe509dc0a1ed40baebf4791cb35c978108e4334bcabc017
+    DefaultObject.pex: 715dff0394599587c4596488d66aab4d91311361a3ebec24a91d0ce1ddf39d77
+    EncounterZone.pex: be0efccf70adc3a6a28f2465044d4df44cf7abe409c8624f6695d9a193eb96b6
+    EquipSlot.pex: 0e00da824263e60041086cc721896aeb304c7ec6d38fba1f548df96fda0c9ff3
+    F4SE.pex: 7d3b1be07259c9078c7f3f60cdf12041401024485750a303b0faec686a25047a
+    FavoritesManager.pex: aed53963a5e725cea561f67525c1d50297c7a8410e6a5738b00356908d5daca7
+    Form.pex: 3ac9cd7ecb22d377800ca316413eb1d8f4def3ff3721a14b4c6fa61500f9f568
+    Game.pex: 19c858908f1a2054755b602121e5944dbbfb1ee0be38a24a532e6ab2f9390f4d
+    HeadPart.pex: d25869fbf81b7d351e71cd17b6913cae01dd1b58ba76419050df6af1ed6525af
+    Input.pex: 9509a73024680963b8446b57247fdf160513a540531e87a0e2faedb610b1ffcd
+    InstanceData.pex: 57e68c4b355a94b709950ccec297b3d466f1d25e5029fed9e1423e8a12dd179f
+    Location.pex: 3538c0aaa4fe450828aee3848fe317c1654c8ed39bd811be9cff22a1e7618b49
+    Math.pex: 9bb0019795b85076837ac6845d0c79d65c9826739e59c43b97cfb949f611e822
+    MatSwap.pex: b49d34fe1b6387d19df5140ddfbd9c340d3b10fc396e003142cdc755dc6815fc
+    MiscObject.pex: 7615656ab2867c5502507d1189cf7f938919dc585608698d2f31f782d858d23c
+    ObjectMod.pex: d02235b5013375bf0c7785408380b3a567697879a966818df883256031b8a2b8
+    ObjectReference.pex: 97cfd2749b70545c9378955b09a898631fa03a0e235623b76f2c5631f2801be5
+    Perk.pex: 04a9d0309198cbeb3a419265490be03e051d35b17b7f8ce749ffc4ea0673e16c
+    ScriptObject.pex: a395b7fc15b193b6d8ef0184dff6293100e79ec4dd431d85e10515da46e0502c
+    UI.pex: 6b7a65b8be433bcb99dbe07d4ca9e9de2fa94140d402247b877351c2b34a36d5
+    Utility.pex: e10d65904d0a1e9ee568bdaba02636f0183bfa9565b4056758b1461540f9be75
+    WaterType.pex: c4f8589ed33f72265e95a6bec2c9cab58667795e972bcf5f7d17c40deed43207
+    Weapon.pex: f39cf899d90d47d694873ccaa2a72308c6717f5e36a302d6f95243e53672d77d
+  
+
+GameVR_Info:
+  Main_Root_Name: Fallout 4 VR
+  Main_Docs_Name: Fallout4VR
+  Main_SteamID: 611660
+  EXE_HashedOLD: 00000
+  EXE_HashedNEW: 00000
+
+  CRASHGEN_Acronym: BO4 NG
+  CRASHGEN_LogName: Buffout 4
+  CRASHGEN_DLL_File: buffout4.dll
+  CRASHGEN_LatestVer: Buffout 4 v1.31.1 Feb 28 2023 00:32:02
+  CRASHGEN_Ignore:
+    - F4EE
+    - WaitForDebugger
+    - Achievements
+    - InputSwitch
+    - MemoryManager
+    - AutoOpen
+    - PromptUpload
+    - MemoryManagerDebug
+    - BSTextureStreamerLocalHeap
+    - ArchiveLimit
+
+  XSE_Acronym: F4SEVR
+  XSE_FullName: Fallout 4 Script Extender VR (F4SEVR)
+  XSE_Ver_Latest: 0.6.20
+  XSE_FileCount: 29
+
+  XSE_HashedScripts:  # SHA-256 from https://f4se.silverlock.org/
+    Actor.pex: dfd7177ad93b78e3adf91a4a18ad26a9d8e4447e3dc173269798977054b82f17
+    ActorBase.pex: 659acecc1146734cf691d6d572f4c30edbbbc3ea3efb2502fd14bb91425828c8
+    Armor.pex: 3995537c4b5925b82079291d383da4bda6a284787794e65ee33a65752741f027
+    ArmorAddon.pex: 12bca4e4eddfb487c4f945fd5d6fe762475eb4d8a26ffd90fb7d0de4ddc165c7
+    Cell.pex: 34da9be5c267f599c466b9263f459b0704d7e87ccfee41fad85e93f25e76c636
+    Component.pex: 0243f0017f7190c38f17c848755a3675fb25a861dc09ef28d1dd5490a57876ff
+    ConstructibleObject.pex: 2a4de0c3190acec6ae13ee0cd936e6eefdcd5a8fb5cef8ecb845b01d67e6924e
+    DefaultObject.pex: e7d2e193c2a9bd7e2600993da256fae6186c8fe579d0dc7592f9e27638649177
+    EncounterZone.pex: facb76d19c4efdcd8f5b9e0329f214db130217e3e59154cf2568c30ff65916a1
+    EquipSlot.pex: 33858e7a68826a3afdccbe55e0cba34dbdbc21c3889eda6e6bcbb8f393f5dd40
+    F4SE.pex: 8b7de39f18695b2af5bdae2e3550291af1c72a7d0bbeefd65fcfe83b8d9d94bf
+    FavoritesManager.pex: eb616c6fd7b6e9a1874fcf8840c7dac8070d1b5cb587eaf4a5a162b7f3532c0a
+    Form.pex: bb436785aa3a8b9b6fd4c95f85982651e92dcc24cfb0a623e2dd616815bce5d8
+    Game.pex: e9baa2e483fbbda20ab476d0df53c6c62c1410c13f288f8dc48b2853c2df73a7
+    HeadPart.pex: 6a8a34cc933b4a3a2274d2c59e3d078df42fcf2531e0518c54f16fb764d5f0fa
+    Input.pex: ff7a9f5819b822867f9a3a2dea4a4ebfe31b3ed1fa013d82f6b9048fc8ae5e03
+    InstanceData.pex: 933f26d7185be5df62f44c9f47c95ad743a1605454c7aa9b01e16b696729b585
+    Location.pex: 130dd8512339a26cf57780dcfc093de19e4abaed7f0d7e07a8b5707af877c05d
+    Math.pex: 1375ffebd59f5070a07cccb6381624d4b5429ccf6a23fe0b9c464a135cd57b05
+    MatSwap.pex: fa7df6ce66abde793efb8449c0e6517beafb5c88c0813ca8b81f4ceb912857bc
+    MiscObject.pex: cec1b89d95e7ab8526dd90a1ae6f968c08c0b3b77851cc8e46e658b3049d14c6
+    ObjectMod.pex: 1385636404a733d6332cfaadd509eda8b317a319c8e3968eabae7e958c0e1522
+    ObjectReference.pex: 5f18adbfd777c6c265a46a5081c882737a350e30f336c225d509b8101f5fbecc
+    Perk.pex: 5f306d34f10168c9307d8ec98b83b3a0a49faf6c00949d5c83c8ce88791ab5d8
+    ScriptObject.pex: 6daa54faeedfefcb0da7a76ad4ab7fa48e427d5704b7367eea88c3bebc8fba4f
+    UI.pex: 523ba72eb4d17cd148ac39aaea3e5e5a64ef8484e287583987b4522b867f8414
+    Utility.pex: 9bff49b59e18636ea84033f362b45f1962c2b3740eb36ad9e9dcae94556f3490
+    WaterType.pex: 8711f4a818c1fed8b549f9cfb0fc49186bf6875cd2c8b0146c4e3154da91028f
+    Weapon.pex: e9a18d4f7e3aa6b67fb79dee501b221e62e4fbe10baad0b47fb087735f7fb7a9
+  
+# =============== GAME FILES BACKUP ==============
+
+Backup ENB:  # BACKUP FOR ENB
+  - enbseries
+  - d3d11.dll
+  - d3dcompiler_46e.dll
+  - enbadaptation.fx
+  - enbbloom.fx
+  - enbdepthoffield.fx
+  - enbeffect.fx
+  - enbeffectpostpass.fx
+  - enblens.fx
+  - enblocal.ini
+  - enbpalette.bmp
+  - enbraindrops.dds
+  - enbseries.ini
+  - license_en.txt
+  - readme_en.txt
+  
+Backup RESHADE:  # BACKUP FOR RESHADE
+  - ReShade.ini
+  - ReShadePreset.ini
+  - reshade-shaders
+
+Backup VULKAN:  # BACKUP FOR VULKAN RENDERER
+  - Vulkan.msi
+  - vulkan_d3d11.dll
+  - d3d11_vulkan.dll
+  - dxgi.dll
+  - dxvk.conf
+  - vulkan-1.dll
+  - vulkan-runtime.exe
+  - vulkaninfo.exe
+  - VulkanRT
+  - MAGPIE
+  
+Backup XSE:  # BACKUP FOR SCRIPT EXTENDER
+  - CustomControlMap.txt
+  - f4se_loader.exe
+  - f4se_readme.txt
+  - f4se_steam_loader.dll
+  - f4se_whatsnew.txt
+  - f4se
+  - src
+
+Game_Hints:
+  - 'Random Hint: [Ctrl] + [F] is a handy-dandy key combination. You should use it more often. Please.'
+  - 'Random Hint: Patrolling the Buffout 4 Nexus Page almost makes you wish this joke was more overused.'
+  - 'Random Hint: Buffout crash logs are generated in your Documents/My Games/Fallout4/F4SE(VR) folder by default.'
+  - 'Random Hint: You have a crash log where the auto scan could not find any solutions? Feel free to send it to me.'
+  - 'Random Hint: 20% of all crashes are caused by Classic Holstered Weapons mod. 80% of all statistics are made up.'
+  - 'Random Hint: If you do not use Profile Specific INIs, consider disabling this option in your MO2 Profile settings.'
+  - 'Random Hint: Spending 5 morbillion hours asking for help can save you from 5 minutes of reading the documentation.'
+  - 'Random Hint: When necessary, make sure that crashes are consistent or repeatable, since in rare cases they are not.'
+  - 'Random Hint: Revisit both Buffout 4 Crash Article and CLASSIC Nexus Page from time to time in case there are updates.'
+  - 'Random Hint: When posting crash logs, it is helpful to mention the last thing you were doing before the crash happened.'
+
+Default_CustomINI: |  # Default settings for *Fallout4Custom.ini* if that file doesn't already exist.
+  [Archive]
+  ; Enable Archive Invalidation
+  bInvalidateOlderFiles=1
+  sResourceDataDirsFinal=
+
+  [Display]
+  ; Increase Pip-Boy Resolution
+  uPipboyTargetHeight=1400
+  uPipboyTargetWidth=1752
+  ; Lower PA Screen Brightness
+  fPipboyScreenEmitIntensityPA=1.25
+  fPipboyScreenDiffuseIntensityPA=0.15
+  ; Center The Game Window
+  iLocation X=0
+  iLocation Y=0
+  ; Increase Shadow Quality Transition Distance
+  fBlendSplitDirShadow=256
+
+Default_FIDMods: |  # Default text for *FO4 FID Mods.yaml* if that file doesn't already exist.
+  >>> THIS IS ONLY A PLACEHOLDER | YOU NEED TO GENERATE THIS FILE WITH FO4EDIT!
+  
+  - CLASSIC can automatically look up (most) values of mod FormIDs, you just need to generate your own FormID List.
+  
+  - To generate the FormID List:
+    1) Place the *Generate FormID List.pas* from the CLASSIC Config folder into your FO4Edit/Edit Scripts folder.
+    2) Now run FO4Edit.exe and check all plugins you wish to include in the FormID List (I RECOMMEND YOU CHECK ALL PLUGINS).
+    3) Press OK while holding [Shift] to load your plugins in FO4Edit. Once all plugins are loaded, right click on any plugin and select *Apply Script...*
+    4) From the dropdown menu, select *Generate FormID List* and press OK. Depending on how many plugins you have, this will take some time (5-25 mins).
+    5) Once the full FormID List is generated, FO4Edit will ask you to save this list. Save it as a text file, then rename it to: FO4 FID Mods.txt
+    6) Now place your own generated *FO4 FID Mods.txt* file into the CLASSIC Config folder and overwrite the existing *FO4 FID Mods* file.
+       (Make sure the original *FO4 FID Mods.txt* gets overwritten! If it doesn't, check the name or change the file extension to .txt)
+    7) Run CLASSIC, enable *Show FID Values* under CLASSIC Settings and that's it! Scan your crash logs, the autoscan will do the rest.
+    
+    [!] REMINDERS
+    
+      - Once you overwrite the original *FO4 FID Mods.txt* (this file), crash log file scan will take (much) longer.
+      To ensure the scan doesn't take as long, only scan a few crash logs (less than 10) at any given time.
+      [ Delete or move any extra crash log files to another folder so CLASSIC can't find them. ]
+    
+      - The script will not be able to generate values for ALL FormIDs, around 12% don't have usable names that CLASSIC can display.
+      You will see [CHECK MANUALLY WITH XEDIT] for these FormIDs. These are usually NavMesh records, but check with FO4Edit anyway.
+    
+      - To stop CLASSIC from checking the FormID List, either delete, rename or move your generated *FO4 FID Mods.txt* file somewhere else.
+      CLASSIC will simply create this placeholder file again if needed and stop checking FormID values until a new FormID List is provided.
+    
+
+Warnings_CRASHGEN:
+  Warn_TOML_Achievements: |
+    ❌ CAUTION : Achievements Mod and/or Unlimited Survival Mode is installed, but Achievements parameter is set to TRUE #
+    FIX: Open *Buffout4.toml* and change Achievements parameter to FALSE, this prevents conflicts with Buffout 4.
+    -----
+
+  Warn_TOML__Memory: |
+    ❌ CAUTION : Baka ScrapHeap is installed, but MemoryManager parameter is set to TRUE
+    FIX: Open *Buffout4.toml* and change MemoryManager parameter to FALSE, this prevents conflicts with Buffout 4.
+    -----
+
+  Warn_TOML__F4EE: |
+    ❌ CAUTION : Looks Menu is installed, but F4EE parameter under [Compatibility] is set to FALSE
+    FIX: Open *Buffout4.toml* and change F4EE parameter to TRUE, this prevents bugs and crashes from Looks Menu.
+    -----
+
+  Warn_Outdated: |
+    # [!] CAUTION : YOUR BUFFOUT 4 VERSION MIGHT BE OUT OF DATE, UPDATE BO4 IF NECESSARY #
+      Original Buffout Version: https://www.nexusmods.com/fallout4/mods/47359
+      Buffout VR / NG Version: https://www.nexusmods.com/fallout4/mods/64880
+      Buffout 4 Guide: https://www.nexusmods.com/fallout4/articles/3115
+
+  Warn_Missing: |
+    # [!] CAUTION : SOME BUFFOUT 4 FILES MIGHT BE MISSING OR HAVE BEEN INCORRECTLY INSTALLED #
+      Original Buffout Version: https://www.nexusmods.com/fallout4/mods/47359
+      Buffout VR / NG Version: https://www.nexusmods.com/fallout4/mods/64880
+      Buffout 4 Guide: https://www.nexusmods.com/fallout4/articles/3115
+
+  Warn_NOPlugins: |
+    * [!] NOTICE : BUFFOUT 4 WAS NOT ABLE TO LOAD THE PLUGIN LIST FOR THIS CRASH LOG! *
+      CLASSIC cannot perform the full scan. Provide or scan a different crash log
+      OR copy-paste your *loadorder.txt* into your main CLASSIC folder.
+
+Warnings_XSE:
+  Warn_Outdated: |
+    [!] CAUTION : YOUR F4SE VERSION MIGHT BE OUT OF DATE, UPDATE F4SE IF NECESSARY
+      FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
+      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 root game folder.
+    -----
+
+  Warn_Missing: |
+    [!] CAUTION : SOME SCRIPT EXTENDER FILES MIGHT BE MISSING OR HAVE BEEN INCORRECTLY INSTALLED
+      You should reinstall F4SE, manual installation without a mod manager is highly advised.
+      FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
+      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 root game folder.
+    -----
+
+  Warn_Mismatch: |
+    [!] CAUTION : SOME SCRIPT EXTENDER FILES MIGHT BE BROKEN OR OTHER MODS ARE OVERRDING THEM
+      Reinstall F4SE or use 'Check Mod Files' to see if any installed mods contain F4SE scripts.
+      FALLOUT 4 SCRIPT EXTENDER (F4SE): (Download Latest Build) https://f4se.silverlock.org
+      Extract all files inside *f4se_0_06_XX* folder into your Fallout 4 root game folder.
+    -----
+
+Warnings_MODS:
+  Warn_ADLIB_Missing: |
+    [!] CAUTION : CANNOT FIND REQUIRED ADDRESS LIBRARY FILE, IT SHOULD BE MANUALLY INSTALLED!
+      ADDRESS LIBRARY: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/47327
+      ADDRESS LIBRARY VR: (Use MANUAL DOWNLOAD) https://www.nexusmods.com/fallout4/mods/64879
+      Manually extract either *version.bin* or *version.csv* into Fallout 4/Data/F4SE/Plugins
+    -----
+
+  Warn_MOD_XSEPreloader: |
+    [!] NOTICE : Plugin Preloader is (manually) installed. It may rarely prevent the game from initializing correctly.
+      If the game fails to start after installing this mod, open *xSE PluginPreloader.xml* with a text editor and CHANGE
+      <LoadMethod Name=\ImportAddressHook\> TO <LoadMethod Name=\OnThreadAttach\> OR <LoadMethod Name=\OnProcessAttach\>
+      IF FALLOUT 4 STILL REFUSES TO START, COMPLETELY REMOVE xSE PluginPreloader.xml AND IpHlpAPI.dll FROM YOUR GAME FOLDER
+    -----
+
+  Warn_WRYE_MissingHTML: |2
+
+    * NOTICE : PLUGIN CHECKER REPORT FROM WRYE BASH WAS NOT FOUND *
+    To check your load order and detect additional problems; install and run Wrye Bash,
+    then select View > Plugin Checker from the top bar in the main Wrye Bash window.
+    WB Link (Use MANUAL DOWNLOAD): https://www.nexusmods.com/fallout4/mods/20032
+    -----
+
+
+Crashlog_Records_Exclude:  # EXCLUDE lines that contain *these* strings from the Call Stack in Crash Logs.
+  - '""'
+  - '...'
+  - 'FE:'
+  - .esl
+  - .esm
+  - .esp
+  - .exe
+  - Buffout4.dll+
+  - KERNEL
+  - MSVC
+  - USER32
+  - Unhandled
+  - cudart64_75.dll+
+  - d3d11.dll+
+  - dxgi.dll+
+  - f4se
+  - flexRelease_x64.dll+
+  - kernel32.dll+
+  - ntdll
+  - nvcuda64.dll+
+  - nvumdshimx.dll+
+  - nvwgf2umx.dll+
+  - steamclient64.dll+
+  - usvfs_x64
+  - vrclient_x64.dll+
+  - win32u
+
+Crashlog_Plugins_Exclude: # EXCLUDE *these* plugins from Crash Logs when performing certain checks.
+  - Buffout4.dll
+  - Fallout4.esm
+  - Fallout4VR.esm
+  - DLCCoast.esm
+  - DLCNukaWorld.esm
+  - DLCRobot.esm
+  - DLCworkshop01.esm
+  - DLCworkshop02.esm
+  - DLCworkshop03.esm
+  - Unofficial Fallout 4 Patch.esp
+
+# CRASH SUSPECTS WITH ITEMS IN MAIN ERROR ONLY
+# If even ONE Stack Condition is found, move to dict directly below.
+# INT in every main key is required and used for 'Severity' value assignment.
+# Reminder: Items starting with 0x must be quoted so they aren't converted to HexInt.
+Crashlog_Error_Check:
+  5 | Stack Overflow Crash: EXCEPTION_STACK_OVERFLOW
+
+  5 | Active Effects Crash: '0x000100000000'
+
+  3 | C++ Redist Crash: MSVC
+
+  4 | Rendering Crash: d3d11
+
+  5 | Bad Math Crash: EXCEPTION_INT_DIVIDE_BY_ZERO
+
+  2 | Generic Crash: tbbmalloc
+
+  5 | Null Crash: '0x000000000000'
+
+  1 | *[Creation Club Crash]: 01B59A4
+
+# CRASH SUSPECTS WITH ITEMS IN CALL STACK AND / OR MAIN ERROR | SPECIAL ITEM CONDITIONS:
+# Add ME-REQ if item is required to show up in Main Error, otherwise add ME-OPT if optional.
+# Add INT to set least number of times the item has to repeat in the Call Stack. Ex: [3|UIMessage]
+# Add NOT to ignore crash suspect warning completely if the Call Stack also contains this item.
+# If no condition is specified, it checks if the item appears at least once in the Call Stack.
+Crashlog_Stack_Check:
+  5 | DLL Crash: [DLCBannerDLC01.dds]
+
+  5 | LOD Crash: [BGSLocation, BGSQueuedTerrainInitialLoad]
+
+  3 | MCM Crash: [FaderData, FaderMenu, UIMessage]
+
+  5 | Decal Crash: [BGSDecalManager, BSTempEffectGeometryDecal]
+
+  3 | Equip Crash: [PipboyMapData]
+
+  3 | Script Crash: [Papyrus, VirtualMachine, Assertion failed]
+
+  5 | Antivirus Crash: [ME-OPT|24A48D48, ME-OPT|bdhkm64.dll, usvfs::hook_DeleteFileW, ::Manager, ::zlibStreamDetail]
+
+  5 | BA2 Limit Crash: [LooseFileAsyncStream]
+
+  5 | Grid Scrap Crash: [GridAdjacencyMapNode, PowerUtils]
+
+  5 | Map Marker Crash: [HUDCompass, HUDCompassMarker, attachMovie()]
+
+  4 | Mesh (NIF) Crash: [NOT|LooseFileAsyncStream, LooseFileStream, BSFadeNode, BSMultiBoundNode]
+
+  4 | Texture (DDS) Crash: [Create2DTexture, DefaultTexture]
+
+  3 | Material (BGSM) Crash: [DefaultTexture_Black, NiAlphaProperty]
+
+  3 | NPC Pathing Crash (S): [NavMesh, PathingCell, BSPathBuilder, PathManagerServer]
+
+  3 | NPC Pathing Crash (D): [BSNavmeshObstacleData, DynamicNavmesh, PathingRequest]
+
+  3 | NPC Pathing Crash (F): [ME-OPT|248B26A, MovementAgentPathFollowerVirtual, PathingStreamSaveGame, BGSProcedurePatrolExecState, CustomActorPackageData]
+
+  5 | Audio Driver Crash: [ME-OPT|X3DAudio1_7, ME-OPT|XAudio2_7, X3DAudio1_7.dll, XAudio2_7.dll]
+
+  4 | Body Physics Crash: [ME-OPT|cbp.dll, skeleton.nif, cbp.dll]
+
+  3 | Leveled List Crash: [ME-OPT|0D09AB7, TESLevItem]
+
+  5 | Plugin Limit Crash: ['[FF]', BSMemStorage, DataFileHandleReaderWriter]
+
+  5 | Plugin Order Crash: [ME-OPT|0DB9300, GamebryoSequenceGenerator]
+
+  3 | MO2 Extractor Crash: [BSD3DResourceCreator]
+
+  5 | Nvidia Debris Crash: [ME-OPT|03EE452, ME-OPT|flexRelease_x64, flexRelease_x64.dll, CheckRefAgainstConditionsFunc]
+
+  5 | Nvidia Driver Crash: [ME-OPT|nvwgf2umx, ME-OPT|USER32, 3|nvwgf2umx.dll, 3|USER32.dll]
+
+  4 | Nvidia Reflex Crash: [ME-OPT|3A0000, ME-OPT|AD0000, ME-OPT|8E0000, ME-OPT|NVIDIA_Reflex, ME-OPT|Buffout4, NVIDIA_Reflex.dll]
+
+  4 | Vulkan Memory Crash: [ME-REQ|KERNELBASE, ME-OPT|MSVCP140, KERNELBASE.dll, MSVCP140.dll, DxvkSubmissionQueue]
+
+  5 | Vulkan Settings Crash: [ME-OPT|00CD99B, ME-OPT|amdvlk64, amdvlk64.dll, dxvk::DXGIAdapter, dxvk::DXGIFactory, VirtualLinearAllocatorWithNode]
+
+  4 | Corrupted Audio Crash: [BSXAudio2DataSrc, BSXAudio2GameSound]
+
+  1 | Console Command Crash: [SysWindowCompileAndRun, ConsoleLogPrinter]
+
+  6 | Water Collision Crash: [BGSWaterCollisionManager]
+
+  4 | Particle Effects Crash: [ParticleSystem]
+
+  3 | Player Character Crash: [PlayerCharacter, 3|0x00000007, 3|0x00000008, 3|0x00000014]
+
+  5 | Animation / Physics Crash: [ME-OPT|1FCC07E, BSAnimationGraphManager, hkbVariableBindingSet, hkbHandIkControlsModifier, hkbBehaviorGraph, hkbModifierList]
+
+  5 | Animation Corruption Crash: [ME-OPT|1B938F0, AnimTextData\\AnimationFileData, AnimationFileLookupSingletonHelper]
+
+  5 | Archive Invalidation Crash: [DLCBanner05.dds]
+
+  1 | *[Item Crash]: [ME-OPT|0B2C44B, TESObjectARMO, TESObjectWEAP, BGSMod::Attachment, BGSMod::Template, BGSMod::Template::Item]
+
+  1 | *[Save Crash]: [ME-OPT|0CDAD30, BGSSaveLoadManager, BGSSaveLoadThread, BGSSaveFormBuffer]
+
+  1 | *[Input Crash]: [ButtonEvent, MenuControls, MenuOpenCloseHandler, PlayerControls, DXGISwapChain]
+
+  1 | *[SS2 / WF Crash]: [ME-OPT|01F498D, ME-OPT|03F89A3, StartWorkshop, IsWithinBuildableArea, PlayerControls, DXGISwapChain]
+
+  1 | *[Looks Menu Crash]: [ME-OPT|1D13DA7, ME-OPT|F4EE, BSShader, BSBatchRenderer, ShadowSceneNode]
+
+  1 | *[NPC Patrol Crash]: [BGSProcedurePatrol, BGSProcedurePatrolExecState, PatrolActorPackageData]
+
+  1 | *[Precombines Crash]: [BSPackedCombined, BGSCombinedCellGeometryDB, BGSStaticCollection, TESObjectCELL]
+
+  1 | *[GPU Overclock Crash]: [myID3D11DeviceContext, BSDeferredDecal, BSDFDecal]
+
+  1 | *[NPC Projectile Crash]: [CombatProjectileAimController, BGSProjectile]
+
+  1 | *[Camera Position Crash]: [ME-OPT|NvCamera64, NvCamera64.dll, NiCamera, WorldRoot Camera]
+
+  1 | *[HUD / Interface Crash]: [HUDAmmoCounter]
+
+# IMPORTANT: AVOID KEY NESTING BY JUST SPLITTING THE KEY WITH A SPECIFIC CHAR
+
+Mods_CORE:  # 0) MODS THAT EVERY PLAYER SHOULD HAVE INSTALLED
+  CanarySaveFileMonitor | Canary Save File Monitor: |
+    This is a highly recommended mod that can detect save file corruption.
+    Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files
+
+  HighFPSPhysicsFix | High FPS Physics Fix: |
+    This is a mandatory patch / fix that prevents game engine problems.
+    Link: https://www.nexusmods.com/fallout4/mods/44798?tab=files
+
+  PRP.esp | Previs Repair Pack (PRP): |
+    This is a highly recommended mod that can vastly improve performance.
+    Link: https://www.nexusmods.com/fallout4/mods/46403?tab=files
+
+  Unofficial Fallout 4 Patch | Unofficial Fallout 4 Patch: |
+    If you own all DLCs, make sure that the Unofficial Patch is installed.
+    Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files
+
+  vulkan-1.dll | Vulkan Renderer: |
+    This is a highly recommended mod that can improve performance on AMD GPUs.
+    Link: https://www.nexusmods.com/fallout4/mods/48053?tab=files
+
+  WeaponDebrisCrashFix.dll | Nvidia Weapon Debris Fix: |
+    This is a mandatory patch / fix required for almost all Nvidia GPUs.
+    Link: https://www.nexusmods.com/fallout4/mods/48078?tab=files
+
+  NVIDIA_Reflex.dll | Nvidia Reflex Support: |
+    This is a highly recommended mod that can improve performance on Nvidia GPUs.
+    Link: https://www.nexusmods.com/fallout4/mods/64459?tab=files
+
+
+Mods_FREQ:  # 1) MODS THAT CAN CAUSE FREQUENT CRASHES
+  DamageThresholdFramework: |
+    Damage Threshold Framework
+        - Can cause crashes in combat on some occasions due to how damage calculations are done.
+        -----
+
+  Endless Warfare: |
+    Endless Warfare
+        - Some enemy spawn points could be bugged or crash the game due to scripts or pathfinding.
+        -----
+
+  EPO.esp: |
+    Extreme Particles Overhaul
+        - Can cause particle effects related crashes, consider switching to Burst Impact Blast FX.
+          Burst Impact Blast FX: https://www.nexusmods.com/fallout4/mods/57789?tab=files
+        -----
+
+  SakhalinWasteland: |
+    Fallout Sakhalin
+        - Breaks the precombine system all across Far Harbor which will randomly crash your game.
+        -----
+
+  76HUD: |
+    HUD76 Hud Replacer
+        - Can sometimes cause interface and pip-boy related bugs, glitches and crashes.
+        -----
+
+  NCRenegade: |
+    NCR Renegade Armor
+        - Broken outfit mesh that crashes the game in 3rd person or when NPCs wearing it are hit.
+        -----
+
+  Respawnable Legendary Bosses: |
+    Respawnable Legendary Bosses
+        - Can sometimes cause Deathclaw / Behemoth boulder projectile crashes for unknown reasons.
+        -----
+
+  Scrap Everything: |
+    Scrap Everything (Core Or Ultimate)
+        - Weird crashes and issues due to multiple unknown problems. This mod must be always last in your load order.
+        -----
+
+  Shade Girl Leather Outfits: |
+    Shade Girl Leather Outfits
+        - Outfits can crash the game while browsing the armor workbench or upon starting a new game due to bad meshes.
+        -----
+
+  SpringCleaning: |
+    Spring Cleaning
+        - Abandoned and severely outdated mod that breaks precombines and could potentially even break your save file.
+        -----
+
+  (STO) NO: |
+    Stalker Texture Overhaul
+        - Doesn't work due to incorrect folder structure and has a corrupted dds file that causes Create2DTexture crashes.
+        -----
+
+  TacticalTablet: |
+    Tactical Tablet
+        - Can cause flickering with certain scopes or crashes while browsing workbenches, most commonly with ECO.
+        -----
+
+  True Nights v03: |
+    True Nights
+        - Has an invalid Image Space Adapter (IMAD) Record that will corrupt your save memory and has to be manually fixed.
+        -----
+
+  WeaponsFramework: |
+    Weapons Framework Beta
+        - Will randomly cause crashes when used with Tactical Reload and possibly other weapon or combat related mods.
+          Visit Important Patches List article for possible solutions: https://www.nexusmods.com/fallout4/articles/3769
+        -----
+
+  WOTC: |
+    War Of The Commonwealth
+        - Seems responsible for consistent crashes with specific spawn points or random ones during settlement attacks.
+        -----
+
+  NewCalibers_Modern: |
+    Modern Firearms - New Calibers Patch
+        - New Calibers Patch for this mod is outdated and can frequently crash the game. Check if there is a newer patch.
+        -----
+
+
+Mods_CONF:  # 2) MODS THAT CONFLICT WITH OTHER MODS
+  betterpowerarmor | Knockout Framework: |
+    Better Power Armor Redux ❌ CONFLICTS WITH : Knockout Framework
+        Both mods use the same script hooks. This can crash the game or cause weird mod behavior.
+        If you encounter problems, use only one of these mods, not both at the same time.
+        -----
+
+  betterpowerarmor | FloatingDamage: |
+    Better Power Armor Redux ❌ CONFLICTS WITH : Floating Damage
+        Both mods use the same script hooks. This can crash the game or cause weird mod behavior.
+        If you encounter problems, use only one of these mods, not both at the same time.
+        -----
+
+  bostonfpsfix | prp.esp: |
+    Boston Fps Fix ❌ CONFLICTS WITH : Previs Repair Pack
+        Using both mods can break precombines. CLASSIC suggests using Previs Repair Pack only.
+        -----
+
+  ExtendedWeaponSystem | tacticalreload: |
+    Extended Weapon Systems ❌ CONFLICTS WITH : Tactical Reload
+        Using both mods can frequently crash the game.
+        Use only one of these mods, not both at the same time.
+        -----
+
+  FROST | prp.esp: |
+    Frost Survival Simulator ❌ CONFLICTS WITH : Previs Repair Pack
+        For precombine fixes, remove PRP and switch to FROST Cell Fixes (FCF).
+        FROST Cell Fixes: https://www.nexusmods.com/fallout4/mods/59652?tab=files
+        -----
+
+  DCGuard_Overhaul | Guards.esp: |
+    The Fens Sheriff's Department ❌ CONFLICTS WITH : Varied Diamond City Guards
+        Both mods heavily modify Diamond City Guards records.
+        Use only one of these mods, not both at the same time.
+        -----
+
+  Fallout4Upscaler | NVIDIA_Reflex: |
+    Fallout 4 Upscaler ❌ CONFLICTS WITH : Nvidia Reflex Support
+        Both mods likely use the same DLL hooks. This can crash the game or cause weird mod behavior.
+        If you encounter problems or crashes, use only one of these mods, not both at the same time.
+        -----
+        
+  vulkan | NVIDIA_Reflex: |
+    Vulkan Renderer ❌ CONFLICTS WITH : Nvidia Reflex Support
+        Vulkan Renderer can break GPU recognition from NV Reflex Support. This can crash the game or cause weird mod behavior.
+        If you encounter Nvidia Driver crashes, CLASSIC suggests using Vulkan Render only. Otherwise, use Nvidia Reflex Support.
+        -----
+
+  CustomCamera | CameraTweaks: |
+    Custom Camera ❌ CONFLICTS WITH : Camera Tweaks
+        Both mods make changes to the in-game camera. CLASSIC suggests using Camera Tweaks only, since it's an updated alternative.
+        -----
+
+  UniquePlayer | chw: |
+    Unique Player ❌ CONFLICTS WITH : Classic Holstered Weapons
+        Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.
+        If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496
+        -----
+
+  HHS | chw: |
+    High Heels System ❌ CONFLICTS WITH : Classic Holstered Weapons
+        Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.
+        If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496
+        -----
+
+  cbp | chw: |
+    CBP Physics ❌ CONFLICTS WITH : Classic Holstered Weapons
+        Classic Holstered Weapons will not work correctly with mods that modify the player skeleton or add new skeleton paths.
+        If you encounter problems or crashes, see here how to add additional skeletons: https://www.nexusmods.com/fallout4/articles/2496
+        -----
+
+  awkcr | SKKCraftableWeaponsAmmo: |
+    Armor And Weapon Keywords ❌ CONFLICTS WITH : SKK Craft Weapons And Scrap Ammo
+        SKK Craft Weapons & Ammo Version 008 is incompatible with AWKCR and will cause crashes while saving the game.
+        If you encounter problems or crashes, remove AWKCR and / or switch to Equipment and Crafting Overhaul instead.
+        -----
+
+
+Mods_SOLU:  # 3) MODS WITH SOLUTIONS & COMMUNITY PATCHES
+  DLCUltraHighResolution: |
+    High Resolution DLC. I STRONGLY ADVISE AGAINST USING IT!
+        - Right click on Fallout 4 in your Steam Library folder, then select Properties
+          Switch to the DLC tab and uncheck / disable the High Resolution Texture Pack.
+        -----
+
+  AAF: |
+    Advanced Animation Framework
+        - Latest AAF version only available on Moddingham | AAF Tech Support: https://discord.gg/gWZuhMC
+          Latest AAF Link (register / login to download): https://www.moddingham.com/viewtopic.php?t=2
+        -----
+        - Looks Menu versions 1.6.20 & 1.6.19 can frequently break adult mod related (erection) morphs.
+          If you notice AAF related problems, remove latest version of Looks Menu and switch to 1.6.18.
+        -----
+
+  AnimeRace_Nanako: |
+    Anime Race Nanako Chan
+        - Make sure you have the Skeleton Fixes installed for this mod.
+          Read the fixes description carefully for installation info.
+          Skeleton Fixes: https://www.nexusmods.com/fallout4/mods/56101
+        -----
+
+  AWKCR: |
+    Armor And Weapons Keywords
+        - If you don't rely on AWKCR, consider switching to Equipment and Crafting Overhaul
+          Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files
+          Patches to remove AWKCR: https://www.nexusmods.com/fallout4/mods/40752?tab=files
+        -----
+
+  BTInteriors_Project: |
+    Beantown Interiors
+        - Usually causes fps drops, stuttering, crashing and culling issues in multiple locations.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/53894?tab=files
+        -----
+
+  CombatZoneRestored: |
+    Combat Zone Restored
+        - Contains few small issues and NPCs usually have trouble navigating the interior space.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/59329?tab=files
+        -----
+
+  CaN.esm: |
+    Crimes Against Nature
+        - Make sure you have the Skeleton Fixes installed for this mod.
+          Read the fixes description carefully for installation info.
+          Skeleton Fixes: https://www.nexusmods.com/fallout4/mods/56101
+        -----
+
+  D.E.C.A.Y: |
+    Decay Better Ghouls
+        - You have to install DECAY Redux patch to prevent its audio files from crashing the game.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/59025?tab=files
+        -----
+
+  EveryonesBestFriend: |
+    Everyone's Best Friend
+        - This mod needs a compatibility patch to forward changes made by the Unofficial Patch.
+          Patch Link: https://drive.google.com/file/d/1JJvrnaxmui22P1X44V2VTkifjmfahtLM
+          If you have Horizon installed or don't use UFO4P, this patch is not needed.
+        -----
+
+  FallSouls: |
+    Fallsouls Unpaused Game Menus
+        - Occasionally breaks the Quests menu, can cause crashes while changing MCM settings.
+          Advised Fix: Toggle PipboyMenu in FallSouls MCM settings or completely reinstall the mod.
+        -----
+
+  M8r_Item_Tags: |
+    Fallui Item Sorter (OLD)
+        - This is an outdated item tagging / sorting patch that can cause crashes or conflicts in all kinds of situations.
+          I strongly recommend to instead generate your own sorting patch and place it last in your load order.
+          That way, you won't experience any conflicts / crashes and even modded items will be sorted.
+          Generate Sorting Patch With This: https://www.nexusmods.com/fallout4/mods/48826?tab=files
+        -----
+
+  Fo4FI_FPS_fix: |
+    FO4FI FPS Fix
+        - This mod is severely outdated and will cause crashes even with compatibility patches.
+          Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files
+        -----
+
+  bostonfpsfix: |
+    Boston FPS Fix
+        - This mod is severely outdated. Either install the PRP patch or switch to PRP entirely.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/59021?tab=files
+          Better Alternative: https://www.nexusmods.com/fallout4/mods/46403?tab=files
+        -----
+
+  FunctionalDisplays: |
+    Functional Displays
+        - Frequently causes object model (nif) related crashes and this needs to be manually corrected.
+          Advised Fix: Open its Meshes folder and delete everything inside EXCEPT for the Functional Displays folder.
+        -----
+
+  skeleton*player: |
+    Gender Specific Skeletons (Male/Female)
+        - High chance to cause a crash when starting a new game. Switch to Discrete Female Skeleton instead.
+          Better Alternative: https://www.nexusmods.com/fallout4/mods/56115?tab=files
+        -----
+
+  Give Me That Bottle: |
+    Give Me That Bottle
+        - Can rarely cause crashes in the Pip-Boy inventory menu. Switch to Fill'em Up Again instead.
+          Better Alternative: https://www.nexusmods.com/fallout4/mods/12674?tab=files
+        -----
+
+  CapsWidget: |
+    HUD Caps
+        - Often breaks the Save / Quicksave function due to poor script implementation.
+          Advised Fix: Download fixed pex file and place it into HUDCaps/Scripts folder.
+          Fix Link: https://drive.google.com/file/d/1egmtKVR7mSbjRgo106UbXv_ySKBg5az2
+        -----
+
+  Homemaker: |
+    Homemaker
+        - Causes a crash while scrolling over Military / BoS fences in the Settlement Menu.
+          Advised Fix: Make sure you are using at least version 1.73 of this mod.
+          Alternate Fix: https://www.nexusmods.com/fallout4/mods/41434?tab=files
+        -----
+
+  LegendaryModification: |
+    Legendary Modification
+        - Old mod plagued with all kinds of bugs and crashes, can conflict with some modded weapons.
+          Better Alternative: https://www.nexusmods.com/fallout4/mods/67679?tab=files
+        -----
+
+  LooksMenu Customization Compendium: |
+    Looks Menu Customization Compendium
+        - If you are getting broken hair colors, install this mod and make sure it loads after LMCC.
+          Mod Link: https://www.nexusmods.com/fallout4/mods/18287?tab=files
+        -----
+
+  MilitarizedMinutemen: |
+    Militarized Minutemen
+        - Can occasionally crash the game due to a broken mesh on some minutemen outfits.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/32369?tab=files
+        -----
+
+  MoreUniques: |
+    More Unique Weapons Expansion
+        - Causes crashes due to broken precombines and compatibility issues with other weapon mods.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/54848?tab=files
+        -----
+
+  NAC: |
+    Natural And Atmospheric Commonwealth
+        - If you notice weird looking skin tones with either NAC or NACX, install this patch.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/57052?tab=files
+        -----
+
+  Northland Diggers New: |
+    Northland Diggers Resources
+        - Contains various bugs and issues that can cause crashes or negatively affect other mods.
+          Fix Link: https://www.nexusmods.com/fallout4/mods/53395?tab=files
+        -----
+
+  Project Zeta: |
+    Project Zeta
+        - Invasion quests seem overly buggy or trigger too frequently, minor sound issues.
+          Fix Link: https://www.nexusmods.com/fallout4/mods/65166?tab=files
+        -----
+
+  RaiderOverhaul: |
+    Raider Overhaul
+        - Old mod that requires several patches to function as intended. Use ONE Version instead.
+          Updated ONE Version: https://www.nexusmods.com/fallout4/mods/51658?tab=files
+        -----
+
+  Rusty Face Fix: |
+    Rusty Face Fix
+        - Make sure you have the latest 2.0 version installed or try the REDUX Version instead.
+          Original Rusty Face Fix: https://www.nexusmods.com/fallout4/mods/31028?tab=files
+          Alternative REDUX Version: https://www.nexusmods.com/fallout4/mods/64270?tab=files
+        -----
+
+  SOTS: |
+    South Of The Sea
+        - Very unstable mod that consistently and frequently causes strange problems and crashes.
+          Updated Version: https://www.nexusmods.com/fallout4/mods/63152?tab=files
+        -----
+
+  StartMeUp: |
+    Start Me Up
+        - Abandoned mod that can cause infinite loading and other problems. Switch to REDUX Version instead.
+          Updated REDUX Version: https://www.nexusmods.com/fallout4/mods/56984?tab=files
+        -----
+
+  SuperMutantRedux: |
+    Super Mutant Redux
+        - Causes crashes at specific locations or with certain Super Mutant enemies and items.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/51353?tab=files
+        -----
+
+  tacticalreload: |
+    Tactical Reload
+        - Can cause weapon and combat related crashes. TR Expansion For ECO is highly recommended.
+          TR Expansion For ECO Link: https://www.nexusmods.com/fallout4/mods/67716?tab=files
+        -----
+
+  Creatures and Monsters: |
+    Unique NPCs Creatures And Monsters
+        - Causes crashes and breaks precombines at specific locations, some creature spawns are too frequent.
+          Patch Link: https://www.nexusmods.com/fallout4/mods/48637?tab=files
+        -----
+
+
+Mods_OPC2:  # 4) MODS PATCHED THROUGH OPC INSTALLER
+  3DNPC_FO4: |
+    Tales from the Commonwealth
+  3DNPC_FO4Settler: |
+    Settlers Of The Commonwealth
+  Beyond the Borders: |
+    Beyond The Borders
+  ConcordEXPANDED: |
+    Concord EXPANDED
+  CovenantComplex: |
+    Covenant Complex
+  Deadly Commonwealth Expansion: |
+    Deadly Commonwealth Expansion
+  DoYourDamnJobCodsworth: |
+    Do Your Damn Job Codsworth
+  Dogmeat and Strong Armor: |
+    Dogmeat And Strong Armor
+  Firelance: |
+    Xander's Aid
+  GlowingSeaEXPANDED: |
+    Glowing Sea EXPANDED
+  GunnersPlazaInterior: |
+    Gunners Plaza Interior
+  HagenEXPANDED: |
+    Hagen EXPANDED
+  Immersive Nahant: |
+    Immersive & Extended Nahant
+  Immersive S Boston: |
+    Immersive Military Checkpoint
+  ImmersiveBeantown: |
+    Immersive Beantown
+  ImmersiveHubCity: |
+    Immersive Hub City
+  Immersive_Lexington: |
+    Immersive & Extended Lexington
+  Minutemen Supply Caches: |
+    Minutemen Supply Caches
+  MojaveImports: |
+    Wasteland Imports (Mojave Imports)
+  MutilatedDeadBodies: |
+    Mutilated Dead Bodies
+  NEST_BUNKER_PROJECT: |
+    NEST Bunker Project
+  Raider Children: |
+    Raider Children
+  SalemEXPANDED: |
+    Salem EXPANDED
+  SettlementShelters: |
+    Settlement Shelters
+  SwampsEXPANDED: |
+    Swamps EXPANDED
+  The Hollow: |
+    The Hollow
+  Vault4: |
+    Fourville (Vault 4)
+  Vertibird Faction Paint Schemes: |
+    Vertibird Faction Paint Schemes
+  _hod: |
+    Halls of the Dead
+  atlanticofficesf23: |
+    Lost Building of Atlantic
+  moreXplore: |
+    More Xplore
+  nvvault1080: |
+    Vault 1080 (Vault 80)
+  sectorv: |
+    Sector V
+  subwayrunnerdynamiclighting: |
+    Subway Runner (Dynamic Lights)
+  zxcMicroAdditions: |-
+    ZXC Micro Additions
