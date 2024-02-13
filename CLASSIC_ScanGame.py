@@ -175,11 +175,16 @@ def check_xse_plugins():  # RESERVED | Might be expanded upon in the future.
     selected_version = adlib_versions[enabled_mode]
     other_version = adlib_versions["VR Mode" if enabled_mode == "Non-VR Mode" else "Non-VR Mode"]
 
-    if Path(plugins_folder).joinpath(selected_version[0]).exists():
+    if isinstance(plugins_folder, str) and len(plugins_folder) >= 1 and Path(plugins_folder).joinpath(selected_version[0]).exists():
         message_list.append("✔️ You have the latest version of the Address Library file! \n-----\n")
-    elif Path(plugins_folder).joinpath(other_version[0]).exists():
-        message_list.extend([f"❌ CAUTION : You have installed the wrong version of the Address Library file! \n",
+    elif isinstance(plugins_folder, str) and len(plugins_folder) >= 1 and Path(plugins_folder).joinpath(other_version[0]).exists():
+        message_list.extend(["❌ CAUTION : You have installed the wrong version of the Address Library file! \n",
                              f"  Remove the current Address Library file and install the {selected_version[1]}.\n",
+                             f"  Link: {selected_version[2]} \n-----\n"])
+    elif not isinstance(plugins_folder, str) or len(plugins_folder) < 1:
+        message_list.extend(["❓ NOTICE : Unable to locate Address Library \n",
+                             "  If you have Address Library installed, please check the path in your settings. \n",
+                             "  If you don't have it installed, you can find it on the Nexus. \n",
                              f"  Link: {selected_version[2]} \n-----\n"])
     else:
         message_list.extend(["❓ NOTICE : Unable to find the Address Library file or your version is outdated! \n",
