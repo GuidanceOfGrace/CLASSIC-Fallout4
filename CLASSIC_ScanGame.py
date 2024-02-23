@@ -22,13 +22,13 @@ def mod_ini_config(ini_path, section, key, new_value=None):
         mod_config.read(ini_path)
     except FileNotFoundError:
         logging.error(f"ERROR: File '{ini_path}' not found.")
-        mod_config = []
+        mod_config = {}
         pass
 
-    if section not in mod_config:
+    if section not in mod_config.keys():
         logging.error(f"ERROR : Section '{section}' does not exist in '{ini_path}'")
         pass
-    if key not in mod_config[section]:
+    if section in mod_config.keys() and key not in mod_config[section]:
         logging.error(f"ERROR : Key '{key}' does not exist in section '{section}'")
         pass
 
@@ -320,58 +320,51 @@ def scan_mod_inis():  # Mod INI files check.
                     message_list.extend([f"[!] NOTICE: {ini_path} contains the *sStartingConsoleCommand* setting. \n",
                                          "In rare cases, this setting can slow down the initial game startup time for some players. \n",
                                          "You can test your initial startup time difference by removing this setting from the INI file. \n-----\n"])
-
-            if file.lower() == "dxvk.conf":
-                if mod_ini_config(ini_path, f"{CMain.game}.exe", "dxgi.syncInterval") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: dxgi.syncInterval \n")
-
-            if file.lower() == "enblocal.ini":
-                if mod_ini_config(ini_path, "ENGINE", "ForceVSync") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: ForceVSync \n")
-
-            if file.lower() == "espexplorer.ini":  # ESP Explorer Maintenance | 42520
-                if "; F10" in mod_ini_config(ini_path, "General", "HotKey"):
-                    mod_ini_config(ini_path, "General", "HotKey", "0x79")
-                    logging.info(f"> > > PERFORMED INI HOTKEY FIX FOR {file}")
-                    message_list.append(f"> Performed INI Hotkey Fix For : {file} \n")
-
-            if file.lower() == "epo.ini":
-                if int(mod_ini_config(ini_path, "Particles", "iMaxDesired")) > 5000:
-                    mod_ini_config(ini_path, "Particles", "iMaxDesired", "5000")
-                    logging.info(f"> > > PERFORMED INI PARTICLE COUNT FIX FOR {file}")
-                    message_list.append(f"> Performed INI Particle Count Fix For : {file} \n")
-
-            if file.lower() == "f4ee.ini":  # Looks Menu & LMCC | 12631
-                if mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts") == 0:
-                    mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts", "1")
-                    logging.info(f"> > > PERFORMED INI HEAD PARTS UNLOCK FOR {file}")
-                    message_list.append(f"> Performed INI Head Parts Unlock For : {file} \n")
-
-                if mod_ini_config(ini_path, "CharGen", "bUnlockTints") == 0:
-                    mod_ini_config(ini_path, "CharGen", "bUnlockTints", "1")
-                    logging.info(f"> > > PERFORMED INI FACE TINTS UNLOCK FOR {file}")
-                    message_list.append(f"> Performed INI Face Tints Unlock For : {file} \n")
-
-            if file.lower() == f"{CMain.game.lower()}_test.ini":  # CREATION KIT
-                if mod_ini_config(ini_path, "CreationKit", "VSyncRender") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: VSyncRender \n")
-
-            if file.lower() == "highfpsphysicsfix.ini":  # High FPS Physics Fix | 44798
-                if mod_ini_config(ini_path, "Main", "EnableVSync"):
-                    vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
-
-                if float(mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS")) < 600.0:
-                    mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS", "600.0")
-                    logging.info(f"> > > PERFORMED INI LOADING SCREEN FPS FIX FOR {file}")
-                    message_list.append(f"> Performed INI Loading Screen FPS Fix For : {file} \n")
-
-            if file.lower() == "longloadingtimesfix.ini":
-                if mod_ini_config(ini_path, "Limiter", "EnableVSync") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
-
-            if file.lower() == "reshade.ini":
-                if mod_ini_config(ini_path, "APP", "ForceVsync") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: ForceVsync \n")
+            match file.lower():
+                case "dxvk.conf":
+                    if mod_ini_config(ini_path, f"{CMain.game}.exe", "dxgi.syncInterval") is True:
+                        vsync_list.append(f"{ini_path} | SETTING: dxgi.syncInterval \n")
+                case "enblocal.ini":
+                    if mod_ini_config(ini_path, "ENGINE", "ForceVSync") is True:
+                        vsync_list.append(f"{ini_path} | SETTING: ForceVSync \n")
+                case "espexplorer.ini":
+                    if "; F10" in mod_ini_config(ini_path, "General", "HotKey"):
+                        mod_ini_config(ini_path, "General", "HotKey", "0x79")
+                        logging.info(f"> > > PERFORMED INI HOTKEY FIX FOR {file}")
+                        message_list.append(f"> Performed INI Hotkey Fix For : {file} \n")
+                case "epo.ini":
+                    if int(mod_ini_config(ini_path, "Particles", "iMaxDesired")) > 5000:
+                        mod_ini_config(ini_path, "Particles", "iMaxDesired", "5000")
+                        logging.info(f"> > > PERFORMED INI PARTICLE COUNT FIX FOR {file}")
+                        message_list.append(f"> Performed INI Particle Count Fix For : {file} \n")
+                case "f4ee.ini":
+                    if mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts") == 0:
+                        mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts", "1")
+                        logging.info(f"> > > PERFORMED INI HEAD PARTS UNLOCK FOR {file}")
+                        message_list.append(f"> Performed INI Head Parts Unlock For : {file} \n")
+                    if mod_ini_config(ini_path, "CharGen", "bUnlockTints") == 0:
+                        mod_ini_config(ini_path, "CharGen", "bUnlockTints", "1")
+                        logging.info(f"> > > PERFORMED INI FACE TINTS UNLOCK FOR {file}")
+                        message_list.append(f"> Performed INI Face Tints Unlock For : {file} \n")
+                case "fallout4_test.ini": # f-strings don't work in match-case statements as far as I can tell.
+                    if mod_ini_config(ini_path, "CreationKit", "VSyncRender") is True: # CREATION KIT
+                        vsync_list.append(f"{ini_path} | SETTING: VSyncRender \n")
+                case "highfpsphysicsfix.ini":
+                    if mod_ini_config(ini_path, "Main", "EnableVSync"):
+                        vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
+                    if float(mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS")) < 600.0:
+                        mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS", "600.0")
+                        logging.info(f"> > > PERFORMED INI LOADING SCREEN FPS FIX FOR {file}")
+                        message_list.append(f"> Performed INI Loading Screen FPS Fix For : {file} \n")
+                case "longloadingtimesfix.ini":
+                    if mod_ini_config(ini_path, "Limiter", "EnableVSync") is True:
+                        vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
+                case "reshade.ini":
+                    try:
+                        if mod_ini_config(ini_path, "APP", "ForceVsync") is True:
+                            vsync_list.append(f"{ini_path} | SETTING: ForceVsync \n")
+                    except KeyError:
+                        pass
 
     if vsync_list:
         message_list.append("* NOTICE : VSYNC IS CURRENTLY ENABLED IN THE FOLLOWING FILES * \n")
