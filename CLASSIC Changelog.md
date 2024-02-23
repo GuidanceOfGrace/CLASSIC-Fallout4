@@ -1,9 +1,14 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.25.2 Unofficial
+*CHANGES*
+- Fix `KeyError`s occurring when scanning mod INI files and the section being searched for doesn't exist.
+- Possible fix for FCX mode not finding Address Library in situations where it should be able to.
+
 7.25.1 Unofficial
 *CHANGES*
-Unofficial Series Only: Redirect update queries to my GitHub page.
+- Unofficial Series Only: Redirect update queries to my GitHub page.
 
 7.25 Unofficial
 *NEW FEATURES*
