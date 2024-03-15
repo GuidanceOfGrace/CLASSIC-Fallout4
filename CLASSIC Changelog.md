@@ -1,6 +1,10 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.25.3 Unofficial
+*CHANGES*
+- Changed location FCX mode looks for F4SEVR's log to {docs_directory}\\F4SE\\f4sevr.log
+
 7.25.2 Unofficial
 *CHANGES*
 - Fix `KeyError`s occurring when scanning mod INI files and the section being searched for doesn't exist.
