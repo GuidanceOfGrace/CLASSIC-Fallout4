@@ -559,6 +559,7 @@ def main_files_backup():
     backup_list = yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_AutoBackup")
     game_path = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Root_Folder_Game")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Game_Info.XSE_Acronym")
     xse_log_file = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE")
     xse_ver_latest = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Ver_Latest")
     with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
@@ -588,7 +589,7 @@ def main_files_backup():
     # Check for Script Extender updates since we also need local version for it.
     xse_links = []
     try:
-        response = requests.get(f"https://{xse_acronym.lower()}.silverlock.org", verify=False, timeout=10)
+        response = requests.get(f"https://{xse_acronym_base.lower()}.silverlock.org", verify=False, timeout=10)
         if response.status_code == 200:  # Check if request went through.
             soup = BeautifulSoup(response.text, 'html.parser')
             links = soup.find_all('a')  # Find all anchor tags (links) in HTML.
