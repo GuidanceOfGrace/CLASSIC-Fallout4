@@ -330,17 +330,18 @@ def game_generate_paths():
 
     game_path = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Root_Folder_Game")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game_Info.XSE_Acronym")
 
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Data", fr"{game_path}Data")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Scripts", fr"{game_path}Data\Scripts")
-    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Plugins", fr"{game_path}Data\{xse_acronym}\Plugins")
+    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Plugins", fr"{game_path}Data\{xse_acronym_base}\Plugins")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_EXE", fr"{game_path}{game}{vr}.exe")
     match game:
         case "Fallout4" if not vr:
-            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym}\version-1-10-163-0.bin")
+            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym_base}\version-1-10-163-0.bin")
         case "Fallout4" if vr:
-            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "GameVR_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym}\version-1-2-72-0.csv")
+            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "GameVR_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym_base}\version-1-2-72-0.csv")
 
 
 # =========== CHECK GAME EXE FILE -> GET PATH AND HASHES ===========
