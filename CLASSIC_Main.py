@@ -303,6 +303,7 @@ def game_path_find():
     logging.debug("- - - INITIATED GAME PATH CHECK")
     xse_file = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Game_Info.XSE_Acronym")
     game_name = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.Main_Root_Name")
 
     if Path(xse_file).is_file():
@@ -310,7 +311,7 @@ def game_path_find():
             Path_Check = LOG_Check.readlines()
             for logline in Path_Check:
                 if "plugin directory" in logline:
-                    logline = logline[19:].replace(f"\\Data\\{xse_acronym}\\Plugins", "")
+                    logline = logline[19:].replace(f"\\Data\\{xse_acronym_base}\\Plugins", "")
                     game_path = logline.replace("\n", "")
                     if not game_path or not Path(game_path).exists():
                         print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_name} IS LOCATED < <")
