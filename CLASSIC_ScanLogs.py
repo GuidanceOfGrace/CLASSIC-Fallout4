@@ -5,6 +5,7 @@ import shutil
 import random
 import logging
 import requests
+import sqlite3
 import CLASSIC_Main as CMain
 import CLASSIC_ScanGame as CGame
 from urllib.parse import urlparse
@@ -30,6 +31,18 @@ def pastebin_fetch(url):
     else:
         response.raise_for_status()
 
+def get_entry(formid, plugin) -> str | None:
+    if os.path.isfile(f"CLASSIC Data/databases/{CMain.game} FormIDs.db"):
+        with sqlite3.connect(f"CLASSIC Data/databases/{CMain.game} FormIDs.db") as conn:
+            c = conn.cursor()
+            c.execute(f'''SELECT entry FROM {CMain.game} WHERE formid=? AND plugin=? COLLATE nocase''', (formid, plugin))
+            entry = c.fetchone()
+            if entry:
+                return entry[0]
+            else:
+                return None
+    else:
+        return None
 
 # ================================================
 # INITIAL REFORMAT FOR CRASH LOG FILES
@@ -528,7 +541,6 @@ def crashlogs_scan():
             autoscan_report.append("* COULDN'T FIND ANY PLUGIN SUSPECTS *\n\n")
 
         # ================================================
-
         autoscan_report.append("# LIST OF (POSSIBLE) FORM ID SUSPECTS #\n")
         formids_matches = [line.replace('0x', '').strip() for line in segment_callstack if "id:" in line.lower() and "0xFF" not in line]
         if formids_matches:
@@ -536,23 +548,31 @@ def crashlogs_scan():
             for formid_full, count in formids_found.items():
                 formid_split = formid_full.split(": ", 1)
                 for plugin, plugin_id in crashlog_plugins.items():
-                    if str(plugin_id) == str(formid_split[1][:2]):
+                    if len(formid_split) >= 2 and str(plugin_id) == str(formid_split[1][:2]):
                         if CMain.classic_settings("Show FormID Values"):
-                            with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
-                                with open(f"CLASSIC Data/databases/{CMain.game} FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
-                                    line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
-                                    line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
-                                    if line_match_main:
-                                        line_split = line_match_main.split(" | ")
-                                        fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
-                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
-                                    elif line_match_mods:
-                                        line_split = line_match_mods.split(" | ")
-                                        fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
-                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
-                                    else:
-                                        autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
-                                        break
+                            if os.path.exists(f"CLASSIC Data/databases/{CMain.game} FormIDs.db"):
+                                report = get_entry(formid_split[1][2:], plugin)
+                                if report:
+                                    autoscan_report.append(f"- {formid_full} | [{plugin}] | {report} | {count}\n")
+                                else:
+                                    autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                                    break
+                            else:
+                                with open(f"CLASSIC Data/databases/{CMain.game} FID Main.txt", encoding="utf-8", errors="ignore") as fid_main:
+                                    with open(f"CLASSIC Data/databases/{CMain.game} FID Mods.txt", encoding="utf-8", errors="ignore") as fid_mods:
+                                        line_match_main = next((line for line in fid_main if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
+                                        line_match_mods = next((line for line in fid_mods if str(formid_split[1][2:]) in line and plugin.lower() in line.lower()), None)
+                                        if line_match_main:
+                                            line_split = line_match_main.split(" | ")
+                                            fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
+                                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
+                                        elif line_match_mods:
+                                            line_split = line_match_mods.split(" | ")
+                                            fid_report = line_split[2].strip()  # 0 - Plugin | 1 - FormID | 2 - FID Value
+                                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {fid_report} | {count}\n")
+                                        else:
+                                            autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
+                                            break
                         else:
                             autoscan_report.append(f"- {formid_full} | [{plugin}] | {count}\n")
                             break
@@ -657,25 +677,28 @@ if __name__ == "__main__":
     # Argument values will simply change INI values since that requires the least refactoring
     # I will figure out a better way in a future iteration, this iteration simply mimics the GUI. - evildarkarchon
     parser.add_argument("--fcx-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) FCX mode")
-    parser.add_argument("--imi-mode", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
+    parser.add_argument("--show-fid-values", action=argparse.BooleanOptionalAction, help="Enable (or disable) IMI mode")
     parser.add_argument("--stat-logging", action=argparse.BooleanOptionalAction, help="Enable (or disable) Stat Logging")
     parser.add_argument("--move-unsolved", action=argparse.BooleanOptionalAction, help="Enable (or disable) moving unsolved logs to a separate directory")
     parser.add_argument("--ini-path", type=Path, help="Set the directory that stores the game's INI files.")
     parser.add_argument("--scan-path", type=Path, help="Set which custom directory to scan crash logs from.")
+    parser.add_argument("--mods-folder-path", type=Path, help="Set the directory where your mod manager stores your mods (Optional).")
+    parser.add_argument("--simplify-logs", action=argparse.BooleanOptionalAction, help="Enable (or disable) Simplify Logs")
     args = parser.parse_args()
 
     scan_path: Path = args.scan_path  # VSCode gives me type errors because args.* is set at runtime (doesn't know what types it's dealing with).
     ini_path: Path = args.ini_path  # Using intermediate variables with type annotations to satisfy it.
+    mods_folder_path: Path = args.mods_folder_path
 
     # Default output value for an argparse.BooleanOptionalAction is None, and so fails the isinstance check.
     # So it will respect current INI values if not specified on the command line.
     if isinstance(args.fcx_mode, bool) and not args.fcx_mode == CMain.classic_settings("FCX Mode"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.FCX Mode", args.fcx_mode)
 
-    if isinstance(args.imi_mode, bool) and not args.imi_mode == CMain.classic_settings("IMI Mode"):
+    if isinstance(args.show_fid_vaues, bool) and not args.imi_mode == CMain.classic_settings("Show FormID Values"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.IMI Mode", args.imi_mode)
 
-    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CMain.classic_settings("Move Unsolved"):
+    if isinstance(args.move_unsolved, bool) and not args.move_unsolved == CMain.classic_settings("Move Unsolved Logs"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.Move Unsolved", args.args.move_unsolved)
 
     if isinstance(ini_path, Path) and ini_path.resolve().is_dir() and not str(ini_path) == CMain.classic_settings("INI Folder Path"):
@@ -683,6 +706,12 @@ if __name__ == "__main__":
 
     if isinstance(scan_path, Path) and scan_path.resolve().is_dir() and not str(scan_path) == CMain.classic_settings("SCAN Custom Path"):
         CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.SCAN Custom Path", str(Path(scan_path).resolve()))
+    
+    if isinstance(mods_folder_path, Path) and mods_folder_path.resolve().is_dir() and not str(mods_folder_path) == CMain.classic_settings("MODS Folder Path"):
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.MODS Folder Path", str(Path(mods_folder_path).resolve()))
+    
+    if isinstance(args.simplify_logs, bool) and not args.simplify_logs == CMain.classic_settings("Simplify Logs"):
+        CMain.yaml_settings("CLASSIC Settings.yaml", "CLASSIC_Settings.Simplify Logs", args.simplify_logs)
 
     crashlogs_scan()
     os.system("pause")

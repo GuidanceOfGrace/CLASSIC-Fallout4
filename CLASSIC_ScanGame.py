@@ -22,13 +22,13 @@ def mod_ini_config(ini_path, section, key, new_value=None):
         mod_config.read(ini_path)
     except FileNotFoundError:
         logging.error(f"ERROR: File '{ini_path}' not found.")
-        mod_config = []
+        mod_config = {}
         pass
 
-    if section not in mod_config:
+    if section not in mod_config.keys():
         logging.error(f"ERROR : Section '{section}' does not exist in '{ini_path}'")
         pass
-    if key not in mod_config[section]:
+    if section in mod_config.keys() and key not in mod_config[section]:
         logging.error(f"ERROR : Key '{key}' does not exist in section '{section}'")
         pass
 
@@ -50,7 +50,7 @@ def mod_ini_config(ini_path, section, key, new_value=None):
 
 def mod_toml_config(toml_path, section, key, new_value=None):
     # Read the TOML file
-    with open(toml_path, 'r') as toml_file:
+    with CMain.open_file_with_encoding(toml_path) as toml_file:
         data = tomlkit.parse(toml_file.read())
 
     if section in data:
@@ -137,7 +137,7 @@ def check_log_errors(folder_path):
     for file in valid_log_files:
         if all(part.lower() not in str(file).lower() for part in ignore_logs_list):
             try:
-                with open(file, "r", encoding="utf-8", errors="ignore") as log_file:
+                with CMain.open_file_with_encoding(file) as log_file:
                     log_data = log_file.readlines()
                 for line in log_data:
                     if any(item.lower() in line.lower() for item in catch_errors):
@@ -175,11 +175,16 @@ def check_xse_plugins():  # RESERVED | Might be expanded upon in the future.
     selected_version = adlib_versions[enabled_mode]
     other_version = adlib_versions["VR Mode" if enabled_mode == "Non-VR Mode" else "Non-VR Mode"]
 
-    if Path(plugins_folder).joinpath(selected_version[0]).exists():
+    if isinstance(plugins_folder, str) and len(plugins_folder) >= 1 and Path(plugins_folder).joinpath(selected_version[0]).exists():
         message_list.append("✔️ You have the latest version of the Address Library file! \n-----\n")
-    elif Path(plugins_folder).joinpath(other_version[0]).exists():
-        message_list.extend([f"❌ CAUTION : You have installed the wrong version of the Address Library file! \n",
+    elif isinstance(plugins_folder, str) and len(plugins_folder) >= 1 and Path(plugins_folder).joinpath(other_version[0]).exists():
+        message_list.extend(["❌ CAUTION : You have installed the wrong version of the Address Library file! \n",
                              f"  Remove the current Address Library file and install the {selected_version[1]}.\n",
+                             f"  Link: {selected_version[2]} \n-----\n"])
+    elif not isinstance(plugins_folder, str) or len(plugins_folder) < 1:
+        message_list.extend(["❓ NOTICE : Unable to locate Address Library \n",
+                             "  If you have Address Library installed, please check the path in your settings. \n",
+                             "  If you don't have it installed, you can find it on the Nexus. \n",
                              f"  Link: {selected_version[2]} \n-----\n"])
     else:
         message_list.extend(["❓ NOTICE : Unable to find the Address Library file or your version is outdated! \n",
@@ -199,7 +204,7 @@ def papyrus_logging():
 
     count_dumps = count_stacks = count_warnings = count_errors = 0
     if Path(papyrus_path).exists():
-        with open(papyrus_path, "r", encoding="utf-8", errors="ignore") as papyrus_log:
+        with CMain.open_file_with_encoding(papyrus_path) as papyrus_log:
             papyrus_data = papyrus_log.readlines()
         for line in papyrus_data:
             if "Dumping Stacks" in line:
@@ -243,7 +248,7 @@ def scan_wryecheck():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",
                              f"  [This report is located in your Documents/My Games/{CMain.game} folder.] \n",
                              "  [To hide this report, remove *ModChecker.html* from the same folder.] \n"])
-        with open(wrye_plugincheck, "r", encoding="utf-8", errors="ignore") as WB_Check:
+        with CMain.open_file_with_encoding(wrye_plugincheck) as WB_Check:
             WB_HTML = WB_Check.read()
 
         # Parse the HTML code using BeautifulSoup.
@@ -309,64 +314,57 @@ def scan_mod_inis():  # Mod INI files check.
         for file in files:
             ini_path = os.path.join(root, file)
             if ".ini" in file.lower():
-                with open(ini_path, "r", encoding="utf-8", errors="ignore") as ini_file:
+                with CMain.open_file_with_encoding(ini_path) as ini_file:
                     ini_data = ini_file.read()
                 if "sstartingconsolecommand" in ini_data.lower():
                     message_list.extend([f"[!] NOTICE: {ini_path} contains the *sStartingConsoleCommand* setting. \n",
                                          "In rare cases, this setting can slow down the initial game startup time for some players. \n",
                                          "You can test your initial startup time difference by removing this setting from the INI file. \n-----\n"])
-
-            if file.lower() == "dxvk.conf":
-                if mod_ini_config(ini_path, f"{CMain.game}.exe", "dxgi.syncInterval") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: dxgi.syncInterval \n")
-
-            if file.lower() == "enblocal.ini":
-                if mod_ini_config(ini_path, "ENGINE", "ForceVSync") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: ForceVSync \n")
-
-            if file.lower() == "espexplorer.ini":  # ESP Explorer Maintenance | 42520
-                if "; F10" in mod_ini_config(ini_path, "General", "HotKey"):
-                    mod_ini_config(ini_path, "General", "HotKey", "0x79")
-                    logging.info(f"> > > PERFORMED INI HOTKEY FIX FOR {file}")
-                    message_list.append(f"> Performed INI Hotkey Fix For : {file} \n")
-
-            if file.lower() == "epo.ini":
-                if int(mod_ini_config(ini_path, "Particles", "iMaxDesired")) > 5000:
-                    mod_ini_config(ini_path, "Particles", "iMaxDesired", "5000")
-                    logging.info(f"> > > PERFORMED INI PARTICLE COUNT FIX FOR {file}")
-                    message_list.append(f"> Performed INI Particle Count Fix For : {file} \n")
-
-            if file.lower() == "f4ee.ini":  # Looks Menu & LMCC | 12631
-                if mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts") == 0:
-                    mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts", "1")
-                    logging.info(f"> > > PERFORMED INI HEAD PARTS UNLOCK FOR {file}")
-                    message_list.append(f"> Performed INI Head Parts Unlock For : {file} \n")
-
-                if mod_ini_config(ini_path, "CharGen", "bUnlockTints") == 0:
-                    mod_ini_config(ini_path, "CharGen", "bUnlockTints", "1")
-                    logging.info(f"> > > PERFORMED INI FACE TINTS UNLOCK FOR {file}")
-                    message_list.append(f"> Performed INI Face Tints Unlock For : {file} \n")
-
-            if file.lower() == f"{CMain.game.lower()}_test.ini":  # CREATION KIT
-                if mod_ini_config(ini_path, "CreationKit", "VSyncRender") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: VSyncRender \n")
-
-            if file.lower() == "highfpsphysicsfix.ini":  # High FPS Physics Fix | 44798
-                if mod_ini_config(ini_path, "Main", "EnableVSync"):
-                    vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
-
-                if float(mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS")) < 600.0:
-                    mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS", "600.0")
-                    logging.info(f"> > > PERFORMED INI LOADING SCREEN FPS FIX FOR {file}")
-                    message_list.append(f"> Performed INI Loading Screen FPS Fix For : {file} \n")
-
-            if file.lower() == "longloadingtimesfix.ini":
-                if mod_ini_config(ini_path, "Limiter", "EnableVSync") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
-
-            if file.lower() == "reshade.ini":
-                if mod_ini_config(ini_path, "APP", "ForceVsync") is True:
-                    vsync_list.append(f"{ini_path} | SETTING: ForceVsync \n")
+            match file.lower():
+                case "dxvk.conf":
+                    if mod_ini_config(ini_path, f"{CMain.game}.exe", "dxgi.syncInterval") is True:
+                        vsync_list.append(f"{ini_path} | SETTING: dxgi.syncInterval \n")
+                case "enblocal.ini":
+                    if mod_ini_config(ini_path, "ENGINE", "ForceVSync") is True:
+                        vsync_list.append(f"{ini_path} | SETTING: ForceVSync \n")
+                case "espexplorer.ini":
+                    if "; F10" in mod_ini_config(ini_path, "General", "HotKey"):
+                        mod_ini_config(ini_path, "General", "HotKey", "0x79")
+                        logging.info(f"> > > PERFORMED INI HOTKEY FIX FOR {file}")
+                        message_list.append(f"> Performed INI Hotkey Fix For : {file} \n")
+                case "epo.ini":
+                    if int(mod_ini_config(ini_path, "Particles", "iMaxDesired")) > 5000:
+                        mod_ini_config(ini_path, "Particles", "iMaxDesired", "5000")
+                        logging.info(f"> > > PERFORMED INI PARTICLE COUNT FIX FOR {file}")
+                        message_list.append(f"> Performed INI Particle Count Fix For : {file} \n")
+                case "f4ee.ini":
+                    if mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts") == 0:
+                        mod_ini_config(ini_path, "CharGen", "bUnlockHeadParts", "1")
+                        logging.info(f"> > > PERFORMED INI HEAD PARTS UNLOCK FOR {file}")
+                        message_list.append(f"> Performed INI Head Parts Unlock For : {file} \n")
+                    if mod_ini_config(ini_path, "CharGen", "bUnlockTints") == 0:
+                        mod_ini_config(ini_path, "CharGen", "bUnlockTints", "1")
+                        logging.info(f"> > > PERFORMED INI FACE TINTS UNLOCK FOR {file}")
+                        message_list.append(f"> Performed INI Face Tints Unlock For : {file} \n")
+                case "fallout4_test.ini": # f-strings don't work in match-case statements as far as I can tell.
+                    if mod_ini_config(ini_path, "CreationKit", "VSyncRender") is True: # CREATION KIT
+                        vsync_list.append(f"{ini_path} | SETTING: VSyncRender \n")
+                case "highfpsphysicsfix.ini":
+                    if mod_ini_config(ini_path, "Main", "EnableVSync"):
+                        vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
+                    if float(mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS")) < 600.0:
+                        mod_ini_config(ini_path, "Limiter", "LoadingScreenFPS", "600.0")
+                        logging.info(f"> > > PERFORMED INI LOADING SCREEN FPS FIX FOR {file}")
+                        message_list.append(f"> Performed INI Loading Screen FPS Fix For : {file} \n")
+                case "longloadingtimesfix.ini":
+                    if mod_ini_config(ini_path, "Limiter", "EnableVSync") is True:
+                        vsync_list.append(f"{ini_path} | SETTING: EnableVSync \n")
+                case "reshade.ini":
+                    try:
+                        if mod_ini_config(ini_path, "APP", "ForceVsync") is True:
+                            vsync_list.append(f"{ini_path} | SETTING: ForceVsync \n")
+                    except KeyError:
+                        pass
 
     if vsync_list:
         message_list.append("* NOTICE : VSYNC IS CURRENTLY ENABLED IN THE FOLLOWING FILES * \n")

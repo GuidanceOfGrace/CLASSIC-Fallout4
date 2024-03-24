@@ -1,6 +1,37 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.25.4 Unofficial
+*CHANGES*
+- Make reading text files more resilient
+- Add message informing about the possibility of "False Negatives" with the core mods.
+
+7.25.3 Unofficial
+*CHANGES*
+- Changed location FCX mode looks for F4SEVR's log to {docs_directory}\\F4SE\\f4sevr.log
+
+7.25.2 Unofficial
+*CHANGES*
+- Fix `KeyError`s occurring when scanning mod INI files and the section being searched for doesn't exist.
+- Possible fix for FCX mode not finding Address Library in situations where it should be able to.
+
+7.25.1 Unofficial
+*CHANGES*
+- Unofficial Series Only: Redirect update queries to my GitHub page.
+
+7.25 Unofficial
+*NEW FEATURES*
+- CLASSIC will now generate a cache of the Form-IDs list for faster searching.
+- Added tools to add new form-ids or update existing form-ids in the cache.
+
+*CHANGES*
+- Fix Address Library path not being saved in the local data file.
+- Only match the first GPU in the log to avoid issues with systems with an AMD CPU and Nvidia GPU.
+- Finding duplicate entries in game INI files will no longer cause CLASSIC to crash.
+
+*DISCLAIMER*
+This is just a reflection of my copy of the code and may or may not make it into the final build.
+
 7.20
 *NEW FEATURES*
 - CLASSIC now automatically creates backups of your game's main EXE files.

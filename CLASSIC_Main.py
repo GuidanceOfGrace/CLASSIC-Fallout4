@@ -9,6 +9,8 @@ import requests
 import platform
 import ruamel.yaml
 import configparser
+import sqlite3
+import chardet
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib3.exceptions import InsecureRequestWarning
@@ -20,8 +22,8 @@ from urllib3.exceptions import InsecureRequestWarning
     ❓ import shelve if you want to store persistent data that you do not want regular users to access or modify.
     ❓ Globals are generally used to standardize game paths and INI files naming conventions.
     -----
-    CO-AUTHOR NOTES (NameHere):
-    * You can write stuff here so I don't miss it. *
+    CO-AUTHOR NOTES (EvilDarkArchon):
+    ❓ We're going to have to special-case (or disable) Starfield Script Extender update checks because it's on Nexus, not silverlock.org.
 """
 # GLOBALS ========================================
 vr = ""  # Used for checking VR Mode yaml setting.
@@ -29,6 +31,11 @@ vr = ""  # Used for checking VR Mode yaml setting.
 game = "Fallout4"  # Set game managed by CLASSIC.
 # ================================================
 
+def open_file_with_encoding(file_path):  # Read only file open with encoding detection. Only for text files.
+    with open(file_path, "rb") as f:
+        raw_data = f.read()
+        encoding = chardet.detect(raw_data)["encoding"]
+        return open(file_path, "r", encoding=encoding, errors="ignore")
 
 def vrmode_check():
     global vr
@@ -139,6 +146,26 @@ def classic_logging():
                 print(f"An error occurred while deleting CLASSIC Journal.log: {err}")
                 classic_update_check()
 
+def create_formid_db():
+    if not os.path.exists(f"CLASSIC Data/databases/{game} FormIDs.db") and os.path.exists(f"CLASSIC Data/databases/{game} FID Main.txt"):
+        with sqlite3.connect(f"CLASSIC Data/databases/{game} FormIDs.db") as conn, open(f"CLASSIC Data/databases/{game} FID Main.txt", encoding="utf-8", errors="ignore") as f:
+            conn.execute(f'''CREATE TABLE IF NOT EXISTS {game} 
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,  
+                plugin TEXT, formid TEXT, entry TEXT)''')
+            conn.execute(f"CREATE INDEX IF NOT EXISTS Fallout4_index ON {game}(formid, plugin COLLATE nocase);")
+            if conn.in_transaction:
+                conn.commit()
+            lines = f.readlines()
+            if len(lines) > 0:
+                print("⏳ Generating FormID cache...", end="")
+                for line in lines:
+                    line = line.strip()
+                    if "|" in line and len(line.split(" | ")) >= 3:
+                        plugin, formid, entry, *extra = line.split(" | ")  # the *extra is for any extraneous data that might be in the line (Python thinks there are more than 3 items in the list for some reason)
+                        conn.execute(f'''INSERT INTO {game} (plugin, formid, entry) VALUES (?, ?, ?)''', (plugin, formid, entry))
+                if conn.in_transaction:
+                    conn.commit()
+                print(" Done!")
 
 def classic_data_extract():
     if not os.path.exists("CLASSIC Data/databases/CLASSIC Main.yaml"):
@@ -157,13 +184,15 @@ def classic_data_extract():
         if os.path.exists("CLASSIC Data/CLASSIC Data.zip"):
             with zipfile.ZipFile("CLASSIC Data/CLASSIC Data.zip", "r") as zip_data:
                 zip_data.extract(f"databases/{game} FID Main.txt", "CLASSIC Data")
+                
         elif os.path.exists("CLASSIC Data.zip"):
             with zipfile.ZipFile("CLASSIC Data.zip", "r") as zip_data:
                 zip_data.extract(f"databases/{game} FID Main.txt", "CLASSIC Data")
         else:
             print("❌ ERROR : UNABLE TO FIND CLASSIC Data.zip! CLASSIC will not be able to show FormID values.")
             print("Please ensure that you have extracted all CLASSIC files into the same folder after downloading.")
-
+    
+    create_formid_db()
 
 def classic_settings(setting=None):
     if not os.path.exists("CLASSIC Settings.yaml"):
@@ -184,7 +213,7 @@ def classic_update_check():
         print("❓ (Needs internet connection) CHECKING FOR NEW CLASSIC VERSIONS...")
         print("   (You can disable this check in the EXE or CLASSIC Settings.yaml) \n")
         try:
-            response = requests.get("https://api.github.com/repos/GuidanceOfGrace/CLASSIC-Fallout4/releases/latest", timeout=10)
+            response = requests.get("https://api.github.com/repos/evildarkarchon/CLASSIC-Fallout4/releases/latest", timeout=10)
             if not response.status_code == requests.codes.ok:
                 response.raise_for_status()
             classic_ver_received = response.json()["name"]
@@ -266,12 +295,13 @@ def docs_path_find():
 def docs_generate_paths():
     logging.debug("- - - INITIATED DOCS PATH GENERATION")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game_Info.XSE_Acronym")
     docs_path = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Root_Folder_Docs")
 
-    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_Folder_XSE", fr"{docs_path}\{xse_acronym}")
+    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_Folder_XSE", fr"{docs_path}\{xse_acronym_base}")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_PapyrusLog", fr"{docs_path}\Logs\Script\Papyrus.0.log")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_WryeBashPC", fr"{docs_path}\ModChecker.html")
-    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE", fr"{docs_path}\{xse_acronym}\{xse_acronym.lower()}.log")
+    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE", fr"{docs_path}\{xse_acronym_base}\{xse_acronym.lower()}.log")
 
 
 # =========== CHECK DOCUMENTS XSE FILE -> GET GAME ROOT FOLDER PATH ===========
@@ -279,14 +309,15 @@ def game_path_find():
     logging.debug("- - - INITIATED GAME PATH CHECK")
     xse_file = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Game_Info.XSE_Acronym")
     game_name = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.Main_Root_Name")
 
     if Path(xse_file).is_file():
-        with open(xse_file, "r", encoding="utf-8", errors="ignore") as LOG_Check:
+        with open_file_with_encoding(xse_file) as LOG_Check:
             Path_Check = LOG_Check.readlines()
             for logline in Path_Check:
                 if "plugin directory" in logline:
-                    logline = logline[19:].replace(f"\\Data\\{xse_acronym}\\Plugins", "")
+                    logline = logline[19:].replace(f"\\Data\\{xse_acronym_base}\\Plugins", "")
                     game_path = logline.replace("\n", "")
                     if not game_path or not Path(game_path).exists():
                         print(f"> > PLEASE ENTER THE FULL DIRECTORY PATH WHERE YOUR {game_name} IS LOCATED < <")
@@ -306,17 +337,18 @@ def game_generate_paths():
 
     game_path = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Root_Folder_Game")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game_Info.XSE_Acronym")
 
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Data", fr"{game_path}Data")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Scripts", fr"{game_path}Data\Scripts")
-    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Plugins", fr"{game_path}Data\{xse_acronym}\Plugins")
+    yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_Folder_Plugins", fr"{game_path}Data\{xse_acronym_base}\Plugins")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_SteamINI", fr"{game_path}steam_api.ini")
     yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Game_File_EXE", fr"{game_path}{game}{vr}.exe")
     match game:
         case "Fallout4" if not vr:
-            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym}\version-1-10-163-0.bin")
+            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "Game_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym_base}\plugins\version-1-10-163-0.bin")
         case "Fallout4" if vr:
-            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "GameVR_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym}\version-1-2-72-0.csv")
+            yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", "GameVR_Info.Game_File_AddressLib", fr"{game_path}Data\{xse_acronym_base}\plugins\version-1-2-72-0.csv")
 
 
 # =========== CHECK GAME EXE FILE -> GET PATH AND HASHES ===========
@@ -381,7 +413,7 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
         case str() | Path():
             if Path(xse_log_file).exists():
                 message_list.append(f"✔️ REQUIRED: *{xse_full_name}* is installed! \n-----\n")
-                with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
+                with open_file_with_encoding(xse_log_file) as xse_log:
                     xse_data = xse_log.readlines()
                 if str(xse_ver_latest) in xse_data[0]:
                     message_list.append(f"✔️ You have the latest version of *{xse_full_name}*! \n-----\n")
@@ -505,6 +537,9 @@ def docs_check_ini(ini_name) -> str:
             message_list.extend([f"[!] CAUTION : YOUR {ini_name} FILE IS VERY LIKELY BROKEN, PLEASE CREATE A NEW ONE \n",
                                  f"    Delete this file from your Documents/My Games/{docs_name} folder, then press \n",
                                  f"    *Scan Game Files* in CLASSIC to generate a new {ini_name} file. \n-----\n"])
+        except configparser.DuplicateOptionError as e:
+            message_list.extend([f"[!] ERROR : Your {ini_name} file has duplicate options! \n",
+                                 f"    {e} \n-----\n"])
     else:
         if ini_name.lower() == f"{docs_name.lower()}.ini":
             message_list.extend([f"❌ CAUTION : {ini_name} FILE IS MISSING FROM YOUR DOCUMENTS FOLDER! \n",
@@ -531,9 +566,10 @@ def main_files_backup():
     backup_list = yaml_settings("CLASSIC Data/databases/CLASSIC Main.yaml", "CLASSIC_AutoBackup")
     game_path = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Root_Folder_Game")
     xse_acronym = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Acronym")
+    xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Game_Info.XSE_Acronym")
     xse_log_file = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE")
     xse_ver_latest = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Ver_Latest")
-    with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
+    with open_file_with_encoding(xse_log_file) as xse_log:
         xse_data = xse_log.readlines()
     # Grab current xse version to create a folder with that name.
     line_xse = next(line for index, line in enumerate(xse_data) if "version = " in line.lower())
@@ -560,7 +596,7 @@ def main_files_backup():
     # Check for Script Extender updates since we also need local version for it.
     xse_links = []
     try:
-        response = requests.get(f"https://{xse_acronym.lower()}.silverlock.org", verify=False, timeout=10)
+        response = requests.get(f"https://{xse_acronym_base.lower()}.silverlock.org", verify=False, timeout=10)
         if response.status_code == 200:  # Check if request went through.
             soup = BeautifulSoup(response.text, 'html.parser')
             links = soup.find_all('a')  # Find all anchor tags (links) in HTML.
