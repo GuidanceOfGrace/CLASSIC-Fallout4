@@ -50,7 +50,7 @@ def mod_ini_config(ini_path, section, key, new_value=None):
 
 def mod_toml_config(toml_path, section, key, new_value=None):
     # Read the TOML file
-    with open(toml_path, 'r') as toml_file:
+    with CMain.open_file_with_encoding(toml_path) as toml_file:
         data = tomlkit.parse(toml_file.read())
 
     if section in data:
@@ -137,7 +137,7 @@ def check_log_errors(folder_path):
     for file in valid_log_files:
         if all(part.lower() not in str(file).lower() for part in ignore_logs_list):
             try:
-                with open(file, "r", encoding="utf-8", errors="ignore") as log_file:
+                with CMain.open_file_with_encoding(file) as log_file:
                     log_data = log_file.readlines()
                 for line in log_data:
                     if any(item.lower() in line.lower() for item in catch_errors):
@@ -204,7 +204,7 @@ def papyrus_logging():
 
     count_dumps = count_stacks = count_warnings = count_errors = 0
     if Path(papyrus_path).exists():
-        with open(papyrus_path, "r", encoding="utf-8", errors="ignore") as papyrus_log:
+        with CMain.open_file_with_encoding(papyrus_path) as papyrus_log:
             papyrus_data = papyrus_log.readlines()
         for line in papyrus_data:
             if "Dumping Stacks" in line:
@@ -248,7 +248,7 @@ def scan_wryecheck():
         message_list.extend(["\n✔️ WRYE BASH PLUGIN CHECKER REPORT WAS FOUND! ANALYZING CONTENTS... \n",
                              f"  [This report is located in your Documents/My Games/{CMain.game} folder.] \n",
                              "  [To hide this report, remove *ModChecker.html* from the same folder.] \n"])
-        with open(wrye_plugincheck, "r", encoding="utf-8", errors="ignore") as WB_Check:
+        with CMain.open_file_with_encoding(wrye_plugincheck) as WB_Check:
             WB_HTML = WB_Check.read()
 
         # Parse the HTML code using BeautifulSoup.
@@ -314,7 +314,7 @@ def scan_mod_inis():  # Mod INI files check.
         for file in files:
             ini_path = os.path.join(root, file)
             if ".ini" in file.lower():
-                with open(ini_path, "r", encoding="utf-8", errors="ignore") as ini_file:
+                with CMain.open_file_with_encoding(ini_path) as ini_file:
                     ini_data = ini_file.read()
                 if "sstartingconsolecommand" in ini_data.lower():
                     message_list.extend([f"[!] NOTICE: {ini_path} contains the *sStartingConsoleCommand* setting. \n",

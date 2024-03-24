@@ -10,6 +10,7 @@ import platform
 import ruamel.yaml
 import configparser
 import sqlite3
+import chardet
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib3.exceptions import InsecureRequestWarning
@@ -30,6 +31,11 @@ vr = ""  # Used for checking VR Mode yaml setting.
 game = "Fallout4"  # Set game managed by CLASSIC.
 # ================================================
 
+def open_file_with_encoding(file_path):  # Read only file open with encoding detection. Only for text files.
+    with open(file_path, "rb") as f:
+        raw_data = f.read()
+        encoding = chardet.detect(raw_data)["encoding"]
+        return open(file_path, "r", encoding=encoding, errors="ignore")
 
 def vrmode_check():
     global vr
@@ -307,7 +313,7 @@ def game_path_find():
     game_name = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.Main_Root_Name")
 
     if Path(xse_file).is_file():
-        with open(xse_file, "r", encoding="utf-8", errors="ignore") as LOG_Check:
+        with open_file_with_encoding(xse_file) as LOG_Check:
             Path_Check = LOG_Check.readlines()
             for logline in Path_Check:
                 if "plugin directory" in logline:
@@ -407,7 +413,7 @@ def xse_check_integrity() -> str:  # RESERVED | NEED VR HASH/FILE CHECK
         case str() | Path():
             if Path(xse_log_file).exists():
                 message_list.append(f"✔️ REQUIRED: *{xse_full_name}* is installed! \n-----\n")
-                with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
+                with open_file_with_encoding(xse_log_file) as xse_log:
                     xse_data = xse_log.readlines()
                 if str(xse_ver_latest) in xse_data[0]:
                     message_list.append(f"✔️ You have the latest version of *{xse_full_name}*! \n-----\n")
@@ -563,7 +569,7 @@ def main_files_backup():
     xse_acronym_base = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", "Game_Info.XSE_Acronym")
     xse_log_file = yaml_settings(f"CLASSIC Data/CLASSIC {game} Local.yaml", f"Game{vr}_Info.Docs_File_XSE")
     xse_ver_latest = yaml_settings(f"CLASSIC Data/databases/CLASSIC {game}.yaml", f"Game{vr}_Info.XSE_Ver_Latest")
-    with open(xse_log_file, "r", encoding="utf-8", errors="ignore") as xse_log:
+    with open_file_with_encoding(xse_log_file) as xse_log:
         xse_data = xse_log.readlines()
     # Grab current xse version to create a folder with that name.
     line_xse = next(line for index, line in enumerate(xse_data) if "version = " in line.lower())
