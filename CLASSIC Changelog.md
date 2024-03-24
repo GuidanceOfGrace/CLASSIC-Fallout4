@@ -1,6 +1,11 @@
 =====================================================================================================
 # CLASSIC CHANGELOG #
 
+7.25.4 Unofficial
+*CHANGES*
+- Make reading text files more resilient
+- Add message informing about the possibility of "False Negatives" with the core mods.
+
 7.25.3 Unofficial
 *CHANGES*
 - Changed location FCX mode looks for F4SEVR's log to {docs_directory}\\F4SE\\f4sevr.log
