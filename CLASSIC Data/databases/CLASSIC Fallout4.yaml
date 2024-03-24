@@ -465,6 +465,7 @@ Crashlog_Stack_Check:
 Mods_CORE:  # 0) MODS THAT EVERY PLAYER SHOULD HAVE INSTALLED
   CanarySaveFileMonitor | Canary Save File Monitor: |
     This is a highly recommended mod that can detect save file corruption.
+    If you do have this mod installed and enabled, but your log doesn't show it, it is safe to ignore this warning.
     Link: https://www.nexusmods.com/fallout4/mods/44949?tab=files
 
   HighFPSPhysicsFix | High FPS Physics Fix: |
@@ -473,10 +474,12 @@ Mods_CORE:  # 0) MODS THAT EVERY PLAYER SHOULD HAVE INSTALLED
 
   PRP.esp | Previs Repair Pack (PRP): |
     This is a highly recommended mod that can vastly improve performance.
+    If you do have this mod installed and enabled, but your log doesn't show it, it is safe to ignore this warning.
     Link: https://www.nexusmods.com/fallout4/mods/46403?tab=files
 
   Unofficial Fallout 4 Patch | Unofficial Fallout 4 Patch: |
     If you own all DLCs, make sure that the Unofficial Patch is installed.
+    If you do have this mod installed and enabled, but your log doesn't show it, it is safe to ignore this warning.
     Link: https://www.nexusmods.com/fallout4/mods/4598?tab=files
 
   vulkan-1.dll | Vulkan Renderer: |
