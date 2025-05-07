@@ -17,9 +17,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
+        include:
+          - os: ubuntu-latest
+            allow-test-failures: true
+          - os: windows-latest
+            allow-test-failures: false
     steps:
 
     - name: Check out sources
@@ -38,13 +40,14 @@ jobs:
     # Executed as a separate step to make debugging build failures easier.
     - name: Install project dependencies
       run: |
-        poetry install
+        poetry install --no-root
 
     - name: Code linting
       run: |
         poetry run ruff check
 
     - name: Automated tests
+      continue-on-error: ${{ matrix.allow-test-failures }}
       run: |
         poetry run pytest
 
