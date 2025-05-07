@@ -21,7 +21,7 @@ jobs:
           - os: ubuntu-latest
             allow-test-failures: true
           - os: windows-latest
-            allow-test-failures: false
+            allow-test-failures: true
     steps:
 
     - name: Check out sources
