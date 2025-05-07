@@ -40,6 +40,14 @@ jobs:
       run: |
         poetry install
 
+    - name: Code linting
+      run: |
+        poetry run ruff check
+
+    - name: Automated tests
+      run: |
+        poetry run pytest
+
     - name: Install UPX
       uses: crazy-max/ghaction-upx@v3
       with:
@@ -49,4 +57,4 @@ jobs:
     # UPX _should_ be found on the PATH after the previous install step.
     - name: Package installer
       run: |
-        pyinstaller --clean ./CLASSIC.spec
+        poetry run pyinstaller --clean ./CLASSIC.spec
